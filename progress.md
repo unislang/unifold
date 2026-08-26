@@ -17,13 +17,11 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest implementation checkpoint: `69f8e84` (`feat: harden control-plane infrastructure
-integrations`)
-- Latest progress checkpoint: `722908e` (`docs: record control-plane integration checkpoint`)
-- Remote state: `origin/main` and local `HEAD` were independently verified at
-  `722908e52be10e550a9f6e3c4aefaa67a4225c0d` with `git ls-remote` and `git rev-parse` before the
-  current async-store work began.
-- Working tree at implementation checkpoint: clean before this progress-record update.
+- Latest implementation checkpoint: `607d208` (`feat: add async external store boundary`)
+- Remote implementation state: `origin/main` and local `HEAD` were independently verified at
+  `607d20881a96f80a9e26cea141f6d08b67fdc4ad` with `git ls-remote` and `git rev-parse` before this
+  progress-record-only update.
+- Working tree at implementation checkpoint: clean.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
@@ -144,7 +142,7 @@ The remaining control-plane integration sub-slice is implemented but not yet com
 
 ### 2026-08-26 async-store contract checkpoint
 
-The standalone async/external store boundary is implemented but not yet committed:
+The standalone async/external store boundary is implemented and committed as `607d208`:
 
 - `connectAsyncStore()` authorizes exact load/subscribe/commit sink operations, contains provider
   failures and malformed results, supports cancellation, and validates every loaded, committed, and
@@ -233,4 +231,6 @@ silently waived.
   hash above.
 - 2026-08-26: Began architecture slice 2; implemented the authorized async session, trusted data
   migrations, optimistic/external conflict policy, complete-candidate commit boundary, and two
-  adapters with one conformance suite. Full quality passes; mounted/browser integration remains.
+  adapters with one conformance suite. Full quality passes; committed and pushed the checkpoint as
+  `607d208`, then independently verified `origin/main` at the full hash above. Mounted/browser
+  integration remains.
