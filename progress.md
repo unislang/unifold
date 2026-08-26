@@ -17,12 +17,15 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest tracked checkpoint before this slice: `69db3f7a2985261f0371ec89acf73b57ba4f2443`
-  (`docs: record breadcrumb dialog checkpoint`), present at local and tracked `origin/main`.
+- Previous tracked checkpoint: `69db3f7a2985261f0371ec89acf73b57ba4f2443`
+  (`docs: record breadcrumb dialog checkpoint`).
+- Latest implementation checkpoint: `2a59294b2a877eb458e391fbbee175a2481c8da3`
+  (`feat: add JSON-driven file input and native forms`), independently verified at
+  `origin/main` with `git ls-remote`.
 - Current implementation slice: bounded metadata-only FileInput, native scalar form association,
   immediate mount with deferred optional element definitions, composed-shadow browser observation,
-  and the Scratch-style hierarchical JSON reference path. The slice is locally release-verified and
-  ready for its implementation checkpoint commit and push.
+  and the Scratch-style hierarchical JSON reference path. The slice is release-verified, committed,
+  and present on the `unifold` remote.
 - Goal status: active. This checkpoint does not complete the architecture plan; the authoritative
   inventory still lists Image, Card, NumberField, SearchField, CheckboxGroup, Switch, DateField,
   Field, Fieldset, ErrorSummary, Toast, and Pagination as component-family gaps, followed by the
@@ -665,7 +668,8 @@ behavioral evidence; rerun Firefox when the managed runner can create a page rel
   dependencies; formatting and the 1.54%/5% duplication gate pass; host parity passes 4/4 in
   Chromium; and the clean packed-consumer passes 3/3. Root-generated `.tmp` worktrees are excluded
   from line and duplication scans so benchmark baselines cannot corrupt repository evidence.
-  Commit, push, and remote-SHA verification follow this entry.
+  Implementation checkpoint `2a59294b2a877eb458e391fbbee175a2481c8da3` is pushed and independently
+  verified at `origin/main`; this documentation checkpoint records the resumable handoff.
 
 - 2026-08-26: Updated this resumable record from fresh evidence. Native form lifecycle Playwright
   passes 6/6 across Chromium, Firefox, and WebKit; 13 focused FileInput/form files pass 28 tests; the
