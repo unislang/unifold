@@ -17,10 +17,10 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest committed checkpoint: `8ea58e1cfc63395a157aba9b738fb15be1f0423b`
-  (`docs: finalize pushed checkpoint status`). The current Breadcrumb/Dialog slice is verified
-  locally but remains uncommitted; preserve every listed working-tree change until it is checkpointed.
-- Working tree: catalog-authoritative Breadcrumb and Dialog families now span contracts, catalog
+- Latest implementation checkpoint: `d0200123b041602efe910527915e70e2b024c948`
+  (`feat: add breadcrumb and dialog JSON UI families`). Verify that `origin/main` contains this SHA
+  before resuming implementation; the working tree should be clean after the checkpoint-record commit.
+- Implemented state: catalog-authoritative Breadcrumb and Dialog families now span contracts, catalog
   descriptors and sidecars, IR diagnostics, deferred Lit elements, canonical events, static
   fallbacks, public package subpaths, reference JSON, generated manifests, browser journeys, and
   exact performance gates. Breadcrumb also extends the single semantic compiler with authored
@@ -36,8 +36,8 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 
 ## Last completed implementation slice
 
-The catalog-authoritative Breadcrumb and Dialog slice is release-verified locally and is the next
-checkpoint to commit:
+The catalog-authoritative Breadcrumb and Dialog slice is release-verified and committed at
+`d0200123b041602efe910527915e70e2b024c948`:
 
 - Breadcrumb accepts 1 to 32 exact, uniquely identified items, requires safe linked ancestors, uses
   native `nav`/`ol`/`li`/`a` structure, marks the final item with `aria-current="page"`, and emits a
@@ -75,8 +75,8 @@ slice and record new measurements rather than treating the numbers above as proo
 
 ## Active slice
 
-Checkpoint the locally verified Breadcrumb/Dialog work without losing shared working-tree changes,
-then reconcile the component inventory and select the next catalog-authoritative family. Current
+Confirm `origin/main` contains the Breadcrumb/Dialog checkpoint, then reconcile the component
+inventory and select the next catalog-authoritative family. Current
 documented candidates are free-form autocomplete, richer menu/overlay/navigation variants, file
 upload, and variable-height or two-dimensional virtualization. Each next slice must retain the same
 contract-to-browser path, authored/static accessibility, unified canonical events, exact rollback
@@ -610,10 +610,10 @@ pushed to `origin/main`, and independently verified at
    `docs/architecture.md`; preserve the hierarchy distinction between authored trees and normalized
    execution IR.
 2. Inspect `git status --short --branch` and preserve any post-checkpoint user changes.
-3. If this slice is still uncommitted, rerun `pnpm.CMD quality`, `pnpm.CMD test`, and
-   `pnpm.CMD test:coverage` after any code change, inspect `git diff --check`, then commit all
-   Breadcrumb/Dialog changes without dropping shared work. Update this file with the resulting SHA,
-   commit that checkpoint record, push `main`, and verify `refs/heads/main` with `git ls-remote`.
+3. Confirm local `HEAD` and `refs/heads/main` from `git ls-remote origin` match. If the remote does
+   not contain `d0200123b041602efe910527915e70e2b024c948`, push `main` before implementing another
+   slice. After any code change, rerun `pnpm.CMD quality`, `pnpm.CMD test`, and
+   `pnpm.CMD test:coverage`, then inspect `git diff --check` before committing.
    Re-run dedicated Firefox journeys only on a working runner; do not treat the current pre-page
    failure as behavioral evidence.
 4. Keep production modules and their adjacent tests within the enforced complexity, function-length,
@@ -669,7 +669,8 @@ fail before page creation and provide no behavioral evidence for this slice.
   report passes schema 2.22.0 at 47/47 gates: Breadcrumb activation is 0.77 ms p95 and Dialog opening
   is 0.45 ms p95. The separate native/Lion/Spectrum Dialog foundation comparison also passes its
   100 ms/4,096-byte native gate at 0.19 ms p95 and 347 gzip bytes.
-  This slice is not yet committed; the latest committed checkpoint remains `8ea58e1`.
+  The implementation is committed as `d0200123b041602efe910527915e70e2b024c948`; this progress
+  checkpoint records the exact resume and remote-verification procedure.
 
 - 2026-08-26: Completed and release-verified the catalog-authoritative Popover slice across the
   component contract, shared catalog-property descriptors, IR, deferred Web Component, canonical
