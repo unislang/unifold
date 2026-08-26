@@ -20,6 +20,9 @@ export default defineConfig({
       "@unislang/unifold-elements/tooltip": fileURLToPath(
         new URL("./packages/elements/src/tooltip-entry.ts", import.meta.url)
       ),
+      "@unislang/unifold-elements/popover": fileURLToPath(
+        new URL("./packages/elements/src/popover-entry.ts", import.meta.url)
+      ),
       "@unislang/unifold-elements/audit-log": fileURLToPath(
         new URL("./packages/elements/src/audit-log-entry.ts", import.meta.url)
       ),
@@ -82,6 +85,9 @@ export default defineConfig({
       ),
       "@unislang/unifold/tooltip": fileURLToPath(
         new URL("./packages/unifold/src/tooltip.ts", import.meta.url)
+      ),
+      "@unislang/unifold/popover": fileURLToPath(
+        new URL("./packages/unifold/src/popover.ts", import.meta.url)
       ),
       "@unislang/unifold-ai": packageSource("ai"),
       "@unislang/unifold-catalog": packageSource("catalog"),

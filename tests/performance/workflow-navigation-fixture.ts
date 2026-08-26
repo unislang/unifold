@@ -10,6 +10,7 @@ import {
 } from "@unislang/unifold-contracts";
 import type {
   UnifoldMenuButton,
+  UnifoldPopover,
   UnifoldStepper,
   UnifoldTabs,
   UnifoldWizard
@@ -20,16 +21,18 @@ import { defineUnifoldTabs } from "@unislang/unifold-elements/tabs";
 import { defineUnifoldWizard } from "@unislang/unifold-elements/wizard";
 import { mountUnifoldApplication, UnifoldApplicationMountStatus } from "@unislang/unifold";
 
-import { percentile } from "./profile-statistics.js";
 import type { MountedWorkflow, WorkflowInteraction } from "./workflow-navigation.types.js";
+import { workflowPerformanceEvidence } from "./workflow-navigation-evidence.js";
 import { measureMenuActivation, workflowMenuNode } from "./workflow-menu-fixture.js";
+import {
+  defineWorkflowPopover,
+  measurePopoverOpening,
+  workflowPopoverNode
+} from "./workflow-popover-fixture.js";
 
 const WORKFLOW_STEP_COUNT = 100;
-export const WORKFLOW_BUTTON_LIMIT = 401;
-const STARTUP_P95_LIMIT_MILLISECONDS = 1_000;
-const INTERACTION_P95_LIMIT_MILLISECONDS = 100;
+export const WORKFLOW_BUTTON_LIMIT = 434;
 const PROFILE_SAMPLES = 20;
-
 export async function measureWorkflowNavigationPerformance() {
   disposeWorkflow(await mountWorkflow());
   const startupSamples: number[] = [];
@@ -41,11 +44,15 @@ export async function measureWorkflowNavigationPerformance() {
     interactions.push(await exerciseWorkflow(mounted));
     disposeWorkflow(mounted);
   }
-  return performanceEvidence(startupSamples, interactions);
+  return workflowPerformanceEvidence(startupSamples, interactions, {
+    buttonLimit: WORKFLOW_BUTTON_LIMIT,
+    sampleCount: PROFILE_SAMPLES,
+    stepCount: WORKFLOW_STEP_COUNT
+  });
 }
-
 export async function mountWorkflow(): Promise<MountedWorkflow> {
   defineUnifoldMenuButton(customElements);
+  defineWorkflowPopover();
   defineUnifoldStepper(customElements);
   defineUnifoldTabs(customElements);
   defineUnifoldWizard(customElements);
@@ -58,33 +65,34 @@ export async function mountWorkflow(): Promise<MountedWorkflow> {
   }
   const stepper = requireElement<UnifoldStepper>(container, "unifold-stepper");
   const menu = requireElement<UnifoldMenuButton>(container, "unifold-menu-button");
+  const popover = requireElement<UnifoldPopover>(container, "unifold-popover");
   const tabs = requireElement<UnifoldTabs>(container, "unifold-tabs");
   const wizard = requireElement<UnifoldWizard>(container, "unifold-wizard");
   await Promise.all([
     menu.updateComplete,
+    popover.updateComplete,
     stepper.updateComplete,
     tabs.updateComplete,
     wizard.updateComplete
   ]);
-  return { application: mounted.application, container, menu, stepper, tabs, wizard };
+  return { application: mounted.application, container, menu, popover, stepper, tabs, wizard };
 }
-
 export async function exerciseWorkflow(mounted: MountedWorkflow): Promise<WorkflowInteraction> {
-  const { menu, stepper, tabs, wizard } = mounted;
+  const { menu, popover, stepper, tabs, wizard } = mounted;
   const target = WORKFLOW_STEP_COUNT - 1;
   const stepperMilliseconds = await clickAndMeasure(stepper, button(stepper, target));
   const wizardMilliseconds = await clickAndMeasure(wizard, button(wizard, target));
   const tabMilliseconds = await clickAndMeasure(tabs, tabButton(tabs, target));
   const menuEvidence = await measureMenuActivation(menu, target);
+  const popoverEvidence = await measurePopoverOpening(popover);
   return {
     menuItemId: menuEvidence.itemId,
     menuMilliseconds: menuEvidence.milliseconds,
     menuTriggerFocused: menuEvidence.triggerFocused,
-    renderedButtons:
-      (stepper.shadowRoot as ShadowRoot).querySelectorAll("[data-step-index]").length +
-      (wizard.shadowRoot as ShadowRoot).querySelectorAll("[data-step-index]").length +
-      (tabs.shadowRoot as ShadowRoot).querySelectorAll("[data-tab-index]").length +
-      menuEvidence.renderedButtons,
+    renderedButtons: renderedButtonCount(mounted, menuEvidence.renderedButtons),
+    popoverFocused: popoverEvidence.focused,
+    popoverMilliseconds: popoverEvidence.milliseconds,
+    popoverOpen: popover.open,
     stepperMilliseconds,
     stepperValue: stepper.value,
     tabMilliseconds,
@@ -96,6 +104,18 @@ export async function exerciseWorkflow(mounted: MountedWorkflow): Promise<Workfl
   };
 }
 
+function renderedButtonCount(mounted: MountedWorkflow, menuButtons: number): number {
+  const { popover, stepper, tabs, wizard } = mounted;
+  return (
+    (stepper.shadowRoot as ShadowRoot).querySelectorAll("[data-step-index]").length +
+    (wizard.shadowRoot as ShadowRoot).querySelectorAll("[data-step-index]").length +
+    (tabs.shadowRoot as ShadowRoot).querySelectorAll("[data-tab-index]").length +
+    menuButtons +
+    popover.children.length +
+    1
+  );
+}
+
 async function clickAndMeasure(
   element: UnifoldStepper | UnifoldTabs | UnifoldWizard,
   control: HTMLButtonElement
@@ -105,12 +125,10 @@ async function clickAndMeasure(
   await element.updateComplete;
   return performance.now() - started;
 }
-
 export function disposeWorkflow(mounted: MountedWorkflow): void {
   mounted.application.dispose();
   mounted.container.remove();
 }
-
 function workflowDocument(): JsonObject {
   return {
     $schema: UiContractSchemaUri.Version1,
@@ -131,7 +149,13 @@ function workflowDocument(): JsonObject {
 function workflowView(): JsonObject {
   return {
     $comp: "Stack",
-    $children: [stepperNode(), wizardNode(), tabsNode(), workflowMenuNode(WORKFLOW_STEP_COUNT)],
+    $children: [
+      stepperNode(),
+      wizardNode(),
+      tabsNode(),
+      workflowMenuNode(WORKFLOW_STEP_COUNT),
+      workflowPopoverNode()
+    ],
     id: "workflow-root",
     label: "Workflow navigation"
   };
@@ -191,113 +215,6 @@ function tabItems(): readonly JsonObject[] {
     id: `tab-${String(index).padStart(3, "0")}`,
     label: `Tab ${index}`
   }));
-}
-
-function performanceEvidence(
-  startupSamples: readonly number[],
-  interactions: readonly WorkflowInteraction[]
-) {
-  const startup = statistics(startupSamples);
-  const { menuSelection, stepperSelection, tabSelection, wizardSelection } =
-    selectionStatistics(interactions);
-  const maximumRenderedButtons = Math.max(
-    ...interactions.map(({ renderedButtons }) => renderedButtons)
-  );
-  return {
-    gates: workflowGates(
-      startup,
-      stepperSelection,
-      wizardSelection,
-      tabSelection,
-      menuSelection,
-      maximumRenderedButtons,
-      interactions.every(isExactInteraction)
-    ),
-    maximumRenderedButtons,
-    sampleCount: PROFILE_SAMPLES,
-    startup,
-    stepCount: WORKFLOW_STEP_COUNT,
-    menuSelection,
-    stepperSelection,
-    tabSelection,
-    wizardSelection
-  };
-}
-
-function selectionStatistics(interactions: readonly WorkflowInteraction[]) {
-  return {
-    menuSelection: statistics(interactions.map(({ menuMilliseconds }) => menuMilliseconds)),
-    stepperSelection: statistics(
-      interactions.map(({ stepperMilliseconds }) => stepperMilliseconds)
-    ),
-    tabSelection: statistics(interactions.map(({ tabMilliseconds }) => tabMilliseconds)),
-    wizardSelection: statistics(interactions.map(({ wizardMilliseconds }) => wizardMilliseconds))
-  };
-}
-
-function isExactInteraction(interaction: WorkflowInteraction): boolean {
-  return (
-    [
-      interaction.stepperValue,
-      interaction.tabValue,
-      interaction.wizardValue,
-      interaction.visiblePanels,
-      interaction.visibleTabPanels
-    ].join("|") === "step-099|tab-099|step-099|1|1" &&
-    interaction.menuItemId === "item-099" &&
-    interaction.menuTriggerFocused
-  );
-}
-
-function workflowGates(
-  startup: ReturnType<typeof statistics>,
-  stepper: ReturnType<typeof statistics>,
-  wizard: ReturnType<typeof statistics>,
-  tabs: ReturnType<typeof statistics>,
-  menu: ReturnType<typeof statistics>,
-  buttons: number,
-  exact: boolean
-) {
-  return [
-    {
-      actualP95Milliseconds: startup.p95Milliseconds,
-      actualRenderedButtons: buttons,
-      limitP95Milliseconds: STARTUP_P95_LIMIT_MILLISECONDS,
-      name: "100-step workflow startup",
-      passed:
-        startup.p95Milliseconds <= STARTUP_P95_LIMIT_MILLISECONDS &&
-        buttons <= WORKFLOW_BUTTON_LIMIT,
-      renderedButtonLimit: WORKFLOW_BUTTON_LIMIT
-    },
-    interactionGate("100-step Stepper selection", stepper.p95Milliseconds, "step-099", exact),
-    interactionGate("100-panel Wizard selection", wizard.p95Milliseconds, "step-099", exact),
-    interactionGate("100-panel Tabs selection", tabs.p95Milliseconds, "tab-099", exact),
-    interactionGate("100-item MenuButton activation", menu.p95Milliseconds, "item-099", exact)
-  ];
-}
-
-function interactionGate(
-  name: string,
-  actualP95Milliseconds: number,
-  requiredSelectedStepId: string,
-  exact: boolean
-) {
-  return {
-    actualP95Milliseconds,
-    limitP95Milliseconds: INTERACTION_P95_LIMIT_MILLISECONDS,
-    name,
-    passed: actualP95Milliseconds <= INTERACTION_P95_LIMIT_MILLISECONDS && exact,
-    requiredSelectedStepId
-  };
-}
-
-function statistics(samples: readonly number[]) {
-  return {
-    maximumMilliseconds: Math.max(...samples),
-    p50Milliseconds: percentile(samples, 0.5),
-    p95Milliseconds: percentile(samples, 0.95),
-    p99Milliseconds: percentile(samples, 0.99)
-  };
 }
 
 function requireElement<T extends Element>(container: ParentNode, selector: string): T {

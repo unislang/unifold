@@ -1,0 +1,22 @@
+{
+  "$comp": "Popover",
+  "id": "account-summary-popover",
+  "label": "Review account summary",
+  "panelLabel": "Current account summary",
+  "placement": "bottom",
+  "testId": "account-summary-popover",
+  "$children": [
+    {
+      "$comp": "Text",
+      "content": "The selected account is active and ready for review.",
+      "id": "account-summary-popover-copy"
+    },
+    {
+      "$comp": "Link",
+      "href": "#account-popover-details",
+      "id": "account-summary-popover-link",
+      "label": "Open account documentation",
+      "target": "_self"
+    }
+  ]
+}

@@ -27,20 +27,14 @@ test("joins all sidecars, catalog schemas, and CEM declarations", async () => {
 
 test("derives required, enum, attribute, and public snapshot schemas", async () => {
   const document = await definitions();
-  const { auditLog, dataGrid, icon, link, searchResults, stepper, table, tooltip, wizard } =
+  const { auditLog, dataGrid, icon, link, searchResults, stepper, table, wizard } =
     schemaDefinitions(document);
   assert.deepEqual(icon.propertiesSchema.required, ["name"]);
   assert.deepEqual(link.propertiesSchema.required, ["href"]);
   assert.deepEqual(link.attributesSchema.properties.href, { type: "string" });
   assert.deepEqual(table.propertiesSchema.required, ["caption", "columns", "rows"]);
   assertMenuButtonSchemas(document);
-  assert.deepEqual(tooltip.propertiesSchema.required, ["label", "content"]);
-  assert.deepEqual(tooltip.propertiesSchema.properties.placement.enum, [
-    "bottom",
-    "end",
-    "start",
-    "top"
-  ]);
+  assertOverlaySchemas(document);
   assertAuditLogSchemas(auditLog);
   assert.equal(table.propertiesSchema.properties.columns.maxItems, 64);
   assert.equal(table.propertiesSchema.properties.rows.maxItems, 10_000);
@@ -51,6 +45,25 @@ test("derives required, enum, attribute, and public snapshot schemas", async () 
   assertIconSchema(icon);
 });
 
+function assertOverlaySchemas(document) {
+  const tooltip = requireDefinition(document, CoreComponentType.Tooltip);
+  const popover = requireDefinition(document, CoreComponentType.Popover);
+  assert.deepEqual(tooltip.propertiesSchema.required, ["label", "content"]);
+  assert.deepEqual(tooltip.propertiesSchema.properties.placement.enum, [
+    "bottom",
+    "end",
+    "start",
+    "top"
+  ]);
+  assert.deepEqual(popover.propertiesSchema.required, ["label", "panelLabel"]);
+  assert.deepEqual(popover.propertiesSchema.properties.placement.enum, [
+    "bottom",
+    "end",
+    "start",
+    "top"
+  ]);
+}
+
 function schemaDefinitions(document) {
   return Object.fromEntries(
     [
@@ -58,6 +71,7 @@ function schemaDefinitions(document) {
       "dataGrid",
       "icon",
       "link",
+      "popover",
       "searchResults",
       "stepper",
       "table",

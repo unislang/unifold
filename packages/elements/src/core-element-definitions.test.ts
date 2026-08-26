@@ -10,6 +10,7 @@ const deferredTags = new Set([
   CoreElementTag.DataGrid,
   CoreElementTag.MasterDetail,
   CoreElementTag.MenuButton,
+  CoreElementTag.Popover,
   CoreElementTag.SearchResults,
   CoreElementTag.Stepper,
   CoreElementTag.Tabs,

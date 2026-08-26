@@ -1,28 +1,11 @@
-import { CoreComponentType, type JsonValue } from "@unislang/unifold-contracts";
+import { CoreComponentType } from "@unislang/unifold-contracts";
 
+import { CatalogConstraintKind, CatalogPropertyType, CoreElementTag } from "./enums.js";
+import type { ComponentDescriptor } from "./types.js";
 import {
-  CatalogBindingKind,
-  CatalogConstraintKind,
-  CatalogPropertyType,
-  CoreElementTag
-} from "./enums.js";
-import type { CatalogPropertyDescriptor, ComponentDescriptor } from "./types.js";
-
-const property = (
-  name: string,
-  valueType: CatalogPropertyType,
-  defaultValue?: JsonValue,
-  required = false
-): CatalogPropertyDescriptor => {
-  const descriptor = {
-    bindingKind: CatalogBindingKind.Property,
-    bindingName: name,
-    name,
-    required,
-    valueType
-  };
-  return defaultValue === undefined ? descriptor : { ...descriptor, defaultValue };
-};
+  catalogProperty as property,
+  catalogTestIdProperty as testId
+} from "./catalog-properties.js";
 
 export const tableDescriptor: ComponentDescriptor = {
   componentType: CoreComponentType.Table,
@@ -38,13 +21,7 @@ export const tableDescriptor: ComponentDescriptor = {
     property("columns", CatalogPropertyType.TableColumnList, undefined, true),
     property("rows", CatalogPropertyType.TableRowList, undefined, true),
     property("emptyMessage", CatalogPropertyType.String, "No data"),
-    {
-      bindingKind: CatalogBindingKind.Attribute,
-      bindingName: "data-testid",
-      name: "testId",
-      required: false,
-      valueType: CatalogPropertyType.String
-    }
+    testId
   ],
   tagName: CoreElementTag.Table,
   version: "1.0.0"

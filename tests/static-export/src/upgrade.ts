@@ -15,6 +15,7 @@ const [
   dataGridFamily,
   masterDetailFamily,
   menuButtonFamily,
+  popoverFamily,
   searchResultsFamily,
   stepperFamily,
   tabsFamily,
@@ -27,6 +28,7 @@ const [
   import("@unislang/unifold/data-grid"),
   import("@unislang/unifold/master-detail"),
   import("@unislang/unifold/menu-button"),
+  import("@unislang/unifold/popover"),
   import("@unislang/unifold/search-results"),
   import("@unislang/unifold/stepper"),
   import("@unislang/unifold/tabs"),
@@ -39,6 +41,7 @@ assertFamily("Combobox", comboboxFamily.defineUnifoldCombobox());
 assertFamily("DataGrid", dataGridFamily.defineUnifoldDataGrid());
 assertFamily("MasterDetail", masterDetailFamily.defineUnifoldMasterDetail());
 assertFamily("MenuButton", menuButtonFamily.defineUnifoldMenuButton());
+assertFamily("Popover", popoverFamily.defineUnifoldPopover());
 assertFamily("SearchResults", searchResultsFamily.defineUnifoldSearchResults());
 assertFamily("Stepper", stepperFamily.defineUnifoldStepper());
 assertFamily("Tabs", tabsFamily.defineUnifoldTabs());

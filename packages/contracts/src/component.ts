@@ -16,6 +16,7 @@ export enum CoreComponentType {
   MasterDetail = "MasterDetail",
   MenuButton = "MenuButton",
   MultiSelect = "MultiSelect",
+  Popover = "Popover",
   RadioGroup = "RadioGroup",
   SearchResults = "SearchResults",
   Select = "Select",

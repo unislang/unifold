@@ -15,6 +15,12 @@ it("defines an optional family idempotently and rejects an unavailable registry"
   );
 });
 
+it("accepts the Popover tag as an optional family boundary", () => {
+  class PopoverElement extends HTMLElement {}
+  const result = defineOptionalElement(CoreElementTag.Popover, PopoverElement, customElements);
+  expect(result).toMatchObject({ definedTags: [CoreElementTag.Popover], status: "registered" });
+});
+
 it("rejects occupied and reused registry definitions", () => {
   class OptionalElement extends HTMLElement {}
   class ForeignElement extends HTMLElement {}

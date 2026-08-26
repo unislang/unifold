@@ -49,9 +49,21 @@ function referenceRoot(): JsonObject {
       referenceForm(),
       referenceDisclosure(),
       referenceMenuButton(),
+      referencePopover(),
       referenceTabsNode(),
       referenceTooltipNode()
     ]
+  };
+}
+
+function referencePopover(): JsonObject {
+  return {
+    $comp: "Popover",
+    $children: [{ $comp: "Text", content: "Account is ready.", id: "popover-copy" }],
+    id: "account-summary-popover",
+    label: "Review account summary",
+    panelLabel: "Current account summary",
+    placement: "bottom"
   };
 }
 

@@ -12,6 +12,7 @@ import { comboboxSidecar } from "./combobox-sidecar.js";
 import { ComponentAccessibilityPattern, IconName } from "./enums.js";
 import { searchResultsSidecar } from "./search-results-sidecar.js";
 import { menuButtonSidecar } from "./menu-sidecar.js";
+import { popoverSidecar } from "./popover-sidecar.js";
 import { tooltipSidecar } from "./tooltip-sidecar.js";
 import { stepperSidecar, tabsSidecar, wizardSidecar } from "./workflow-sidecars.js";
 import type { ComponentDefinitionSidecar } from "./types.js";
@@ -235,6 +236,7 @@ const sidecars: Readonly<Record<CoreComponentType, ComponentDefinitionSidecar>> 
     semanticAttachmentPoints: [],
     sensitiveProperties: ["errorMessage", "options", "value"]
   }),
+  [CoreComponentType.Popover]: popoverSidecar,
   [CoreComponentType.RadioGroup]: definition({
     behaviors: ["Uses native fieldset and same-name radios", "Emits one scalar selection"],
     browserScenarios: [
@@ -343,7 +345,6 @@ const sidecars: Readonly<Record<CoreComponentType, ComponentDefinitionSidecar>> 
 });
 
 export const componentDefinitionSidecars = sidecars;
-
 export function getComponentDefinitionSidecar(type: CoreComponentType): ComponentDefinitionSidecar {
   return sidecars[type];
 }

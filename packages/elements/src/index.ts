@@ -21,6 +21,7 @@ export { UnifoldLink } from "./link.js";
 export type { UnifoldMasterDetail } from "./master-detail.js";
 export type { UnifoldMenuButton } from "./menu-button.js";
 export { UnifoldMultiSelect } from "./multi-select.js";
+export type { UnifoldPopover } from "./popover.js";
 export {
   defineUnifoldElements,
   validateUnifoldElementTags,

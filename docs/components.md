@@ -1,6 +1,6 @@
 # Core components
 
-The implemented core catalog contains thirty JSON-constructible Web Components. Every component has a
+The implemented core catalog contains thirty-one JSON-constructible Web Components. Every component has a
 stable node ID, participates in the same canonical event stream, and receives selective state
 projection through the application runtime. The catalog descriptor is the authority for accepted
 properties; the IR compiler rejects unknown properties and values of the wrong type before render.
@@ -24,6 +24,7 @@ properties; the IR compiler rejects unknown properties and values of the wrong t
 | `MasterDetail`  | `unifold-master-detail`  | string         | virtual listbox + region  | `control.input`, `control.blurred`     |
 | `MenuButton`    | `unifold-menu-button`    | none           | button + ARIA menu        | `component.activated`                  |
 | `MultiSelect`   | `unifold-multi-select`   | string array   | multiple select           | `control.input`, `control.blurred`     |
+| `Popover`       | `unifold-popover`        | none           | button + Popover API      | `component.activated`                  |
 | `RadioGroup`    | `unifold-radio-group`    | string         | fieldset and radio input  | `control.input`, `control.blurred`     |
 | `SearchResults` | `unifold-search-results` | object         | search input + listbox    | `control.input`, `control.blurred`     |
 | `Select`        | `unifold-select`         | string         | select                    | `control.input`, `control.blurred`     |
@@ -42,7 +43,7 @@ Event names above use their readable suffixes. The wire values are versioned enu
 `org.unifold.ui.control.input.v1`, exported as `ElementEventType`.
 
 The baseline registration includes the nineteen small families. AuditLog, Combobox, DataGrid,
-MasterDetail, MenuButton, SearchResults, Stepper, Tabs, Tooltip, VirtualList, and Wizard are deferred
+MasterDetail, MenuButton, Popover, SearchResults, Stepper, Tabs, Tooltip, VirtualList, and Wizard are deferred
 families loaded through matching `@unislang/unifold/<kebab-case-name>` subpaths before mounting JSON
 that references them. Every subpath exports a `defineUnifold*()` registration function and the
 element class. The split is a delivery boundary only: descriptors, IR validation, snapshots,
@@ -132,6 +133,35 @@ defineUnifoldTooltip();
   "label": "Shipping information",
   "content": "Delivery excludes holidays.",
   "placement": "top"
+}
+```
+
+`Popover` accepts a required trigger `label`, a required accessible `panelLabel`, a logical
+`placement` of `top`, `bottom`, `start`, or `end`, and 1 to 32 authored JSON children. Activating
+the trigger opens an interactive `role="dialog"` surface, moves focus into it, and emits
+`component.activated` with `{ "open": true }`. Escape closes the surface and restores trigger
+focus; focus leaving the component, outside pointer input, and a second trigger activation also
+dismiss it. Open state remains interaction-local rather than becoming competing application state.
+The browser element progressively uses the native Popover API and has a deterministic fallback;
+static export degrades to native `details`/`summary` while retaining the labeled nested content.
+Popover is deferred and must be registered before mounting JSON that references it:
+
+```ts
+const { defineUnifoldPopover } = await import("@unislang/unifold/popover");
+defineUnifoldPopover();
+```
+
+```json
+{
+  "$comp": "Popover",
+  "id": "account-summary",
+  "label": "Review account summary",
+  "panelLabel": "Current account summary",
+  "placement": "bottom",
+  "$children": [
+    { "$comp": "Text", "id": "summary-copy", "content": "Account is ready." },
+    { "$comp": "Link", "id": "summary-link", "href": "/account", "label": "Open account" }
+  ]
 }
 ```
 

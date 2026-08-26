@@ -40,12 +40,12 @@ this keeps the architecture budget executable even if code splitting introduces 
 workspace, typechecks and bundles a public-API-only fixture, and runs its lifecycle in Chromium.
 See [Packaging and clean-consumer verification](./packaging.md).
 
-The 2026-08-25 local acceptance snapshot runs 302 package test files and 740 tests with zero
-failures. V8 coverage records 97.44% lines/statements, 97.37% functions, and 90.40% branches across
-package source. The data-source package independently records 94.81% lines, 93.10% functions, and
-90.10% branches. Devtools independently records 99.66% lines, 98.88% functions, and 95.26%
-branches. These observations supplement, rather than replace, the executable 90% repository coverage
-thresholds.
+The 2026-08-26 local acceptance snapshot runs 400 package test files and 1,010 tests with zero
+failures. V8 coverage records 97.38% lines/statements, 97.02% functions, and 90.01% branches across
+package source. The complete command also passes 16 tooling tests, 10 generated/script tests, and
+24 performance correctness files with the 18 long-running profiles intentionally skipped there and
+run by `pnpm benchmark:selective`. These observations supplement, rather than replace, the
+executable 90% repository coverage thresholds.
 
 ## Test placement
 

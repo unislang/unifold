@@ -33,6 +33,15 @@ export function percentile(samples: readonly number[], quantile: number): number
   return ordered[Math.max(0, index)] as number;
 }
 
+export function summarizeSamples(samples: readonly number[]) {
+  return {
+    maximumMilliseconds: Math.max(...samples),
+    p50Milliseconds: percentile(samples, 0.5),
+    p95Milliseconds: percentile(samples, 0.95),
+    p99Milliseconds: percentile(samples, 0.99)
+  };
+}
+
 function assertQuantile(quantile: number): void {
   if (quantile < 0) throw new Error("Percentiles require a quantile from 0 to 1.");
   if (quantile > 1) throw new Error("Percentiles require a quantile from 0 to 1.");

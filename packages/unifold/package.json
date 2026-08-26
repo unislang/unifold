@@ -22,6 +22,10 @@
       "types": "./dist/tooltip.d.ts",
       "import": "./dist/tooltip.js"
     },
+    "./popover": {
+      "types": "./dist/popover.d.ts",
+      "import": "./dist/popover.js"
+    },
     "./audit-log": {
       "types": "./dist/audit-log.d.ts",
       "import": "./dist/audit-log.js"

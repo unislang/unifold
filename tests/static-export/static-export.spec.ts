@@ -35,6 +35,10 @@ test.describe("without JavaScript", () => {
     await expect(page.getByRole("tooltip")).toHaveText(
       "Account actions apply to the current profile."
     );
+    await page.getByText("Review static account summary", { exact: true }).click();
+    await expect(page.getByRole("dialog", { name: "Static account summary" })).toContainText(
+      "The static account is active."
+    );
     await expect(page.locator(`[data-unifold-static-document="${documentId}"]`)).toHaveCount(1);
     await expect(page.locator("[data-unifold-node-id]")).toHaveCount(0);
     await expect(page.locator(semanticsSelector)).toHaveCount(1);
@@ -85,6 +89,20 @@ test("upgrades static Tooltip help into one dismissible top-layer interaction", 
   await expect(tooltip).toBeVisible();
   await trigger.press("Escape");
   await expect(tooltip).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
+
+test("upgrades static Popover content into one focus-restoring interaction", async ({ page }) => {
+  await page.goto("/?upgrade=manual");
+  await loadUpgrade(page);
+  await invokeUpgrade(page);
+  const trigger = page.getByRole("button", { name: "Review static account summary" });
+  const panel = page.getByRole("dialog", { name: "Static account summary" });
+  await trigger.click();
+  await expect(panel).toBeVisible();
+  await expect(panel).toBeFocused();
+  await panel.press("Escape");
+  await expect(panel).toBeHidden();
   await expect(trigger).toBeFocused();
 });
 

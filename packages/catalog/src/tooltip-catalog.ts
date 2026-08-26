@@ -1,29 +1,16 @@
-import { CoreComponentType, type JsonValue } from "@unislang/unifold-contracts";
+import { CoreComponentType } from "@unislang/unifold-contracts";
 
 import {
-  CatalogBindingKind,
   CatalogConstraintKind,
   CatalogPropertyType,
   CoreElementTag,
   TooltipPlacement
 } from "./enums.js";
-import type { CatalogPropertyDescriptor, ComponentDescriptor } from "./types.js";
-
-function property(
-  name: string,
-  valueType: CatalogPropertyType,
-  defaultValue?: JsonValue,
-  required = false
-): CatalogPropertyDescriptor {
-  const descriptor = {
-    bindingKind: CatalogBindingKind.Property,
-    bindingName: name,
-    name,
-    required,
-    valueType
-  };
-  return defaultValue === undefined ? descriptor : { ...descriptor, defaultValue };
-}
+import type { ComponentDescriptor } from "./types.js";
+import {
+  catalogProperty as property,
+  catalogTestIdProperty as testId
+} from "./catalog-properties.js";
 
 export const tooltipDescriptor: ComponentDescriptor = {
   componentType: CoreComponentType.Tooltip,
@@ -35,13 +22,7 @@ export const tooltipDescriptor: ComponentDescriptor = {
       ...property("placement", CatalogPropertyType.Enum, TooltipPlacement.Top),
       enumValues: Object.values(TooltipPlacement)
     },
-    {
-      bindingKind: CatalogBindingKind.Attribute,
-      bindingName: "data-testid",
-      name: "testId",
-      required: false,
-      valueType: CatalogPropertyType.String
-    }
+    testId
   ],
   tagName: CoreElementTag.Tooltip,
   version: "1.0.0"

@@ -31,6 +31,7 @@ const EVENTS: Readonly<Record<CoreComponentType, readonly UiComponentEventBindin
   [CoreComponentType.MasterDetail]: INPUT_AND_BLUR,
   [CoreComponentType.MenuButton]: ACTIVATED,
   [CoreComponentType.MultiSelect]: INPUT_AND_BLUR,
+  [CoreComponentType.Popover]: ACTIVATED,
   [CoreComponentType.RadioGroup]: INPUT_AND_BLUR,
   [CoreComponentType.SearchResults]: INPUT_AND_BLUR,
   [CoreComponentType.Select]: INPUT_AND_BLUR,

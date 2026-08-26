@@ -1,16 +1,16 @@
 import { CoreComponentType, UiUpdateTrigger, type JsonValue } from "@unislang/unifold-contracts";
 
-import {
-  CatalogBindingKind,
-  CatalogConstraintKind,
-  CatalogPropertyType,
-  CoreElementTag
-} from "./enums.js";
+import { CatalogConstraintKind, CatalogPropertyType, CoreElementTag } from "./enums.js";
 import type {
   CatalogConstraintDescriptor,
   CatalogPropertyDescriptor,
   ComponentDescriptor
 } from "./types.js";
+import {
+  catalogEnumProperty as enumProperty,
+  catalogProperty as property,
+  catalogTestIdProperty as testId
+} from "./catalog-properties.js";
 
 export const choiceConstraints: readonly CatalogConstraintDescriptor[] = [
   {
@@ -24,14 +24,6 @@ export const choiceConstraints: readonly CatalogConstraintDescriptor[] = [
     selectionProperty: "value"
   }
 ];
-
-const testId: CatalogPropertyDescriptor = {
-  bindingKind: CatalogBindingKind.Attribute,
-  bindingName: "data-testid",
-  name: "testId",
-  required: false,
-  valueType: CatalogPropertyType.String
-};
 
 export function choiceProperties(
   valueType: CatalogPropertyType.String | CatalogPropertyType.StringArray,
@@ -63,26 +55,3 @@ export const comboboxDescriptor: ComponentDescriptor = {
   tagName: CoreElementTag.Combobox,
   version: "1.0.0"
 };
-
-function property(
-  name: string,
-  valueType: CatalogPropertyType,
-  defaultValue?: JsonValue
-): CatalogPropertyDescriptor {
-  const descriptor = {
-    bindingKind: CatalogBindingKind.Property,
-    bindingName: name,
-    name,
-    required: false,
-    valueType
-  };
-  return defaultValue === undefined ? descriptor : { ...descriptor, defaultValue };
-}
-
-function enumProperty(
-  name: string,
-  defaultValue: string,
-  values: readonly string[]
-): CatalogPropertyDescriptor {
-  return { ...property(name, CatalogPropertyType.Enum, defaultValue), enumValues: values };
-}

@@ -25,7 +25,6 @@ import {
 } from "@unislang/unifold-forms";
 import { check, forward, looseObject, pipe, string } from "valibot";
 
-import uiDefinition from "./ui.json" with { type: "json" };
 import type {
   ProfileDefinition,
   ProfileDocument,
@@ -35,6 +34,7 @@ import type {
   RealmCopyResult
 } from "./main.types.js";
 import "./reference.css";
+import uiDefinition from "./ui.json" with { type: "json" };
 import { installStoreFixtureHooks } from "./store-fixture.js";
 
 await defineReferenceComponentFamilies();
@@ -58,6 +58,7 @@ function loadReferenceComponentFamilies() {
     import("@unislang/unifold/data-grid"),
     import("@unislang/unifold/master-detail"),
     import("@unislang/unifold/menu-button"),
+    import("./popover-reference.js"),
     import("@unislang/unifold/search-results"),
     import("@unislang/unifold/stepper"),
     import("@unislang/unifold/tabs"),
@@ -76,6 +77,7 @@ function registerReferenceComponentFamilies(
     dataGrid,
     masterDetail,
     menuButton,
+    popover,
     searchResults,
     stepper,
     tabs,
@@ -88,12 +90,18 @@ function registerReferenceComponentFamilies(
   assertFamilyRegistration("DataGrid", dataGrid.defineUnifoldDataGrid());
   assertFamilyRegistration("MasterDetail", masterDetail.defineUnifoldMasterDetail());
   assertFamilyRegistration("MenuButton", menuButton.defineUnifoldMenuButton());
+  registerReferencePopover(popover);
   assertFamilyRegistration("SearchResults", searchResults.defineUnifoldSearchResults());
   assertFamilyRegistration("Stepper", stepper.defineUnifoldStepper());
   assertFamilyRegistration("Tabs", tabs.defineUnifoldTabs());
   assertFamilyRegistration("Tooltip", tooltip.defineUnifoldTooltip());
   assertFamilyRegistration("VirtualList", virtualList.defineUnifoldVirtualList());
   assertFamilyRegistration("Wizard", wizard.defineUnifoldWizard());
+}
+
+function registerReferencePopover(popover: typeof import("./popover-reference.js")): void {
+  assertFamilyRegistration("Popover", popover.defineUnifoldPopover());
+  popover.appendReferencePopover(uiDefinition);
 }
 
 function assertFamilyRegistration(

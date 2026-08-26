@@ -1,38 +1,17 @@
-import { CoreComponentType, UiUpdateTrigger, type JsonValue } from "@unislang/unifold-contracts";
+import { CoreComponentType, UiUpdateTrigger } from "@unislang/unifold-contracts";
 
 import {
-  CatalogBindingKind,
   CatalogConstraintKind,
   CatalogPropertyType,
   CoreElementTag,
   DataGridSelectionMode
 } from "./enums.js";
-import type { CatalogPropertyDescriptor, ComponentDescriptor } from "./types.js";
-
-const property = (
-  name: string,
-  valueType: CatalogPropertyType,
-  defaultValue?: JsonValue,
-  required = false
-): CatalogPropertyDescriptor => {
-  const descriptor = {
-    bindingKind: CatalogBindingKind.Property,
-    bindingName: name,
-    name,
-    required,
-    valueType
-  };
-  return defaultValue === undefined ? descriptor : { ...descriptor, defaultValue };
-};
-
-const enumProperty = (
-  name: string,
-  defaultValue: string,
-  enumValues: readonly string[]
-): CatalogPropertyDescriptor => ({
-  ...property(name, CatalogPropertyType.Enum, defaultValue),
-  enumValues
-});
+import type { ComponentDescriptor } from "./types.js";
+import {
+  catalogEnumProperty as enumProperty,
+  catalogProperty as property,
+  catalogTestIdProperty as testId
+} from "./catalog-properties.js";
 
 export const dataGridDescriptor: ComponentDescriptor = {
   componentType: CoreComponentType.DataGrid,
@@ -65,13 +44,7 @@ export const dataGridDescriptor: ComponentDescriptor = {
     property("validators", CatalogPropertyType.StringArray, []),
     property("asyncValidators", CatalogPropertyType.StringArray, []),
     property("emptyMessage", CatalogPropertyType.String, "No data"),
-    {
-      bindingKind: CatalogBindingKind.Attribute,
-      bindingName: "data-testid",
-      name: "testId",
-      required: false,
-      valueType: CatalogPropertyType.String
-    }
+    testId
   ],
   tagName: CoreElementTag.DataGrid,
   version: "1.0.0"

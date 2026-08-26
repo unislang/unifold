@@ -50,6 +50,7 @@ export {
 } from "./enums.js";
 export { isSafeUrl } from "./url.js";
 export { MAXIMUM_MENU_ITEMS } from "./menu-catalog.js";
+export { popoverDescriptor } from "./popover-catalog.js";
 export { tooltipDescriptor } from "./tooltip-catalog.js";
 export type {
   AuditLogEntry,

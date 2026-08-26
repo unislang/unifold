@@ -54,6 +54,27 @@
         "placement": "bottom"
       },
       {
+        "$comp": "Popover",
+        "id": "account-summary-popover",
+        "label": "Review static account summary",
+        "panelLabel": "Static account summary",
+        "placement": "bottom",
+        "$children": [
+          {
+            "$comp": "Text",
+            "content": "The static account is active.",
+            "id": "account-summary-copy"
+          },
+          {
+            "$comp": "Link",
+            "href": "#static-account-details",
+            "id": "account-summary-link",
+            "label": "Open static account documentation",
+            "target": "_self"
+          }
+        ]
+      },
+      {
         "$comp": "Form",
         "id": "form",
         "label": "Profile",

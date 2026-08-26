@@ -2,14 +2,12 @@ import {
   CoreCatalogName,
   CoreCatalogVersion,
   CoreComponentType,
-  UiUpdateTrigger,
-  type JsonValue
+  UiUpdateTrigger
 } from "@unislang/unifold-contracts";
 import {
   AlertTone,
   ButtonAction,
   ButtonVariant,
-  CatalogBindingKind,
   CatalogPropertyType,
   CoreElementTag,
   HeadingLevel,
@@ -32,21 +30,13 @@ import * as dataViews from "./data-view-catalog.js";
 import * as workflows from "./workflow-catalog.js";
 import { choiceConstraints, choiceProperties, comboboxDescriptor } from "./choice-catalog.js";
 import { menuButtonDescriptor } from "./menu-catalog.js";
+import { popoverDescriptor } from "./popover-catalog.js";
 import { tooltipDescriptor } from "./tooltip-catalog.js";
-const property = (
-  name: string,
-  valueType: CatalogPropertyType,
-  defaultValue?: JsonValue
-): CatalogPropertyDescriptor => {
-  const descriptor = {
-    bindingKind: CatalogBindingKind.Property,
-    bindingName: name,
-    name,
-    required: false,
-    valueType
-  };
-  return defaultValue === undefined ? descriptor : { ...descriptor, defaultValue };
-};
+import {
+  catalogEnumProperty as enumProperty,
+  catalogProperty as property,
+  catalogTestIdProperty as testId
+} from "./catalog-properties.js";
 
 function requiredProperty(name: string, valueType: CatalogPropertyType): CatalogPropertyDescriptor {
   return { ...property(name, valueType), required: true };
@@ -54,22 +44,6 @@ function requiredProperty(name: string, valueType: CatalogPropertyType): Catalog
 
 function requiredEnumProperty(name: string, values: readonly string[]): CatalogPropertyDescriptor {
   return { ...requiredProperty(name, CatalogPropertyType.Enum), enumValues: values };
-}
-
-const testId: CatalogPropertyDescriptor = {
-  bindingKind: CatalogBindingKind.Attribute,
-  bindingName: "data-testid",
-  name: "testId",
-  required: false,
-  valueType: CatalogPropertyType.String
-};
-
-function enumProperty(
-  name: string,
-  defaultValue: string,
-  values: readonly string[]
-): CatalogPropertyDescriptor {
-  return { ...property(name, CatalogPropertyType.Enum, defaultValue), enumValues: values };
 }
 
 function textControlProperties(
@@ -236,6 +210,7 @@ const descriptors: Record<CoreComponentType, ComponentDescriptor> = {
     tagName: CoreElementTag.MultiSelect,
     version: "1.0.0"
   },
+  [CoreComponentType.Popover]: popoverDescriptor,
   [CoreComponentType.RadioGroup]: {
     componentType: CoreComponentType.RadioGroup,
     constraints: choiceConstraints,

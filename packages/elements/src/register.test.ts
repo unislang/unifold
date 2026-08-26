@@ -31,6 +31,7 @@ import { defineUnifoldCombobox } from "./combobox-entry.js";
 import { defineUnifoldDataGrid } from "./data-grid-entry.js";
 import { defineUnifoldMasterDetail } from "./master-detail-entry.js";
 import { defineUnifoldMenuButton } from "./menu-button-entry.js";
+import { defineUnifoldPopover } from "./popover-entry.js";
 import { defineUnifoldSearchResults } from "./search-results-entry.js";
 import { defineUnifoldStepper } from "./stepper-entry.js";
 import { defineUnifoldTabs } from "./tabs-entry.js";
@@ -290,6 +291,7 @@ function foundationTags(): readonly CoreElementTag[] {
     CoreElementTag.DataGrid,
     CoreElementTag.MasterDetail,
     CoreElementTag.MenuButton,
+    CoreElementTag.Popover,
     CoreElementTag.SearchResults,
     CoreElementTag.Stepper,
     CoreElementTag.Tabs,
@@ -306,6 +308,7 @@ function defineDeferredElements(registry: ElementRegistryPort): void {
   defineUnifoldDataGrid(registry);
   defineUnifoldMasterDetail(registry);
   defineUnifoldMenuButton(registry);
+  defineUnifoldPopover(registry);
   defineUnifoldSearchResults(registry);
   defineUnifoldStepper(registry);
   defineUnifoldTabs(registry);

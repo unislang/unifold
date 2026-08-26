@@ -50,7 +50,7 @@ application. Incompatible catalog releases require independent iframe/document r
 
 Larger component families are deferred from the baseline entry and must be registered before a
 document that references them is mounted. Supported subpaths are `audit-log`, `combobox`,
-`data-grid`, `master-detail`, `menu-button`, `search-results`, `stepper`, `tabs`, `tooltip`,
+`data-grid`, `master-detail`, `menu-button`, `popover`, `search-results`, `stepper`, `tabs`, `tooltip`,
 `virtual-list`, and `wizard`; each exports its matching `defineUnifold*()` function. This keeps the
 reference application's initial executable bundle below its enforced 180 KiB-gzip ceiling while
 preserving the same catalog and registration checks.

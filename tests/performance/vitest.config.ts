@@ -30,6 +30,9 @@ export default defineConfig({
       "@unislang/unifold-elements/menu-button": fileURLToPath(
         new URL("../../packages/elements/src/menu-button-entry.ts", import.meta.url)
       ),
+      "@unislang/unifold-elements/popover": fileURLToPath(
+        new URL("../../packages/elements/src/popover-entry.ts", import.meta.url)
+      ),
       "@unislang/unifold-elements/master-detail": fileURLToPath(
         new URL("../../packages/elements/src/master-detail-entry.ts", import.meta.url)
       ),
