@@ -14,12 +14,14 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 
 ## Current checkpoint
 
-- Date: 2026-08-25
+- Date: 2026-08-26
 - Branch: `main`
-- Local checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Remote state: `origin/main` was created at
-  `424763dad467948f3b75fefd2c2be8cff216fcb4` and independently verified with `git ls-remote`.
-- Working tree at checkpoint: clean. This progress file is the first post-checkpoint change.
+- Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
+- Latest implementation checkpoint: `69f8e84` (`feat: harden control-plane infrastructure
+integrations`)
+- Remote state: `origin/main` and local `HEAD` were independently verified at
+  `69f8e84e52b156487370cf8360b9a3cc5e04315e` with `git ls-remote` and `git rev-parse`.
+- Working tree at implementation checkpoint: clean before this progress-record update.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
@@ -195,5 +197,6 @@ silently waived.
   and quality checks, measured both new benchmark gates, and began repository-wide validation.
 - 2026-08-26: Completed the OpenFGA/OpenTelemetry, transport admission, and encrypted external
   recovery integrations; regenerated 34/34 benchmark gates and passed the full quality, test,
-  coverage, and build matrices. This post-checkpoint slice remains uncommitted pending the next
-  requested repository checkpoint.
+  coverage, and build matrices. Committed the complete slice as `69f8e84`, pushed it to
+  `https://github.com/unislang/unifold.git`, and independently verified remote `main` at the full
+  hash above.
