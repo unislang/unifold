@@ -144,6 +144,16 @@
             "value": "Ada Lovelace"
           },
           {
+            "$comp": "NumberField",
+            "id": "age",
+            "label": "Age",
+            "max": 130,
+            "min": 0,
+            "name": "age",
+            "step": 1,
+            "value": 40
+          },
+          {
             "$comp": "Checkbox",
             "id": "newsletter",
             "label": "Receive product updates",

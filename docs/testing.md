@@ -34,7 +34,7 @@ pnpm test:consumer
 ```
 
 The reference build sums the gzip size of the entry's complete static import closure and fails above
-180 KiB. Startup-required validation is in that closure. Optional component families are requested
+184 KiB. Startup-required validation is in that closure. Optional component families are requested
 only after the application mounts; their emitted chunks are audited and reported separately as
 post-mount JavaScript.
 
@@ -241,6 +241,9 @@ acceptance, and one metadata-only durable-audit receipt for every operation.
 The content/media fixture mounts exactly 100 native-article `Card` hosts containing exactly 100
 dimensioned `Image` hosts, then updates every alternative-text property across 50 samples. Its gate
 requires both exact counts and p95 projection at or below 100 ms; the current local p95 is 3.57 ms.
+The numeric-control fixture mounts exactly 100 deferred `NumberField` hosts and updates every finite
+controlled value across 50 samples. Its gate requires the exact host count, the expected final
+native `valueAsNumber`, and p95 projection at or below 100 ms; the current local p95 is 1.85 ms.
 The Chromium scale journey complements the Node suite by observing all 1,000 or 10,000 rendered
 hosts in one page-context pass. It requires one render-counter mutation, unchanged unrelated counts,
 retained element and shadow-input identity/focus, canonical event order, and an exact one-node commit.

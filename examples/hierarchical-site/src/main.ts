@@ -86,19 +86,25 @@ function disposeExample(application: UnifoldApplicationPort, unsubscribe: () => 
 }
 
 async function bootstrap(): Promise<void> {
-  const [dialog, contentMedia] = await Promise.all([
-    import("@unislang/unifold/dialog"),
-    import("@unislang/unifold/content-media")
-  ]);
-  dialog.defineUnifoldDialog();
-  contentMedia.defineUnifoldCard();
-  contentMedia.defineUnifoldImage();
   const container = document.getElementById("app");
   const eventLog = document.querySelector<HTMLElement>("[data-testid='event-log']");
   const machineState = document.querySelector<HTMLElement>("[data-testid='machine-state']");
   const targets = exampleTargets(container, eventLog, machineState);
   if (targets === undefined) return;
+  await registerHierarchicalOptionalElements();
   mountHierarchicalExample(...targets);
+}
+
+export async function registerHierarchicalOptionalElements(): Promise<void> {
+  const [dialog, contentMedia, numberField] = await Promise.all([
+    import("@unislang/unifold/dialog"),
+    import("@unislang/unifold/content-media"),
+    import("@unislang/unifold/number-field")
+  ]);
+  dialog.defineUnifoldDialog();
+  contentMedia.defineUnifoldCard();
+  contentMedia.defineUnifoldImage();
+  numberField.defineUnifoldNumberField();
 }
 
 function exampleTargets(

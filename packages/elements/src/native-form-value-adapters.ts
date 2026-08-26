@@ -25,6 +25,17 @@ export const scalarFormValueAdapter: NativeFormValueAdapter<string> = Object.fre
   restore: (state: string) => boundedState(state)
 });
 
+export const numberFormValueAdapter: NativeFormValueAdapter<number | null> = Object.freeze({
+  clone: canonicalNumber,
+  equals: (left: number | null, right: number | null) => left === right,
+  isValueMissing: (value: number | null) => value === null,
+  project: (value: number | null, name: string) => {
+    const canonical = canonicalNumber(value);
+    return projection(successfulNumber(name, canonical), stringify(canonical));
+  },
+  restore: restoreNumber
+});
+
 export const booleanFormValueAdapter: NativeFormValueAdapter<boolean> = Object.freeze({
   clone: (value: boolean) => value,
   equals: (left: boolean, right: boolean) => left === right,
@@ -55,6 +66,11 @@ function successfulBoolean(name: string, value: boolean): NativeFormSubmissionVa
   return name.length > 0 && value ? NativeBooleanSubmissionValue.Checked : null;
 }
 
+function successfulNumber(name: string, value: number | null): NativeFormSubmissionValue {
+  if (name.length === 0) return null;
+  return value === null ? "" : String(value);
+}
+
 function booleanState(value: boolean): NativeBooleanFormState {
   return value ? NativeBooleanFormState.Checked : NativeBooleanFormState.Unchecked;
 }
@@ -63,6 +79,21 @@ function restoreBoolean(state: string): boolean | undefined {
   if (state === NativeBooleanFormState.Checked) return true;
   if (state === NativeBooleanFormState.Unchecked) return false;
   return undefined;
+}
+
+function restoreNumber(state: string): number | null | undefined {
+  const value = parseState(state);
+  if (value === null) return null;
+  if (isFiniteNumber(value)) return value;
+  return undefined;
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return [typeof value === "number", Number.isFinite(Number(value))].every(Boolean);
+}
+
+function canonicalNumber(value: number | null): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 function repeatedStrings(name: string, values: readonly string[]): FormData | null {

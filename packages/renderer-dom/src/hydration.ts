@@ -1,4 +1,4 @@
-import type { JsonValue } from "@unislang/unifold-contracts";
+import { jsonNumberConstraintIssue, type JsonValue } from "@unislang/unifold-contracts";
 import {
   CoreComponentType,
   type UnifoldIrDocument,
@@ -103,7 +103,7 @@ function captureNodeValue(
   if (!valueComponents.has(node.componentType as CoreComponentType)) return;
   const controls = staticControls(element, id);
   if (controls.length === 0) return;
-  const value = readControlValue(controls);
+  const value = readControlValue(node, controls);
   validateChoiceValue(node, value);
   values[id] = value;
 }
@@ -117,10 +117,10 @@ function staticControls(element: HTMLElement, id: string): readonly HTMLElement[
   });
 }
 
-function readControlValue(controls: readonly HTMLElement[]): JsonValue {
+function readControlValue(node: UnifoldIrNode, controls: readonly HTMLElement[]): JsonValue {
   if (controls.every(isRadioInput)) return selectedRadioValue(controls);
   if (controls.length !== 1) throw hydrationError("Static control is duplicated.");
-  return scalarControlValue(controls[0] as HTMLElement);
+  return scalarControlValue(node, controls[0] as HTMLElement);
 }
 
 function selectedRadioValue(controls: readonly HTMLElement[]): string {
@@ -129,10 +129,64 @@ function selectedRadioValue(controls: readonly HTMLElement[]): string {
   return selected.getAttribute("value") ?? "";
 }
 
-function scalarControlValue(control: HTMLElement): JsonValue {
+function scalarControlValue(node: UnifoldIrNode, control: HTMLElement): JsonValue {
+  if (node.componentType === CoreComponentType.NumberField)
+    return numberControlValue(node, control);
+  return nonNumberControlValue(control);
+}
+
+function nonNumberControlValue(control: HTMLElement): JsonValue {
   if (isCheckboxInput(control)) return control.checked;
   if (isMultipleSelect(control)) return [...control.selectedOptions].map(({ value }) => value);
   return requiredScalarValue(control);
+}
+
+function numberControlValue(node: UnifoldIrNode, control: HTMLElement): number | null {
+  const input = requireNumberInput(node, control);
+  if (input.value === "") return null;
+  return validNumberControlValue(node, input.valueAsNumber);
+}
+
+function requireNumberInput(node: UnifoldIrNode, control: HTMLElement): HTMLInputElement {
+  if (!(control instanceof HTMLInputElement) || control.type !== "number")
+    throw hydrationError(`Static numeric control is invalid: ${node.id}.`);
+  return control;
+}
+
+function validNumberControlValue(node: UnifoldIrNode, value: number): number {
+  if (!Number.isFinite(value)) throw invalidNumberValueError(node);
+  if (numberConstraintIssue(node, value)) throw invalidNumberValueError(node);
+  return value;
+}
+
+function invalidNumberValueError(node: UnifoldIrNode): StaticDomHydrationError {
+  return hydrationError(`Static numeric value is invalid: ${node.id}.`);
+}
+
+function numberConstraintIssue(node: UnifoldIrNode, value: number): boolean {
+  const minimum = numberProperty(node, "min");
+  const maximum = numberProperty(node, "max");
+  return (
+    jsonNumberConstraintIssue(
+      value,
+      nullableNumber(minimum),
+      nullableNumber(maximum),
+      numberOr(numberProperty(node, "step"), 1)
+    ) !== undefined
+  );
+}
+
+function nullableNumber(value: number | undefined): number | null {
+  return value === undefined ? null : value;
+}
+
+function numberOr(value: number | undefined, fallback: number): number {
+  return value === undefined ? fallback : value;
+}
+
+function numberProperty(node: UnifoldIrNode, name: string): number | undefined {
+  const value = node.properties[name];
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
 function requiredScalarValue(control: HTMLElement): string {
@@ -169,6 +223,7 @@ const valueComponents = new Set<CoreComponentType>([
   CoreComponentType.Checkbox,
   CoreComponentType.Combobox,
   CoreComponentType.MultiSelect,
+  CoreComponentType.NumberField,
   CoreComponentType.RadioGroup,
   CoreComponentType.Select,
   CoreComponentType.Tabs,

@@ -32,6 +32,20 @@
         }
       },
       {
+        "id": "contact-age",
+        "type": "NumberField",
+        "props": {
+          "label": "Age",
+          "name": "age",
+          "min": 0,
+          "max": 130,
+          "step": 1,
+          "testId": "contact-age",
+          "value": null
+        },
+        "events": { "onInput": "AGE_CHANGED" }
+      },
+      {
         "id": "contact-actions",
         "type": "Stack",
         "props": { "direction": "horizontal", "gap": "sm" },

@@ -1,4 +1,17 @@
-export type { JsonArray, JsonObject, JsonPrimitive, JsonValue } from "./json.js";
+export {
+  JSON_NUMBER_MAXIMUM_ISSUE,
+  JSON_NUMBER_MINIMUM_ISSUE,
+  JSON_NUMBER_RANGE_ISSUE,
+  JSON_NUMBER_STEP_ISSUE,
+  isFiniteJsonNumber,
+  isStepAlignedJsonNumber,
+  jsonNumberConstraintIssue,
+  type JsonArray,
+  type JsonNumberConstraintIssue,
+  type JsonObject,
+  type JsonPrimitive,
+  type JsonValue
+} from "./json.js";
 export { UiDerivedRuleOutputKind, UiDerivedRuleSchemaVersion } from "./derived-rule.js";
 export type {
   UiControlSetDisabledRuleOutput,

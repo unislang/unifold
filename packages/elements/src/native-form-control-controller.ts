@@ -9,6 +9,11 @@ export interface NativeFormValueProjection {
   readonly submission: NativeFormSubmissionValue;
 }
 
+export interface NativeFormControlValidity {
+  readonly flags: ValidityStateFlags;
+  readonly message: string;
+}
+
 export interface NativeFormValueAdapter<Value> {
   clone(value: Value): Value;
   equals(left: Value, right: Value): boolean;
@@ -26,6 +31,7 @@ export interface NativeFormControlHost<Value> extends HTMLElement, ReactiveContr
   readonly required: boolean;
   readonly value: Value;
   formControlAnchor(): HTMLElement | null;
+  formControlValidity?(): NativeFormControlValidity | undefined;
   formControlValueChanged(value: Value, origin: NativeFormValueOrigin): void;
 }
 
@@ -154,24 +160,31 @@ function projectValidity<Value>(
   host: NativeFormControlHost<Value>,
   adapter: NativeFormValueAdapter<Value>
 ): void {
-  const flags = validityFlags(host, adapter);
-  if (flags === undefined) {
+  const validity = formValidity(host, adapter);
+  if (validity === undefined) {
     internals.setValidity({});
     return;
   }
   const anchor = host.formControlAnchor();
-  const message = validityMessage(host);
-  if (anchor === null) internals.setValidity(flags, message);
-  else internals.setValidity(flags, message, anchor);
+  if (anchor === null) internals.setValidity(validity.flags, validity.message);
+  else internals.setValidity(validity.flags, validity.message, anchor);
 }
 
-function validityFlags<Value>(
+function formValidity<Value>(
   host: NativeFormControlHost<Value>,
   adapter: NativeFormValueAdapter<Value>
-): ValidityStateFlags | undefined {
-  if (host.errorMessage.length > 0) return { customError: true };
-  if (requiredValueMissing(host, adapter)) return { valueMissing: true };
-  return undefined;
+): NativeFormControlValidity | undefined {
+  if (host.errorMessage.length > 0)
+    return { flags: { customError: true }, message: host.errorMessage };
+  if (requiredValueMissing(host, adapter))
+    return { flags: { valueMissing: true }, message: "This field is required." };
+  return intrinsicValidity(host);
+}
+
+function intrinsicValidity<Value>(
+  host: NativeFormControlHost<Value>
+): NativeFormControlValidity | undefined {
+  return host.formControlValidity?.();
 }
 
 function requiredValueMissing<Value>(
@@ -179,8 +192,4 @@ function requiredValueMissing<Value>(
   adapter: NativeFormValueAdapter<Value>
 ): boolean {
   return host.required && adapter.isValueMissing(host.value);
-}
-
-function validityMessage<Value>(host: NativeFormControlHost<Value>): string {
-  return host.errorMessage.length === 0 ? "This field is required." : host.errorMessage;
 }

@@ -40,6 +40,7 @@ const renderers: Readonly<Record<CoreComponentType, NodeRenderer>> = {
   [CoreComponentType.MasterDetail]: staticComponents.renderStaticMasterDetail,
   [CoreComponentType.MenuButton]: staticComponents.renderStaticMenuButton,
   [CoreComponentType.MultiSelect]: renderMultiSelect,
+  [CoreComponentType.NumberField]: staticComponents.renderStaticNumberField,
   [CoreComponentType.Popover]: staticComponents.renderStaticPopover,
   [CoreComponentType.RadioGroup]: renderRadioGroup,
   [CoreComponentType.SearchResults]: staticComponents.renderStaticSearchResults,

@@ -1,6 +1,7 @@
 import type { UiNodeSnapshot, UiValidationError } from "@unislang/unifold-events";
 
 import { requiredErrors } from "./required-validator.js";
+import { numberConstraintErrors } from "./number-constraints.js";
 import { ownValidationErrors } from "./error-ownership.js";
 import type { UiValidationContext, UiValidator, UiValidatorRegistryPort } from "./types.js";
 
@@ -19,6 +20,7 @@ export class UiValidatorRegistry implements UiValidatorRegistryPort {
     const context: UiValidationContext = { node, value: control.value };
     const errors = [
       ...requiredErrors(node),
+      ...numberConstraintErrors(node),
       ...control.validatorIds.flatMap((id) => this.require(id).validate(context))
     ];
     return ownValidationErrors(node.id, errors);

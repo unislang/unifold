@@ -5,6 +5,7 @@ export { renderStaticDialog } from "./static-dialog.js";
 export { renderStaticFileInput } from "./static-file-input.js";
 export { renderStaticMasterDetail } from "./static-master-detail.js";
 export { renderStaticMenuButton } from "./static-menu.js";
+export { renderStaticNumberField } from "./static-number-field.js";
 export { renderStaticPopover } from "./static-popover.js";
 export { renderStaticSearchResults } from "./static-search-results.js";
 export { renderStaticTable } from "./static-table.js";

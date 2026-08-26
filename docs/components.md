@@ -1,6 +1,6 @@
 # Core components
 
-The implemented core catalog contains thirty-nine JSON-constructible Web Components. Every component has a
+The implemented core catalog contains forty JSON-constructible Web Components. Every component has a
 stable node ID, participates in the same canonical event stream, and receives selective state
 projection through the application runtime. The catalog descriptor is the authority for accepted
 properties; the IR compiler rejects unknown properties and values of the wrong type before render.
@@ -32,6 +32,7 @@ properties; the IR compiler rejects unknown properties and values of the wrong t
 | `MasterDetail`  | `unifold-master-detail`  | string         | virtual listbox + region   | `control.input`, `control.blurred`     |
 | `MenuButton`    | `unifold-menu-button`    | none           | button + ARIA menu         | `component.activated`                  |
 | `MultiSelect`   | `unifold-multi-select`   | string array   | multiple select            | `control.input`, `control.blurred`     |
+| `NumberField`   | `unifold-number-field`   | number or null | number input               | `control.input`, `control.blurred`     |
 | `Popover`       | `unifold-popover`        | none           | button + Popover API       | `component.activated`                  |
 | `RadioGroup`    | `unifold-radio-group`    | string         | fieldset and radio input   | `control.input`, `control.blurred`     |
 | `SearchResults` | `unifold-search-results` | object         | search input + listbox     | `control.input`, `control.blurred`     |
@@ -52,7 +53,7 @@ Event names above use their readable suffixes. The wire values are versioned enu
 
 The baseline registration includes the nineteen small families. AuditLog, Breadcrumb, Card, Combobox,
 DataGrid, Dialog, ErrorSummary, Field, Fieldset, FileInput, Image, MasterDetail, MenuButton, Popover,
-SearchResults, Stepper, Tabs, Tooltip, VirtualList, and Wizard are deferred families loaded through matching
+NumberField, SearchResults, Stepper, Tabs, Tooltip, VirtualList, and Wizard are deferred families loaded through matching
 `@unislang/unifold/<kebab-case-name>` subpaths. Strict mounting requires those definitions before
 render. A trusted host may explicitly select `ElementDefinitionPolicy.AllowPending`; catalog-known
 hosts then mount immediately and replay their latest validated properties, event snapshot, runtime
@@ -60,6 +61,38 @@ context, and children when a compatible definition arrives. Every subpath export
 `defineUnifold*()` registration function and the element class. The split is a delivery boundary
 only: descriptors, IR validation, snapshots, events, static rendering, and accessibility
 requirements remain catalog-authoritative.
+
+## NumberField numeric contract
+
+`NumberField` is loaded through `@unislang/unifold/number-field`. Its canonical value is a finite
+JSON number or `null` for an empty control. `min` and `max` are optional finite bounds, `step` must
+be positive, and an authored initial value must be within the bounds and aligned to the step. The
+same constraints run in the IR compiler, shared form graph, native form association, static export,
+and static-upgrade admission path.
+
+In the Scratch-style hierarchy, place the node directly in a layout variable such as
+`variables.fields`; the selected layout template decides where that array is composed:
+
+```json
+{
+  "type": "NumberField",
+  "id": "contact-age",
+  "props": {
+    "label": "Age",
+    "name": "age",
+    "min": 0,
+    "max": 130,
+    "step": 1,
+    "value": null
+  },
+  "events": { "onInput": "AGE_CHANGED" }
+}
+```
+
+```ts
+const { defineUnifoldNumberField } = await import("@unislang/unifold/number-field");
+defineUnifoldNumberField();
+```
 
 `Card` and `Image` are delivered together through the deferred
 `@unislang/unifold/content-media` subpath. `Card` is a native article containing 1 to 100 authored
@@ -472,7 +505,7 @@ import {
 
 ## Component-definition evidence pipeline
 
-All thirty-seven core elements participate in the executable `ComponentDefinition` pipeline. The
+All forty core elements participate in the executable `ComponentDefinition` pipeline. The
 elements build runs the official Custom Elements Manifest analyzer with its Lit plugin, validates
 the complete result against the official manifest JSON Schema, and writes
 `dist/custom-elements.json`. The generated manifest owns facts that can be derived from source:

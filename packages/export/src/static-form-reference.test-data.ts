@@ -26,6 +26,7 @@ function referenceFormChildren(): readonly JsonObject[] {
     fieldset(),
     passwordField(),
     textArea(),
+    numberField(),
     referenceFileInputNode(),
     checkbox(),
     radioGroup(),
@@ -116,6 +117,19 @@ function textArea(): JsonObject {
     rows: 3,
     value: "A pioneer",
     wrap: "soft"
+  };
+}
+
+function numberField(): JsonObject {
+  return {
+    $comp: "NumberField",
+    id: "age",
+    label: "Age",
+    max: 130,
+    min: 0,
+    name: "age",
+    step: 1,
+    value: 42
   };
 }
 

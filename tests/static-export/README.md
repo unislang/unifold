@@ -9,7 +9,7 @@ The Playwright matrix verifies:
 
 - byte-exact served HTML and its SHA-256 manifest;
 - visible native content and one Schema.org JSON-LD graph with JavaScript disabled;
-- edited value and focus migration into the normalized runtime;
+- edited text and finite numeric values plus focus migration into the normalized runtime;
 - an atomic JSON-LD ownership handoff with no duplicate publication;
 - one intent, command fact, and committed transaction for one interaction; and
 - non-mutating rejection of structural and semantic-owner tampering.

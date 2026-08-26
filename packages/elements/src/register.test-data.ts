@@ -14,6 +14,7 @@ import {
 } from "./form-structure-entry.js";
 import { defineUnifoldMasterDetail } from "./master-detail-entry.js";
 import { defineUnifoldMenuButton } from "./menu-button-entry.js";
+import { defineUnifoldNumberField } from "./number-field-entry.js";
 import { defineUnifoldPopover } from "./popover-entry.js";
 import {
   UNIFOLD_ELEMENT_DEFINITION,
@@ -85,7 +86,7 @@ export function requireDefinition(
 }
 
 export function foundationTags(): readonly CoreElementTag[] {
-  const deferred = new Set([
+  const deferred = new Set<CoreElementTag>([
     CoreElementTag.AuditLog,
     CoreElementTag.Breadcrumb,
     CoreElementTag.Card,
@@ -99,6 +100,7 @@ export function foundationTags(): readonly CoreElementTag[] {
     CoreElementTag.Fieldset,
     CoreElementTag.MasterDetail,
     CoreElementTag.MenuButton,
+    CoreElementTag.NumberField,
     CoreElementTag.Popover,
     CoreElementTag.SearchResults,
     CoreElementTag.Stepper,
@@ -123,6 +125,7 @@ export function defineDeferredElements(registry: ElementRegistryPort): void {
   );
   defineUnifoldMasterDetail(registry);
   defineUnifoldMenuButton(registry);
+  defineUnifoldNumberField(registry);
   defineUnifoldPopover(registry);
   defineUnifoldSearchResults(registry);
   defineUnifoldStepper(registry);

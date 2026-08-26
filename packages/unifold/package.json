@@ -46,6 +46,10 @@
       "types": "./dist/content-media.d.ts",
       "import": "./dist/content-media.js"
     },
+    "./number-field": {
+      "types": "./dist/number-field.d.ts",
+      "import": "./dist/number-field.js"
+    },
     "./audit-log": {
       "types": "./dist/audit-log.d.ts",
       "import": "./dist/audit-log.js"

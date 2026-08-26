@@ -39,6 +39,7 @@ import {
   fieldsetDescriptor
 } from "./form-structure-catalog.js";
 import { menuButtonDescriptor } from "./menu-catalog.js";
+import { numberFieldDescriptor } from "./number-field-catalog.js";
 import { popoverDescriptor } from "./popover-catalog.js";
 import { tooltipDescriptor } from "./tooltip-catalog.js";
 import {
@@ -227,6 +228,7 @@ const descriptors: Record<CoreComponentType, ComponentDescriptor> = {
     tagName: CoreElementTag.MultiSelect,
     version: "1.0.0"
   },
+  [CoreComponentType.NumberField]: numberFieldDescriptor,
   [CoreComponentType.Popover]: popoverDescriptor,
   [CoreComponentType.RadioGroup]: {
     componentType: CoreComponentType.RadioGroup,

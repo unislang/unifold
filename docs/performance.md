@@ -75,6 +75,7 @@ results. They are evidence from a developer workstation, not ratified release th
 | 32-action Dialog opening                    |   0.29 ms |   0.45 ms |   0.86 ms |
 | 32-file metadata-only selection             |   0.10 ms |   0.23 ms |   4.24 ms |
 | 100-Card/100-Image projection               |   0.56 ms |   3.57 ms |   5.90 ms |
+| 100-NumberField projection                  |   0.60 ms |   1.85 ms |   6.78 ms |
 | 10k-entry AuditLog startup                  |  60.67 ms |  68.65 ms |  72.95 ms |
 | 10k-entry AuditLog distant scroll           |   0.63 ms |   1.04 ms |   2.90 ms |
 | 1k cached data-actor resolutions            |   5.67 ms |   7.39 ms |   7.60 ms |
@@ -121,9 +122,9 @@ emits exactly 25 typed commands, and leaves every unrelated chain unchanged. Its
 p95 is below the provisional 4 ms target on the current workstation. The combined public-runtime
 fixture proves one commit spans the leaf edit, three synchronous validations (leaf, group, form),
 two ancestor aggregates, 20 transitive rule commands, and committed-revision selector delivery.
-Its current 1.25 ms p95 is below the provisional 8 ms target. All fifty-one timing and lifecycle limits
+Its current 1.25 ms p95 is below the provisional 8 ms target. All fifty-two timing and lifecycle limits
 are executable benchmark gates and are included with actual/limit/pass fields in the
-schema-2.26.0 machine-readable report; the current run passes all 51/51.
+schema-2.27.0 machine-readable report; the current run passes all 52/52.
 The report also contains a 50-sample paired selection-overhead profile. It alternates measurement
 order for each update between identical 10,000-node stores with zero and 2,000 indexed selections,
 subtracts the paired timings, and takes each sample's five-edit median. This removes shared

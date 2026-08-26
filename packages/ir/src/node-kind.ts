@@ -26,6 +26,7 @@ const NODE_KINDS: Readonly<Record<CoreComponentType, UiNodeKind>> = {
   [CoreComponentType.MasterDetail]: UiNodeKind.Control,
   [CoreComponentType.MenuButton]: UiNodeKind.Component,
   [CoreComponentType.MultiSelect]: UiNodeKind.Control,
+  [CoreComponentType.NumberField]: UiNodeKind.Control,
   [CoreComponentType.Popover]: UiNodeKind.Component,
   [CoreComponentType.RadioGroup]: UiNodeKind.Control,
   [CoreComponentType.SearchResults]: UiNodeKind.Control,

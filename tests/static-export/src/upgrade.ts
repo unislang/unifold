@@ -19,6 +19,7 @@ const [
   fileInputFamily,
   masterDetailFamily,
   menuButtonFamily,
+  numberFieldFamily,
   popoverFamily,
   searchResultsFamily,
   stepperFamily,
@@ -36,6 +37,7 @@ const [
   import("@unislang/unifold/file-input"),
   import("@unislang/unifold/master-detail"),
   import("@unislang/unifold/menu-button"),
+  import("@unislang/unifold/number-field"),
   import("@unislang/unifold/popover"),
   import("@unislang/unifold/search-results"),
   import("@unislang/unifold/stepper"),
@@ -54,6 +56,7 @@ assertFamily("Dialog", dialogFamily.defineUnifoldDialog());
 assertFamily("FileInput", fileInputFamily.defineUnifoldFileInput());
 assertFamily("MasterDetail", masterDetailFamily.defineUnifoldMasterDetail());
 assertFamily("MenuButton", menuButtonFamily.defineUnifoldMenuButton());
+assertFamily("NumberField", numberFieldFamily.defineUnifoldNumberField());
 assertFamily("Popover", popoverFamily.defineUnifoldPopover());
 assertFamily("SearchResults", searchResultsFamily.defineUnifoldSearchResults());
 assertFamily("Stepper", stepperFamily.defineUnifoldStepper());

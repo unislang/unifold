@@ -1,13 +1,14 @@
 // @vitest-environment happy-dom
 import { expect, it } from "vitest";
 
-import { mountHierarchicalExample } from "./main.js";
+import { mountHierarchicalExample, registerHierarchicalOptionalElements } from "./main.js";
 
-it("mounts the hierarchical JSON through the public framework entry point", () => {
+it("mounts the hierarchical JSON through the public framework entry point", async () => {
   const container = document.createElement("div");
   const eventLog = document.createElement("pre");
   const machineState = document.createElement("output");
   document.body.append(container, eventLog, machineState);
+  await registerHierarchicalOptionalElements();
 
   const controller = mountHierarchicalExample(container, eventLog, machineState);
 

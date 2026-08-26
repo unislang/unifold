@@ -6,6 +6,7 @@ import {
   isSafeUrl,
   type CatalogPropertyDescriptor
 } from "@unislang/unifold-catalog";
+import { isFiniteJsonNumber } from "@unislang/unifold-contracts";
 
 import { errorDiagnostic } from "./diagnostics.js";
 import { isAuditLogEntryList } from "./audit-log-validation.js";
@@ -38,9 +39,12 @@ const validators: Readonly<Record<CatalogPropertyType, PropertyValidator>> = {
     typeof value === "string" && isValidFileAccept(value),
   [CatalogPropertyType.FileMetadataList]: isFileMetadataList,
   [CatalogPropertyType.MenuItemList]: isMenuItemList,
+  [CatalogPropertyType.NullableNumber]: (value) => value === null || isFiniteJsonNumber(value),
+  [CatalogPropertyType.Number]: isFiniteJsonNumber,
   [CatalogPropertyType.OptionList]: isOptionList,
   [CatalogPropertyType.PositiveInteger]: (value) =>
     typeof value === "number" && Number.isSafeInteger(value) && value > 0,
+  [CatalogPropertyType.PositiveNumber]: (value) => isFiniteJsonNumber(value) && value > 0,
   [CatalogPropertyType.SafeResourceUrl]: isSafeResourceProperty,
   [CatalogPropertyType.SafeUrl]: (value) => typeof value === "string" && isSafeUrl(value),
   [CatalogPropertyType.SearchResultList]: isSearchResultList,

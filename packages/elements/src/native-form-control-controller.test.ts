@@ -48,6 +48,19 @@ it("clones the initial value and ignores invalid or unchanged restoration", () =
   ]);
 });
 
+it("projects host intrinsic validity after custom and required checks", () => {
+  const fixture = createFixture("42", scalarAdapter());
+  fixture.host.formControlValidity = () => ({
+    flags: { rangeOverflow: true },
+    message: "Value is above the maximum."
+  });
+  fixture.controller.hostConnected();
+  expect(fixture.internals.setValidity).toHaveBeenLastCalledWith(
+    { rangeOverflow: true },
+    "Value is above the maximum."
+  );
+});
+
 function createFixture<Value>(value: Value, adapter: NativeFormValueAdapter<Value>) {
   const changes: [Value, NativeFormValueOrigin][] = [];
   const internals = fakeInternals();
@@ -89,10 +102,23 @@ function arrayAdapter(): NativeFormValueAdapter<readonly string[]> {
   };
 }
 
+function scalarAdapter(): NativeFormValueAdapter<string> {
+  return {
+    clone: (value) => value,
+    equals: (left, right) => left === right,
+    isValueMissing: (value) => value.length === 0,
+    project: (value) => ({ state: value, submission: value }),
+    restore: (state) => state
+  };
+}
+
 interface MutableHost<Value> extends NativeFormControlHost<Value> {
   disabled: boolean;
   errorMessage: string;
   name: string;
   required: boolean;
   value: Value;
+  formControlValidity():
+    | { readonly flags: ValidityStateFlags; readonly message: string }
+    | undefined;
 }

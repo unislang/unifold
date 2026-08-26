@@ -3,7 +3,7 @@ import { gzipSync } from "node:zlib";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const REFERENCE_BUNDLE_LIMIT_BYTES = 180 * 1024;
+export const REFERENCE_BUNDLE_LIMIT_BYTES = 184 * 1024;
 const FORBIDDEN_TEST_HOOKS = [
   "__unifoldMigrateProfile",
   "__unifoldStoreFixture",

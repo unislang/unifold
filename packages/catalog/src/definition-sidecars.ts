@@ -22,6 +22,7 @@ import { ComponentAccessibilityPattern } from "./definition-enums.js";
 import { IconName } from "./enums.js";
 import { searchResultsSidecar } from "./search-results-sidecar.js";
 import { menuButtonSidecar } from "./menu-sidecar.js";
+import { numberFieldSidecar } from "./number-field-sidecar.js";
 import { popoverSidecar } from "./popover-sidecar.js";
 import { tooltipSidecar } from "./tooltip-sidecar.js";
 import { stepperSidecar, tabsSidecar, wizardSidecar } from "./workflow-sidecars.js";
@@ -237,6 +238,7 @@ export const componentDefinitionSidecars = Object.freeze({
     semanticAttachmentPoints: [],
     sensitiveProperties: ["errorMessage", "options", "value"]
   }),
+  [CoreComponentType.NumberField]: numberFieldSidecar,
   [CoreComponentType.Popover]: popoverSidecar,
   [CoreComponentType.RadioGroup]: definition({
     behaviors: ["Uses native fieldset and same-name radios", "Emits one scalar selection"],

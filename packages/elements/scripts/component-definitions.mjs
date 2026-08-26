@@ -135,6 +135,8 @@ const scalarSchemas = Object.freeze({
     minItems: 1,
     type: "array"
   },
+  [CatalogPropertyType.NullableNumber]: { type: ["number", "null"] },
+  [CatalogPropertyType.Number]: { type: "number" },
   [CatalogPropertyType.OptionList]: {
     items: {
       additionalProperties: false,
@@ -153,6 +155,7 @@ const scalarSchemas = Object.freeze({
     minimum: 1,
     type: "integer"
   },
+  [CatalogPropertyType.PositiveNumber]: { exclusiveMinimum: 0, type: "number" },
   [CatalogPropertyType.SafeResourceUrl]: { type: "string" },
   [CatalogPropertyType.SafeUrl]: { type: "string" },
   [CatalogPropertyType.SearchResultList]: {

@@ -109,6 +109,38 @@ test("renders bounded Image and Card content with native semantics", async ({ pa
   await unifold.assertAccessibility();
 });
 
+test("routes bounded NumberField input through numeric canonical state", async ({
+  page,
+  unifold
+}) => {
+  await page.goto("/");
+  const host = page.getByTestId("contact-age");
+  const input = page.getByLabel("Age");
+  await expect(input).toHaveAttribute("type", "number");
+  await expect(input).toHaveAttribute("min", "0");
+  await expect(input).toHaveAttribute("max", "130");
+  await expect(input).toHaveAttribute("step", "1");
+  await input.fill("42");
+  await expect.poll(async () => numberFieldEventValue(await unifold.events())).toBe(42);
+  await expect.poll(() => host.evaluate((element) => Reflect.get(element, "value"))).toBe(42);
+  await unifold.assertAccessibility();
+});
+
+function numberFieldEventValue(events: Awaited<ReturnType<UnifoldHarness["events"]>>): unknown {
+  const change = [...events]
+    .reverse()
+    .find(
+      (event) =>
+        event.type === "org.unifold.ui.control.input.v1" &&
+        event.data.sourceNode?.id === "contact-age"
+    )?.data.change;
+  return isRecord(change) ? change["value"] : undefined;
+}
+
+function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
 async function semanticName(page: Parameters<typeof readRenderBaseline>[0]) {
   return page.locator("script[data-unifold-semantics]").evaluate((element) => {
     const graph = JSON.parse(element.textContent ?? "{}") as { "@graph": [{ name: string }] };

@@ -36,6 +36,9 @@ export default defineConfig({
       "@unislang/unifold-elements/content-media": fileURLToPath(
         new URL("../../packages/elements/src/content-media-entry.ts", import.meta.url)
       ),
+      "@unislang/unifold-elements/number-field": fileURLToPath(
+        new URL("../../packages/elements/src/number-field-entry.ts", import.meta.url)
+      ),
       "@unislang/unifold-elements/search-results": fileURLToPath(
         new URL("../../packages/elements/src/search-results-entry.ts", import.meta.url)
       ),

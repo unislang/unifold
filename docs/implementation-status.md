@@ -10,7 +10,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
 - A safe JSON document contract, validation diagnostics, normalized immutable IR, and a minimal
   JsonUI-compatible profile for Accordion, Alert, AuditLog, Box, Breadcrumb, Button, Checkbox, Combobox,
   Card, Composition, DataGrid, Dialog, ErrorSummary, Field, Fieldset, FileInput, Form, Grid, Heading, Icon, Image, Link, MasterDetail, MenuButton, MultiSelect,
-  Popover, RadioGroup, SearchResults, Select, Stack, Stepper, Tabs, Table, Text, TextArea, TextField,
+  NumberField, Popover, RadioGroup, SearchResults, Select, Stack, Stepper, Tabs, Table, Text, TextArea, TextField,
   Tooltip, VirtualList, and Wizard. Catalog-backed property validation rejects unknown properties, invalid enum values,
   malformed option, table, or audit lists, invalid string-array values, duplicate option values, duplicate
   table column/row or audit-entry identities, undeclared table cells, and selections absent from their declared
@@ -24,11 +24,16 @@ critical seam; it is not yet the full catalog or Studio product described by the
   static export never serializes metadata or bytes and restored metadata truthfully requires
   reselection.
 - Native form interoperability through one reusable generic Lit controller over `ElementInternals`.
-  TextField, TextArea, Select, RadioGroup, VirtualList, Checkbox, MultiSelect, and FileInput
+  TextField, TextArea, NumberField, Select, RadioGroup, VirtualList, Checkbox, MultiSelect, and FileInput
   participate in native ownership and `FormData`, disabled fieldsets, reset/state restoration, and
   validity while the Unifold runtime remains the only committed state authority. Scalar controls
   add IME de-duplication; boolean, repeated-string, and file codecs preserve native submission
   semantics without admitting live file handles into canonical state or events.
+- A deferred native `NumberField` with finite `number | null` canonical state, positive step and
+  optional range constraints enforced by catalog/IR compilation, the shared form graph, native
+  validity, static hydration, and browser admission. The Scratch-style `variables.fields` example
+  authors its `type`/`props`/`events` shape and routes a numeric `onInput` value through the unified
+  event fabric and XState owner scope.
 - Deferred `Card` and `Image` content/media primitives. `Card` preserves 1 to 100 authored children
   inside a native article; `Image` requires deliberate alternative text, a catalog-safe relative or
   HTTP(S) resource URL, and positive intrinsic dimensions. Both lower from the Scratch-compatible
@@ -203,14 +208,14 @@ critical seam; it is not yet the full catalog or Studio product described by the
   JSON children, focus restoration, native top-layer enhancement, and static disclosure fallback; a read-only,
   virtualized AuditLog with native list/time semantics; a Tailwind theme foundation;
   component metadata; a DOM renderer; and a JSON-defined reference form.
-- An experimental full-catalog `ComponentDefinition` pipeline for all thirty-nine core elements. The
+- An experimental full-catalog `ComponentDefinition` pipeline for all forty core elements. The
   official Custom Elements Manifest analyzer and schema derive and validate element API facts;
   enum-backed catalog sidecars supply behavior, accessibility, privacy, structured semantics,
   complete examples, and test evidence. The package publishes standard CEM and joined definition
   artifacts with generated authoring, attribute, public-snapshot, and control schemas. Cross-source
   and live-event drift checks prove every catalog property is exposed and represented exactly in
   canonical snapshots.
-- The complete 15-component Phase 1 foundation release group, plus Card, Composition, Combobox, MultiSelect,
+- The complete 15-component Phase 1 foundation release group, plus Card, Composition, Combobox, MultiSelect, NumberField,
   Accordion, VirtualList, Table, DataGrid, MasterDetail, SearchResults, Stepper, Tabs, MenuButton,
   Popover, Dialog, Breadcrumb, Tooltip, Wizard, AuditLog, Field, Fieldset, ErrorSummary, and Image components exercised by later
   interaction slices.

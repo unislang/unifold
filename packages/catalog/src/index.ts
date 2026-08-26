@@ -78,6 +78,7 @@ export {
   isValidFileAccept
 } from "./file-input-catalog.js";
 export { MAXIMUM_MENU_ITEMS } from "./menu-catalog.js";
+export { numberFieldDescriptor } from "./number-field-catalog.js";
 export { popoverDescriptor } from "./popover-catalog.js";
 export { tooltipDescriptor } from "./tooltip-catalog.js";
 export type {
@@ -89,6 +90,7 @@ export type {
   CatalogDataGridStateConstraint,
   CatalogFileInputDataConstraint,
   CatalogMasterDetailStateConstraint,
+  CatalogNumberFieldRangeConstraint,
   CatalogSearchResultsStateConstraint,
   CatalogStepNavigationStateConstraint,
   CatalogConstraintDescriptor,

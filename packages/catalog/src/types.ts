@@ -121,6 +121,14 @@ export interface CatalogMasterDetailStateConstraint {
   readonly valueProperty: string;
 }
 
+export interface CatalogNumberFieldRangeConstraint {
+  readonly kind: CatalogConstraintKind.NumberFieldRange;
+  readonly maximumProperty: string;
+  readonly minimumProperty: string;
+  readonly stepProperty: string;
+  readonly valueProperty: string;
+}
+
 export interface CatalogSearchResultsStateConstraint {
   readonly kind: CatalogConstraintKind.SearchResultsState;
   readonly resultsProperty: string;
@@ -142,6 +150,7 @@ export type CatalogConstraintDescriptor =
   | CatalogDataGridStateConstraint
   | CatalogFileInputDataConstraint
   | CatalogMasterDetailStateConstraint
+  | CatalogNumberFieldRangeConstraint
   | CatalogSearchResultsStateConstraint
   | CatalogSelectionInOptionsConstraint
   | CatalogStepNavigationStateConstraint

@@ -16,6 +16,7 @@ import { validateFileInputDataConstraint } from "./file-input-validation.js";
 import { DiagnosticCode } from "./enums.js";
 import { isPlainObject } from "./json-safety.js";
 import { validateMasterDetailStateConstraint } from "./master-detail-validation.js";
+import { validateNumberFieldRangeConstraint } from "./number-field-validation.js";
 import { validateSearchResultsStateConstraint } from "./search-results-validation.js";
 import { validateStepNavigationStateConstraint } from "./step-navigation-validation.js";
 import type { CompilerDiagnostic } from "./types.js";
@@ -40,6 +41,7 @@ const validators: Readonly<Record<CatalogConstraintKind, ConstraintValidator>> =
   [CatalogConstraintKind.DataGridState]: validateDataGridStateConstraint,
   [CatalogConstraintKind.FileInputData]: validateFileInputDataConstraint,
   [CatalogConstraintKind.MasterDetailState]: validateMasterDetailStateConstraint,
+  [CatalogConstraintKind.NumberFieldRange]: validateNumberFieldRangeConstraint,
   [CatalogConstraintKind.SearchResultsState]: validateSearchResultsStateConstraint,
   [CatalogConstraintKind.SelectionInOptions]: validateSelectionInOptions,
   [CatalogConstraintKind.StepNavigationState]: validateStepNavigationStateConstraint,

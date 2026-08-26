@@ -47,6 +47,42 @@ it("captures checkbox, multi-select, radio, and text-area values", () => {
   expect(captureTextArea()).toEqual({ name: "Notes", role: "admin" });
 });
 
+it("captures bounded NumberField values as numbers and preserves an explicit empty state", () => {
+  const configured = numberFieldContainer("42.5");
+  const numberDocument = documentWithNode("name", CoreComponentType.NumberField, {
+    max: 130,
+    min: 0,
+    step: 0.5
+  });
+  expect(captureStaticDomHydration(numberDocument, configured).values).toEqual({
+    name: 42.5,
+    role: "admin"
+  });
+  expect(captureStaticDomHydration(numberDocument, numberFieldContainer("")).values).toEqual({
+    name: null,
+    role: "admin"
+  });
+});
+
+it("rejects out-of-range, off-step, and non-number NumberField fallback controls", () => {
+  const numberDocument = documentWithNode("name", CoreComponentType.NumberField, {
+    max: 130,
+    min: 0,
+    step: 0.5
+  });
+  expect(() => captureStaticDomHydration(numberDocument, numberFieldContainer("131"))).toThrow(
+    "Static numeric value is invalid"
+  );
+  expect(() => captureStaticDomHydration(numberDocument, numberFieldContainer("42.25"))).toThrow(
+    "Static numeric value is invalid"
+  );
+  const wrongType = numberFieldContainer("42");
+  requireInput(wrongType).type = "text";
+  expect(() => captureStaticDomHydration(numberDocument, wrongType)).toThrow(
+    "Static numeric control is invalid"
+  );
+});
+
 it("captures and validates the native combobox fallback selection", () => {
   const container = staticContainer();
   requireNodeElement(container, "role").dataset["unifoldStaticComponent"] =
@@ -160,6 +196,16 @@ function staticContainer(): HTMLElement {
   const container = document.createElement("div");
   container.innerHTML = `<form data-unifold-static-document="test" data-unifold-static-node-id="form" data-unifold-static-component="Form"><button data-unifold-static-control="form">Submit</button><label data-unifold-static-node-id="name" data-unifold-static-component="TextField">Name<input data-unifold-static-control="name" value="Ada"></label><label data-unifold-static-node-id="role" data-unifold-static-component="Select">Role<select data-unifold-static-control="role"><option value="user">User</option><option value="admin" selected>Admin</option></select></label></form>`;
   document.body.append(container);
+  return container;
+}
+
+function numberFieldContainer(value: string): HTMLElement {
+  const container = staticContainer();
+  const name = requireNodeElement(container, "name");
+  name.dataset["unifoldStaticComponent"] = CoreComponentType.NumberField;
+  const input = requireInput(container);
+  input.type = "number";
+  input.value = value;
   return container;
 }
 

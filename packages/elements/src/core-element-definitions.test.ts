@@ -4,7 +4,7 @@ import { expect, it } from "vitest";
 
 import { coreElementDefinitions } from "./core-element-definitions.js";
 
-const deferredTags = new Set([
+const deferredTags = new Set<CoreElementTag>([
   CoreElementTag.AuditLog,
   CoreElementTag.Breadcrumb,
   CoreElementTag.Card,
@@ -18,6 +18,7 @@ const deferredTags = new Set([
   CoreElementTag.Image,
   CoreElementTag.MasterDetail,
   CoreElementTag.MenuButton,
+  CoreElementTag.NumberField,
   CoreElementTag.Popover,
   CoreElementTag.SearchResults,
   CoreElementTag.Stepper,

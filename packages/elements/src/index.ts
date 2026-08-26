@@ -31,10 +31,12 @@ export { UnifoldLink } from "./link.js";
 export type { UnifoldMasterDetail } from "./master-detail.js";
 export type { UnifoldMenuButton } from "./menu-button.js";
 export { UnifoldMultiSelect } from "./multi-select.js";
+export type { UnifoldNumberField } from "./number-field.js";
 export {
   NativeFormControlController,
   type NativeFormControlHost,
   type NativeFormControlInternals,
+  type NativeFormControlValidity,
   type NativeFormSubmissionValue,
   type NativeFormValueAdapter,
   type NativeFormValueProjection
@@ -44,6 +46,7 @@ export {
   NativeBooleanSubmissionValue,
   booleanFormValueAdapter,
   createStringArrayFormValueAdapter,
+  numberFormValueAdapter,
   scalarFormValueAdapter
 } from "./native-form-value-adapters.js";
 export type { UnifoldPopover } from "./popover.js";

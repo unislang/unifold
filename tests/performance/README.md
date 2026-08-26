@@ -78,6 +78,10 @@ revocation diagnostics, and one metadata-only durable-audit receipt per operatio
 An exact content/media fixture mounts 100 `Card`/`Image` pairs and updates all 100 alternative-text
 properties across 50 samples. It requires exact host counts and projection p95 at or below 100 ms.
 
+An exact numeric-control fixture mounts 100 deferred `NumberField` elements and projects all 100
+finite controlled values across 50 samples. It requires exact host count, the final native numeric
+value, and projection p95 at or below 100 ms.
+
 An exact 10,000-row MasterDetail document adds twenty post-warm-up startup and selection samples.
 Its gates require startup p95 at or below 1,000 ms, selection p95 at or below 100 ms, no more than
 200 rendered master options, the expected canonical selected row, and the matching detail content.
