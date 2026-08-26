@@ -3,7 +3,6 @@ import type { JsonObject } from "@unislang/unifold-contracts";
 import { css, html, type PropertyDeclarations, type PropertyValues } from "lit";
 import { styleMap } from "lit/directives/style-map.js";
 
-import { ElementEventType } from "./enums.js";
 import { UnifoldScalarChoiceElement } from "./scalar-choice-element.js";
 import { focusRing, hostDefaults, validationStyles } from "./styles.js";
 
@@ -95,7 +94,7 @@ export class UnifoldVirtualList extends UnifoldScalarChoiceElement {
         role="listbox"
         tabindex="0"
         aria-label=${this.label}
-        aria-disabled=${String(this.disabled)}
+        aria-disabled=${String(this.formControl.disabled)}
         aria-required=${String(this.required)}
         aria-activedescendant=${activeId(this.id, this.activeIndex, range)}
         style=${styleMap(viewportStyles)}
@@ -170,10 +169,9 @@ export class UnifoldVirtualList extends UnifoldScalarChoiceElement {
 
   private selectIndex(index: number): void {
     const option = this.options[index];
-    if (!canSelect(this.disabled, option)) return;
+    if (!canSelect(this.formControl.disabled, option)) return;
     this.activeIndex = index;
-    this.value = option.value;
-    this.emitUiEvent(ElementEventType.ControlInput, { value: this.value });
+    this.formControl.commitInput(option.value);
   }
 
   private revealActive(): void {

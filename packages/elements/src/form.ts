@@ -1,7 +1,7 @@
 import { ButtonAction } from "@unislang/unifold-catalog";
 import type { JsonValue } from "@unislang/unifold-contracts";
 import type { UiEvent } from "@unislang/unifold-events";
-import { css, html, type PropertyDeclarations } from "lit";
+import { css, type PropertyDeclarations, type PropertyValues } from "lit";
 
 import { ElementEventName, ElementEventType } from "./enums.js";
 import { hostDefaults, validationStyles } from "./styles.js";
@@ -37,6 +37,10 @@ export class UnifoldForm extends UnifoldElement {
         margin: 0;
         padding: 0;
       }
+      [data-unifold-form-children] {
+        display: grid;
+        gap: var(--unifold-space-4, 1rem);
+      }
       legend {
         font-size: 1.25rem;
         font-weight: 700;
@@ -49,9 +53,20 @@ export class UnifoldForm extends UnifoldElement {
   declare label: string;
   declare errorMessages: readonly string[];
   declare validators: readonly string[];
+  private readonly childContainer: HTMLDivElement;
+  private readonly errorSummary: HTMLDivElement;
+  private readonly legend: HTMLLegendElement;
+  private readonly nativeForm: HTMLFormElement;
 
   constructor() {
     super();
+    const scaffold = createFormScaffold(this.ownerDocument);
+    this.childContainer = scaffold.childContainer;
+    this.errorSummary = scaffold.errorSummary;
+    this.legend = scaffold.legend;
+    this.nativeForm = scaffold.form;
+    this.nativeForm.addEventListener("reset", this.onNativeReset);
+    this.nativeForm.addEventListener("submit", this.onNativeSubmit);
     this.asyncValidators = [];
     this.errorMessages = [];
     this.label = "";
@@ -69,22 +84,18 @@ export class UnifoldForm extends UnifoldElement {
   }
 
   protected override render() {
-    return html`
-      <form aria-label=${this.label} @reset=${this.onNativeReset} @submit=${this.onNativeSubmit}>
-        <fieldset>
-          <legend>${this.label}</legend>
-          ${this.errorMessages.length === 0
-            ? undefined
-            : html`<div role="alert">
-                <p>Please correct the following errors:</p>
-                <ul>
-                  ${this.errorMessages.map((message) => html`<li>${message}</li>`)}
-                </ul>
-              </div>`}
-          <slot></slot>
-        </fieldset>
-      </form>
-    `;
+    this.syncScaffold();
+    return this.nativeForm;
+  }
+
+  /** @internal Renderer-owned mount surface that preserves native form ancestry. */
+  get unifoldChildContainer(): HTMLElement {
+    return this.nativeForm.isConnected ? this.childContainer : this;
+  }
+
+  protected override updated(changed: PropertyValues): void {
+    this.adoptLightDomChildren();
+    super.updated(changed);
   }
 
   protected override eventProperties() {
@@ -128,6 +139,53 @@ export class UnifoldForm extends UnifoldElement {
     if (revision === undefined) throw new Error("Form event metadata is not configured.");
     this.emitUiEvent(type, { revision });
   }
+
+  private adoptLightDomChildren(): void {
+    while (this.firstChild !== null) this.childContainer.append(this.firstChild);
+  }
+
+  private syncScaffold(): void {
+    this.nativeForm.setAttribute("aria-label", this.label);
+    this.legend.textContent = this.label;
+    syncErrors(this.errorSummary, this.errorMessages);
+  }
+}
+
+interface FormScaffold {
+  readonly childContainer: HTMLDivElement;
+  readonly errorSummary: HTMLDivElement;
+  readonly form: HTMLFormElement;
+  readonly legend: HTMLLegendElement;
+}
+
+function createFormScaffold(document: Document): FormScaffold {
+  const form = document.createElement("form");
+  const fieldset = document.createElement("fieldset");
+  const legend = document.createElement("legend");
+  const errorSummary = document.createElement("div");
+  const childContainer = document.createElement("div");
+  childContainer.dataset["unifoldFormChildren"] = "";
+  fieldset.append(legend, errorSummary, childContainer);
+  form.append(fieldset);
+  return { childContainer, errorSummary, form, legend };
+}
+
+function syncErrors(container: HTMLDivElement, messages: readonly string[]): void {
+  container.replaceChildren();
+  container.removeAttribute("role");
+  if (messages.length === 0) return;
+  container.setAttribute("role", "alert");
+  const lead = container.ownerDocument.createElement("p");
+  lead.textContent = "Please correct the following errors:";
+  const list = container.ownerDocument.createElement("ul");
+  messages.forEach((message) => list.append(errorItem(container.ownerDocument, message)));
+  container.append(lead, list);
+}
+
+function errorItem(document: Document, message: string): HTMLLIElement {
+  const item = document.createElement("li");
+  item.textContent = message;
+  return item;
 }
 
 function isSubmitActivation(event: UiEvent): boolean {

@@ -56,7 +56,7 @@ export class UnifoldRadioGroup extends UnifoldScalarChoiceElement {
       <fieldset
         aria-describedby=${errorId}
         aria-invalid=${String(Boolean(this.errorMessage))}
-        ?disabled=${this.disabled}
+        ?disabled=${this.formControl.disabled}
       >
         <legend>${this.label}</legend>
         ${this.options.map((option) => this.renderOption(option))}

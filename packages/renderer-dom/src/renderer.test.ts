@@ -240,7 +240,8 @@ function requiredInput(element: HTMLElement): HTMLInputElement {
 }
 
 function childIds(element: HTMLElement): string[] {
-  return [...element.children].map((child) => requiredNodeId(child));
+  const host = element as HTMLElement & { readonly unifoldChildContainer?: HTMLElement };
+  return [...(host.unifoldChildContainer ?? host).children].map((child) => requiredNodeId(child));
 }
 
 function requiredNodeId(element: Element): string {

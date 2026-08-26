@@ -37,8 +37,8 @@ stops nested fallback events at the active dialog, and never becomes a second op
 | Candidate | Accessibility and event fit | Theme/ownership fit | Local p95 | Standalone gzip |
 | --- | --- | --- | ---: | ---: |
 | Native HTML | Owns top layer, inertness, cancel/close, and focus lifecycle; maps directly to one canonical activation event | Native surface accepts Unifold CSS parts and tokens without another component state model | 0.19 ms | 347 B |
-| Lion 0.21.0 | Declarative invoker/content slots over Lion's Overlay System; recent releases also use native dialog and contain nested-overlay fixes | White-label styling is compatible, but its overlay controller would duplicate Unifold open/event ownership | 1.09 ms | 26,994 B |
-| Spectrum Dialog/Overlay 1.12.2 | Mature modal/page overlay stack, focus management, trigger ARIA, nested overlays, and close events | Strong behavior reference, but Spectrum layout/tokens and overlay state are broader than the Unifold contract | 1.10 ms | 61,330 B |
+| Lion 0.21.0 | Declarative invoker/content slots over Lion's Overlay System; recent releases also use native dialog and contain nested-overlay fixes | White-label styling is compatible, but its overlay controller would duplicate Unifold open/event ownership | 1.14 ms | 26,994 B |
+| Spectrum Dialog/Overlay 1.12.2 | Mature modal/page overlay stack, focus management, trigger ARIA, nested overlays, and close events | Strong behavior reference, but Spectrum layout/tokens and overlay state are broader than the Unifold contract | 1.16 ms | 61,330 B |
 
 The executable comparison is `pnpm benchmark:dialog-foundation`; it writes the ignored
 `benchmark-results/dialog-foundation.json` artifact. Twenty samples per candidate run in the same

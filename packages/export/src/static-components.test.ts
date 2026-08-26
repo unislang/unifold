@@ -8,6 +8,7 @@ it("exports every specialized static data-view renderer", () => {
     "renderStaticBreadcrumb",
     "renderStaticDataGrid",
     "renderStaticDialog",
+    "renderStaticFileInput",
     "renderStaticMasterDetail",
     "renderStaticMenuButton",
     "renderStaticPopover",

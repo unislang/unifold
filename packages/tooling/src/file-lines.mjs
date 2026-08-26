@@ -8,6 +8,7 @@ const ignoredDirectoryNames = new Set([
   ".git",
   ".pnpm-store",
   ".tools",
+  ".tmp",
   ".turbo",
   ".vite",
   "blob-report",

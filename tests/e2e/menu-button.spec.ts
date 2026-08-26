@@ -92,10 +92,17 @@ async function retainedIdentity(host: import("@playwright/test").Locator): Promi
 
 function updateMenu(page: import("@playwright/test").Page, invalid: boolean) {
   return page.evaluate((duplicate) => {
+    function requireMenu(document: MenuDocument): MenuNode {
+      const node = document.compositions[0].template.$children.find(
+        (candidate) => candidate.id === "account-actions"
+      );
+      if (node === undefined) throw new Error("Account actions definition is missing.");
+      return node;
+    }
     const target = window as unknown as MenuWindow;
     const source = structuredClone(target.__unifoldAuthoredDocument) as MenuDocument;
     source.revision = ["menu-recovered", "menu-invalid"][Number(duplicate)] as string;
-    const menu = source.compositions[0].template.$children[3] as MenuNode;
+    const menu = requireMenu(source);
     const first = menu.items[0];
     const third = menu.items[2];
     if (first === undefined) throw new Error("First menu item is missing.");
@@ -113,11 +120,12 @@ interface MenuWindow {
 }
 
 interface MenuDocument {
-  readonly compositions: readonly [{ readonly template: { readonly $children: unknown[] } }];
+  readonly compositions: readonly [{ readonly template: { readonly $children: MenuNode[] } }];
   revision: string;
 }
 
 interface MenuNode {
+  readonly id: string;
   readonly items: { label: string; value: string }[];
 }
 

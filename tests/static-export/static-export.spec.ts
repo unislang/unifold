@@ -26,6 +26,8 @@ test.describe("without JavaScript", () => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "Static profile" })).toBeVisible();
     await expect(page.getByLabel("Name")).toHaveValue("Ada Lovelace");
+    await expect(page.getByLabel("Attachments")).toHaveAttribute("accept", ".pdf,application/pdf");
+    await expect(page.getByLabel("Attachments")).toHaveAttribute("multiple", "");
     await expect(page.getByRole("button", { name: "Save profile" })).toBeVisible();
     await assertStaticBreadcrumb(page);
     await expect(page.getByText("Account actions", { exact: true })).toBeVisible();
@@ -323,6 +325,7 @@ declare global {
     __unifoldMaxSemanticCount: number;
     __unifoldStaticFallback?: Element;
     __unifoldStaticEvents: {
+      readonly data: { readonly change?: unknown };
       readonly id: string;
       readonly sequence: number;
       readonly staterevision: number;

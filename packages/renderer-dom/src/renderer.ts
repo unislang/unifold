@@ -1,15 +1,14 @@
 import { coreCatalog, type ComponentCatalog } from "@unislang/unifold-catalog";
-import type { JsonObject } from "@unislang/unifold-contracts";
 import type { UiNodeSnapshot, UiRuntimeContext, UiValidationError } from "@unislang/unifold-events";
-import { UiNodeKind } from "@unislang/unifold-events";
 import { defaultValidationMessage } from "@unislang/unifold-forms";
 import type { CoreComponentType, UnifoldIrDocument, UnifoldIrNode } from "@unislang/unifold-ir";
 
 import { applyBindings } from "./bindings.js";
-import { createNodeSnapshot } from "./snapshot.js";
+import { createNodeSnapshot, createProjectedProperties } from "./snapshot.js";
 import type {
   DomRenderController,
   DomRendererOptions,
+  PendingElementDefinitionOptions,
   RenderedNode,
   UnifoldElementHost
 } from "./types.js";
@@ -23,7 +22,8 @@ export function renderIrDocument(
     container,
     options.catalog ?? coreCatalog,
     options.runtimeContext,
-    options.validationMessage
+    options.validationMessage,
+    options.pendingElementDefinitions
   );
   renderer.mount(document);
   return renderer;
@@ -39,7 +39,8 @@ class DomRenderer implements DomRenderController {
     private readonly container: HTMLElement,
     private readonly catalog: ComponentCatalog,
     private readonly runtimeOverrides?: Partial<UiRuntimeContext>,
-    validationMessage?: DomRendererOptions["validationMessage"]
+    validationMessage?: DomRendererOptions["validationMessage"],
+    private readonly pendingDefinitions?: DomRendererOptions["pendingElementDefinitions"]
   ) {
     this.validationMessage = validationMessage ?? defaultValidationMessage;
   }
@@ -49,6 +50,7 @@ class DomRenderer implements DomRenderController {
     this.document = document;
     const root = this.createElement(document.rootNodeId, document);
     this.container.replaceChildren(root);
+    this.queuePendingUpgrades();
   }
 
   update(document: UnifoldIrDocument): void {
@@ -62,6 +64,7 @@ class DomRenderer implements DomRenderController {
     this.removeMissingNodes(document);
     this.reconcileNode(document.rootNodeId, document);
     this.document = document;
+    this.queuePendingUpgrades();
   }
 
   dispose(): void {
@@ -81,23 +84,29 @@ class DomRenderer implements DomRenderController {
   project(snapshot: UiNodeSnapshot, routedErrors: readonly UiValidationError[] = []): void {
     const rendered = this.nodes.get(snapshot.id);
     if (rendered === undefined) throw new Error(`Rendered node is missing: ${snapshot.id}.`);
-    const properties = projectedProperties(snapshot, routedErrors, this.validationMessage);
+    const properties = createProjectedProperties(snapshot, routedErrors, this.validationMessage);
     applyBindings(rendered.element, rendered.descriptor, rendered.properties, properties);
     rendered.element.eventNode = snapshot;
+    rendered.eventNode = snapshot;
     rendered.properties = properties;
   }
 
   async restoreFocus(nodeId: string): Promise<void> {
     const element = this.getElement(nodeId) as UnifoldElementHost | undefined;
     if (element === undefined) return;
+    const ancestorUpdates = pendingAncestorUpdates(element);
+    focusElement(element);
     await element.updateComplete;
+    focusElement(element);
+    await Promise.all(ancestorUpdates);
     focusElement(element);
   }
 
   private createElement(id: string, document: UnifoldIrDocument): UnifoldElementHost {
     const node = requireNode(document, id);
     const element = this.createHost(node, document);
-    node.childIds.forEach((childId) => element.append(this.createElement(childId, document)));
+    const container = childContainer(element);
+    node.childIds.forEach((childId) => container.append(this.createElement(childId, document)));
     return element;
   }
 
@@ -106,10 +115,43 @@ class DomRenderer implements DomRenderController {
     const element = documentOwner(this.container).createElement(
       descriptor.tagName
     ) as UnifoldElementHost;
-    configureHost(element, node, this.runtimeContext(document), this.stateRevision);
+    const eventNode = createNodeSnapshot(node, this.stateRevision);
+    const runtimeContext = this.runtimeContext(document);
+    configureHost(element, node, eventNode, runtimeContext);
     applyBindings(element, descriptor, undefined, node.properties);
-    this.nodes.set(node.id, { descriptor, element, node, properties: node.properties });
+    const rendered = {
+      descriptor,
+      element,
+      eventNode,
+      node,
+      properties: node.properties,
+      runtimeContext
+    };
+    this.nodes.set(node.id, rendered);
     return element;
+  }
+
+  private queuePendingUpgrades(): void {
+    const definitions = this.pendingDefinitions;
+    if (definitions === undefined) return;
+    const pending = [...this.nodes.values()].filter(
+      ({ descriptor }) => definitions.registry.get(descriptor.tagName) === undefined
+    );
+    if (pending.length === 0) return;
+    queueMicrotask(() => void this.loadPendingUpgrades(definitions, pending));
+  }
+
+  private async loadPendingUpgrades(
+    definitions: PendingElementDefinitionOptions,
+    pending: readonly RenderedNode[]
+  ): Promise<void> {
+    const { watchPendingElementUpgrades } = await import("./pending-element-upgrades.js");
+    watchPendingElementUpgrades(
+      definitions,
+      pending,
+      (id) => this.nodes.get(id),
+      () => this.document !== undefined
+    );
   }
 
   private requireDescriptor(node: UnifoldIrNode) {
@@ -127,8 +169,9 @@ class DomRenderer implements DomRenderController {
       rendered = this.replaceHost(rendered, next, document);
     }
     this.updateRendered(rendered, next, document);
+    const container = childContainer(rendered.element);
     next.childIds.forEach((childId, index) => {
-      placeChild(rendered.element, this.reconcileNode(childId, document), index);
+      placeChild(container, this.reconcileNode(childId, document), index);
     });
     return rendered.element;
   }
@@ -141,8 +184,10 @@ class DomRenderer implements DomRenderController {
     if (!sameProperties(rendered.node, next)) {
       applyBindings(rendered.element, rendered.descriptor, rendered.properties, next.properties);
     }
-    rendered.element.eventNode = createNodeSnapshot(next, this.stateRevision);
-    rendered.element.runtimeContext = this.runtimeContext(document);
+    rendered.eventNode = createNodeSnapshot(next, this.stateRevision);
+    rendered.runtimeContext = this.runtimeContext(document);
+    rendered.element.eventNode = rendered.eventNode;
+    rendered.element.runtimeContext = rendered.runtimeContext;
     rendered.node = next;
     rendered.properties = next.properties;
   }
@@ -154,7 +199,10 @@ class DomRenderer implements DomRenderController {
   ): RenderedNode {
     this.nodes.delete(next.id);
     const replacement = this.createHost(next, document);
-    [...rendered.element.children].forEach((child) => replacement.append(child));
+    const replacementContainer = childContainer(replacement);
+    [...childContainer(rendered.element).children].forEach((child) =>
+      replacementContainer.append(child)
+    );
     rendered.element.replaceWith(replacement);
     return this.requireRendered(replacement, next.id);
   }
@@ -198,12 +246,12 @@ class DomRenderer implements DomRenderController {
 function configureHost(
   element: UnifoldElementHost,
   node: UnifoldIrNode,
-  context: UiRuntimeContext,
-  stateRevision: number
+  eventNode: UiNodeSnapshot,
+  context: UiRuntimeContext
 ): void {
   element.id = node.id;
   element.dataset["unifoldNodeId"] = node.id;
-  element.eventNode = createNodeSnapshot(node, stateRevision);
+  element.eventNode = eventNode;
   element.runtimeContext = context;
 }
 
@@ -230,6 +278,21 @@ function placeChild(parent: HTMLElement, child: HTMLElement, index: number): voi
   if (current !== child) parent.insertBefore(child, current);
 }
 
+function childContainer(element: UnifoldElementHost): HTMLElement {
+  return element.unifoldChildContainer ?? element;
+}
+
+function pendingAncestorUpdates(element: UnifoldElementHost): readonly Promise<boolean>[] {
+  const updates: Promise<boolean>[] = [];
+  let current: HTMLElement | null = element.parentElement;
+  while (current !== null) {
+    const update = (current as UnifoldElementHost).updateComplete;
+    if (update !== undefined) updates.push(update);
+    current = current.parentElement;
+  }
+  return updates;
+}
+
 function resolveText(value: string | undefined, fallback: string): string {
   return value ?? fallback;
 }
@@ -239,48 +302,4 @@ function focusElement(element: HTMLElement): void {
     "input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), a[href]"
   );
   (target ?? element).focus();
-}
-
-function projectedProperties(
-  snapshot: UiNodeSnapshot,
-  routedErrors: readonly UiValidationError[],
-  formatMessage: NonNullable<DomRendererOptions["validationMessage"]>
-): JsonObject {
-  return {
-    ...snapshot.properties,
-    disabled: snapshot.base.disabled,
-    readonly: snapshot.base.readonly,
-    ...controlProperties(snapshot),
-    ...validationProperties(snapshot, routedErrors, formatMessage)
-  };
-}
-
-function controlProperties(snapshot: UiNodeSnapshot): JsonObject {
-  const control = snapshot.control;
-  return control === undefined ? {} : { required: control.required, value: control.rawValue };
-}
-
-function validationProperties(
-  snapshot: UiNodeSnapshot,
-  routedErrors: readonly UiValidationError[],
-  formatMessage: NonNullable<DomRendererOptions["validationMessage"]>
-): JsonObject {
-  if (snapshot.control === undefined) return {};
-  const messages = visibleValidationMessages(snapshot, routedErrors, formatMessage);
-  if (snapshot.kind === UiNodeKind.Form) return { errorMessages: messages };
-  return { errorMessage: firstMessage(messages) };
-}
-
-function firstMessage(messages: readonly string[]): string {
-  return messages[0] ?? "";
-}
-
-function visibleValidationMessages(
-  snapshot: UiNodeSnapshot,
-  routedErrors: readonly UiValidationError[],
-  formatMessage: NonNullable<DomRendererOptions["validationMessage"]>
-): readonly string[] {
-  const control = snapshot.control;
-  if (control === undefined || !control.touched) return [];
-  return [...control.errors, ...routedErrors].map(formatMessage);
 }

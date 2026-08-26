@@ -68,10 +68,12 @@ export class UnifoldTextField extends UnifoldScalarTextElement {
           name=${this.name}
           placeholder=${this.placeholder}
           type=${this.inputType}
-          ?disabled=${this.disabled}
+          ?disabled=${this.formControl.disabled}
           ?readonly=${this.readonly}
           ?required=${this.required}
           @input=${this.onTextInput}
+          @compositionstart=${this.onCompositionStart}
+          @compositionend=${this.onCompositionEnd}
           @blur=${this.onTextBlur}
         />
       </label>

@@ -9,13 +9,30 @@ critical seam; it is not yet the full catalog or Studio product described by the
   Changesets, and executable file/function/complexity policies.
 - A safe JSON document contract, validation diagnostics, normalized immutable IR, and a minimal
   JsonUI-compatible profile for Accordion, Alert, AuditLog, Box, Breadcrumb, Button, Checkbox, Combobox,
-  Composition, DataGrid, Dialog, Form, Grid, Heading, Icon, Link, MasterDetail, MenuButton, MultiSelect,
+  Composition, DataGrid, Dialog, FileInput, Form, Grid, Heading, Icon, Link, MasterDetail, MenuButton, MultiSelect,
   Popover, RadioGroup, SearchResults, Select, Stack, Stepper, Tabs, Table, Text, TextArea, TextField,
   Tooltip, VirtualList, and Wizard. Catalog-backed property validation rejects unknown properties, invalid enum values,
   malformed option, table, or audit lists, invalid string-array values, duplicate option values, duplicate
   table column/row or audit-entry identities, undeclared table cells, and selections absent from their declared
   options before rendering. Reusable enum-backed catalog constraint descriptors keep cross-property
   policy out of component-name conditionals.
+- A bounded native `FileInput` whose JSON value is metadata-only. Catalog and IR validation enforce
+  exact opaque UUID, byte-size, and MIME keys, unique IDs, the 32-file ceiling, MIME/extension
+  acceptance, and an authored per-file byte ceiling. Names and modification times never enter the
+  portable contract. Browser `File` handles remain ephemeral behind exact-ID
+  `resolveSelectedFile()` for trusted upload adapters and are cleared on rollback or disconnect;
+  static export never serializes metadata or bytes and restored metadata truthfully requires
+  reselection.
+- Native form interoperability for scalar text and single-choice controls through one reusable Lit
+  controller over `ElementInternals`. TextField, TextArea, Select, RadioGroup, and VirtualList
+  participate in native ownership and `FormData`, disabled fieldsets, reset/state restoration,
+  validity, and IME de-duplication while the Unifold runtime remains the only committed state
+  authority. Boolean, multi-value, and file form-value adapters remain explicit follow-up work.
+- Strict custom-element preflight remains the default. Trusted hosts may opt into enum-backed
+  `AllowPending` mounting for catalog-known deferred families. Compatible late definitions replay
+  the latest properties, event snapshot, runtime context, and child container after synchronous
+  mount; removed, replaced, disposed, and foreign-definition cases fail closed. The reference then
+  commits its post-mount JSON augmentation through the ordinary application-update boundary.
 - A required, dependency-isolated `@unislang/unifold-jsonui` compiler profile pinned to upstream
   `@jsonui/core`/`@jsonui/react` 0.10.25 commit
   `5401b3d4900ca3032c108d6db00e8a819f4b28e9`; its complete feature corpus, stable-ID extension,
@@ -27,8 +44,8 @@ critical seam; it is not yet the full catalog or Studio product described by the
   outcomes and verifies Unifold's exact redacted canonical event chain in Chromium, Firefox, and
   WebKit. Its
   measured isolated production-profile cost is 5.88 kB minified/1.76 kB
-  gzip. The current complete reference is 179.39 KiB gzip against the executable 180 KiB Phase 1
-  budget.
+  gzip. The current startup closure is 179.96 KiB gzip against the executable 180 KiB Phase 1
+  budget; required validation is included and optional families are audited post-mount.
 - Typed `UiStoreDefinition` contracts and a Unifold `store`/`path` profile extension. The compiler
   validates unique definitions, enum-backed policy, embedded local-only Draft 2020-12 schemas,
   byte quotas, schema pointers, and catalog value types into immutable IR bindings. Trusted
@@ -104,7 +121,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
 - A Vercel AI SDK 7 provider-model boundary with schema-constrained patch proposals, RFC 8785 base
   fingerprints, RFC 6902 operations, stable-path and revision policy, risk enums, approval gating,
   compiler validation, and commit through the normal application coordinator.
-- Browser-safe portable JSON and static HTML exporters. Static HTML covers all thirty-three core
+- Browser-safe portable JSON and static HTML exporters. Static HTML covers all thirty-four core
   components with native no-JavaScript content, deterministic upgrade markers, public-data-only
   values, exactly one script-safe JSON-LD graph, and a versioned SHA-256 integrity manifest.
 - A versioned detached Ed25519 document envelope and JSON Schema, browser-safe signing helper, and
@@ -180,7 +197,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
   JSON children, focus restoration, native top-layer enhancement, and static disclosure fallback; a read-only,
   virtualized AuditLog with native list/time semantics; a Tailwind theme foundation;
   component metadata; a DOM renderer; and a JSON-defined reference form.
-- An experimental full-catalog `ComponentDefinition` pipeline for all thirty-three core elements. The
+- An experimental full-catalog `ComponentDefinition` pipeline for all thirty-four core elements. The
   official Custom Elements Manifest analyzer and schema derive and validate element API facts;
   enum-backed catalog sidecars supply behavior, accessibility, privacy, structured semantics,
   complete examples, and test evidence. The package publishes standard CEM and joined definition
@@ -314,9 +331,9 @@ critical seam; it is not yet the full catalog or Studio product described by the
   identity, and pre-render adapter rejection. The default runtime stream applies
   classification-aware public-safe disclosure.
 - Client-side validation and application coordination contribute materially to the reference bundle.
-  The current reference closure is 179.39 KiB gzip and remains below the executable 180 KiB gate,
-  which sums every emitted JavaScript chunk after each reference build. Preserve the `/validation`
-  split and evaluate schema
+  The current startup closure is 184,278 gzip bytes (179.96 KiB) and remains below the executable
+  180 KiB gate. It includes startup-required validation; optional component families load after
+  mount and are audited separately at 32,840 gzip bytes. Preserve the `/validation` boundary and evaluate schema
   precompilation, build-time validation, or an explicit lazy authoring/compiler boundary before
   setting production bundle budgets.
 - Valid dynamic option replacement, declarative dependency scheduling, localization, configurable
@@ -336,8 +353,8 @@ critical seam; it is not yet the full catalog or Studio product described by the
   boundary has a bounded, mutation-isolated LRU cache: schema-valid 500-node cold and cached paths
   measure 1.60 and 1.48 ms p95 against 50 and 16 ms limits, while full 2,000-node validation and
   normalization measures 6.30 ms p95 against its 200 ms off-interaction-path limit. After five
-  cache-registration warm-ups, twenty public 500-node mount/revision/dispose cycles retain 1.49%
-  over the forced-GC baseline, below the strict 2% lifecycle limit. A schema-valid 10,000-option
+  cache-registration warm-ups, twenty public 500-node mount/revision/dispose cycles retain 548,240
+  bytes, or 1.04% over the forced-GC baseline, below the strict 2% lifecycle limit. A schema-valid 10,000-option
   Combobox filters in 2.18 ms p95 and renders exactly 200 options against 100 ms and 200-option
   gates. A schema-valid 10,000-option VirtualList starts in 22.68 ms p95 and renders at most 23 rows against 1,000 ms and 200-row gates,
   while Chromium proves distant-window focus, selection, and runtime commit behavior. The
@@ -364,7 +381,9 @@ critical seam; it is not yet the full catalog or Studio product described by the
   adapter calls and invalidates the exact tagged set in 0.81 ms p95; focused tests cover registered
   operations, paging/cache identity, retention, offline recovery, retries, conflicts, optimistic
   rollback, cross-context notifications, cancellation, timeout abort, and stale completion.
-  All forty-seven timing and lifecycle limits are executable benchmark gates. Ratification still requires a provisioned,
+  The metadata-only 32-file selection profile measures 0.24 ms p95 against 100 ms, retains exactly
+  32 ephemeral handles, and proves file bytes never enter canonical JSON. All forty-eight timing and
+  lifecycle limits are executable benchmark gates. Ratification still requires a provisioned,
   versioned mid-tier runner.
   Full-document 10k structural reconciliation remains materially slower than leaf and bulk
   transactions. See [performance evidence](./performance.md).

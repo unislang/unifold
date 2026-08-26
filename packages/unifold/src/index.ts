@@ -38,6 +38,7 @@ export * from "@unislang/unifold-data";
 export { createMemoryStoreAdapter, UiStoreConfigurationError } from "./store-adapters.js";
 export { createWebStorageStoreAdapter, type UiWebStoragePort } from "./web-storage-adapter.js";
 export {
+  ElementDefinitionPolicy,
   ElementRegistrationDiagnosticCode,
   ElementRegistrationStatus,
   defineUnifoldElements,

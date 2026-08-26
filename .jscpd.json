@@ -3,6 +3,7 @@
   "formats": ["javascript", "typescript", "tsx", "json", "yaml"],
   "ignore": [
     "**/.git/**",
+    "**/.tmp/**",
     "**/.tools/**",
     "**/node_modules/**",
     "**/dist/**",

@@ -12,6 +12,7 @@ const NODE_KINDS: Readonly<Record<CoreComponentType, UiNodeKind>> = {
   [CoreComponentType.Composition]: UiNodeKind.Composition,
   [CoreComponentType.DataGrid]: UiNodeKind.Control,
   [CoreComponentType.Dialog]: UiNodeKind.Component,
+  [CoreComponentType.FileInput]: UiNodeKind.Control,
   [CoreComponentType.Form]: UiNodeKind.Form,
   [CoreComponentType.Grid]: UiNodeKind.Component,
   [CoreComponentType.Heading]: UiNodeKind.Component,

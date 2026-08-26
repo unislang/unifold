@@ -33,19 +33,28 @@ pnpm test:e2e:static-export
 pnpm test:consumer
 ```
 
-The reference build sums the gzip size of every emitted JavaScript chunk and fails above 180 KiB;
-this keeps the architecture budget executable even if code splitting introduces additional files.
+The reference build sums the gzip size of the entry's complete static import closure and fails above
+180 KiB. Startup-required validation is in that closure. Optional component families are requested
+only after the application mounts; their emitted chunks are audited and reported separately as
+post-mount JavaScript.
 
 `pnpm test:consumer` is the release-artifact boundary: it installs packed packages outside the
 workspace, typechecks and bundles a public-API-only fixture, and runs its lifecycle in Chromium.
 See [Packaging and clean-consumer verification](./packaging.md).
 
-The 2026-08-26 local acceptance snapshot runs 400 package test files and 1,010 tests with zero
-failures. V8 coverage records 97.38% lines/statements, 97.02% functions, and 90.01% branches across
-package source. The complete command also passes 16 tooling tests, 10 generated/script tests, and
-24 performance correctness files with the 18 long-running profiles intentionally skipped there and
-run by `pnpm benchmark:selective`. These observations supplement, rather than replace, the
-executable 90% repository coverage thresholds.
+The 2026-08-26 local acceptance snapshot runs 428 package test files and 1,079 tests with zero
+failures. V8 coverage records 97.42% lines/statements, 97.01% functions, and 90.09% branches,
+passing the executable 90% repository thresholds. The complete matrix also
+passes 16 tooling tests, 8 generated/CEM script tests, the theme/reference script tests, and 26
+performance correctness files/36 tests with the long-running profiles intentionally skipped there
+and run by `pnpm benchmark:selective`. These observations supplement, rather than replace, the
+executable coverage thresholds.
+
+The same snapshot passes 153 reference journeys across Chromium, Firefox, and WebKit with six
+intentional non-Chromium scale skips, plus 36/36 static no-JavaScript and upgrade journeys across
+all three engines. The static matrix includes JSON-LD ownership/integrity and the metadata-only
+FileInput upgrade. Run the reference matrix with a bounded worker count when collecting release
+evidence so workstation saturation is not mistaken for application latency.
 
 ## Test placement
 
@@ -73,6 +82,9 @@ pnpm exec playwright test --config tests/e2e/playwright.config.ts --project chro
 
 The reference matrix runs Chromium, Firefox, and WebKit. Keep all three projects in CI because
 engine-specific keyboard, shadow-DOM, and accessibility behavior can diverge.
+The reference page exposes an explicit pending/ready/failed startup marker. Browser navigation waits
+for that marker so post-mount optional-family registration and its synchronization transaction are
+settled before a scenario records its event and render baselines.
 To test an externally managed server, set `PLAYWRIGHT_BASE_URL`; the suite will skip its local
 preview lifecycle. Set `PLAYWRIGHT_REFERENCE_PORT` to move the strict, isolated local preview when
 the default port is occupied.

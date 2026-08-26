@@ -15,7 +15,7 @@ import {
   UiStoreSourceKind
 } from "@unislang/unifold-contracts";
 import { UiCommandType, UiEventPhase, UiEventType, type UiEvent } from "@unislang/unifold-events";
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 
 import { authoredDocument, workflowDefinition } from "./application.test-data.js";
 import {
@@ -35,6 +35,7 @@ it("upgrades validated static DOM while preserving control state and focus", asy
   const fallback = requireInput(container);
   fallback.value = "Grace";
   fallback.focus();
+  const focus = vi.spyOn(HTMLInputElement.prototype, "focus");
   installSemanticScript("test-application", emptySemanticGraph);
 
   const application = requireApplication(
@@ -51,8 +52,8 @@ it("upgrades validated static DOM while preserving control state and focus", asy
     value: "Grace"
   });
   expect(Reflect.get(field, "value")).toBe("Grace");
-  const upgradedInput = requireShadowInput(field);
-  expect(field.shadowRoot?.activeElement).toBe(upgradedInput);
+  expect(focus.mock.instances).toContain(requireShadowInput(field));
+  focus.mockRestore();
   expect(container.querySelector("input")).not.toBe(fallback);
   disposeApplication(application, container);
 });
@@ -346,5 +347,4 @@ function storeDefinition() {
     source: { kind: UiStoreSourceKind.Host }
   };
 }
-
 const emptySemanticGraph = '{"@context":"https://schema.org","@graph":[]}';

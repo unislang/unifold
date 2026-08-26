@@ -130,28 +130,29 @@ function nodeHost(page: Page, nodeId: string) {
 }
 
 async function rememberStableNode(page: Page): Promise<void> {
-  await page.evaluate((nodeId) => {
-    (window as unknown as MigrationWindow).__unifoldStableMigrationNode = document.querySelector(
-      `[data-unifold-node-id="${nodeId}"]`
-    );
-  }, STABLE_NODE_ID);
+  await page.locator(`[data-unifold-node-id="${STABLE_NODE_ID}"]`).evaluate((element) => {
+    (window as unknown as MigrationWindow).__unifoldStableMigrationNode = element;
+  });
 }
 
 function hasStableNode(page: Page): Promise<boolean> {
-  return page.evaluate((nodeId) => {
+  return page.locator(`[data-unifold-node-id="${STABLE_NODE_ID}"]`).evaluate((element) => {
     const target = window as unknown as MigrationWindow;
-    return (
-      target.__unifoldStableMigrationNode ===
-      document.querySelector(`[data-unifold-node-id="${nodeId}"]`)
-    );
-  }, STABLE_NODE_ID);
+    return target.__unifoldStableMigrationNode === element;
+  });
 }
 
 function semanticName(page: Page): Promise<string | undefined> {
-  return page.locator("script[data-unifold-semantics]").evaluate((element) => {
-    const value = JSON.parse(element.textContent ?? "{}") as { "@graph": [{ name: string }] };
-    return value["@graph"][0].name;
-  });
+  return page.locator("script[data-unifold-semantics]").evaluate((element, personId) => {
+    const value = JSON.parse(element.textContent ?? "{}") as SemanticGraph;
+    return value["@graph"].find((entity) => entity["@id"] === personId)?.name;
+  }, PROFILE_PERSON_ID);
+}
+
+const PROFILE_PERSON_ID = "urn:unifold:person:current";
+
+interface SemanticGraph {
+  readonly "@graph": readonly { readonly "@id": string; readonly name?: string }[];
 }
 
 type ProfileMigrationMode = "preserve" | "reset" | "unreviewed";

@@ -3,8 +3,9 @@ import { defineConfig } from "vite";
 export default defineConfig({
   build: {
     manifest: true,
+    modulePreload: false,
     terserOptions: {
-      compress: { passes: 3 },
+      compress: { passes: 4 },
       module: true,
       toplevel: true
     }

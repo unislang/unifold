@@ -74,10 +74,17 @@ async function retainedIdentity(host: import("@playwright/test").Locator): Promi
 
 function updateTooltip(page: import("@playwright/test").Page, invalid: boolean) {
   return page.evaluate((reject) => {
+    function requireTooltip(document: TooltipDocument): TooltipNode {
+      const node = document.compositions[0].template.$children.find(
+        (candidate) => candidate.id === "account-actions-help"
+      );
+      if (node === undefined) throw new Error("Account actions tooltip is missing.");
+      return node;
+    }
     const target = window as unknown as TooltipWindow;
     const source = structuredClone(target.__unifoldAuthoredDocument) as TooltipDocument;
     source.revision = reject ? "tooltip-invalid" : "tooltip-recovered";
-    const tooltip = source.compositions[0].template.$children[4] as TooltipNode;
+    const tooltip = requireTooltip(source);
     tooltip.content = "Updated tenant-scoped help.";
     tooltip.label = "Updated account action help";
     tooltip.placement = reject ? "center" : "bottom";
@@ -92,12 +99,13 @@ interface TooltipWindow {
 }
 
 interface TooltipDocument {
-  readonly compositions: readonly [{ readonly template: { readonly $children: unknown[] } }];
+  readonly compositions: readonly [{ readonly template: { readonly $children: TooltipNode[] } }];
   revision: string;
 }
 
 interface TooltipNode {
   content: string;
+  readonly id: string;
   label: string;
   placement: string;
 }

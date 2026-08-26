@@ -10,6 +10,7 @@ import { auditLogSidecar } from "./audit-log-sidecar.js";
 import { breadcrumbSidecar } from "./breadcrumb-sidecar.js";
 import { comboboxSidecar } from "./combobox-sidecar.js";
 import { dialogSidecar } from "./dialog-sidecar.js";
+import { fileInputSidecar } from "./file-input-sidecar.js";
 import { ComponentAccessibilityPattern, IconName } from "./enums.js";
 import { searchResultsSidecar } from "./search-results-sidecar.js";
 import { menuButtonSidecar } from "./menu-sidecar.js";
@@ -20,7 +21,7 @@ import type { ComponentDefinitionSidecar } from "./types.js";
 const contentScenario = "renders semantic content and publishes Link activation";
 const layoutScenario = "renders nested token-based Box, Stack, and Grid primitives";
 const nativeChoiceScenario = "routes native choice and disclosure controls through one stream";
-const sidecars: Readonly<Record<CoreComponentType, ComponentDefinitionSidecar>> = Object.freeze({
+export const componentDefinitionSidecars = Object.freeze({
   [CoreComponentType.Accordion]: definition({
     behaviors: ["Uses native details disclosure state", "Emits a controlled disclosure intent"],
     browserScenarios: [nativeChoiceScenario],
@@ -122,6 +123,7 @@ const sidecars: Readonly<Record<CoreComponentType, ComponentDefinitionSidecar>> 
     sensitiveProperties: ["caption", "columns", "emptyMessage", "errorMessage", "rows", "value"]
   }),
   [CoreComponentType.Dialog]: dialogSidecar,
+  [CoreComponentType.FileInput]: fileInputSidecar,
   [CoreComponentType.Form]: definition({
     behaviors: [
       "Uses native form submission",
@@ -343,8 +345,6 @@ const sidecars: Readonly<Record<CoreComponentType, ComponentDefinitionSidecar>> 
     sensitiveProperties: ["errorMessage", "options", "value"]
   }),
   [CoreComponentType.Wizard]: wizardSidecar
-});
-export const componentDefinitionSidecars = sidecars;
-export function getComponentDefinitionSidecar(type: CoreComponentType): ComponentDefinitionSidecar {
-  return sidecars[type];
-}
+} satisfies Readonly<Record<CoreComponentType, ComponentDefinitionSidecar>>);
+export const getComponentDefinitionSidecar = (type: CoreComponentType) =>
+  componentDefinitionSidecars[type];

@@ -48,10 +48,18 @@ function hasHiddenComposedAncestor(element: HTMLElement): boolean {
 }
 
 function isHidden(element: HTMLElement): boolean {
-  if (element.hidden || element.inert || element.getAttribute("aria-hidden") === "true")
-    return true;
-  const style = element.ownerDocument.defaultView?.getComputedStyle(element);
-  return style?.display === "none" || style?.visibility === "hidden";
+  return isAttributeHidden(element) || isStyleHidden(element);
+}
+
+function isAttributeHidden(element: HTMLElement): boolean {
+  return element.hidden || element.inert || element.getAttribute("aria-hidden") === "true";
+}
+
+function isStyleHidden(element: HTMLElement): boolean {
+  const view = element.ownerDocument.defaultView;
+  if (view === null) return false;
+  const style = view.getComputedStyle(element);
+  return style.display === "none" || style.visibility === "hidden";
 }
 
 function composedParent(element: HTMLElement): HTMLElement | null {

@@ -3,7 +3,11 @@ import {
   CatalogPropertyType,
   ComponentCapability,
   ComponentDefinitionSchemaVersion,
+  FileMetadataProperty,
   MAXIMUM_BREADCRUMB_ITEMS,
+  MAXIMUM_FILE_ACCEPT_LENGTH,
+  MAXIMUM_FILE_COUNT,
+  MAXIMUM_FILE_ID_LENGTH,
   MAXIMUM_MENU_ITEMS,
   componentDefinitionSidecars,
   coreCatalog,
@@ -72,6 +76,35 @@ const scalarSchemas = Object.freeze({
     required: ["selectedRowIds"],
     type: "object"
   },
+  [CatalogPropertyType.FileAccept]: {
+    maxLength: MAXIMUM_FILE_ACCEPT_LENGTH,
+    type: "string"
+  },
+  [CatalogPropertyType.FileMetadataList]: {
+    items: {
+      additionalProperties: false,
+      properties: {
+        [FileMetadataProperty.Id]: {
+          maxLength: MAXIMUM_FILE_ID_LENGTH,
+          minLength: MAXIMUM_FILE_ID_LENGTH,
+          pattern:
+            "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+          type: "string"
+        },
+        [FileMetadataProperty.Size]: {
+          maximum: Number.MAX_SAFE_INTEGER,
+          minimum: 0,
+          type: "integer"
+        },
+        [FileMetadataProperty.Type]: { maxLength: 255, type: "string" }
+      },
+      required: Object.values(FileMetadataProperty),
+      type: "object"
+    },
+    maxItems: MAXIMUM_FILE_COUNT,
+    type: "array",
+    uniqueItems: true
+  },
   [CatalogPropertyType.MenuItemList]: {
     items: {
       additionalProperties: false,
@@ -100,7 +133,11 @@ const scalarSchemas = Object.freeze({
     },
     type: "array"
   },
-  [CatalogPropertyType.PositiveInteger]: { minimum: 1, type: "integer" },
+  [CatalogPropertyType.PositiveInteger]: {
+    maximum: Number.MAX_SAFE_INTEGER,
+    minimum: 1,
+    type: "integer"
+  },
   [CatalogPropertyType.SafeUrl]: { type: "string" },
   [CatalogPropertyType.SearchResultList]: {
     items: {

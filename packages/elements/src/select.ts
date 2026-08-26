@@ -50,7 +50,7 @@ export class UnifoldSelect extends UnifoldScalarChoiceElement {
           aria-invalid=${String(Boolean(this.errorMessage))}
           .value=${this.value}
           name=${this.name}
-          ?disabled=${this.disabled}
+          ?disabled=${this.formControl.disabled}
           ?required=${this.required}
           @change=${this.onChoiceChange}
           @blur=${this.onChoiceBlur}

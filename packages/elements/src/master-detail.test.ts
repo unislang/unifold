@@ -23,7 +23,7 @@ it("selects a virtual master record and emits its complete canonical value", asy
   expect(requireDetail(workspace).textContent).toContain("Pending");
   expect(events).toHaveBeenCalledTimes(1);
   const detail = events.mock.calls[0]?.[0].detail;
-  expect(detail.data.change).toEqual({ value: "grace" });
+  expect(detail.data.change).toEqual({ origin: "input", value: "grace" });
   expect(detail.data.snapshot.control.value).toBe("grace");
   expect(detail.data.snapshot.properties).not.toHaveProperty("options");
   expect(workspace.shadowRoot?.activeElement).toBe(viewport);

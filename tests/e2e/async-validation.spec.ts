@@ -45,7 +45,7 @@ test("projects an authoritative async validation error accessibly", async ({ pag
     .toBe(2);
   await expect(name).toHaveAttribute("aria-invalid", "true");
   const form = page.getByRole("form", { name: "Profile" });
-  await expect(form.getByText("This name is unavailable.")).toHaveCount(1);
+  await expect(form.getByText("This name is unavailable.")).toHaveCount(2);
   expect(countEvents(await unifold.events(), UiEventType.ValidationCompleted)).toBe(2);
 });
 

@@ -1,6 +1,6 @@
 # Core components
 
-The implemented core catalog contains thirty-three JSON-constructible Web Components. Every component has a
+The implemented core catalog contains thirty-four JSON-constructible Web Components. Every component has a
 stable node ID, participates in the same canonical event stream, and receives selective state
 projection through the application runtime. The catalog descriptor is the authority for accepted
 properties; the IR compiler rejects unknown properties and values of the wrong type before render.
@@ -18,6 +18,7 @@ properties; the IR compiler rejects unknown properties and values of the wrong t
 | `Composition`   | `unifold-composition`    | none           | grouping host              | descendant scope                       |
 | `DataGrid`      | `unifold-data-grid`      | object         | table and native inputs    | `control.input`, `control.blurred`     |
 | `Dialog`        | `unifold-dialog`         | none           | native dialog + fallback   | `component.activated`                  |
+| `FileInput`     | `unifold-file-input`     | metadata array | native file input          | `control.input`, `control.blurred`     |
 | `Form`          | `unifold-form`           | derived object | `form`                     | `form.submit-requested`                |
 | `Grid`          | `unifold-grid`           | none           | slotted grid container     | descendant scope                       |
 | `Heading`       | `unifold-heading`        | none           | native `h1`–`h6`           | none                                   |
@@ -44,12 +45,35 @@ properties; the IR compiler rejects unknown properties and values of the wrong t
 Event names above use their readable suffixes. The wire values are versioned enums such as
 `org.unifold.ui.control.input.v1`, exported as `ElementEventType`.
 
-The baseline registration includes the nineteen small families. AuditLog, Breadcrumb, Combobox, DataGrid,
-Dialog, MasterDetail, MenuButton, Popover, SearchResults, Stepper, Tabs, Tooltip, VirtualList, and Wizard are deferred
-families loaded through matching `@unislang/unifold/<kebab-case-name>` subpaths before mounting JSON
-that references them. Every subpath exports a `defineUnifold*()` registration function and the
-element class. The split is a delivery boundary only: descriptors, IR validation, snapshots,
-events, static rendering, and accessibility requirements remain catalog-authoritative.
+The baseline registration includes the nineteen small families. AuditLog, Breadcrumb, Combobox,
+DataGrid, Dialog, FileInput, MasterDetail, MenuButton, Popover, SearchResults, Stepper, Tabs,
+Tooltip, VirtualList, and Wizard are deferred families loaded through matching
+`@unislang/unifold/<kebab-case-name>` subpaths. Strict mounting requires those definitions before
+render. A trusted host may explicitly select `ElementDefinitionPolicy.AllowPending`; catalog-known
+hosts then mount immediately and replay their latest validated properties, event snapshot, runtime
+context, and children when a compatible definition arrives. Every subpath exports a
+`defineUnifold*()` registration function and the element class. The split is a delivery boundary
+only: descriptors, IR validation, snapshots, events, static rendering, and accessibility
+requirements remain catalog-authoritative.
+
+## FileInput byte boundary
+
+`FileInput` stores only a bounded array of portable metadata objects containing a random opaque
+UUID, byte size, and MIME type; the array length is the selected count. File names and modification
+times remain private browser-handle facts. Exact MIME, wildcard, and extension accept tokens and the
+authored per-file byte ceiling are enforced before canonical state is emitted. File names,
+modification times, bytes, local paths, and browser `File` objects never enter authored JSON, IR,
+snapshots, canonical events, static HTML, or persisted state. A trusted upload adapter may resolve
+an ephemeral handle with `resolveSelectedFile(opaqueId)` while the mounted element retains it;
+restored metadata truthfully requires reselection because handles cannot be fabricated or persisted.
+
+Register the deferred family before mounting a document that uses it:
+
+```ts
+import { defineUnifoldFileInput } from "@unislang/unifold/file-input";
+
+defineUnifoldFileInput();
+```
 
 ## Choice-control example
 
@@ -146,7 +170,7 @@ focus; focus leaving the component, outside pointer input, and a second trigger 
 dismiss it. Open state remains interaction-local rather than becoming competing application state.
 The browser element progressively uses the native Popover API and has a deterministic fallback;
 static export degrades to native `details`/`summary` while retaining the labeled nested content.
-Popover is deferred and must be registered before mounting JSON that references it:
+Popover is deferred and must be registered before strict mounting JSON that references it:
 
 ```ts
 const { defineUnifoldPopover } = await import("@unislang/unifold/popover");
@@ -430,7 +454,7 @@ import {
 
 ## Component-definition evidence pipeline
 
-All thirty-three core elements participate in the executable `ComponentDefinition` pipeline. The
+All thirty-four core elements participate in the executable `ComponentDefinition` pipeline. The
 elements build runs the official Custom Elements Manifest analyzer with its Lit plugin, validates
 the complete result against the official manifest JSON Schema, and writes
 `dist/custom-elements.json`. The generated manifest owns facts that can be derived from source:

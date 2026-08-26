@@ -15,8 +15,9 @@ if (isMain()) {
   const evidence = await checkReferenceBundle(resolve(applicationRoot, "dist"));
   console.log(
     `Reference initial JavaScript: ${evidence.gzipBytes} gzip bytes ` +
-      `(${(evidence.gzipBytes / 1024).toFixed(2)} KiB / 180.00 KiB); ` +
-      `${evidence.lazyGzipBytes} deferred gzip bytes.`
+      `(${(evidence.gzipBytes / 1024).toFixed(2)} KiB / ` +
+      `${(REFERENCE_BUNDLE_LIMIT_BYTES / 1024).toFixed(2)} KiB); ` +
+      `${evidence.postMountGzipBytes} post-mount gzip bytes.`
   );
 }
 
@@ -27,7 +28,7 @@ export async function checkReferenceBundle(outputRoot, limitBytes = REFERENCE_BU
   const initialKeys = initialManifestKeys(manifest);
   const files = manifestFiles(manifest, initialKeys);
   const allFiles = manifestFiles(manifest, Object.keys(manifest));
-  const lazyFiles = allFiles.filter((file) => !files.includes(file));
+  const postMountFiles = allFiles.filter((file) => !files.includes(file));
   const allAssets = await readAssets(outputRoot, allFiles);
   assertNoTestHooks(allAssets);
   const sizes = await gzipSizes(outputRoot, files);
@@ -37,9 +38,9 @@ export async function checkReferenceBundle(outputRoot, limitBytes = REFERENCE_BU
       `Reference initial JavaScript is ${gzipBytes} gzip bytes; limit is ${limitBytes}.`
     );
   }
-  const lazySizes = await gzipSizes(outputRoot, lazyFiles);
-  const lazyGzipBytes = lazySizes.reduce((total, size) => total + size, 0);
-  return { files, gzipBytes, lazyFiles, lazyGzipBytes, limitBytes };
+  const postMountSizes = await gzipSizes(outputRoot, postMountFiles);
+  const postMountGzipBytes = postMountSizes.reduce((total, size) => total + size, 0);
+  return { files, gzipBytes, limitBytes, postMountFiles, postMountGzipBytes };
 }
 
 function initialManifestKeys(manifest) {

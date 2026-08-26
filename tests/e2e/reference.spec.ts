@@ -15,7 +15,7 @@ import {
   compositionNodeIds,
   expandedAccessibilityScenario
 } from "./reference.scenarios.js";
-import type { DynamicUpdateResult, DynamicWindow } from "./reference.types.js";
+import type { DynamicNode, DynamicUpdateResult, DynamicWindow } from "./reference.types.js";
 
 type ScenarioPage = Parameters<typeof readRenderUpdates>[0];
 type CapturedEvent = Awaited<ReturnType<UnifoldHarness["events"]>>[number];
@@ -68,14 +68,27 @@ test("orders component intent and committed facts in one stream", async ({ page,
   await page.getByLabel("Your name").fill("Ada Lovelace");
   await expect.poll(async () => (await unifold.events()).length).toBeGreaterThanOrEqual(3);
   const events = await unifold.events();
-  expect(events.slice(0, 3).map((event) => event.type)).toEqual([
+  const intent = requireEvent(events, 0);
+  const command = requireEvent(events, 1);
+  const committed = requireEvent(events, 2);
+  expect([intent.type, command.type, committed.type]).toEqual([
     "org.unifold.ui.control.input.v1",
     "org.unifold.ui.command.applied.v1",
     "org.unifold.ui.transaction.committed.v1"
   ]);
-  expect(events.slice(0, 3).map((event) => event.sequence)).toEqual([1, 2, 3]);
-  expect(events[2]?.staterevision).toBe(1);
+  expect([intent.sequence, command.sequence, committed.sequence]).toEqual([
+    intent.sequence,
+    intent.sequence + 1,
+    intent.sequence + 2
+  ]);
+  expect(committed.staterevision).toBeGreaterThan(intent.staterevision);
 });
+
+function requireEvent(events: readonly CapturedEvent[], index: number): CapturedEvent {
+  const event = events[index];
+  if (event === undefined) throw new Error(`Expected canonical event ${index}.`);
+  return event;
+}
 
 test("updates the changed control without updating its sibling", async ({ page }) => {
   await page.goto("/");
@@ -199,26 +212,32 @@ function nodeSelector(nodeId: string): string {
 }
 
 async function rememberStableNode(page: ScenarioPage, nodeId: string): Promise<void> {
-  await page.evaluate((id) => {
-    (window as unknown as DynamicWindow).__unifoldStableNode = document.querySelector(
-      `[data-unifold-node-id="${id}"]`
-    );
-  }, nodeId);
+  await page.locator(nodeSelector(nodeId)).evaluate((element) => {
+    (window as unknown as DynamicWindow).__unifoldStableNode = element;
+  });
 }
 
 async function hasStableNode(page: ScenarioPage, nodeId: string): Promise<boolean> {
-  return page.evaluate((id) => {
+  return page.locator(nodeSelector(nodeId)).evaluate((element) => {
     const target = window as unknown as DynamicWindow;
-    return target.__unifoldStableNode === document.querySelector(`[data-unifold-node-id="${id}"]`);
-  }, nodeId);
+    return target.__unifoldStableNode === element;
+  });
 }
 
 async function applyDynamicUpdate(page: ScenarioPage): Promise<DynamicUpdateResult> {
   return page.evaluate(() => {
+    function requireForm(
+      document: DynamicWindow["__unifoldAuthoredDocument"]
+    ): DynamicNode & { $children: DynamicNode[] } {
+      const node = document.compositions[0].template.$children.find(({ id }) => id === "form");
+      if (node?.$children === undefined) throw new Error("Profile form definition is missing.");
+      return node as DynamicNode & { $children: DynamicNode[] };
+    }
     const target = window as unknown as DynamicWindow;
     const source = structuredClone(target.__unifoldAuthoredDocument);
     source.revision = "revision-2";
-    source.compositions[0].template.$children[0].$children.push({
+    const form = requireForm(source);
+    form.$children.push({
       $comp: "Button",
       id: "dynamic-help",
       label: "Help"
@@ -268,10 +287,17 @@ function choiceNodeIds(): ReadonlySet<string> {
 
 async function rejectDynamicUpdate(page: ScenarioPage): Promise<DynamicUpdateResult> {
   return page.evaluate(() => {
+    function requireForm(
+      document: DynamicWindow["__unifoldAuthoredDocument"]
+    ): DynamicNode & { $children: DynamicNode[] } {
+      const node = document.compositions[0].template.$children.find(({ id }) => id === "form");
+      if (node?.$children === undefined) throw new Error("Profile form definition is missing.");
+      return node as DynamicNode & { $children: DynamicNode[] };
+    }
     const target = window as unknown as DynamicWindow;
     const source = structuredClone(target.__unifoldAuthoredDocument);
-    const children = source.compositions[0].template.$children[0].$children;
-    const country = children.find(({ id }) => id === "country");
+    const form = requireForm(source);
+    const country = form.$children.find(({ id }) => id === "country");
     if (country === undefined) throw new Error("Country definition is missing.");
     country.options = [
       { label: "United States", value: "us" },
@@ -288,10 +314,16 @@ async function expectChoiceUpdateRejected(page: ScenarioPage): Promise<void> {
 }
 
 async function semanticName(page: ScenarioPage): Promise<string | undefined> {
-  return page.locator("script[data-unifold-semantics]").evaluate((element) => {
-    const value = JSON.parse(element.textContent ?? "{}") as { "@graph": [{ name: string }] };
-    return value["@graph"][0].name;
-  });
+  return page.locator("script[data-unifold-semantics]").evaluate((element, personId) => {
+    const value = JSON.parse(element.textContent ?? "{}") as SemanticGraph;
+    return value["@graph"].find((entity) => entity["@id"] === personId)?.name;
+  }, PROFILE_PERSON_ID);
+}
+
+const PROFILE_PERSON_ID = "urn:unifold:person:current";
+
+interface SemanticGraph {
+  readonly "@graph": readonly { readonly "@id": string; readonly name?: string }[];
 }
 
 async function submittedEvent(unifold: UnifoldHarness) {

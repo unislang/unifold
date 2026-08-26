@@ -1,6 +1,7 @@
 import "@unislang/unifold-theme/tokens.css";
 import {
   UiCompositionUnmappedMigration,
+  ElementDefinitionPolicy,
   UnifoldApplicationMountStatus,
   UnifoldSemanticPublicationMode,
   createMachineCommandRegistry,
@@ -21,17 +22,17 @@ import type {
   PrototypeWindow,
   RealmCopyResult
 } from "./main.types.js";
+import * as profileValidation from "./profile-validation.js";
 import "./reference.css";
-import { registerReferenceInteractiveFamilies } from "./reference-interactive-families.js";
 import uiDefinition from "./ui.json" with { type: "json" };
 import { installStoreFixtureHooks } from "./store-fixture.js";
 
-const [profileValidation] = await Promise.all([
-  import("./profile-validation.js"),
-  defineReferenceComponentFamilies()
-]);
 const host = requireElement<HTMLElement>("app");
 const application = requireApplication(mountReference(host));
+void defineReferenceComponentFamilies(uiDefinition)
+  .then((families) => families.commitReferenceComponentFamilies(uiDefinition, application))
+  .then(() => reportComponentFamiliesReady(application))
+  .catch(reportComponentFamilyFailure);
 const testHooksEnabled = import.meta.env.MODE === "e2e";
 const profileMigrationVersions: Readonly<Record<ProfileMigrationMode, string>> = {
   preserve: "2.0.0",
@@ -39,79 +40,29 @@ const profileMigrationVersions: Readonly<Record<ProfileMigrationMode, string>> =
   unreviewed: "4.0.0"
 };
 
-async function defineReferenceComponentFamilies(): Promise<void> {
-  registerReferenceComponentFamilies(await loadReferenceComponentFamilies());
+async function defineReferenceComponentFamilies(document: typeof uiDefinition) {
+  const families = await import("./reference-component-families.js");
+  await families.defineReferenceComponentFamilies(document);
+  return families;
 }
 
-function loadReferenceComponentFamilies() {
-  return Promise.all([
-    import("@unislang/unifold/audit-log"),
-    import("@unislang/unifold/combobox"),
-    import("@unislang/unifold/data-grid"),
-    import("./dialog-reference.js"),
-    import("@unislang/unifold/master-detail"),
-    import("@unislang/unifold/menu-button"),
-    import("./popover-reference.js"),
-    import("./breadcrumb-reference.js"),
-    import("@unislang/unifold/search-results"),
-    import("@unislang/unifold/stepper"),
-    import("@unislang/unifold/tabs"),
-    import("@unislang/unifold/tooltip"),
-    import("@unislang/unifold/virtual-list"),
-    import("@unislang/unifold/wizard")
-  ]);
+function reportComponentFamilyFailure(error: unknown): void {
+  document.documentElement.dataset["unifoldReadiness"] = "failed";
+  window.setTimeout(() => {
+    throw error instanceof Error ? error : new Error("Component family registration failed.");
+  });
 }
 
-function registerReferenceComponentFamilies(
-  families: Awaited<ReturnType<typeof loadReferenceComponentFamilies>>
-): void {
-  const [
-    auditLog,
-    combobox,
-    dataGrid,
-    dialog,
-    masterDetail,
-    menuButton,
-    popover,
-    breadcrumb,
-    searchResults,
-    stepper,
-    tabs,
-    tooltip,
-    virtualList,
-    wizard
-  ] = families;
-  registerReferenceDataFamilies(auditLog, combobox, dataGrid, masterDetail, searchResults);
-  registerReferenceInteractiveFamilies(
-    { breadcrumb, dialog, menuButton, popover, tooltip },
-    uiDefinition
-  );
-  assertFamilyRegistration("Stepper", stepper.defineUnifoldStepper());
-  assertFamilyRegistration("Tabs", tabs.defineUnifoldTabs());
-  assertFamilyRegistration("VirtualList", virtualList.defineUnifoldVirtualList());
-  assertFamilyRegistration("Wizard", wizard.defineUnifoldWizard());
+function reportComponentFamiliesReady(application: UnifoldApplicationPort): void {
+  refreshPrototypeDocument(application);
+  resetPrototypeEventCapture();
+  document.documentElement.dataset["unifoldReadiness"] = "ready";
 }
 
-function registerReferenceDataFamilies(
-  auditLog: typeof import("@unislang/unifold/audit-log"),
-  combobox: typeof import("@unislang/unifold/combobox"),
-  dataGrid: typeof import("@unislang/unifold/data-grid"),
-  masterDetail: typeof import("@unislang/unifold/master-detail"),
-  searchResults: typeof import("@unislang/unifold/search-results")
-): void {
-  assertFamilyRegistration("AuditLog", auditLog.defineUnifoldAuditLog());
-  assertFamilyRegistration("Combobox", combobox.defineUnifoldCombobox());
-  assertFamilyRegistration("DataGrid", dataGrid.defineUnifoldDataGrid());
-  assertFamilyRegistration("MasterDetail", masterDetail.defineUnifoldMasterDetail());
-  assertFamilyRegistration("SearchResults", searchResults.defineUnifoldSearchResults());
-}
-
-function assertFamilyRegistration(
-  name: string,
-  result: ReturnType<typeof import("@unislang/unifold/tooltip").defineUnifoldTooltip>
-): void {
-  if (result.status !== "registered")
-    throw new Error(`${name} family registration failed: ${JSON.stringify(result.diagnostics)}`);
+function resetPrototypeEventCapture(): void {
+  if (!testHooksEnabled) return;
+  const target = window as unknown as PrototypeWindow;
+  target.__unifoldCapturedEvents = [];
 }
 
 function mountReference(
@@ -120,6 +71,7 @@ function mountReference(
 ) {
   return mountUnifoldApplication(uiDefinition, container, {
     compositionMigrations: profileCompositionMigrations(),
+    elementDefinitionPolicy: ElementDefinitionPolicy.AllowPending,
     machineCommands: profileMachineCommands(),
     runtime: {
       asyncValidatorRegistry: profileValidation.profileAsyncValidators(),
@@ -190,11 +142,17 @@ function captureRuntimeEvent(event: UiEvent): void {
 
 function installPrototypeHooks(application: UnifoldApplicationPort): void {
   const target = window as unknown as PrototypeWindow;
-  target.__unifoldAuthoredDocument = structuredClone(uiDefinition);
+  refreshPrototypeDocument(application);
   target.__unifoldDefineElements = defineUnifoldElements;
   target.__unifoldMigrateProfile = (mode) => migrateProfile(application, mode);
   target.__unifoldMountRealmCopy = mountRealmCopy;
   target.__unifoldUpdateDocument = (source) => application.update(source);
+}
+
+function refreshPrototypeDocument(application: UnifoldApplicationPort): void {
+  if (!testHooksEnabled) return;
+  const target = window as unknown as PrototypeWindow;
+  target.__unifoldAuthoredDocument = application.authored;
 }
 
 function migrateProfile(

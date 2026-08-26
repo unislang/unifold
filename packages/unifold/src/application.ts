@@ -13,8 +13,11 @@ import {
 import { createApplicationSnapshots } from "./application-snapshots.js";
 import {
   appliedUpdate,
+  asError,
   captureRuntimeSnapshots,
+  elementRegistrationDiagnostic,
   errorDiagnostic,
+  firstDiagnostic,
   focusedNodeId,
   isApplicationDiagnostic,
   migratedFocusedNodeId,
@@ -39,11 +42,11 @@ import type { StoreCommandController } from "./store-command-port.js";
 import {
   UnifoldApplicationDiagnosticStage,
   UnifoldPreparationStatus,
+  type MountUnifoldApplicationOptions,
   type PreparedUnifoldDocument,
   type UiStoreAdapterRegistry,
   type UnifoldApplicationDiagnostic,
-  type UnifoldApplicationUpdateResult,
-  type UnifoldPreparationOptions
+  type UnifoldApplicationUpdateResult
 } from "./types.js";
 export class UnifoldApplication {
   readonly runtime: UnifoldRuntime;
@@ -67,7 +70,7 @@ export class UnifoldApplication {
     private readonly storeCommands?: StoreCommandController,
     private readonly semantics?: UiSemanticCoordinator,
     private readonly compositionMigrations: readonly UiCompositionVersionMigration[] = [],
-    private readonly preparationOptions?: UnifoldPreparationOptions
+    private readonly applicationOptions: MountUnifoldApplicationOptions = {}
   ) {
     planCompositionMigration(prepared.document, prepared.document, compositionMigrations);
     this.current = prepared;
@@ -92,7 +95,7 @@ export class UnifoldApplication {
 
   update(authored: unknown): UnifoldApplicationUpdateResult {
     if (this.unavailable) return rejectedUpdate(this.runtime.revision, [unavailableDiagnostic()]);
-    const preparation = prepareApplicationUpdate(authored, this.preparationOptions);
+    const preparation = prepareApplicationUpdate(authored, this.applicationOptions);
     if (preparation.status === UnifoldPreparationStatus.Invalid) {
       return rejectedUpdate(this.runtime.revision, preparation.diagnostics);
     }
@@ -149,11 +152,12 @@ export class UnifoldApplication {
   }
 
   private configurationDiagnostic(document: UnifoldIrDocument, stores: PreparedApplicationStores) {
-    return (
-      this.validateMachines(document) ??
-      this.rendererDiagnostic(document) ??
+    return firstDiagnostic([
+      elementRegistrationDiagnostic(this.container, document, this.applicationOptions),
+      this.validateMachines(document),
+      this.rendererDiagnostic(document),
       this.semanticDiagnostic(document, stores)
-    );
+    ]);
   }
 
   private semanticDiagnostic(
@@ -341,8 +345,4 @@ export class UnifoldApplication {
   private projectAll(document: UnifoldIrDocument): void {
     document.renderOrder.forEach((id) => this.projectKnown(id));
   }
-}
-
-function asError(error: unknown): Error {
-  return error instanceof Error ? error : new Error("Unknown rollback failure.");
 }

@@ -108,7 +108,7 @@ async function assertRecovery(
 async function rememberIdentity(host: import("@playwright/test").Locator): Promise<void> {
   await host.evaluate((element) => {
     const target = window as unknown as TabsWindow;
-    const panel = element.children.item(0);
+    const panel = element.querySelector('[data-unifold-node-id$="::summary-panel"]');
     if (panel === null) throw new Error("Authored tab panel is missing.");
     target.__unifoldStableTabs = element;
     target.__unifoldStableTabPanel = panel;
@@ -118,21 +118,27 @@ async function rememberIdentity(host: import("@playwright/test").Locator): Promi
 async function retainedIdentity(host: import("@playwright/test").Locator): Promise<boolean> {
   return host.evaluate((element) => {
     const target = window as unknown as TabsWindow;
-    return (
-      target.__unifoldStableTabs === element &&
-      target.__unifoldStableTabPanel === element.children[0]
-    );
+    const panel = element.querySelector('[data-unifold-node-id$="::summary-panel"]');
+    return target.__unifoldStableTabs === element && target.__unifoldStableTabPanel === panel;
   });
 }
 
 function updateTabs(page: import("@playwright/test").Page, invalid: boolean) {
   return page.evaluate((duplicate) => {
+    function requireTabs(document: TabsDocument): TabsNode {
+      const node = document.compositions[0].template.$children.find(
+        (candidate): candidate is TabsNode =>
+          candidate.id === "account-tabs" && candidate.tabs !== undefined
+      );
+      if (node === undefined) throw new Error("Account tabs definition is missing.");
+      return node;
+    }
     const target = window as unknown as TabsWindow;
     const source = structuredClone(target.__unifoldAuthoredDocument) as TabsDocument;
     source.revision = { false: "tabs-recovered", true: "tabs-invalid" }[
       String(duplicate)
     ] as string;
-    const tabs = source.compositions[0].template.$children[2] as TabsNode;
+    const tabs = requireTabs(source);
     const first = tabs.tabs[0];
     const third = tabs.tabs[2];
     if (first === undefined) throw new Error("First tab is missing.");

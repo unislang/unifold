@@ -17,70 +17,65 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest implementation checkpoint: `d0200123b041602efe910527915e70e2b024c948`
-  (`feat: add breadcrumb and dialog JSON UI families`). Verify that `origin/main` contains this SHA
-  before resuming implementation; the working tree should be clean after the checkpoint-record commit.
-- Implemented state: catalog-authoritative Breadcrumb and Dialog families now span contracts, catalog
-  descriptors and sidecars, IR diagnostics, deferred Lit elements, canonical events, static
-  fallbacks, public package subpaths, reference JSON, generated manifests, browser journeys, and
-  exact performance gates. Breadcrumb also extends the single semantic compiler with authored
-  Schema.org `BreadcrumbList`/`ListItem` support. The final local matrix passes quality, correctness,
-  coverage, build/bundle, clean packed-consumer, duplication, formatting, benchmark, and focused
-  browser gates. Breadcrumb/Dialog reference journeys pass in Chromium and WebKit; the managed
-  Firefox runner fails before page creation with its existing `_page` error and therefore provides
-  no application evidence. The static no-JavaScript and upgrade matrix passes in Chromium and WebKit.
+- Latest tracked checkpoint before this slice: `69db3f7a2985261f0371ec89acf73b57ba4f2443`
+  (`docs: record breadcrumb dialog checkpoint`), present at local and tracked `origin/main`.
+- Current implementation slice: bounded metadata-only FileInput, native scalar form association,
+  immediate mount with deferred optional element definitions, composed-shadow browser observation,
+  and the Scratch-style hierarchical JSON reference path. The slice is locally release-verified and
+  ready for its implementation checkpoint commit and push.
+- Goal status: active. This checkpoint does not complete the architecture plan; the authoritative
+  inventory still lists Image, Card, NumberField, SearchField, CheckboxGroup, Switch, DateField,
+  Field, Fieldset, ErrorSummary, Toast, and Pagination as component-family gaps, followed by the
+  broader Studio and production-integration gates.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
 - Performance evidence: [`docs/performance.md`](./docs/performance.md)
 
-## Last completed implementation slice
-
-The catalog-authoritative Breadcrumb and Dialog slice is release-verified and committed at
-`d0200123b041602efe910527915e70e2b024c948`:
-
-- Breadcrumb accepts 1 to 32 exact, uniquely identified items, requires safe linked ancestors, uses
-  native `nav`/`ol`/`li`/`a` structure, marks the final item with `aria-current="page"`, and emits a
-  canonical activation payload containing the item ID and destination. Its separator is an
-  enum-backed property. The semantic graph remains the sole publication authority for authored
-  Schema.org `BreadcrumbList`, `ListItem`, and linked `WebPage` entities.
-- Dialog accepts 1 to 64 authored children, uses native modal-dialog behavior when available and a
-  static disclosure fallback otherwise, restores focus, handles dismissal, and deterministically
-  cycles focus across light DOM and nested shadow roots. It emits canonical open/dismiss actions and
-  retains prior UI state and identity when an invalid update is rejected.
-- The complete correctness command passes 417 Vitest files/1,045 tests, 16 tooling tests, 8 CEM
-  script tests, the theme/reference script tests, and 26 passing performance files with 19
-  intentionally skipped profile files (22 skipped profile tests). Coverage passes at 97.43%
-  lines/statements, 97.08% functions, and 90.09% branches.
-- Repository quality passes the 350-line file ceiling, exact one-source/one-colocated-test policy,
-  cyclomatic complexity below 4, 30-line function ceiling, lint, strict source/test typechecks,
-  package dependency boundaries, and unused-code analysis. Formatting and the duplication budget
-  also pass.
-- The production build and clean packed-consumer lifecycle pass 3/3. The reference initial closure
-  is 183,700 gzip bytes (179.39 KiB) against the 180 KiB ceiling, with 31,854 deferred gzip bytes.
-- The full Chromium/WebKit reference matrix passes 95 cases with 3 intentional WebKit scale skips
-  after isolated confirmation of two load-sensitive cases. The hierarchical example passes 6/6,
-  static export passes 22/22, and the real-upstream JsonUI oracle passes 18/18 in Chromium/WebKit.
-  Firefox attempts fail before page creation with the managed runner's `_page` defect.
-  These cover accessibility, semantics, canonical events, rollback, and stable identity.
-- Benchmark schema 2.22.0 passes 47/47 gates on an idle rerun. The 100-step/468-button startup is
-  127.78 ms p95 against 1,000 ms; 32-position Breadcrumb activation is 0.77 ms p95 and 32-action
-  Dialog opening is 0.45 ms p95, each against 100 ms.
-- The separate 20-sample native/Lion/Spectrum Dialog foundation comparison passes its native gate:
-  native is 0.19 ms p95 and 347 gzip bytes against 100 ms/4,096-byte limits, versus Lion at 1.09 ms
-  and 26,994 bytes and Spectrum at 1.10 ms and 61,330 bytes.
-
-These results describe the current verified local snapshot. Re-run affected gates after every new
-slice and record new measurements rather than treating the numbers above as proof for later changes.
-
 ## Active slice
 
-Confirm `origin/main` contains the Breadcrumb/Dialog checkpoint, then reconcile the component
-inventory and select the next catalog-authoritative family. Current
-documented candidates are free-form autocomplete, richer menu/overlay/navigation variants, file
-upload, and variable-height or two-dimensional virtualization. Each next slice must retain the same
-contract-to-browser path, authored/static accessibility, unified canonical events, exact rollback
-and identity behavior, three-engine release intent, and executable scale gate.
+The current slice closes its originally identified privacy and deferred-upgrade defects:
+
+- `FileInput` now admits only exact `{ id, size, type }` metadata into canonical JSON. IDs are opaque
+  UUIDs, names and modification times stay outside the portable contract, file count is capped at 32,
+  sizes are safe integers, MIME/extension acceptance and per-file byte ceilings fail closed, and raw
+  bytes remain behind the trusted ephemeral `resolveSelectedFile()` boundary. Reset, disconnect,
+  rollback, static export, and restored-metadata reselection behavior are covered end to end.
+- TextField, TextArea, Select, RadioGroup, and the native `Form` scaffold share one
+  `ElementInternals`-based scalar form controller. The integration covers reassociation, disabled
+  fieldsets, reset/state restore, native `FormData`, IME de-duplication, and explicit canonical value
+  origin without adding another durable state authority.
+- Optional element families are loaded only after the initial application mount. Pending hosts replay
+  validated properties when definitions arrive, preserve rollback/disposal guarantees, and are split
+  from the production entry closure. The reference exposes an explicit readiness marker so browser
+  baselines begin only after registration and its synchronization transaction settle.
+- The reference JSON remains authored through the documented hierarchical/composition path modeled
+  on `scratch/angular-ui/DYNAMIC-UI-README.md`: reusable layout selection and variables lower through
+  nested component definitions into the canonical `$comp` IR/runtime path.
+
+Current verified evidence: 428 Vitest files/1,079 tests pass; tooling passes 16/16; generated/CEM,
+theme, and reference scripts pass; and performance correctness passes 26 files/36 tests. V8 coverage
+records 97.42% lines/statements, 97.01% functions, and 90.09% branches. The complete quality gate
+passes the 350-line file, 30-line function, cyclomatic-complexity-below-4, one-to-one colocated-test,
+lint, strict source/test typecheck, 1,751-module/3,859-edge dependency, and unused-code policies.
+Formatting and diff checks pass; authored-source duplication is 1.54% against the 5% ceiling.
+
+The serialized full reference matrix passes 153 journeys across Chromium, Firefox, and WebKit with
+six intentional non-Chromium scale skips. The complete static no-JavaScript/upgrade matrix passes
+36/36 across all three engines, including Schema.org JSON-LD ownership and FileInput upgrade.
+Benchmark schema 2.23.0 passes 48/48 gates. FileInput measures 0.10/0.24/4.51 ms p50/p95/p99 for 32
+files against a 100 ms p95 limit, retains exactly 32 ephemeral handles, and proves byte isolation.
+The 20-cycle/500-node lifecycle retains 548,240 bytes (1.04%) after five warm-ups against the strict
+2% ceiling. The final production reference closure is 184,278 gzip bytes (179.96 KiB) against 180
+KiB, with 32,840 gzip bytes requested post-mount.
+
+The local plain/React/Svelte/Vue Chromium host matrix passes 4/4 and the clean packed-consumer
+boundary passes 3/3 outside the monorepo. Before checkpointing, re-run those packaging boundaries
+after the final documentation-only reconciliation if any executable source changes. Then commit,
+push `main` to `https://github.com/unislang/unifold.git`, independently compare `git ls-remote origin
+refs/heads/main` with local `HEAD`, and record the exact SHAs here. Native form adapters for boolean,
+multi-value, and file controls remain the next implementation slice rather than an unstated part of
+the scalar text/choice evidence above.
 
 ## Prior hierarchical and component slice detail
 
@@ -651,10 +646,48 @@ named gate in the architecture plan, with direct source/test/runtime/benchmark e
 The project is not complete while any authoritative evidence is missing, indirect, stale, or
 contradicted. Known external release gates (intermittent managed Firefox-runner reliability,
 license/scope selection, production infrastructure, and manual accessibility/security evidence)
-must remain explicit and cannot be silently waived. The current Breadcrumb/Dialog Firefox attempts
-fail before page creation and provide no behavioral evidence for this slice.
+must remain explicit and cannot be silently waived. The current slice has complete Chromium/WebKit
+behavioral evidence; rerun Firefox when the managed runner can create a page reliably.
 
 ## Session log
+
+- 2026-08-26: Completed the local implementation and serialized validation of the bounded FileInput,
+  native scalar form association, deferred optional definitions, and deterministic readiness slice.
+  The privacy contract is exactly `{ id, size, type }`; the trusted upload boundary resolves only
+  ephemeral handles by opaque ID. Late definitions replay current properties, event snapshot,
+  runtime context, and children without weakening rollback/disposal or accepting foreign classes.
+  Full correctness passes 428 files/1,079 tests. Coverage is 97.42/97.01/90.09%
+  lines-functions-branches. Static export passes 36/36 and the full reference matrix passes 153
+  cases across Chromium, Firefox, and WebKit with six intentional non-Chromium scale skips.
+  Benchmark schema 2.23.0 passes 48/48: FileInput is 0.24 ms p95 against 100 ms and the 20-cycle
+  lifecycle grows 1.04% against 2%. The production initial closure passes at 184,278 gzip bytes
+  (179.96 KiB) with 32,840 post-mount bytes. Final quality passes over 1,751 modules/3,859
+  dependencies; formatting and the 1.54%/5% duplication gate pass; host parity passes 4/4 in
+  Chromium; and the clean packed-consumer passes 3/3. Root-generated `.tmp` worktrees are excluded
+  from line and duplication scans so benchmark baselines cannot corrupt repository evidence.
+  Commit, push, and remote-SHA verification follow this entry.
+
+- 2026-08-26: Updated this resumable record from fresh evidence. Native form lifecycle Playwright
+  passes 6/6 across Chromium, Firefox, and WebKit; 13 focused FileInput/form files pass 28 tests; the
+  complete quality gate passes with 1,747 modules and 3,847 dependency edges; and the production
+  reference startup passes at 183,934 gzip bytes with 32,254 post-mount bytes. Fixed catalog-default
+  projection so an unauthored FileInput value initializes as `[]`, and removed a top-level-await
+  cycle that prevented deferred component definitions from resolving after mount. The FileInput
+  browser journey now reaches selection and canonical-event assertions but its page-wide axe check
+  exposes missing property replay on a pre-definition Tooltip. FileInput's serialized `name` and
+  `lastModified` also violate the architecture's opaque-ID metadata rule. Both defects and the full
+  release matrix remain explicitly open; the working tree is not checkpointed.
+
+- 2026-08-26: Reconciled the post-checkpoint Dialog and bundle audits. Dialog keyboard handling now
+  ignores closed dialogs, nested fallback Escape stays within the inner dialog, composed focus
+  discovery excludes hidden/inert/`aria-hidden`/CSS-hidden ancestors, and the helper satisfies the
+  cyclomatic-complexity ceiling. The focused suite passes 10/10 tests. Required profile validation
+  is now statically included before mount; optional component registrations begin only after mount.
+  The fresh production build passes at 181,906 gzip bytes (177.64 KiB) with 30,502 gzip bytes
+  reported separately as post-mount families, and the bundle-checker unit test passes. Repository
+  lint passes. Global quality/typecheck is currently red because a concurrently started FileInput
+  scaffold has not yet added all exhaustive catalog/IR mappings; those shared edits were preserved.
+  The startup/focus audit changes and FileInput scaffold remain uncommitted.
 
 - 2026-08-26: Implemented and locally release-verified the catalog-authoritative Breadcrumb and
   Dialog slice across contracts, catalog/sidecars, IR, deferred Lit elements, canonical events,

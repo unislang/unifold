@@ -22,9 +22,9 @@ definition failure reports the tags already defined because the platform registr
 Use an iframe or another document realm for incompatible catalog releases. The shared constructor
 marker coordinates trusted same-realm packages; it is not a security boundary.
 
-The fourteen larger interaction families are explicit, side-effect-free subpath imports so an
+The fifteen larger interaction families are explicit, side-effect-free subpath imports so an
 application pays for only the families its JSON can reference: `audit-log`, `breadcrumb`, `combobox`, `data-grid`,
-`dialog`, `master-detail`, `menu-button`, `popover`, `search-results`, `stepper`, `tabs`, `tooltip`,
+`dialog`, `file-input`, `master-detail`, `menu-button`, `popover`, `search-results`, `stepper`, `tabs`, `tooltip`,
 `virtual-list`, and `wizard`. Each entry exports its element class and a `defineUnifold*()` function with the same
 preflight diagnostics. For example:
 
@@ -58,9 +58,24 @@ Controls emit interaction intents; the normalized runtime remains the committed 
 projects accepted values back to the element. See the [component reference](../../docs/components.md)
 for JSON examples, value types, and the current accessibility boundary.
 
+Scalar text and single-choice controls are native form-associated custom elements. A shared Lit
+reactive controller projects the committed value and validity through `ElementInternals`, combines
+authored and ancestor-fieldset disabled state, and normalizes reset, restore, autocomplete, and IME
+completion into the existing canonical input path. It does not own application state or validation.
+The host `name` reflects for native `FormData`; the accessible editing surface remains the native
+input, textarea, select, radio group, or listbox inside the component. Boolean, multi-value, and file
+controls use value-shape-specific lifecycle work and must not be assumed complete from the scalar
+adapter. See the [native form research record](../../docs/research/forms/report-source.md).
+
+`unifold-file-input` admits at most 32 files and emits only opaque UUIDs, MIME types, byte sizes,
+and selected/rejected counts. File names, modification times, local paths, and bytes remain outside
+portable state and canonical events. Trusted upload code resolves one ephemeral browser `File`
+handle at a time with `resolveSelectedFile(id)`; changing controlled metadata or disconnecting the
+element invalidates those resolutions.
+
 ## Component manifests
 
-`pnpm generate:cem` analyzes all thirty-three catalog elements with the official Custom Elements Manifest
+`pnpm generate:cem` analyzes all thirty-four catalog elements with the official Custom Elements Manifest
 analyzer and Lit plugin. It validates the output against the official manifest schema and writes
 `dist/custom-elements.json`. The package exposes that file through its standard `customElements`
 metadata and `./custom-elements.json` export.

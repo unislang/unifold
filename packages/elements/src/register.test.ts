@@ -12,6 +12,7 @@ import type { JsonObject } from "@unislang/unifold-contracts";
 import type { UiEvent, UiNodeSnapshot } from "@unislang/unifold-events";
 
 import {
+  ElementDefinitionPolicy,
   ElementRegistrationDiagnosticCode,
   ElementRegistrationStatus,
   ElementEventType,
@@ -31,6 +32,7 @@ import { defineUnifoldAuditLog } from "./audit-log-entry.js";
 import { defineUnifoldCombobox } from "./combobox-entry.js";
 import { defineUnifoldDataGrid } from "./data-grid-entry.js";
 import { defineUnifoldDialog } from "./dialog-entry.js";
+import { defineUnifoldFileInput } from "./file-input-entry.js";
 import { defineUnifoldMasterDetail } from "./master-detail-entry.js";
 import { defineUnifoldMenuButton } from "./menu-button-entry.js";
 import { defineUnifoldPopover } from "./popover-entry.js";
@@ -78,6 +80,29 @@ it("rejects a missing optional family and accepts its compatible definition", ()
   expect(validateUnifoldElementTags([CoreElementTag.Tooltip], registry).status).toBe(
     ElementRegistrationStatus.Registered
   );
+});
+
+it("allows a pending optional family without accepting a foreign definition", () => {
+  const registry = new TestRegistry();
+  defineUnifoldElements(registry);
+  expect(
+    validateUnifoldElementTags(
+      [CoreElementTag.Tooltip],
+      registry,
+      ElementDefinitionPolicy.AllowPending
+    ).status
+  ).toBe(ElementRegistrationStatus.Registered);
+  registry.define(CoreElementTag.Tooltip, ForeignElement);
+  expect(
+    validateUnifoldElementTags(
+      [CoreElementTag.Tooltip],
+      registry,
+      ElementDefinitionPolicy.AllowPending
+    )
+  ).toMatchObject({
+    diagnostics: [{ code: ElementRegistrationDiagnosticCode.ForeignDefinition }],
+    status: ElementRegistrationStatus.Rejected
+  });
 });
 
 function assertSnapshotProperties(descriptor: ComponentDescriptor): void {
@@ -293,6 +318,7 @@ function foundationTags(): readonly CoreElementTag[] {
     CoreElementTag.Combobox,
     CoreElementTag.DataGrid,
     CoreElementTag.Dialog,
+    CoreElementTag.FileInput,
     CoreElementTag.MasterDetail,
     CoreElementTag.MenuButton,
     CoreElementTag.Popover,
@@ -311,7 +337,7 @@ function defineDeferredElements(registry: ElementRegistryPort): void {
   defineUnifoldBreadcrumb(registry);
   defineUnifoldCombobox(registry);
   defineUnifoldDataGrid(registry);
-  defineUnifoldDialog(registry);
+  [defineUnifoldDialog, defineUnifoldFileInput].forEach((define) => define(registry));
   defineUnifoldMasterDetail(registry);
   defineUnifoldMenuButton(registry);
   defineUnifoldPopover(registry);

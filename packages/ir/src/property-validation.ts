@@ -2,6 +2,7 @@ import {
   CatalogPropertyType,
   MAXIMUM_MENU_ITEMS,
   getCoreDescriptor,
+  isValidFileAccept,
   isSafeUrl,
   type CatalogPropertyDescriptor
 } from "@unislang/unifold-catalog";
@@ -11,6 +12,7 @@ import { isAuditLogEntryList } from "./audit-log-validation.js";
 import { isBreadcrumbItemList } from "./breadcrumb-validation.js";
 import { isDataGridValue } from "./data-grid-validation.js";
 import { validateComponentConstraints } from "./component-constraints.js";
+import { isFileMetadataList } from "./file-input-validation.js";
 import { DiagnosticCode } from "./enums.js";
 import { isPlainObject } from "./json-safety.js";
 import type { CompilerDiagnostic } from "./types.js";
@@ -28,10 +30,13 @@ const validators: Readonly<Record<CatalogPropertyType, PropertyValidator>> = {
   [CatalogPropertyType.Boolean]: (value) => typeof value === "boolean",
   [CatalogPropertyType.DataGridValue]: isDataGridValue,
   [CatalogPropertyType.Enum]: isEnumValue,
+  [CatalogPropertyType.FileAccept]: (value) =>
+    typeof value === "string" && isValidFileAccept(value),
+  [CatalogPropertyType.FileMetadataList]: isFileMetadataList,
   [CatalogPropertyType.MenuItemList]: isMenuItemList,
   [CatalogPropertyType.OptionList]: isOptionList,
   [CatalogPropertyType.PositiveInteger]: (value) =>
-    typeof value === "number" && Number.isInteger(value) && value > 0,
+    typeof value === "number" && Number.isSafeInteger(value) && value > 0,
   [CatalogPropertyType.SafeUrl]: (value) => typeof value === "string" && isSafeUrl(value),
   [CatalogPropertyType.SearchResultList]: isSearchResultList,
   [CatalogPropertyType.SearchResultsValue]: isSearchResultsValue,

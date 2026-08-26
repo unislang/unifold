@@ -1,10 +1,14 @@
 // @vitest-environment happy-dom
 import { UiCommandType } from "@unislang/unifold-events";
 import { createTrustedLayoutDefinitionRegistry } from "@unislang/unifold-compositions";
+import { CoreCatalogMajor, CoreElementTag, coreCatalog } from "@unislang/unifold-catalog";
+import { ElementDefinitionPolicy } from "@unislang/unifold-elements";
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
-import { expect, it } from "vitest";
+import { Window } from "happy-dom";
+import { expect, it, vi } from "vitest";
 
 import {
+  authoredDocument,
   compositionDocument,
   compositionMigration,
   requireApplication,
@@ -56,6 +60,7 @@ it("migrates dirty and focused state across an exact versioned export rename", a
   application.runtime.execute([
     { id: "editor::old-field", type: UiCommandType.ControlSetValue, value: "User value" }
   ]);
+  const focus = vi.spyOn(HTMLInputElement.prototype, "focus");
   requireInput(oldField).focus();
   const result = application.update(compositionDocument("2", "2", "new-field", "name"));
   const newField = requireElement(application, "editor::new-field");
@@ -64,7 +69,8 @@ it("migrates dirty and focused state across an exact versioned export rename", a
   expect(application.runtime.getSnapshot("editor::new-field")).toMatchObject({
     control: { dirty: true, value: "User value" }
   });
-  expect(newField.shadowRoot?.activeElement).toBe(requireInput(newField));
+  expect(focus.mock.instances).toContain(requireInput(newField));
+  focus.mockRestore();
   expect(() => application.runtime.getSnapshot("editor::old-field")).toThrow("Unknown node");
   application.dispose();
   container.remove();
@@ -158,6 +164,107 @@ it("reuses the trusted layout registry for mounted document updates", () => {
   expect(application.document.documentRevision).toBe("2");
   application.dispose();
 });
+
+it("rejects a foreign definition that wins a pending-upgrade race", () => {
+  const realm = new Window();
+  const container = realm.document.createElement("div") as unknown as HTMLElement;
+  const application = requireApplication(
+    mountUnifoldApplication(tooltipDocument("1", "Shipping"), container, {
+      elementDefinitionPolicy: ElementDefinitionPolicy.AllowPending
+    })
+  );
+  realm.customElements.define(CoreElementTag.Tooltip, class extends realm.HTMLElement {});
+
+  const result = application.update(tooltipDocument("2", "Updated shipping"));
+
+  expect(result).toMatchObject({
+    diagnostics: [{ stage: UnifoldApplicationDiagnosticStage.ElementRegistration }],
+    status: UnifoldApplicationUpdateStatus.Rejected
+  });
+  expect(application.document.documentRevision).toBe("1");
+  expect(application.runtime.revision).toBe(0);
+  application.dispose();
+});
+
+it("replays a runtime projection when a pending definition becomes compatible", async () => {
+  const realm = new Window();
+  const container = realm.document.createElement("div") as unknown as HTMLElement;
+  const application = requireApplication(
+    mountUnifoldApplication(tooltipDocument("1", "Shipping"), container, {
+      elementDefinitionPolicy: ElementDefinitionPolicy.AllowPending
+    })
+  );
+  const element = projectRuntimeTooltip(application);
+  const definition = compatibleTooltipDefinition(realm);
+  realm.customElements.define(
+    CoreElementTag.Tooltip,
+    definition as unknown as typeof realm.HTMLElement
+  );
+  emulateUpgradeWhenNeeded(element, definition);
+  await realm.customElements.whenDefined(CoreElementTag.Tooltip);
+  await vi.waitFor(() => expect(element.dataset["replayedLabel"]).toBe("Runtime shipping"));
+
+  expect(Reflect.get(element, "eventNode")).toMatchObject({
+    properties: { label: "Runtime shipping" },
+    revision: 1
+  });
+  expect(Reflect.get(element, "runtimeContext")).toMatchObject({
+    documentId: "test-application",
+    documentRevision: "1"
+  });
+  application.dispose();
+});
+
+function projectRuntimeTooltip(application: ReturnType<typeof requireApplication>): HTMLElement {
+  application.runtime.execute([
+    {
+      id: "shipping-help",
+      properties: { label: "Runtime shipping" },
+      type: UiCommandType.NodePatchProperties
+    }
+  ]);
+  return requireElement(application, "shipping-help");
+}
+
+function compatibleTooltipDefinition(realm: Window): CustomElementConstructor {
+  const definition = class extends realm.HTMLElement {
+    set label(value: string) {
+      this.dataset["replayedLabel"] = value;
+    }
+  } as unknown as CustomElementConstructor;
+  Object.defineProperty(definition, Symbol.for("org.unifold.element-definition"), {
+    value: {
+      catalogMajor: CoreCatalogMajor.Version1,
+      catalogName: coreCatalog.name,
+      catalogVersion: coreCatalog.version,
+      tagName: CoreElementTag.Tooltip
+    }
+  });
+  return definition;
+}
+
+function emulateUpgradeWhenNeeded(
+  element: HTMLElement,
+  definition: CustomElementConstructor
+): void {
+  if (element instanceof definition) return;
+  Reflect.set(element, "eventNode", undefined);
+  Reflect.set(element, "label", "constructor-default");
+  Reflect.set(element, "runtimeContext", { documentId: "constructor" });
+  Reflect.setPrototypeOf(element, definition.prototype);
+}
+
+function tooltipDocument(revision: string, label: string) {
+  return {
+    ...authoredDocument(revision),
+    view: {
+      $comp: "Tooltip",
+      content: "Delivery estimates exclude holidays.",
+      id: "shipping-help",
+      label
+    }
+  };
+}
 
 function fixtureDocument(documentId: string): UnifoldIrDocument {
   return {

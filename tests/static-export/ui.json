@@ -120,6 +120,16 @@
             "value": "Ada Lovelace"
           },
           {
+            "$comp": "FileInput",
+            "accept": ".pdf,application/pdf",
+            "id": "attachments",
+            "label": "Attachments",
+            "maximumFileBytes": 10485760,
+            "multiple": true,
+            "name": "attachments",
+            "value": []
+          },
+          {
             "$comp": "Button",
             "id": "save",
             "action": "submit",

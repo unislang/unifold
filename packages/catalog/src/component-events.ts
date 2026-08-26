@@ -25,6 +25,7 @@ const EVENTS: Readonly<Record<CoreComponentType, readonly UiComponentEventBindin
   [CoreComponentType.Composition]: NONE,
   [CoreComponentType.DataGrid]: INPUT_AND_BLUR,
   [CoreComponentType.Dialog]: ACTIVATED,
+  [CoreComponentType.FileInput]: INPUT_AND_BLUR,
   [CoreComponentType.Form]: FORM,
   [CoreComponentType.Grid]: NONE,
   [CoreComponentType.Heading]: NONE,

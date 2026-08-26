@@ -1,4 +1,5 @@
 import type { JsonValue } from "@unislang/unifold-contracts";
+import type { ElementDefinitionPolicy } from "@unislang/unifold-elements";
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
 import type { TrustedLayoutDefinitionRegistry } from "@unislang/unifold-compositions";
 import type { DomRenderController, DomRendererOptions } from "@unislang/unifold-renderer-dom";
@@ -74,6 +75,7 @@ export type CoordinatedRuntimeOptions = Omit<
 
 export interface MountUnifoldApplicationOptions extends UnifoldPreparationOptions {
   readonly compositionMigrations?: readonly UiCompositionVersionMigration[];
+  readonly elementDefinitionPolicy?: ElementDefinitionPolicy;
   readonly machineCommands?: UiMachineCommandRegistry;
   readonly machineGuards?: UiMachineGuardRegistry;
   readonly mountMode?: UnifoldApplicationMountMode;

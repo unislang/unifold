@@ -24,6 +24,7 @@ const renderers: Readonly<Record<CoreComponentType, NodeRenderer>> = {
   [CoreComponentType.Composition]: renderSection,
   [CoreComponentType.DataGrid]: staticComponents.renderStaticDataGrid,
   [CoreComponentType.Dialog]: staticComponents.renderStaticDialog,
+  [CoreComponentType.FileInput]: staticComponents.renderStaticFileInput,
   [CoreComponentType.Form]: renderForm,
   [CoreComponentType.Grid]: renderContainer,
   [CoreComponentType.Heading]: renderHeading,

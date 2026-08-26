@@ -39,6 +39,12 @@ export interface BreadcrumbItem extends JsonObject {
   readonly label: string;
 }
 
+export interface FileMetadata extends JsonObject {
+  readonly id: string;
+  readonly size: number;
+  readonly type: string;
+}
+
 export type MenuItem = ChoiceOption;
 
 export interface AuditLogEntry extends JsonObject {
@@ -93,6 +99,13 @@ export interface CatalogDataGridStateConstraint {
   readonly valueProperty: string;
 }
 
+export interface CatalogFileInputDataConstraint {
+  readonly kind: CatalogConstraintKind.FileInputData;
+  readonly maximumFileBytesProperty: string;
+  readonly multipleProperty: string;
+  readonly valueProperty: string;
+}
+
 export interface CatalogMasterDetailStateConstraint {
   readonly columnsProperty: string;
   readonly kind: CatalogConstraintKind.MasterDetailState;
@@ -120,6 +133,7 @@ export type CatalogConstraintDescriptor =
   | CatalogBreadcrumbDataConstraint
   | CatalogChildCountConstraint
   | CatalogDataGridStateConstraint
+  | CatalogFileInputDataConstraint
   | CatalogMasterDetailStateConstraint
   | CatalogSearchResultsStateConstraint
   | CatalogSelectionInOptionsConstraint

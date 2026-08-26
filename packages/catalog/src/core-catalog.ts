@@ -31,6 +31,7 @@ import * as workflows from "./workflow-catalog.js";
 import { breadcrumbDescriptor } from "./breadcrumb-catalog.js";
 import { choiceConstraints, choiceProperties, comboboxDescriptor } from "./choice-catalog.js";
 import { dialogDescriptor } from "./dialog-catalog.js";
+import { fileInputDescriptor } from "./file-input-catalog.js";
 import { menuButtonDescriptor } from "./menu-catalog.js";
 import { popoverDescriptor } from "./popover-catalog.js";
 import { tooltipDescriptor } from "./tooltip-catalog.js";
@@ -150,6 +151,7 @@ const descriptors: Record<CoreComponentType, ComponentDescriptor> = {
   },
   [CoreComponentType.DataGrid]: dataViews.dataGridDescriptor,
   [CoreComponentType.Dialog]: dialogDescriptor,
+  [CoreComponentType.FileInput]: fileInputDescriptor,
   [CoreComponentType.Form]: {
     componentType: CoreComponentType.Form,
     properties: [

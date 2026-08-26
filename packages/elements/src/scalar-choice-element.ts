@@ -2,16 +2,19 @@ import type { ChoiceOption } from "@unislang/unifold-catalog";
 import { UiUpdateTrigger, type JsonObject } from "@unislang/unifold-contracts";
 import type { PropertyDeclarations } from "lit";
 
-import { ElementEventType } from "./enums.js";
+import { ElementEventType, NativeFormValueOrigin } from "./enums.js";
+import { ScalarFormControlController } from "./scalar-form-control-controller.js";
 import { UnifoldElement } from "./unifold-element.js";
 
 export abstract class UnifoldScalarChoiceElement extends UnifoldElement {
+  static formAssociated = true;
+
   static override properties: PropertyDeclarations = {
     asyncValidators: { attribute: false },
     disabled: { reflect: true, type: Boolean },
     errorMessage: { attribute: "error-message" },
     label: {},
-    name: {},
+    name: { reflect: true },
     options: { attribute: false },
     required: { reflect: true, type: Boolean },
     updateOn: { attribute: "update-on" },
@@ -29,6 +32,7 @@ export abstract class UnifoldScalarChoiceElement extends UnifoldElement {
   declare updateOn: UiUpdateTrigger;
   declare validators: readonly string[];
   declare value: string;
+  readonly formControl = new ScalarFormControlController(this);
 
   constructor() {
     super();
@@ -64,9 +68,35 @@ export abstract class UnifoldScalarChoiceElement extends UnifoldElement {
     return this.value;
   }
 
+  get form(): HTMLFormElement | null {
+    return this.formControl.form;
+  }
+
+  formDisabledCallback(disabled: boolean): void {
+    this.formControl.formDisabledCallback(disabled);
+  }
+
+  formResetCallback(): void {
+    this.formControl.formResetCallback();
+  }
+
+  formStateRestoreCallback(state: File | FormData | string, mode: string): void {
+    this.formControl.formStateRestoreCallback(state, mode);
+  }
+
+  formControlAnchor(): HTMLElement | null {
+    return this.shadowRoot?.querySelector("input,select,[role=listbox]") ?? null;
+  }
+
+  formControlValueChanged(value: string, origin: NativeFormValueOrigin): void {
+    this.value = value;
+    this.emitUiEvent(ElementEventType.ControlInput, { origin, value });
+  }
+
   protected readonly onChoiceChange = (event: Event): void => {
-    this.value = (event.currentTarget as HTMLInputElement | HTMLSelectElement).value;
-    this.emitUiEvent(ElementEventType.ControlInput, { value: this.value });
+    this.formControl.commitInput(
+      (event.currentTarget as HTMLInputElement | HTMLSelectElement).value
+    );
   };
 
   protected readonly onChoiceBlur = (): void => {

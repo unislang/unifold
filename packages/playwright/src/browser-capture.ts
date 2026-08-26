@@ -31,29 +31,43 @@ export async function readRenderBaseline(
   page: Page,
   nodeIds: readonly string[]
 ): Promise<RenderBaseline> {
-  return page.evaluate(
-    (ids) =>
-      Object.fromEntries(
-        ids.map((id) => {
-          const host = document.querySelector(`[data-unifold-node-id="${CSS.escape(id)}"]`);
-          return [id, Number(host?.getAttribute("data-unifold-render-count") ?? 0)];
-        })
-      ),
-    nodeIds
-  );
+  return page.evaluate(renderCounts, nodeIds);
 }
 
 export async function readRenderUpdates(
   page: Page,
   baseline: RenderBaseline
 ): Promise<readonly SelectiveUpdateObservation[]> {
-  return page.evaluate(
-    (before) =>
-      Object.entries(before).map(([nodeId, count]) => {
-        const host = document.querySelector(`[data-unifold-node-id="${CSS.escape(nodeId)}"]`);
-        const current = Number(host?.getAttribute("data-unifold-render-count") ?? 0);
-        return { nodeId, updateCount: current - count };
-      }),
-    baseline
+  const current = await page.evaluate(renderCounts, Object.keys(baseline));
+  return Object.entries(baseline).map(([nodeId, count]) => ({
+    nodeId,
+    updateCount: (current[nodeId] ?? 0) - count
+  }));
+}
+
+function renderCounts(nodeIds: readonly string[]): Record<string, number> {
+  return Object.fromEntries(
+    nodeIds.map((id) => {
+      const host = findRenderedHost(document, id);
+      return [id, Number(host?.getAttribute("data-unifold-render-count") ?? 0)];
+    })
   );
+
+  function findRenderedHost(root: Document | ShadowRoot, nodeId: string): Element | null {
+    const selector = `[data-unifold-node-id="${CSS.escape(nodeId)}"]`;
+    return root.querySelector(selector) ?? findNestedRenderedHost(root, nodeId);
+  }
+
+  function findNestedRenderedHost(root: Document | ShadowRoot, nodeId: string): Element | null {
+    for (const element of root.querySelectorAll("*")) {
+      const nested = findRenderedHostInShadow(element, nodeId);
+      if (nested !== null) return nested;
+    }
+    return null;
+  }
+
+  function findRenderedHostInShadow(element: Element, nodeId: string): Element | null {
+    const shadow = element.shadowRoot;
+    return shadow === null ? null : findRenderedHost(shadow, nodeId);
+  }
 }

@@ -5,4 +5,9 @@ export {
   type StaticDomHydrationState
 } from "./hydration.js";
 export { createNodeSnapshot } from "./snapshot.js";
-export type { DomRenderController, DomRendererOptions, UnifoldElementHost } from "./types.js";
+export type {
+  DomRenderController,
+  DomRendererOptions,
+  PendingElementDefinitionOptions,
+  UnifoldElementHost
+} from "./types.js";

@@ -32,6 +32,7 @@ export {
   DataGridSelectionMode,
   DataGridSortDirection,
   DialogActivationReason,
+  FileMetadataProperty,
   HeadingLevel,
   IconName,
   IconSize,
@@ -53,6 +54,16 @@ export {
 export { isSafeUrl } from "./url.js";
 export { breadcrumbDescriptor, MAXIMUM_BREADCRUMB_ITEMS } from "./breadcrumb-catalog.js";
 export { dialogDescriptor, MAXIMUM_DIALOG_CHILDREN } from "./dialog-catalog.js";
+export {
+  DEFAULT_MAXIMUM_FILE_BYTES,
+  MAXIMUM_FILE_ACCEPT_LENGTH,
+  MAXIMUM_FILE_ACCEPT_TOKENS,
+  MAXIMUM_FILE_COUNT,
+  MAXIMUM_FILE_ID_LENGTH,
+  MAXIMUM_FILE_NAME_LENGTH,
+  fileInputDescriptor,
+  isValidFileAccept
+} from "./file-input-catalog.js";
 export { MAXIMUM_MENU_ITEMS } from "./menu-catalog.js";
 export { popoverDescriptor } from "./popover-catalog.js";
 export { tooltipDescriptor } from "./tooltip-catalog.js";
@@ -63,6 +74,7 @@ export type {
   CatalogBreadcrumbDataConstraint,
   CatalogChildCountConstraint,
   CatalogDataGridStateConstraint,
+  CatalogFileInputDataConstraint,
   CatalogMasterDetailStateConstraint,
   CatalogSearchResultsStateConstraint,
   CatalogStepNavigationStateConstraint,
@@ -75,6 +87,7 @@ export type {
   MenuItem,
   DataGridSort,
   DataGridValue,
+  FileMetadata,
   SearchResult,
   SearchResultsValue,
   ComponentAccessibilityContract,

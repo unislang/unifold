@@ -1,5 +1,8 @@
 // @vitest-environment happy-dom
-import { ElementRegistrationDiagnosticCode } from "@unislang/unifold-elements";
+import {
+  ElementDefinitionPolicy,
+  ElementRegistrationDiagnosticCode
+} from "@unislang/unifold-elements";
 import { expect, it } from "vitest";
 
 import { authoredDocument } from "./application.test-data.js";
@@ -54,5 +57,25 @@ it("fails closed until a document's optional component family is defined", () =>
   defineUnifoldTooltip(customElements);
   expect(
     registerApplicationElements(document.createElement("div"), prepared.document)
+  ).toBeUndefined();
+});
+
+it("permits explicitly pending compatible optional definitions", () => {
+  const preparation = prepareUnifoldDocument({
+    ...authoredDocument(),
+    view: {
+      $comp: "Tooltip",
+      content: "Delivery estimates exclude holidays.",
+      id: "pending-shipping-help",
+      label: "Shipping information"
+    }
+  });
+  if (preparation.status !== UnifoldPreparationStatus.Valid) throw new Error("Fixture is invalid.");
+  expect(
+    registerApplicationElements(
+      document.createElement("div"),
+      preparation.prepared?.document,
+      ElementDefinitionPolicy.AllowPending
+    )
   ).toBeUndefined();
 });

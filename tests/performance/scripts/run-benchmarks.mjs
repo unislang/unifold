@@ -32,6 +32,7 @@ const controlPlaneDurabilityPath = resolve(
 );
 const asyncStorePath = resolve(resultDirectory, "async-store-performance.raw.json");
 const documentProvenancePath = resolve(resultDirectory, "document-provenance-performance.raw.json");
+const fileInputPath = resolve(resultDirectory, "file-input-performance.raw.json");
 const finalPath = resolve(resultDirectory, "selective-rendering.json");
 const profileRuns = [
   ["performance-profile.test.ts", "UNIFOLD_PERFORMANCE_PROFILE_OUTPUT", profilePath],
@@ -62,7 +63,8 @@ const profileRuns = [
     "document-provenance-profile.test.ts",
     "UNIFOLD_DOCUMENT_PROVENANCE_OUTPUT",
     documentProvenancePath
-  ]
+  ],
+  ["file-input-profile.test.ts", "UNIFOLD_FILE_INPUT_OUTPUT", fileInputPath]
 ];
 
 await mkdir(resultDirectory, { recursive: true });
@@ -90,6 +92,7 @@ const controlPlaneDurabilityPerformance = JSON.parse(
 );
 const asyncStorePerformance = JSON.parse(await readFile(asyncStorePath, "utf8"));
 const documentProvenancePerformance = JSON.parse(await readFile(documentProvenancePath, "utf8"));
+const fileInputPerformance = JSON.parse(await readFile(fileInputPath, "utf8"));
 const profile = {
   ...measuredProfile,
   gates: [
@@ -109,7 +112,8 @@ const profile = {
     ...controlPlaneDurabilityPerformance.gates,
     ...controlPlaneTransportPerformance.gates,
     ...asyncStorePerformance.gates,
-    ...documentProvenancePerformance.gates
+    ...documentProvenancePerformance.gates,
+    fileInputPerformance.gate
   ],
   asyncStorePerformance,
   comboboxFilter,
@@ -119,6 +123,7 @@ const profile = {
   controlPlaneTransportPerformance,
   devtoolsPerformance,
   documentProvenancePerformance,
+  fileInputPerformance,
   dataActorPerformance,
   lifecycleMemory,
   dataGridPerformance,
@@ -133,7 +138,7 @@ const report = {
   environment: environmentMetadata(),
   generatedAt: new Date().toISOString(),
   profile,
-  schemaVersion: "2.22.0"
+  schemaVersion: "2.23.0"
 };
 await writeFile(finalPath, `${JSON.stringify(report, null, 2)}\n`);
 process.stdout.write(`Benchmark report: ${finalPath}\n`);
@@ -142,7 +147,7 @@ function runVitest() {
   execFileSync(
     process.execPath,
     [vitestExecutable, "bench", "--run", "--config", "vitest.config.ts", "--outputJson", rawPath],
-    { cwd: packageRoot, stdio: "inherit" }
+    { cwd: packageRoot, env: benchmarkEnvironment(), stdio: "inherit" }
   );
 }
 
@@ -158,10 +163,20 @@ function runNamedProfile(executable, testFile, environmentKey, outputPath) {
     [executable, "run", testFile, "--config", "performance-profile.vitest.config.ts"],
     {
       cwd: packageRoot,
-      env: { ...process.env, [environmentKey]: outputPath },
+      env: benchmarkEnvironment(environmentKey, outputPath),
       stdio: "inherit"
     }
   );
+}
+
+function benchmarkEnvironment(environmentKey, outputPath) {
+  const environment = Object.fromEntries(
+    Object.entries(process.env).filter(([name]) => !/^(npm|pnpm)/i.test(name))
+  );
+  if (environmentKey !== undefined && outputPath !== undefined) {
+    environment[environmentKey] = outputPath;
+  }
+  return environment;
 }
 
 function environmentMetadata() {

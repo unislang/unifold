@@ -32,6 +32,7 @@ export enum CatalogConstraintKind {
   BreadcrumbData = "breadcrumb-data",
   ChildCount = "child-count",
   DataGridState = "data-grid-state",
+  FileInputData = "file-input-data",
   MasterDetailState = "master-detail-state",
   SearchResultsState = "search-results-state",
   SelectionInOptions = "selection-in-options",
@@ -46,6 +47,8 @@ export enum CatalogPropertyType {
   Boolean = "boolean",
   DataGridValue = "data-grid-value",
   Enum = "enum",
+  FileAccept = "file-accept",
+  FileMetadataList = "file-metadata-list",
   MenuItemList = "menu-item-list",
   OptionList = "option-list",
   PositiveInteger = "positive-integer",
@@ -58,6 +61,12 @@ export enum CatalogPropertyType {
   StringArray = "string-array",
   TableColumnList = "table-column-list",
   TableRowList = "table-row-list"
+}
+
+export enum FileMetadataProperty {
+  Id = "id",
+  Size = "size",
+  Type = "type"
 }
 
 export enum ComponentAccessibilityPattern {
@@ -74,6 +83,7 @@ export enum ComponentAccessibilityPattern {
   Combobox = "combobox",
   NativeDataGrid = "native-data-grid",
   ModalDialog = "modal-dialog",
+  NativeFileInput = "native-file-input",
   NativeForm = "native-form",
   NativeHeading = "native-heading",
   NativeLink = "native-link",
@@ -155,6 +165,7 @@ export enum CoreElementTag {
   Composition = "unifold-composition",
   DataGrid = "unifold-data-grid",
   Dialog = "unifold-dialog",
+  FileInput = "unifold-file-input",
   Form = "unifold-form",
   Grid = "unifold-grid",
   Heading = "unifold-heading",

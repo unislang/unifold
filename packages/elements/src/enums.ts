@@ -2,6 +2,11 @@ export enum ElementEventName {
   UiEvent = "unifold-event"
 }
 
+export enum ElementDefinitionPolicy {
+  AllowPending = "allow-pending",
+  RequireAll = "require-all"
+}
+
 export enum ElementRegistrationDiagnosticCode {
   CatalogMismatch = "element-catalog-mismatch",
   ConstructorAlreadyDefined = "element-constructor-already-defined",
@@ -24,4 +29,11 @@ export enum ElementEventType {
   FormResetRequested = "org.unifold.ui.form.reset-requested.v1",
   FormSubmitRequested = "org.unifold.ui.form.submit-requested.v1",
   FormSubmitted = "org.unifold.ui.form.submitted.v1"
+}
+
+export enum NativeFormValueOrigin {
+  Autocomplete = "autocomplete",
+  Input = "input",
+  Reset = "reset",
+  Restore = "restore"
 }

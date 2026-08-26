@@ -22,6 +22,16 @@ it("provides shared empty scalar-text state", () => {
   });
 });
 
+it("reflects the native form name contract", async () => {
+  defineFixture();
+  const element = document.createElement("unifold-scalar-text-fixture") as TextFixture;
+  element.name = "profileName";
+  document.body.append(element);
+  await element.updateComplete;
+  expect(element.getAttribute("name")).toBe("profileName");
+  element.remove();
+});
+
 class TextFixture extends UnifoldScalarTextElement {
   textState() {
     return {

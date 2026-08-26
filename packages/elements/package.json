@@ -34,6 +34,10 @@
       "types": "./dist/dialog-entry.d.ts",
       "import": "./dist/dialog-entry.js"
     },
+    "./file-input": {
+      "types": "./dist/file-input-entry.d.ts",
+      "import": "./dist/file-input-entry.js"
+    },
     "./audit-log": {
       "types": "./dist/audit-log-entry.d.ts",
       "import": "./dist/audit-log-entry.js"

@@ -15,6 +15,7 @@ export const compositionNodeIds = {
   accountTabs: "profile-editor::account-tabs",
   accountActions: "profile-editor::account-actions",
   accountActionsHelp: "profile-editor::account-actions-help",
+  accountAttachments: "profile-editor::account-attachments",
   accountSummaryPopover: "profile-editor::account-summary-popover",
   accountBreadcrumb: "profile-editor::account-breadcrumb",
   accountReviewDialog: "profile-editor::account-review-dialog",

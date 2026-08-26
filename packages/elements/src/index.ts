@@ -9,11 +9,14 @@ export type { UnifoldCombobox } from "./combobox.js";
 export { UnifoldComposition } from "./composition.js";
 export type { UnifoldDataGrid } from "./data-grid.js";
 export type { UnifoldDialog } from "./dialog.js";
+export type { UnifoldFileInput } from "./file-input.js";
 export {
+  ElementDefinitionPolicy,
   ElementEventName,
   ElementEventType,
   ElementRegistrationDiagnosticCode,
-  ElementRegistrationStatus
+  ElementRegistrationStatus,
+  NativeFormValueOrigin
 } from "./enums.js";
 export { UnifoldForm } from "./form.js";
 export { UnifoldGrid } from "./grid.js";
@@ -36,6 +39,11 @@ export {
   type RejectedElementsResult
 } from "./register.js";
 export { UnifoldRadioGroup } from "./radio-group.js";
+export {
+  ScalarFormControlController,
+  type FormControlInternals,
+  type ScalarFormControlHost
+} from "./scalar-form-control-controller.js";
 export type { UnifoldSearchResults } from "./search-results.js";
 export { UnifoldSelect } from "./select.js";
 export { UnifoldStack } from "./stack.js";

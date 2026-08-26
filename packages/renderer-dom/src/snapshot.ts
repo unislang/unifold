@@ -6,7 +6,8 @@ import {
   UiNodeKind,
   UiUpdateTrigger,
   type UiControlState,
-  type UiNodeSnapshot
+  type UiNodeSnapshot,
+  type UiValidationError
 } from "@unislang/unifold-events";
 import { UiNodeKind as IrNodeKind, type UnifoldIrNode } from "@unislang/unifold-ir";
 
@@ -40,6 +41,50 @@ const objectControlKinds = new Set<IrNodeKind>([
 export function createNodeSnapshot(node: UnifoldIrNode, stateRevision: number): UiNodeSnapshot {
   const snapshot = createBaseSnapshot(node, stateRevision);
   return withControl(node, withComposition(node, withParent(node, snapshot)));
+}
+
+export function createProjectedProperties(
+  snapshot: UiNodeSnapshot,
+  routedErrors: readonly UiValidationError[],
+  formatMessage: (error: UiValidationError) => string
+): JsonObject {
+  return {
+    ...snapshot.properties,
+    disabled: snapshot.base.disabled,
+    readonly: snapshot.base.readonly,
+    ...controlProperties(snapshot),
+    ...validationProperties(snapshot, routedErrors, formatMessage)
+  };
+}
+
+function controlProperties(snapshot: UiNodeSnapshot): JsonObject {
+  const control = snapshot.control;
+  return control === undefined ? {} : { required: control.required, value: control.rawValue };
+}
+
+function validationProperties(
+  snapshot: UiNodeSnapshot,
+  routedErrors: readonly UiValidationError[],
+  formatMessage: (error: UiValidationError) => string
+): JsonObject {
+  if (snapshot.control === undefined) return {};
+  const messages = visibleValidationMessages(snapshot, routedErrors, formatMessage);
+  if (snapshot.kind === UiNodeKind.Form) return { errorMessages: messages };
+  return { errorMessage: firstMessage(messages) };
+}
+
+function firstMessage(messages: readonly string[]): string {
+  return messages[0] ?? "";
+}
+
+function visibleValidationMessages(
+  snapshot: UiNodeSnapshot,
+  routedErrors: readonly UiValidationError[],
+  formatMessage: (error: UiValidationError) => string
+): readonly string[] {
+  const control = snapshot.control;
+  if (control === undefined || !control.touched) return [];
+  return [...control.errors, ...routedErrors].map(formatMessage);
 }
 
 function createBaseSnapshot(node: UnifoldIrNode, stateRevision: number): UiNodeSnapshot {
@@ -155,5 +200,5 @@ function readBoolean(node: UnifoldIrNode, name: string): boolean {
 }
 
 function readValue(node: UnifoldIrNode, name: string, fallback: JsonValue): JsonValue {
-  return node.properties[name] ?? fallback;
+  return snapshotProperties(node)[name] ?? fallback;
 }

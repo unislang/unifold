@@ -27,6 +27,9 @@ export default defineConfig({
       "@unislang/unifold-elements/dialog": fileURLToPath(
         new URL("../../packages/elements/src/dialog-entry.ts", import.meta.url)
       ),
+      "@unislang/unifold-elements/file-input": fileURLToPath(
+        new URL("../../packages/elements/src/file-input-entry.ts", import.meta.url)
+      ),
       "@unislang/unifold-elements/search-results": fileURLToPath(
         new URL("../../packages/elements/src/search-results-entry.ts", import.meta.url)
       ),

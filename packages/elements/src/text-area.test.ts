@@ -3,7 +3,12 @@ import { TextAreaWrap } from "@unislang/unifold-catalog";
 import type { UiEvent } from "@unislang/unifold-events";
 import { expect, it } from "vitest";
 
-import { ElementEventName, registerCoreElements, UnifoldTextArea } from "./index.js";
+import {
+  ElementEventName,
+  NativeFormValueOrigin,
+  registerCoreElements,
+  UnifoldTextArea
+} from "./index.js";
 import { controlNode } from "./elements.test-data.js";
 
 it("renders a native textarea and emits its full string value", verifyTextArea);
@@ -20,7 +25,10 @@ async function verifyTextArea(): Promise<void> {
   expect(textarea.getAttribute("wrap")).toBe(TextAreaWrap.Hard);
   textarea.value = "First line\nSecond line";
   textarea.dispatchEvent(new InputEvent("input", { bubbles: true }));
-  expect(requiredEvent(events).data.change).toEqual({ value: "First line\nSecond line" });
+  expect(requiredEvent(events).data.change).toEqual({
+    origin: NativeFormValueOrigin.Input,
+    value: "First line\nSecond line"
+  });
 }
 
 async function mountTextArea(): Promise<UnifoldTextArea> {

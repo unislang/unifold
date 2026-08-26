@@ -12,7 +12,7 @@ test("validates and recovers a Standard Schema cross-field rule", async ({ page,
   const form = page.getByRole("form", { name: "Profile" });
   const confirm = page.getByLabel("Confirm name");
   await expect(confirm).toHaveAttribute("aria-invalid", "true");
-  await expect(form.getByText("Names must match.")).toHaveCount(1);
+  await expect(form.getByText("Names must match.")).toHaveCount(2);
   expect(await lastEventOfType(unifold, UiEventType.FormInvalid)).toMatchObject({
     data: {
       change: {

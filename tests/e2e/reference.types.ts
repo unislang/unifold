@@ -1,14 +1,15 @@
 import type { UnifoldApplicationUpdateStatus } from "@unislang/unifold";
 
-interface DynamicNode {
+export interface DynamicNode {
   $comp: string;
+  $children?: DynamicNode[];
   id: string;
   label: string;
   options?: { label: string; value: string }[];
 }
 
 interface DynamicAuthoredDocument {
-  compositions: [{ template: { $children: [{ $children: DynamicNode[] }] } }];
+  compositions: [{ template: { $children: DynamicNode[] } }];
   revision: string;
 }
 

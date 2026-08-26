@@ -1,4 +1,4 @@
-import { registerApplicationElements } from "./element-registration.js";
+import { applicationRendererOptions, registerApplicationElements } from "./element-registration.js";
 import {
   captureStaticDomHydration,
   renderIrDocument,
@@ -65,7 +65,11 @@ export function mountPreparedUnifoldApplicationWithStores(
   storeCommands: StoreCommandController
 ): MountUnifoldApplicationResult {
   try {
-    const registration = registerApplicationElements(container, prepared.document);
+    const registration = registerApplicationElements(
+      container,
+      prepared.document,
+      options.elementDefinitionPolicy
+    );
     if (registration !== undefined) return registration;
     return mountConfigured(prepared, container, options, stores, storeCommands);
   } catch (error) {
@@ -78,7 +82,11 @@ function mountPrepared(
   container: HTMLElement,
   options: MountUnifoldApplicationOptions
 ): MountUnifoldApplicationResult {
-  const registration = registerApplicationElements(container, prepared.document);
+  const registration = registerApplicationElements(
+    container,
+    prepared.document,
+    options.elementDefinitionPolicy
+  );
   if (registration !== undefined) return registration;
   return mountRegistered(prepared, container, options);
 }
@@ -155,7 +163,7 @@ function mountValidatedRuntime(
   options: MountUnifoldApplicationOptions,
   hydration: StaticDomHydrationState | undefined
 ): MountUnifoldApplicationResult {
-  const renderer = renderIrDocument(prepared.document, container, options.renderer);
+  const renderer = createApplicationRenderer(prepared.document, container, options);
   try {
     const application = createApplication(
       prepared,
@@ -173,6 +181,19 @@ function mountValidatedRuntime(
     renderer.dispose();
     throw error;
   }
+}
+
+function createApplicationRenderer(
+  document: UnifoldIrDocument,
+  container: HTMLElement,
+  options: MountUnifoldApplicationOptions
+): DomRenderController {
+  const rendererOptions = applicationRendererOptions(
+    container,
+    options.renderer,
+    options.elementDefinitionPolicy
+  );
+  return renderIrDocument(document, container, rendererOptions);
 }
 
 function createApplication(

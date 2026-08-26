@@ -135,8 +135,8 @@ async function rerenderShell(page: Page): Promise<void> {
 }
 
 async function fieldHostRetained(page: Page): Promise<boolean> {
-  return page.evaluate(() => {
-    return window.__unifoldRetainedHost === document.querySelector('[data-unifold-node-id="name"]');
+  return page.locator('[data-unifold-node-id="name"]').evaluate((element) => {
+    return window.__unifoldRetainedHost === element;
   });
 }
 

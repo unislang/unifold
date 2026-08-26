@@ -8,6 +8,7 @@ import type { DomRenderController } from "@unislang/unifold-renderer-dom";
 import type { UnifoldRuntime } from "@unislang/unifold-runtime";
 
 import { prepareUnifoldDocument } from "./compiler.js";
+import { registerApplicationElements } from "./element-registration.js";
 import {
   planCompositionMigration,
   type UiCompositionMigrationPlan,
@@ -21,10 +22,30 @@ import {
   UnifoldApplicationDiagnosticStage,
   UnifoldApplicationUpdateStatus,
   type PreparedUnifoldDocument,
+  type MountUnifoldApplicationOptions,
   type UnifoldApplicationDiagnostic,
   type UnifoldApplicationUpdateResult,
   type UnifoldPreparationOptions
 } from "./types.js";
+
+export function elementRegistrationDiagnostic(
+  container: HTMLElement,
+  document: UnifoldIrDocument,
+  options: MountUnifoldApplicationOptions
+): UnifoldApplicationDiagnostic | undefined {
+  return registerApplicationElements(container, document, options.elementDefinitionPolicy)
+    ?.diagnostics[0];
+}
+
+export function firstDiagnostic(
+  diagnostics: readonly (UnifoldApplicationDiagnostic | undefined)[]
+): UnifoldApplicationDiagnostic | undefined {
+  return diagnostics.find((diagnostic) => diagnostic !== undefined);
+}
+
+export function asError(error: unknown): Error {
+  return error instanceof Error ? error : new Error("Unknown rollback failure.");
+}
 
 export function prepareApplicationUpdate(
   authored: unknown,
@@ -137,12 +158,30 @@ function renderedFocusedNodeId(
   document: UnifoldIrDocument
 ): string | undefined {
   if (renderer === undefined) return undefined;
-  return document.renderOrder.find((id) => renderedNodeHasFocus(renderer.getElement(id)));
+  return [...document.renderOrder]
+    .reverse()
+    .find((id) => renderedNodeHasFocus(renderer.getElement(id)));
 }
 
 function renderedNodeHasFocus(element: HTMLElement | undefined): boolean {
   if (element === undefined) return false;
-  return element.ownerDocument.activeElement === element;
+  return composedActiveElements(element.ownerDocument).some(
+    (active) => active === element || element.contains(active)
+  );
+}
+
+function composedActiveElements(document: Document): readonly Element[] {
+  const active: Element[] = [];
+  let current = document.activeElement;
+  while (current !== null) {
+    active.push(current);
+    current = shadowActiveElement(current);
+  }
+  return active;
+}
+
+function shadowActiveElement(element: Element): Element | null {
+  return element.shadowRoot?.activeElement ?? null;
 }
 
 export function focusedNodeId(nodes: readonly UiNodeSnapshot[]): string | undefined {

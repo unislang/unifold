@@ -2,7 +2,12 @@
 import type { UiEvent } from "@unislang/unifold-events";
 import { expect, it } from "vitest";
 
-import { ElementEventName, registerCoreElements, UnifoldSelect } from "./index.js";
+import {
+  ElementEventName,
+  NativeFormValueOrigin,
+  registerCoreElements,
+  UnifoldSelect
+} from "./index.js";
 import { controlNode } from "./elements.test-data.js";
 
 it("uses a labeled native select and emits the selected value", verifySelect);
@@ -26,7 +31,7 @@ async function verifySelect(): Promise<void> {
   select.value = "ca";
   select.dispatchEvent(new Event("change", { bubbles: true }));
   const event = requiredEvent(events);
-  expect(event.data.change).toEqual({ value: "ca" });
+  expect(event.data.change).toEqual({ origin: NativeFormValueOrigin.Input, value: "ca" });
   expect(controlValue(event)).toBe("ca");
   expect(requiredLabelText(element)).toBe("Country");
 }

@@ -23,7 +23,7 @@ async function verifyEventCapture(): Promise<void> {
 
 async function verifyRenderCapture(): Promise<void> {
   const page = browserPage();
-  const field = renderHost("field", 2);
+  const field = renderHost("field", 2, true);
   const baseline = await readRenderBaseline(page, ["field", "missing"]);
   expect(baseline).toEqual({ field: 2, missing: 0 });
   field.setAttribute("data-unifold-render-count", "5");
@@ -40,10 +40,14 @@ function browserPage(): Page {
   } as unknown as Page;
 }
 
-function renderHost(id: string, count: number): HTMLElement {
+function renderHost(id: string, count: number, nested = false): HTMLElement {
   const host = document.createElement("div");
   host.dataset["unifoldNodeId"] = id;
   host.dataset["unifoldRenderCount"] = String(count);
-  document.body.append(host);
+  if (nested) {
+    const parent = document.createElement("section");
+    parent.attachShadow({ mode: "open" }).append(host);
+    document.body.append(parent);
+  } else document.body.append(host);
   return host;
 }

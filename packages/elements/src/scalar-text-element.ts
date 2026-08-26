@@ -1,16 +1,18 @@
 import { UiUpdateTrigger } from "@unislang/unifold-contracts";
 import type { PropertyDeclarations } from "lit";
 
-import { ElementEventType } from "./enums.js";
+import { ElementEventType, NativeFormValueOrigin } from "./enums.js";
+import { ScalarFormControlController } from "./scalar-form-control-controller.js";
 import { UnifoldElement } from "./unifold-element.js";
 
 export abstract class UnifoldScalarTextElement extends UnifoldElement {
+  static formAssociated = true;
   static override properties: PropertyDeclarations = {
     asyncValidators: { attribute: false },
     disabled: { reflect: true, type: Boolean },
     errorMessage: { attribute: "error-message" },
     label: {},
-    name: {},
+    name: { reflect: true },
     placeholder: {},
     readonly: { reflect: true, type: Boolean },
     required: { reflect: true, type: Boolean },
@@ -30,6 +32,7 @@ export abstract class UnifoldScalarTextElement extends UnifoldElement {
   declare updateOn: UiUpdateTrigger;
   declare validators: readonly string[];
   declare value: string;
+  protected readonly formControl = new ScalarFormControlController(this);
 
   constructor() {
     super();
@@ -67,9 +70,41 @@ export abstract class UnifoldScalarTextElement extends UnifoldElement {
     return this.value;
   }
 
+  get form(): HTMLFormElement | null {
+    return this.formControl.form;
+  }
+
+  formControlAnchor(): HTMLElement | null {
+    return this.shadowRoot?.querySelector("input,textarea") ?? null;
+  }
+
+  formControlValueChanged(value: string, origin: NativeFormValueOrigin): void {
+    this.value = value;
+    this.emitUiEvent(ElementEventType.ControlInput, { origin, value });
+  }
+
+  formDisabledCallback(disabled: boolean): void {
+    this.formControl.formDisabledCallback(disabled);
+  }
+
+  formResetCallback(): void {
+    this.formControl.formResetCallback();
+  }
+
+  formStateRestoreCallback(state: File | FormData | string, mode: string): void {
+    this.formControl.formStateRestoreCallback(state, mode);
+  }
+
   protected readonly onTextInput = (event: InputEvent): void => {
-    this.value = (event.currentTarget as HTMLInputElement | HTMLTextAreaElement).value;
-    this.emitUiEvent(ElementEventType.ControlInput, { value: this.value });
+    this.formControl.handleInput(event);
+  };
+
+  protected readonly onCompositionStart = (): void => {
+    this.formControl.handleCompositionStart();
+  };
+
+  protected readonly onCompositionEnd = (event: CompositionEvent): void => {
+    this.formControl.handleCompositionEnd(event);
   };
 
   protected readonly onTextBlur = (): void => {

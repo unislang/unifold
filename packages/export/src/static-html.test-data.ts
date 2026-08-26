@@ -18,6 +18,7 @@ import {
 import { referenceAuditLogNode } from "./static-audit-log-reference.test-data.js";
 import { referenceBreadcrumbNode } from "./static-breadcrumb-reference.test-data.js";
 import { referenceDialogNode } from "./static-dialog-reference.test-data.js";
+import { referenceFileInputNode } from "./static-file-input-reference.test-data.js";
 import { referenceSearchResultsNode } from "./static-search-results-reference.test-data.js";
 import { referenceMenuButton } from "./static-menu-reference.test-data.js";
 import { referenceTooltipNode } from "./static-tooltip-reference.test-data.js";
@@ -81,6 +82,7 @@ function referenceForm(): JsonObject {
       textField(),
       passwordField(),
       textArea(),
+      referenceFileInputNode(),
       checkbox(),
       radioGroup(),
       selectNode("Combobox", "assignee", "Assignee", "email"),

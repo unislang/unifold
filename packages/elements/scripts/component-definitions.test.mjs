@@ -27,24 +27,24 @@ test("joins all sidecars, catalog schemas, and CEM declarations", async () => {
 
 test("derives required, enum, attribute, and public snapshot schemas", async () => {
   const document = await definitions();
-  const { auditLog, breadcrumb, dataGrid, icon, link, searchResults, stepper, table, wizard } =
-    schemaDefinitions(document);
-  assert.deepEqual(icon.propertiesSchema.required, ["name"]);
-  assert.deepEqual(link.propertiesSchema.required, ["href"]);
-  assert.deepEqual(link.attributesSchema.properties.href, { type: "string" });
-  assert.deepEqual(table.propertiesSchema.required, ["caption", "columns", "rows"]);
+  const schemas = schemaDefinitions(document);
+  assert.deepEqual(schemas.icon.propertiesSchema.required, ["name"]);
+  assert.deepEqual(schemas.link.propertiesSchema.required, ["href"]);
+  assert.deepEqual(schemas.link.attributesSchema.properties.href, { type: "string" });
+  assert.deepEqual(schemas.table.propertiesSchema.required, ["caption", "columns", "rows"]);
   assertMenuButtonSchemas(document);
-  assert.deepEqual(breadcrumb.propertiesSchema.required, ["label", "items"]);
-  assert.equal(breadcrumb.propertiesSchema.properties.items.maxItems, 32);
+  assert.deepEqual(schemas.breadcrumb.propertiesSchema.required, ["label", "items"]);
+  assert.equal(schemas.breadcrumb.propertiesSchema.properties.items.maxItems, 32);
   assertOverlaySchemas(document);
-  assertAuditLogSchemas(auditLog);
-  assert.equal(table.propertiesSchema.properties.columns.maxItems, 64);
-  assert.equal(table.propertiesSchema.properties.rows.maxItems, 10_000);
-  assertDataGridSchemas(dataGrid);
-  assertSearchResultsSchemas(searchResults);
-  assertWorkflowSchemas(stepper, wizard);
-  assert(link.publicSnapshotSchema.properties.testId === undefined);
-  assertIconSchema(icon);
+  assertAuditLogSchemas(schemas.auditLog);
+  assert.equal(schemas.table.propertiesSchema.properties.columns.maxItems, 64);
+  assert.equal(schemas.table.propertiesSchema.properties.rows.maxItems, 10_000);
+  assertDataGridSchemas(schemas.dataGrid);
+  assertFileInputSchemas(schemas.fileInput);
+  assertSearchResultsSchemas(schemas.searchResults);
+  assertWorkflowSchemas(schemas.stepper, schemas.wizard);
+  assert(schemas.link.publicSnapshotSchema.properties.testId === undefined);
+  assertIconSchema(schemas.icon);
 });
 
 function assertOverlaySchemas(document) {
@@ -75,6 +75,7 @@ function schemaDefinitions(document) {
       "breadcrumb",
       "dataGrid",
       "dialog",
+      "fileInput",
       "icon",
       "link",
       "popover",
@@ -88,6 +89,17 @@ function schemaDefinitions(document) {
       requireDefinition(document, CoreComponentType[name[0].toUpperCase() + name.slice(1)])
     ])
   );
+}
+
+function assertFileInputSchemas(fileInput) {
+  const value = fileInput.control.valueSchema;
+  assert.deepEqual(fileInput.propertiesSchema.required, ["label"]);
+  assert.equal(fileInput.propertiesSchema.properties.accept.maxLength, 512);
+  assert.equal(value.maxItems, 32);
+  assert.equal(value.items.additionalProperties, false);
+  assert.deepEqual(value.items.required, ["id", "size", "type"]);
+  assert.equal(value.uniqueItems, true);
+  assert.match(value.items.properties.id.pattern, /^\^\[0-9a-fA-F\]/u);
 }
 
 test("derives control adapters and enum-backed common capabilities", async () => {

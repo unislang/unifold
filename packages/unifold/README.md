@@ -50,10 +50,19 @@ application. Incompatible catalog releases require independent iframe/document r
 
 Larger component families are deferred from the baseline entry and must be registered before a
 document that references them is mounted. Supported subpaths are `audit-log`, `breadcrumb`, `combobox`,
-`data-grid`, `dialog`, `master-detail`, `menu-button`, `popover`, `search-results`, `stepper`, `tabs`, `tooltip`,
+`data-grid`, `dialog`, `file-input`, `master-detail`, `menu-button`, `popover`, `search-results`, `stepper`, `tabs`, `tooltip`,
 `virtual-list`, and `wizard`; each exports its matching `defineUnifold*()` function. This keeps the
 reference application's initial executable bundle below its enforced 180 KiB-gzip ceiling while
 preserving the same catalog and registration checks.
+
+Strict mounting remains the default. A host that intentionally loads reviewed optional families
+after the first render may set `elementDefinitionPolicy: ElementDefinitionPolicy.AllowPending`.
+Unifold then mounts only missing catalog-known tags, requests the replay adapter after the
+synchronous mount, and replays each host's latest properties, event snapshot, runtime context, and
+child container when the compatible definition arrives. Removed, replaced, disposed, and foreign
+definitions are ignored or rejected by identity and catalog-marker checks. This policy is a trusted
+host delivery capability, not permission for document-selected modules or arbitrary registry
+mutation.
 
 Persist and export authored JSON, not normalized IR. IR, generated composition IDs, and runtime
 snapshots are derived execution artifacts. The coordinator currently recompiles the full candidate

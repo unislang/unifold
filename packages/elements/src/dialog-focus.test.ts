@@ -7,11 +7,14 @@ it("collects only rendered focus stops across light and shadow DOM", () => {
   const dialog = document.createElement("div");
   const dismiss = document.createElement("button");
   const visible = document.createElement("button");
-  const hidden = document.createElement("section");
-  const hiddenButton = document.createElement("button");
-  hidden.style.display = "none";
-  hidden.append(hiddenButton);
-  dialog.append(visible, hidden, shadowControl());
+  dialog.append(
+    visible,
+    hiddenControl((container) => (container.style.display = "none")),
+    hiddenControl((container) => (container.style.visibility = "hidden")),
+    hiddenControl((container) => container.setAttribute("aria-hidden", "true")),
+    hiddenControl((container) => (container.inert = true)),
+    shadowControl()
+  );
   document.body.append(dialog);
 
   expect(dialogTabStops(dialog, dismiss)).toEqual([dismiss, visible, shadowButton(dialog)]);
@@ -31,6 +34,13 @@ function shadowControl(): HTMLElement {
   const host = document.createElement("span");
   host.attachShadow({ mode: "open" }).append(document.createElement("button"));
   return host;
+}
+
+function hiddenControl(hide: (container: HTMLElement) => void): HTMLElement {
+  const container = document.createElement("section");
+  hide(container);
+  container.append(document.createElement("button"));
+  return container;
 }
 
 function shadowButton(dialog: HTMLElement): HTMLButtonElement {

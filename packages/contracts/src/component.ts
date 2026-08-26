@@ -10,6 +10,7 @@ export enum CoreComponentType {
   Composition = "Composition",
   DataGrid = "DataGrid",
   Dialog = "Dialog",
+  FileInput = "FileInput",
   Form = "Form",
   Grid = "Grid",
   Heading = "Heading",

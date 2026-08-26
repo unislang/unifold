@@ -73,6 +73,7 @@ results. They are evidence from a developer workstation, not ratified release th
 | 100-item MenuButton activation              |   1.52 ms |   5.23 ms |   5.32 ms |
 | 32-action Popover opening                   |   0.82 ms |   4.43 ms |   5.36 ms |
 | 32-action Dialog opening                    |   0.29 ms |   0.45 ms |   0.86 ms |
+| 32-file metadata-only selection             |   0.10 ms |   0.23 ms |   4.24 ms |
 | 10k-entry AuditLog startup                  |  60.67 ms |  68.65 ms |  72.95 ms |
 | 10k-entry AuditLog distant scroll           |   0.63 ms |   1.04 ms |   2.90 ms |
 | 1k cached data-actor resolutions            |   5.67 ms |   7.39 ms |   7.60 ms |
@@ -94,8 +95,8 @@ Five create/edit/dispose cycles of a selection-free 10,000-node store retained 7
 garbage collection, below the provisional 64 MiB leak-sentinel ceiling; peak observed heap was
 230.14 MiB. A separate public-application lifecycle profile warms bounded registrations and caches
 for five cycles, then mounts, revises, and disposes the same schema-valid 500-node application twenty
-times. It retained 0.74 MiB, or 1.49% over its forced-GC baseline, below the architecture's strict 2%
-limit; peak lifecycle heap was 85.09 MiB. The 10,000-option Combobox filter rendered exactly 200
+times. It retained 548,240 bytes, or 1.04% over its forced-GC baseline, below the architecture's
+strict 2% limit; peak lifecycle heap was 89.54 MiB. The 10,000-option Combobox filter rendered exactly 200
 matching options at its broadest query, meeting its hard DOM ceiling. The 10,000-option VirtualList
 startup fixture rendered at most 23 option rows, below its hard 200-row DOM ceiling. The 1,000-row
 native Table fixture rendered exactly 1,000 body rows in every sample. A dedicated single-worker Chromium run measured
@@ -119,22 +120,22 @@ emits exactly 25 typed commands, and leaves every unrelated chain unchanged. Its
 p95 is below the provisional 4 ms target on the current workstation. The combined public-runtime
 fixture proves one commit spans the leaf edit, three synchronous validations (leaf, group, form),
 two ancestor aggregates, 20 transitive rule commands, and committed-revision selector delivery.
-Its 1.35 ms p95 is below the provisional 8 ms target. All forty-seven timing and lifecycle limits
+Its 1.35 ms p95 is below the provisional 8 ms target. All forty-eight timing and lifecycle limits
 are executable benchmark gates and are included with actual/limit/pass fields in the
-schema-2.22.0 machine-readable report; the current run passes all 47/47.
+schema-2.23.0 machine-readable report; the current run passes all 48/48.
 The report also contains a 50-sample paired selection-overhead profile. It alternates measurement
 order for each update between identical 10,000-node stores with zero and 2,000 indexed selections,
 subtracts the paired timings, and takes each sample's five-edit median. This removes shared
 transaction work without assigning an unrelated scheduler pause to selection dispatch before
-enforcing the provisional 2 ms p95 gate. The paired profile measured -0.23/1.54/7.08 ms
+enforcing the provisional 2 ms p95 gate. The paired profile measured -0.11/1.42/1.71 ms
 p50/p95/p99, so the unchanged subscription gate
 passes on this workstation.
 
 Dialog foundation selection is recorded separately in
 `benchmark-results/dialog-foundation.json`. Its 20-sample native/Lion/Spectrum comparison selected
 the native platform baseline: native measured 0.19 ms p95 and 347 gzip bytes against executable
-100 ms and 4,096-byte limits. Lion measured 1.09 ms p95/26,994 gzip bytes and Spectrum measured
-1.10 ms p95/61,330 gzip bytes as descriptive comparison evidence; neither is shipped at runtime.
+100 ms and 4,096-byte limits. Lion measured 1.14 ms p95/26,994 gzip bytes and Spectrum measured
+1.16 ms p95/61,330 gzip bytes as descriptive comparison evidence; neither is shipped at runtime.
 
 A separate 500-sample canonical path profile measures validated intent ingress through publication
 and owning-actor delivery. It recorded 0.0019/0.0021/0.0046 ms p50/p95/p99 against the provisional
@@ -211,6 +212,13 @@ exactly one Wizard panel and one tabpanel visible. Chromium, Firefox, and WebKit
 disabled-item skipping, automatic/manual activation coverage,
 canonical state and events, axe, hostile-text escaping, rejection/recovery, and stable identity
 evidence.
+
+The FileInput profile selects the maximum 32 accepted files 50 times through the public deferred
+Web Component. Opaque metadata normalization, canonical-event creation, exact-ID handle resolution, and Lit
+projection measured 0.11/0.24/4.72 ms p50/p95/p99 against a 100 ms p95 gate. Every sample retained
+exactly 32 ephemeral handles while the serialized event was scanned to prove that a marker present
+only in file bytes never entered canonical JSON state. Names and modification times are excluded
+from the portable metadata contract.
 
 The read-only AuditLog fixture compiles and mounts an exact schema-valid 10,000-entry authorized
 history twenty times after warm-up. Startup measured 60.67/68.65/72.95 ms against a 1,000 ms p95

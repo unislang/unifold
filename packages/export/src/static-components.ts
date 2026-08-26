@@ -2,6 +2,7 @@ export { renderStaticAuditLog } from "./static-audit-log.js";
 export { renderStaticBreadcrumb } from "./static-breadcrumb.js";
 export { renderStaticDataGrid } from "./static-data-grid.js";
 export { renderStaticDialog } from "./static-dialog.js";
+export { renderStaticFileInput } from "./static-file-input.js";
 export { renderStaticMasterDetail } from "./static-master-detail.js";
 export { renderStaticMenuButton } from "./static-menu.js";
 export { renderStaticPopover } from "./static-popover.js";

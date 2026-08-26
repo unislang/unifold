@@ -35,11 +35,13 @@ async function verifyComposedSubmit(): Promise<void> {
 }
 
 async function verifyNativeSubmit(): Promise<void> {
-  const { form } = await mountComposition();
+  const { field, form } = await mountComposition();
   const events: UiEvent[] = [];
   form.addEventListener(ElementEventName.UiEvent, (event) => events.push(detail(event)));
   form.eventNode = compositionNode("form", { committed: "runtime" });
   const nativeForm = requiredNativeForm(form);
+  expect(nativeForm.querySelector("unifold-text-field")).toBe(field);
+  expect(form.children).toHaveLength(0);
   nativeForm.dispatchEvent(new SubmitEvent("submit", { bubbles: true, cancelable: true }));
   expect(requiredEvent(events, events.length - 1).data.change).toEqual({ revision: 2 });
 }

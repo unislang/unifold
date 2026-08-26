@@ -74,10 +74,12 @@ export class UnifoldTextArea extends UnifoldScalarTextElement {
           name=${this.name}
           placeholder=${this.placeholder}
           wrap=${this.wrap}
-          ?disabled=${this.disabled}
+          ?disabled=${this.formControl.disabled}
           ?readonly=${this.readonly}
           ?required=${this.required}
           @input=${this.onTextInput}
+          @compositionstart=${this.onCompositionStart}
+          @compositionend=${this.onCompositionEnd}
           @blur=${this.onTextBlur}
         ></textarea>
       </label>

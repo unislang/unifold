@@ -8,7 +8,11 @@ import {
   readDefinitionMetadata,
   sameCatalogRelease
 } from "./element-definition-metadata.js";
-import { ElementRegistrationDiagnosticCode, ElementRegistrationStatus } from "./enums.js";
+import {
+  ElementDefinitionPolicy,
+  ElementRegistrationDiagnosticCode,
+  ElementRegistrationStatus
+} from "./enums.js";
 import type {
   ElementDefinitionMetadata,
   ElementRegistrationDiagnostic,
@@ -38,18 +42,24 @@ export function defineUnifoldElements(
 
 export function validateUnifoldElementTags(
   tagNames: readonly CoreElementTag[],
-  registry: ElementRegistryPort | null = defaultElementRegistry()
+  registry: ElementRegistryPort | null = defaultElementRegistry(),
+  policy?: ElementDefinitionPolicy
 ): ElementRegistrationResult {
   if (registry === null) return rejected([registryUnavailableDiagnostic()], []);
-  return validateRegisteredTags(tagNames, registry);
+  return validateRegisteredTags(tagNames, registry, resolvedDefinitionPolicy(policy));
+}
+
+function resolvedDefinitionPolicy(policy: ElementDefinitionPolicy | undefined) {
+  return policy ?? ElementDefinitionPolicy.RequireAll;
 }
 
 function validateRegisteredTags(
   tagNames: readonly CoreElementTag[],
-  registry: ElementRegistryPort
+  registry: ElementRegistryPort,
+  policy: ElementDefinitionPolicy
 ): ElementRegistrationResult {
   const diagnostics = tagNames.flatMap((tagName) => {
-    const diagnostic = registeredTagDiagnostic(registry, tagName);
+    const diagnostic = registeredTagDiagnostic(registry, tagName, policy);
     return diagnostic === undefined ? [] : [diagnostic];
   });
   return diagnostics.length === 0 ? registered([]) : rejected(diagnostics, []);
@@ -126,13 +136,23 @@ function registeredDefinitionDiagnostic(
 
 function registeredTagDiagnostic(
   registry: ElementRegistryPort,
-  tagName: CoreElementTag
+  tagName: CoreElementTag,
+  policy: ElementDefinitionPolicy
 ): ElementRegistrationDiagnostic | undefined {
   const registered = registry.get(tagName);
-  if (registered === undefined) return missingDefinitionDiagnostic(tagName);
+  if (registered === undefined) return pendingDefinitionDiagnostic(tagName, policy);
   const found = readElementDefinition(registered);
   if (found === undefined) return foreignDefinitionDiagnostic(tagName);
   return metadataDiagnostic(tagName, found);
+}
+
+function pendingDefinitionDiagnostic(
+  tagName: CoreElementTag,
+  policy: ElementDefinitionPolicy
+): ElementRegistrationDiagnostic | undefined {
+  return policy === ElementDefinitionPolicy.AllowPending
+    ? undefined
+    : missingDefinitionDiagnostic(tagName);
 }
 
 function boundConstructorDiagnostic(

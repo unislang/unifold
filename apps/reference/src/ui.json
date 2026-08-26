@@ -67,16 +67,14 @@
                 "label": { "$parameter": "fieldLabel" },
                 "name": "name",
                 "required": true,
-                "testId": "name",
-                "value": ""
+                "testId": "name"
               },
               {
                 "$comp": "TextField",
                 "id": "confirm-name",
                 "label": "Confirm name",
                 "name": "confirmName",
-                "testId": "confirm-name",
-                "value": ""
+                "testId": "confirm-name"
               },
               {
                 "$comp": "TextArea",
@@ -84,17 +82,14 @@
                 "label": "Biography",
                 "name": "biography",
                 "placeholder": "Share a short biography",
-                "rows": 4,
-                "testId": "biography",
-                "value": ""
+                "testId": "biography"
               },
               {
                 "$comp": "Checkbox",
                 "id": "newsletter",
                 "label": "Receive product updates",
                 "name": "newsletter",
-                "testId": "newsletter",
-                "value": false
+                "testId": "newsletter"
               },
               {
                 "$comp": "RadioGroup",
@@ -167,7 +162,6 @@
             "label": "Help and support",
             "name": "helpExpanded",
             "testId": "help",
-            "value": false,
             "$children": [
               {
                 "$comp": "Box",
@@ -210,8 +204,7 @@
                         "$comp": "Link",
                         "id": "support-link",
                         "href": "#support-resources",
-                        "label": "Framework documentation",
-                        "target": "_self"
+                        "label": "Framework documentation"
                       },
                       {
                         "$comp": "Grid",
@@ -238,6 +231,13 @@
                 ]
               }
             ]
+          },
+          {
+            "$comp": "FileInput",
+            "accept": ".pdf,application/pdf",
+            "id": "account-attachments",
+            "label": "Account attachments",
+            "multiple": true
           },
           {
             "$comp": "Tabs",

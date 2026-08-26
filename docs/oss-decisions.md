@@ -248,8 +248,8 @@ does not import either library for this slice and does not infer structured data
 | Purpose              | Preserve modal semantics, nested focus, canonical events, tokens, and static fallback        |
 | Runtime dependency   | None; Lion and Spectrum are exact-pinned development-only benchmark dependencies             |
 | Native measurement   | 0.19 ms p95 over 20 local samples; 347-byte gzip candidate                                   |
-| Lion observation     | 1.09 ms p95; 26,994-byte gzip candidate; native-dialog Overlay System and useful regressions |
-| Spectrum observation | 1.10 ms p95; 61,330-byte gzip candidate; mature overlay stack and broader design surface     |
+| Lion observation     | 1.14 ms p95; 26,994-byte gzip candidate; native-dialog Overlay System and useful regressions |
+| Spectrum observation | 1.16 ms p95; 61,330-byte gzip candidate; mature overlay stack and broader design surface     |
 | Owner                | Catalog, accessibility, elements, export, and performance maintainers                        |
 | Review date          | 2026-08-26                                                                                   |
 | Fallback             | Keep native baseline and rerun the exact comparison before replacing the adapter             |

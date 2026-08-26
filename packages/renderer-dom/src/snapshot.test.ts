@@ -40,6 +40,15 @@ it("materializes catalog defaults in authoritative runtime snapshots", () => {
   });
 });
 
+it("uses a component's catalog value default for its control state", () => {
+  const node = {
+    ...composedNode(),
+    componentType: "FileInput",
+    properties: { label: "Attachments" }
+  };
+  expect(createNodeSnapshot(node, 0).control).toMatchObject({ initialValue: [], value: [] });
+});
+
 function composedNode(): UnifoldIrNode {
   return {
     childIds: [],

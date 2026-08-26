@@ -57,7 +57,9 @@ async function installScaleDocument(page: Page, nodeCount: number): Promise<void
   source.view = scaleView(source.view, passiveCount);
   const result = await page.evaluate(applyAuthoredDocument, source);
   expect(result.status).toBe("applied");
-  await page.evaluate(waitForAllHosts);
+  await page.locator("#app [data-unifold-node-id]").evaluateAll(async (hosts: ScaleHost[]) => {
+    await Promise.all(hosts.map(({ updateComplete }) => updateComplete));
+  });
   await expect(page.locator("#app [data-unifold-node-id]")).toHaveCount(nodeCount);
 }
 
@@ -142,40 +144,36 @@ function applyAuthoredDocument(source: ScaleDocument): ScaleUpdateResult {
   return (window as unknown as ScaleWindow).__unifoldUpdateDocument(source);
 }
 
-async function waitForAllHosts(): Promise<void> {
-  const hosts = [...document.querySelectorAll<ScaleHost>("#app [data-unifold-node-id]")];
-  await Promise.all(hosts.map(({ updateComplete }) => updateComplete));
+async function captureScaleBaseline(page: Page): Promise<void> {
+  await page.locator("#app [data-unifold-node-id]").evaluateAll(captureBaselineInPage, TARGET_ID);
 }
 
-async function captureScaleBaseline(page: Page): Promise<void> {
-  await page.evaluate((targetId) => {
-    const elements = document.querySelectorAll<ScaleHost>("#app [data-unifold-node-id]");
-    const hosts = new Map([...elements].map((host) => [host.dataset["unifoldNodeId"] || "", host]));
-    const target = hosts.get(targetId) as ScaleHost;
-    const input = (target.shadowRoot as ShadowRoot).querySelector("input") as HTMLInputElement;
-    const mutations: string[] = [];
-    const observer = new MutationObserver((records) =>
-      records.forEach(({ target }) =>
-        mutations.push((target as HTMLElement).dataset["unifoldNodeId"] || "")
-      )
-    );
-    observer.observe(document.querySelector("#app") as Element, {
-      attributeFilter: ["data-unifold-render-count"],
-      attributes: true,
-      subtree: true
-    });
-    (window as unknown as ScaleWindow).__unifoldScaleBaseline = {
-      counts: new Map(
-        [...hosts].map(([id, host]) => [id, Number(host.dataset["unifoldRenderCount"] || 0)])
-      ),
-      eventStart: (window as unknown as ScaleWindow).__unifoldCapturedEvents.length,
-      hosts,
-      input,
-      mutations,
-      observer,
-      target
-    };
-  }, TARGET_ID);
+function captureBaselineInPage(elements: ScaleHost[], targetId: string): void {
+  const hosts = new Map([...elements].map((host) => [host.dataset["unifoldNodeId"] || "", host]));
+  const target = hosts.get(targetId) as ScaleHost;
+  const input = (target.shadowRoot as ShadowRoot).querySelector("input") as HTMLInputElement;
+  const mutations: string[] = [];
+  const observer = new MutationObserver((records) =>
+    records.forEach(({ target }) =>
+      mutations.push((target as HTMLElement).dataset["unifoldNodeId"] || "")
+    )
+  );
+  observer.observe(document.querySelector("#app") as Element, {
+    attributeFilter: ["data-unifold-render-count"],
+    attributes: true,
+    subtree: true
+  });
+  (window as unknown as ScaleWindow).__unifoldScaleBaseline = {
+    counts: new Map(
+      [...hosts].map(([id, host]) => [id, Number(host.dataset["unifoldRenderCount"] || 0)])
+    ),
+    eventStart: (window as unknown as ScaleWindow).__unifoldCapturedEvents.length,
+    hosts,
+    input,
+    mutations,
+    observer,
+    target
+  };
 }
 
 async function readScaleObservation(page: Page): Promise<ScaleObservation> {
@@ -194,29 +192,30 @@ async function readScaleObservation(page: Page): Promise<ScaleObservation> {
 }
 
 async function readIdentityObservation(page: Page) {
-  return page.evaluate((targetId) => {
-    const baseline = (window as unknown as ScaleWindow).__unifoldScaleBaseline;
-    if (baseline === undefined) throw new Error("The scale baseline is unavailable.");
-    const elements = document.querySelectorAll<ScaleHost>("#app [data-unifold-node-id]");
-    const current = new Map(
-      [...elements].map((host) => [host.getAttribute("data-unifold-node-id") || "", host])
-    );
-    const deltas = [...current].map(
-      ([id, host]) =>
-        [
-          id,
-          Number(host.getAttribute("data-unifold-render-count") || 0) -
-            (baseline.counts.get(id) || 0)
-        ] as const
-    );
-    const targetEntry = deltas.find(([id]) => id === targetId);
-    return {
-      hostCount: current.size,
-      identitiesRetained: [...baseline.hosts].every(([id, host]) => current.get(id) === host),
-      targetDelta: targetEntry === undefined ? 0 : targetEntry[1],
-      unrelatedChanges: deltas.filter(([id, delta]) => id !== targetId && delta !== 0).length
-    };
-  }, TARGET_ID);
+  return page
+    .locator("#app [data-unifold-node-id]")
+    .evaluateAll((elements: ScaleHost[], targetId) => {
+      const baseline = (window as unknown as ScaleWindow).__unifoldScaleBaseline;
+      if (baseline === undefined) throw new Error("The scale baseline is unavailable.");
+      const current = new Map(
+        [...elements].map((host) => [host.getAttribute("data-unifold-node-id") || "", host])
+      );
+      const deltas = [...current].map(
+        ([id, host]) =>
+          [
+            id,
+            Number(host.getAttribute("data-unifold-render-count") || 0) -
+              (baseline.counts.get(id) || 0)
+          ] as const
+      );
+      const targetEntry = deltas.find(([id]) => id === targetId);
+      return {
+        hostCount: current.size,
+        identitiesRetained: [...baseline.hosts].every(([id, host]) => current.get(id) === host),
+        targetDelta: targetEntry === undefined ? 0 : targetEntry[1],
+        unrelatedChanges: deltas.filter(([id, delta]) => id !== targetId && delta !== 0).length
+      };
+    }, TARGET_ID);
 }
 
 async function readFocusObservation(page: Page) {
