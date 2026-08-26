@@ -17,13 +17,14 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest published checkpoint: `266b595` (`docs: record number field checkpoint`), following
-  `d4a3067` (`feat: add JSON number field primitive`). Local `HEAD` and the local `origin/main`
-  tracking reference both resolve to `266b595`.
-- Current local implementation: the `NumberField` family and its native string-enum domains are
-  committed. A separate governed AI/Studio vertical slice, the Studio dogfood example, and
-  executable prevention of import-then-local-re-export feature modules remain uncommitted.
-- Goal status: active. SearchField, CheckboxGroup, Switch, DateField, Toast, and Pagination remain
+- Latest published checkpoint and local `HEAD`: `6c0da540b0089f18eb2b7efb39a1ebde475629bd`
+  (`feat: add bounded JSON search field`), following the NumberField publication checkpoints.
+  `git ls-remote origin refs/heads/main`, local `HEAD`, and `origin/main` all independently resolve
+  to that exact object on `https://github.com/unislang/unifold.git`.
+- Current local implementation: the `NumberField` and `SearchField` families are committed and
+  published. Governed AI/Studio, Studio dogfood, reference feature-module re-export, and executable
+  import-then-local-re-export prevention slices remain uncommitted and must be preserved.
+- Goal status: active. CheckboxGroup, Switch, DateField, Toast, and Pagination remain
   component-family gaps, followed by broader Studio and production-integration gates.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
@@ -55,24 +56,49 @@ of bypassing the JSON compiler, event fabric, state authority, or export boundar
 - `NumberField` spans contract, catalog, IR, forms, Lit/native FormData, facade, hierarchical JSON,
   static export/hydration, performance, and Playwright paths. Range/step logic shares the finite
   JSON-number constraint helper instead of duplicating validation.
+- `SearchField` now spans the same boundaries with a shared maximum-query contract used by
+  SearchResults. Catalog/IR, native/static rendering, event ingress, and hydration enforce the
+  authored limit up to 2,048 characters; overlong and wrong-type values fail closed. Guarded Enter
+  submission works across shadow/native form boundaries in all three browser engines.
 - `pnpm quality:reexports` rejects feature modules that import a local binding and export that same
   binding. Feature modules expose owned operations; direct package export maps remain the deliberate
   public-boundary mechanism.
 
 Current local evidence: `pnpm quality`, `pnpm test`, `pnpm build`, and `pnpm test:coverage` pass.
-Coverage is 97.48% statements/lines, 96.77% functions, and 90.01% branches against unchanged 90%
-thresholds. Dependency-cruiser validates 1,921 modules and 4,264 dependencies with no violations.
-The Studio asset boundary and complete Chromium/Firefox/WebKit matrix pass 9/9. Studio production
-JavaScript is 226.99 KiB gzip against its 250 KiB ceiling. The reference startup closure is 181.20
-KiB gzip against a narrowly rebased executable 184 KiB limit, with 35,906 post-mount gzip bytes. The
-NumberField portion is published through `266b595`; the separate AI/Studio portion remains
-uncommitted and unpushed.
+The unit run passes 486 files/1,216 tests. Coverage is 97.51% statements/lines, 96.8% functions,
+and 90% branches against unchanged 90% thresholds. Dependency-cruiser validates 1,969 modules and
+4,368 dependencies with no violations. Hierarchical Playwright passes 18/18, static export passes
+63/63, and Studio passes 15/15 across Chromium, Firefox, and WebKit. Studio production JavaScript
+is 228.20 KiB gzip against its 250 KiB ceiling. The reference startup closure is 181.73 KiB gzip
+against its executable 184 KiB limit, with 36,007 post-mount gzip bytes. Benchmark schema 2.28.0
+passes 53/53 gates; the latest 100-SearchField run records 0.60/1.49/4.70 ms p50/p95/p99 across 50
+samples against a 100 ms p95 ceiling. Focused SearchField journeys pass 2/2 hierarchical and 6/6
+static-export cases across Chromium and WebKit. SearchField is published; the separate AI/Studio,
+reference, tooling, and root configuration work remains uncommitted and unpushed.
 
 Remaining AI/Studio gaps are explicit: provenance-bound third-party catalog manifests; complete
 component property, event, machine, and rule authoring context; durable actor identity, approval
 audit, and separation of duties; provider/model token, cost, time, retry, and signature policy;
 executable product outcome evaluators; collaboration/rebase/undo; negative browser journeys for
 cancellation, stale apply, rejection, and export failure; and the full multi-turn design surface.
+
+## SearchField publication checkpoint
+
+- Published commit: `6c0da540b0089f18eb2b7efb39a1ebde475629bd`
+  (`feat: add bounded JSON search field`) on `unifold/main`, verified with `git ls-remote`.
+- Public authoring follows `scratch/angular-ui/DYNAMIC-UI-README.md`: `layoutType` and typed
+  `variables` contain nested `type`/`id`/`props`/named `events`; the example maps
+  `SearchField.events.onInput` to `SEARCH_CHANGED` before lowering to canonical JsonUI and IR.
+- The catalog, generated definition schema, IR constraint, native element, deferred facade,
+  FormData/Enter behavior, static fallback, guarded hydration, hierarchical example, and release
+  changeset are integrated. SearchField and SearchResults share the 2,048-character ceiling.
+- Verification: `pnpm quality`; `pnpm test` (486 files/1,216 tests plus tooling/scripts/performance);
+  reference/hierarchical/static production builds; benchmark schema 2.28.0 at 53/53 gates; and
+  focused Chromium/WebKit browser matrices at 2/2 hierarchical and 6/6 static-export cases.
+- Resume with the next ordered catalog gap, `CheckboxGroup`, through the same Scratch-style JSON,
+  catalog/IR, native form, static/hydration, accessibility, browser, bundle, and benchmark seams.
+  Preserve all currently uncommitted AI/Studio, reference, tooling, root config, lockfile, and
+  architecture-plan changes.
 
 ## Prior NumberField checkpoint
 
@@ -91,7 +117,7 @@ cancellation, stale apply, rejection, and export failure; and the full multi-tur
   `d4a3067` (`feat: add JSON number field primitive`) and is verified on the `unifold` remote.
 - Goal status: active. This checkpoint does not complete the architecture plan; the authoritative
   inventory still lists SearchField, CheckboxGroup, Switch, DateField, Toast, and Pagination as
-  component-family gaps, followed by the broader production-integration gates.
+  component-family gaps at that historical checkpoint, followed by the broader production-integration gates.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
@@ -139,11 +165,11 @@ Current verification evidence on 2026-08-26:
   Focused WebKit evidence independently passes the same 1/1 and 3/3 journeys. The static cases prove
   no-JavaScript fallback, edited numeric migration, and off-step rejection.
 
-Resume boundary: the NumberField implementation and progress checkpoint are published. Preserve and
-do not accidentally stage the concurrent AI/Studio work, reference feature-module re-export work,
-`ARCHITECTURE_IMPLEMENTATION_PLAN.md`, `CONTRIBUTING.md`, root dependency/config edits, or the
-separate Studio changeset. Continue with the next ordered catalog gap (`SearchField`) through the
-same Scratch-style JSON, IR, native/static, browser, accessibility, and performance boundaries.
+Historical resume boundary: the NumberField implementation and progress checkpoint were published.
+SearchField was subsequently implemented and published as `6c0da54`; AI/Studio and re-export-policy
+work remains local. Continue with the next ordered catalog gap (`CheckboxGroup`) through the same
+Scratch-style JSON, IR, native/static, browser, accessibility, and performance boundaries while
+preserving the complete local worktree.
 
 ## Prior hierarchical and component slice detail
 
