@@ -26,7 +26,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
   Firefox, and WebKit. A behavioral case additionally compares binding and touched-validation
   outcomes and verifies Unifold's exact redacted canonical event chain in Chromium/WebKit. Its
   measured isolated production-profile cost is 5.88 kB minified/1.76 kB
-  gzip. The current complete reference is 179.98 KiB gzip against the executable 180 KiB Phase 1
+  gzip. The current complete reference is 179.91 KiB gzip against the executable 180 KiB Phase 1
   budget.
 - Typed `UiStoreDefinition` contracts and a Unifold `store`/`path` profile extension. The compiler
   validates unique definitions, enum-backed policy, embedded local-only Draft 2020-12 schemas,
@@ -305,7 +305,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
   identity, and pre-render adapter rejection. The default runtime stream applies
   classification-aware public-safe disclosure.
 - Client-side validation and application coordination contribute materially to the reference bundle.
-  The current reference closure is 179.98 KiB gzip and remains below the executable 180 KiB gate,
+  The current reference closure is 179.91 KiB gzip and remains below the executable 180 KiB gate,
   which sums every emitted JavaScript chunk after each reference build. Preserve the `/validation`
   split and evaluate schema
   precompilation, build-time validation, or an explicit lazy authoring/compiler boundary before

@@ -17,14 +17,19 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest implementation checkpoint: `33fb53e` (`feat: add accessible JSON-driven menu button`)
-- Verified implementation remote state: `origin/main` independently resolved to
-  `33fb53e8fb2c813d6a00dd4ae3a16d519e667a76` after the MenuButton implementation push; the
-  progress-only commit that records this evidence is pushed immediately afterward.
-- Working tree: the bounded catalog-authoritative MenuButton slice is implemented, validated,
-  committed, pushed, and independently verified across contract, catalog, IR, custom element,
-  static export, reference host, browser, performance, and package-consumer boundaries. Firefox
-  evidence remains blocked before page creation by the external Windows runner defect.
+- Latest implementation checkpoint: `777ebcd` (`feat: add hierarchical JSON layout authoring`)
+- Verified pre-slice remote state: `origin/main` independently resolved to
+  `96f37a615e4eb3349917a9e1edab1d802abecda0`. The release-verified hierarchical implementation is
+  committed at `777ebcdd9cbc4d932273115530ca751ee6bd0a0b`; its requested push is the next action.
+- Working tree: the broad post-`96f37a6` implementation is committed and release-verified. It includes the
+  derived-rule engine and 1,000-rule selective benchmark, Tooltip optional family work, a strict
+  hierarchy-oriented layout authoring layer, enum-backed source-specific workflow event bindings,
+  an immutable trusted external-layout registry, trusted named XState guards over normalized state,
+  and a standalone hierarchical example site that consumes those boundaries. Preserve all unrelated
+  changes. Repository quality, unit/tooling/script, performance, production build/bundle, and focused
+  Chromium/WebKit browser gates pass. The prior packed-consumer, formatting, duplication, upstream
+  parity, and broad release evidence remains recorded below; the latest Firefox example rerun again
+  fails before page creation with the managed Windows `_page` defect.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
@@ -56,11 +61,170 @@ record new measurements rather than treating the numbers above as proof for late
 
 ## Active slice
 
-The MenuButton interaction-family slice is committed, pushed, and independently verified. Continue
-with the next prioritized interaction families in
-[`docs/implementation-status.md`](./docs/implementation-status.md#next-architecture-slices).
-Production provisioning of slices 1 and 2 remains a separate external-environment release gate
-rather than unfinished local framework code.
+The public authoring contract and executable example are implemented and committed; the requested
+push checkpoint is next. On 2026-08-26 the user clarified that
+the intended JSON UI is modeled on
+[`scratch/angular-ui/DYNAMIC-UI-README.md`](./scratch/angular-ui/DYNAMIC-UI-README.md): a
+`layoutType` selects a reusable definition, `variables` parameterize it, and nested nodes use
+`type`, `props`, `children`, and named `events`. The current `$comp` document and composition model
+already supplies the validated compiler/runtime target, but it is too low-level to be the only
+public authoring surface.
+
+The strict high-level layout profile now lowers the intended syntax into the existing
+composition/IR boundary. Preserve stable IDs, exact schemas, trusted named event/XState routing,
+one normalized state authority, non-executable expressions, and exact JSON Pointer diagnostics;
+the implementation does not reproduce the scratch prototype's `any`, `innerHTML`, silent fallback,
+runtime fetch, or unchecked string interpolation behavior. Direct `$comp`/`$children` JsonUI remains
+supported, but it is a canonical compiler input rather than the only ergonomic authoring surface.
+
+The current pipeline is `layoutType/variables/type/props/children/events` -> canonical
+`$comp/$children` JsonUI -> normalized IR -> runtime/renderer. A node `events` map uses the
+enum-backed signals `activated`, `blurred`, `input`, `reset-requested`, `submit-requested`, and
+`submitted`. IR validates each signal against the component catalog and removes the binding from
+rendered properties. The application remaps only the matching source node's canonical fact into the
+named XState input while retaining the original fact in `runtime.events$`.
+
+The standalone [`examples/hierarchical-site`](./examples/hierarchical-site) web project is
+implemented with page JSON plus a separately reviewed external layout registry, a derived consent
+rule, an XState workflow, Schema.org binding, runtime inspector, Vite build, adjacent unit test, and
+a dedicated Playwright workspace. Its lock, typecheck, unit, production-mode build, and four
+Chromium/WebKit functional/accessibility paths pass. The latest two Firefox cases fail before page
+creation with the managed Windows `_page` runner defect and provide no application evidence.
+
+The executable layout JSON Schema is packaged and enforced before lowering. JSON safety adds a
+64-level depth, 50,000-value, finite-number, 65,536-character-string, plain-object, cycle, shared-
+reference, and prototype-key boundary. Boolean conditions and durable-key repetition lower through
+the existing reversible identity codec.
+
+Authored source-pointer provenance, layout-specific last-known-good recovery, a representative
+layout compilation gate, and the trusted external registry boundary are now implemented.
+Diagnostics from canonical IR are remapped to the
+exact authored `layoutType` template or variable-supplied node pointer, including `/type`, `/props`,
+`/children`, and `/events` suffixes. Invalid layout revisions retain the prior authored document,
+runtime revision, state, and DOM identity. Host-reviewed definitions enter only through a bounded
+immutable registry option; there is no document-selected URL, callback, implicit latest version, or
+runtime lookup. Exact-version collisions reject, and registry source diagnostics use
+`/$layoutRegistry/definitions/{index}`.
+
+The Tooltip and ten other larger interaction families are now explicit deferred subpath imports.
+Their catalog, IR, element, static export, registration, and browser paths are implemented; the
+latest production build emits 23,215 deferred gzip bytes and the initial reference closure passes at
+184,227 bytes (179.91 KiB) against the unchanged 184,320-byte gate.
+
+### 2026-08-26 hierarchical authoring checkpoint (release verified; push pending)
+
+- Added deterministic Scratch-compatible lowering for exact `layoutType`/`layoutVersion`, typed
+  variables, nested `type`/`props`/`children`, safe variable references, and named `onClick`,
+  `onInput`, `onBlur`, `onSubmit`, and `onReset` bindings. Ordinary UiDocuments continue through the
+  existing compilation path.
+- The release-verified implementation is committed as
+  `777ebcdd9cbc4d932273115530ca751ee6bd0a0b` (`feat: add hierarchical JSON layout authoring`).
+- Added `UiComponentEventBinding` and `UiNodeEventBindings` contracts plus JSON Schema coverage.
+  Component event capabilities are catalog-declared; IR rejects unknown, unsupported, or empty
+  mappings and stores valid bindings separately from Web Component properties.
+- XState routing now aliases an event only for its exact source node and owner scope. Targeted unit
+  evidence proves a nested child activation transitions the intended actor; canonical events remain
+  unchanged in the unified stream.
+- `prepareUnifoldDocument()` now lowers layout documents before composition expansion and IR
+  compilation while retaining the original authored layout for export. A targeted Chromium
+  Playwright case dynamically applies a nested layout and proves child event routing to a trusted
+  workflow command.
+- Layout input now passes both bounded JSON safety validation and the packaged draft-2020-12 schema
+  before expansion. Tests cover exact selection, variables/defaults, nested nodes, enum-backed event
+  aliases, schema rejection, executable-data rejection, conditions, keyed repetition, duplicate IDs,
+  and unresolved or prototype-path references. The compositions package passes 22 files/48 tests.
+- Added the standalone hierarchical example and dedicated E2E workspace. Its page JSON now resolves
+  a separately reviewed `layouts.json` through the public trusted registry. The adjacent unit test
+  passes, its latest production build completes at 177.54 KiB gzip, and all four Chromium/WebKit
+  functional plus axe cases pass. The journey proves initial rule projection, selective consent/button updates,
+  unchanged name rendering, workflow state, trusted command output, canonical intent/state facts,
+  and live Schema.org name publication.
+- The example uncovered and now guards an initial-projection defect: `node.patch-properties` changed
+  `properties.disabled` without synchronizing common `base.disabled`, so the runtime snapshot and
+  native DOM could disagree. Runtime command handling now synchronizes enum/common disabled and
+  readonly base state, and dependency routing reports both property and base pointers. Ten targeted
+  runtime/example tests pass after the fix.
+- Workspace dependency installation and lock update completed. The local AJV payload was incomplete
+  after an interrupted offline relink; a forced verified reinstall restored the missing compiled
+  files before testing.
+- The complete `pnpm quality` gate passes: <=350 physical lines, exact one-to-one adjacent package
+  tests, cyclomatic/function-length ESLint rules, all source and strict test typechecks, dependency
+  boundaries, and Knip unused-code checks. The complete `pnpm test` run passes 365 Vitest files/929
+  tests, 16 tooling tests, 10 generated/script tests, and 22 passing performance correctness files
+  with 18 intentional opt-in profile files skipped.
+- The full three-engine example command has 4 Chromium/WebKit passes and 2 Firefox failures. Both
+  Firefox cases fail inside `browserContext.newPage` before application code runs with the existing
+  managed-Windows `_page` defect; the explicit Chromium/WebKit rerun passes 4/4.
+- After the final schema and optional Tooltip-registration hardening, package verification passes
+  22 files/48 composition tests and 49 files/95 element tests plus 8 generated-manifest tests.
+- Authored pointer provenance now survives variable child references and repetition through
+  composition lowering into IR diagnostics. Scoped verification passes 23 files/51 composition
+  tests, 27 files/93 IR tests, and 35 files/154 coordinator tests.
+- A layout-specific application update test and two focused Chromium/WebKit Playwright journeys
+  prove exact `/variables/fields/0/type` diagnostics and last-known-good state/DOM retention after an
+  invalid hierarchical revision. The reference test waits for its asynchronously loaded optional
+  component families before using the E2E update API, eliminating a first-page startup race.
+- The complete performance pipeline now exits cleanly and writes schema 2.20.0 evidence with all
+  44/44 gates passing. Forty-one samples measure 500-node hierarchical layout compilation at
+  6.28/7.28/8.15 ms p50/p95/p99 against the executable 100 ms p95 limit. The long direct profile is
+  divided into independently reported core, expensive-scale, compilation, and finalization tests so
+  it remains below Vitest's worker-RPC deadline without reducing the 41-sample layout measurement.
+- Fresh repository-wide quality passes all file/function/complexity, exact adjacent-test, lint,
+  source/test typecheck, 1,620-module/3,542-edge dependency, and unused-code gates. The complete
+  correctness command passes 391 package files/984 tests, 16 tooling tests, 10 generated/script
+  tests, and 22 performance correctness files/31 tests with 18 opt-in profile files skipped. The
+  Tooltip position helper now consumes the catalog `TooltipPlacement` enum instead of exporting a
+  duplicate literal-string union.
+- Added `createTrustedLayoutDefinitionRegistry()` as the packaged, immutable host capability for up
+  to 256 reviewed external definitions. Stateless/cached preparation, synchronous and async mount,
+  mounted updates, and governed load-and-mount propagate the same registry. Positive external-only
+  resolution, forged/unsafe input, version misses, local/external collisions, exact virtual source
+  pointers, and update reuse are covered. Scoped verification passes 24 files/56 composition tests
+  and 43 files/167 coordinator tests. Full quality, correctness, and production-build gates pass;
+  the registry-backed example passes its unit test and 4/4 Chromium/WebKit E2E cases.
+- Final release audit supersedes the intermediate counts above: `pnpm test` passes 392 package files
+  and 993 tests, 16 tooling tests, 10 generated/script tests, and 22 performance correctness files/31
+  tests with 18 opt-in profiles skipped. Coverage passes at 97.37% lines/statements, 97.00%
+  functions, and 90.02% branches without lowering the 90% threshold.
+- Benchmark schema 2.20.0 passes 44/44 executable gates. The latest 500-node hierarchical layout
+  compilation measures 6.694 ms p95 against 100 ms; the production reference is 184,227 gzip bytes
+  with 23,215 deferred gzip bytes.
+- The complete browser release command passes 135 reference cases with six intentional scale skips,
+  6/6 hierarchical-example cases, 24/24 static-export cases, and 12/12 plain/React/Vue/Svelte host
+  cases across Chromium, Firefox, and WebKit. The real upstream JsonUI parity oracle passes 27/27,
+  and the external packed-consumer lifecycle passes 3/3.
+- A clean reference build exposed and now guards strict XState parameter typing: optional guards are
+  omitted instead of emitted as `undefined`, trusted guard implementations have typed parameters,
+  and optional-element registration validates tag/catalog metadata even for the same constructor.
+- Formatting and duplication thresholds pass. After pushing this checkpoint, resume by auditing the
+  remaining priorities in `docs/implementation-status.md`; do not re-open the completed hierarchical
+  authoring slice unless a regression is found.
+
+### 2026-08-26 named workflow guard checkpoint (quality verified; Firefox blocked)
+
+- Added optional non-empty `guard` names to the versioned machine transition contract, executable
+  JSON Schema, and IR validator. Portable JSON remains data-only.
+- Added the public bounded `createMachineGuardRegistry()` host capability. Up to 256 trusted
+  synchronous predicates receive the canonical triggering event and a read-only current normalized
+  snapshot lookup. Only exact `true` accepts; missing, removed, false, non-true, or throwing
+  predicates fail closed without a transition or command.
+- XState v5 resolves the guard through a typed `setup()` implementation before registered commands.
+  Unknown guard names reject initial mount and dynamic update before mutation; the prior workflow,
+  runtime state, and DOM remain last-known-good. Unguarded applications do not instantiate the guard
+  registry, preserving tree-shaking and the fixed bundle limit.
+- Colocated and public-mount evidence covers accepted/denied state, current cross-node snapshots,
+  duplicate and 256-entry limits, unknown and throwing predicates, and invalid-update recovery. The
+  external-registry example adds `consent-granted` and adversarially emits a valid activation while
+  consent is false before proving the accepted path.
+- Fresh `pnpm quality` passes all size/function/complexity, exact adjacent-test, lint, source/test
+  typecheck, 1,624-module/3,550-edge dependency, and Knip gates. Fresh core correctness is 392 files/
+  993 tests; the complete command also passes 16 tooling, 10 generated/script, and 31 performance
+  correctness tests. Fresh coverage passes at 97.37% lines/statements, 97.00% functions, and exactly
+  90.00% branches without lowering the threshold. The complete production build passes at 184,227
+  bytes (179.91 KiB) for the reference and 177.93 KiB for the example.
+- Chromium/WebKit functional and axe journeys pass 4/4. Both current Firefox cases fail in
+  `browserContext.newPage` while reading `_page`, before application code; this environment result
+  supersedes the earlier transient 6/6 example claim and remains an external release gate.
 
 ### 2026-08-26 durability checkpoint
 
@@ -368,16 +532,14 @@ pushed to `origin/main`, and independently verified at
 
 ## Immediate resume procedure
 
-1. Read this file, `docs/implementation-status.md`, `docs/components.md`, and the interaction-family
-   sections of the architecture plan for slice 4.
+1. Read this file, `docs/layout-authoring.md`, `docs/implementation-status.md`, and
+   `docs/architecture.md`; preserve the hierarchy distinction between authored trees and normalized
+   execution IR.
 2. Inspect `git status --short --branch` and preserve any post-checkpoint user changes.
-3. Confirm the MenuButton implementation and progress checkpoints are present on `origin/main`, then
-   reconcile the open overlay/navigation inventory before selecting Tooltip, Popover, or Dialog.
-   Free-form autocomplete, remaining menus and overlays, navigation, upload, and variable-height/
-   two-dimensional virtualization remain open. Do not add subtree
-   caching unless the executable composition gates regress. Re-run the dedicated Firefox journeys
-   when a working runner is available; do not treat the current pre-page failure as behavioral
-   evidence.
+3. Preserve the now-green quality and unit/performance correctness baseline. Run the complete
+   coverage/build/E2E/consumer/release matrix for the finished hierarchical authoring boundary.
+   Re-run dedicated Firefox journeys only on a working runner; do not treat the current pre-page
+   failure as behavioral evidence.
 4. Keep production modules and their adjacent tests within the enforced complexity, function-length,
    file-length, and one-test-per-module limits.
 5. Use `apply_patch` for edits. Run Prettier before assuming a diff is ready.
@@ -416,6 +578,41 @@ infrastructure and manual accessibility/security evidence) must remain explicit 
 silently waived.
 
 ## Session log
+
+- 2026-08-26: Implemented and quality-hardened hierarchical layout authoring, enum-backed per-node
+  event aliases, catalog/IR validation, exact XState source routing, bounded/schema-validated
+  lowering, conditions, and stable-key repetition. Added a standalone hierarchical Vite example
+  covering derived rules, selective projection, XState commands, the unified event stream, and
+  Schema.org publication. Full quality and 365-file/929-test correctness suites pass; example
+  Chromium/WebKit functional plus axe evidence passes 4/4, while Firefox remains blocked before
+  page creation by the managed runner defect.
+
+- 2026-08-26: Closed the local hierarchical acceptance gaps for authored JSON Pointer provenance,
+  last-known-good invalid-update recovery, and measured compilation performance. Scoped
+  composition/IR/coordinator suites pass; focused Chromium/WebKit update journeys pass 4/4; and the
+  regenerated schema-2.20.0 report passes 44/44 gates with the 500-node layout at 7.28 ms p95/100
+  ms. Fresh full quality and 389-file/959-test package correctness pass. This checkpoint left the
+  explicit trusted external registry boundary as the next gap; the following entry closes it.
+
+- 2026-08-26: Implemented the trusted external layout registry as a bounded immutable host
+  capability with no runtime I/O, exact version/collision rejection, virtual registry provenance,
+  and propagation across cached preparation, sync/async mount, update, and governed load-and-mount.
+  Moved the standalone example's reviewed layout into that registry so its real mount and Playwright
+  path exercise the external boundary. Full quality passes over 1,620 modules/3,542 dependencies;
+  the complete correctness command passes 391 package files/984 tests, 16 tooling tests, 10
+  generated/script tests, and 31 performance correctness tests. The full build passes at 179.72 KiB
+  for the reference initial closure and 177.54 KiB for the example; example Chromium/WebKit passes
+  4/4. Two overlong test callbacks uncovered during the final gate were split without changing
+  production behavior, restoring the enforced 30-line function ceiling.
+
+- 2026-08-26: Implemented trusted named XState guards end to end across machine contracts/schema,
+  IR, a bounded fail-closed host registry, current normalized snapshot access, sync/async mount
+  propagation, last-known-good updates, public exports, documentation, and the external-layout
+  example. Full quality, 392-file/993-test correctness, 97.37% line/90.00% branch coverage,
+  performance correctness, and production build pass; the unchanged reference ceiling passes at
+  179.91 KiB. Chromium/WebKit example behavior plus axe passes 4/4. The latest Firefox rerun fails before page creation with the managed Windows
+  `_page` defect, superseding the earlier transient 6/6 result without supplying application
+  behavioral evidence.
 
 - 2026-08-25: Established and validated the initial 31-gate architecture baseline; committed it as
   `424763d`.
