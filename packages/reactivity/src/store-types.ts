@@ -46,7 +46,8 @@ export interface UiNodeTransactionDraft {
   getSnapshot(id: UiNodeId): UiNodeSnapshot;
   reconcile(
     nodes: readonly UiNodeSnapshot[],
-    identityAliases?: Readonly<Record<UiNodeId, UiNodeId>>
+    identityAliases?: Readonly<Record<UiNodeId, UiNodeId>>,
+    resetNodeIds?: readonly UiNodeId[]
   ): void;
   remove(id: UiNodeId): void;
   update(id: UiNodeId, recipe: NodeRecipe): void;

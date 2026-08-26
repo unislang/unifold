@@ -64,6 +64,27 @@ function verifyReconcile(runtime: UnifoldRuntime): void {
   ]);
   expect(runtime.getSnapshot(encodedId).control).toMatchObject({ dirty: true, value: "Edited" });
   expect(() => runtime.getSnapshot("field")).toThrow("Unknown node: field");
+  verifyExplicitReset(runtime, reconciled, encodedId);
+}
+
+function verifyExplicitReset(
+  runtime: UnifoldRuntime,
+  reconciled: ReturnType<typeof controlNode>,
+  encodedId: string
+): void {
+  runtime.execute([
+    {
+      type: UiCommandType.StructureReconcile,
+      compositionInstances: {},
+      nodes: [compositionNode("form"), { ...reconciled, id: encodedId }],
+      resetNodeIds: [encodedId]
+    }
+  ]);
+  expect(runtime.getSnapshot(encodedId).control).toMatchObject({
+    dirty: false,
+    pristine: true,
+    value: "Default"
+  });
 }
 
 function verifyRejectedTransaction(): void {

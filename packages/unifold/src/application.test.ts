@@ -1,5 +1,4 @@
 // @vitest-environment happy-dom
-import { coreCatalog } from "@unislang/unifold-catalog";
 import { CoreElementTag } from "@unislang/unifold-catalog";
 import {
   UiDerivedRuleOutputKind,
@@ -11,8 +10,6 @@ import {
   type UnifoldDataGrid
 } from "@unislang/unifold-elements";
 import { UiCommandType } from "@unislang/unifold-events";
-import { createNodeSnapshot, type DomRenderController } from "@unislang/unifold-renderer-dom";
-import { UnifoldRuntime } from "@unislang/unifold-runtime";
 import { Window } from "happy-dom";
 import { expect, it, vi } from "vitest";
 
@@ -21,18 +18,24 @@ import {
   UnifoldApplicationDiagnosticStage,
   UnifoldApplicationMountStatus,
   UnifoldApplicationUpdateStatus,
-  UnifoldPreparationStatus,
   createMemoryStoreAdapter,
-  mountUnifoldApplication,
-  prepareUnifoldDocument,
-  type PreparedUnifoldDocument,
-  type UnifoldApplicationPort
+  mountUnifoldApplication
 } from "./index.js";
 import { prepareApplicationStores } from "./store-adapters.js";
 import {
   authoredDocument,
-  workflowCommandRegistry,
-  workflowDefinition
+  failingCompensationRenderer,
+  failingRenderer,
+  machineDocument,
+  requireApplication,
+  requireElement,
+  requireInput,
+  requirePrepared,
+  requireShadowElement,
+  runtimeFor,
+  updateComplete,
+  withoutButton,
+  workflowCommandRegistry
 } from "./application.test-data.js";
 import { dataGridStoreDocument } from "./data-grid-store.test-data.js";
 
@@ -179,6 +182,35 @@ it("restores runtime state when rendering fails after commit", () => {
   application.dispose();
 });
 
+it("quarantines the application when renderer rollback cannot complete", () => {
+  const prepared = requirePrepared(authoredDocument());
+  const runtime = runtimeFor(prepared);
+  const application = new UnifoldApplication(
+    prepared,
+    document.createElement("div"),
+    runtime,
+    failingCompensationRenderer(),
+    prepareApplicationStores(prepared.document),
+    {}
+  );
+  const result = application.update(authoredDocument("2", { label: "Full name" }));
+  expect(result).toMatchObject({
+    diagnostics: [
+      {
+        code: "application-update-rollback-failed",
+        stage: UnifoldApplicationDiagnosticStage.Coordination
+      }
+    ],
+    status: UnifoldApplicationUpdateStatus.Rejected
+  });
+  expect(application.document.documentRevision).toBe("1");
+  expect(runtime.getSnapshot("name").properties).toMatchObject({ label: "Name" });
+  expect(application.update(authoredDocument("3")).diagnostics[0]?.code).toBe(
+    "application-unavailable"
+  );
+  application.dispose();
+});
+
 it("restores application and runtime state when coordination fails after commit", () => {
   const prepared = requirePrepared(authoredDocument());
   const runtime = runtimeFor(prepared);
@@ -263,84 +295,3 @@ function authoredWithRule(revision: string, emptyLabel: string): JsonObject {
     ]
   };
 }
-
-function requireApplication(
-  result: ReturnType<typeof mountUnifoldApplication>
-): UnifoldApplicationPort {
-  if (result.status !== UnifoldApplicationMountStatus.Mounted) {
-    throw new Error(`Mount rejected: ${JSON.stringify(result.diagnostics)}`);
-  }
-  return result.application;
-}
-
-function requireElement(application: UnifoldApplicationPort, id: string): HTMLElement {
-  const element = application.renderer.getElement(id);
-  if (element === undefined) throw new Error(`Rendered element is missing: ${id}.`);
-  return element;
-}
-
-function requireInput(element: HTMLElement): HTMLInputElement {
-  const input = element.shadowRoot?.querySelector("input");
-  if (!(input instanceof HTMLInputElement)) throw new Error("Rendered input is missing.");
-  return input;
-}
-
-function requireShadowElement<T extends Element>(host: HTMLElement, selector: string): T {
-  const root = host.shadowRoot;
-  if (root === null) throw new Error("Rendered shadow root is missing.");
-  const element = root.querySelector<T>(selector);
-  if (element === null) throw new Error(`Rendered ${selector} is missing.`);
-  return element;
-}
-
-async function updateComplete(element: HTMLElement): Promise<void> {
-  await (element as HTMLElement & { readonly updateComplete: Promise<boolean> }).updateComplete;
-}
-
-function withoutButton() {
-  const components = { ...coreCatalog.components };
-  Reflect.deleteProperty(components, "Button");
-  return { ...coreCatalog, components };
-}
-
-function machineDocument() {
-  return { ...authoredDocument(), machines: [workflowDefinition()] };
-}
-
-function requirePrepared(source: unknown): PreparedUnifoldDocument {
-  const result = prepareUnifoldDocument(source);
-  if (result.status !== UnifoldPreparationStatus.Valid || result.prepared === undefined) {
-    throw new Error("Expected a valid prepared document.");
-  }
-  return result.prepared;
-}
-
-function runtimeFor(prepared: PreparedUnifoldDocument): UnifoldRuntime {
-  const { document: compiled } = prepared;
-  return new UnifoldRuntime({
-    compositionInstances: compiled.compositionsByInstanceId,
-    documentId: compiled.documentId,
-    initialNodes: compiled.renderOrder.map((id) => {
-      const node = compiled.nodesById[id];
-      if (node === undefined) throw new Error(`Missing node: ${id}.`);
-      return createNodeSnapshot(node, 0);
-    })
-  });
-}
-
-function failingRenderer(fail = true): DomRenderController {
-  let updateCount = fail ? 0 : 1;
-  return {
-    dispose: noop,
-    getElement: () => undefined,
-    project: noop,
-    restoreFocus: () => Promise.resolve(),
-    update() {
-      updateCount += 1;
-      if (updateCount === 1) throw new Error("Injected renderer failure.");
-    },
-    validate: noop
-  };
-}
-
-const noop = () => undefined;

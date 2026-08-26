@@ -45,6 +45,8 @@ results. They are evidence from a developer workstation, not ratified release th
 | 500-node cold document compilation          |   1.23 ms |   1.81 ms |   2.17 ms |
 | 500-node cached document compilation        |   1.04 ms |   1.43 ms |   1.68 ms |
 | 2k document validation and normalization    |   6.18 ms |   7.35 ms |   7.66 ms |
+| 500-instance composition compilation        |   8.78 ms |   9.89 ms |  10.16 ms |
+| 500-instance composition revision           |   8.62 ms |   9.70 ms |  10.18 ms |
 | 10k one-node edit, no selections            |   9.68 ms |  13.74 ms |  13.86 ms |
 | 10k one-node edit, 2,000 indexed selections |   9.31 ms |  11.17 ms |  11.65 ms |
 | 10k one-percent bulk edit                   |  11.11 ms |  13.82 ms |  14.15 ms |
@@ -110,9 +112,9 @@ emits exactly 25 typed commands, and leaves every unrelated chain unchanged. Its
 p95 is below the provisional 4 ms target on the current workstation. The combined public-runtime
 fixture proves one commit spans the leaf edit, three synchronous validations (leaf, group, form),
 two ancestor aggregates, 20 transitive rule commands, and committed-revision selector delivery.
-Its 1.15 ms p95 is below the provisional 8 ms target. All thirty-seven timing limits and the lifecycle
+Its 1.15 ms p95 is below the provisional 8 ms target. All thirty-nine timing limits and the lifecycle
 limit are executable benchmark gates and are included with actual/limit/pass fields in the
-schema-2.16.0 machine-readable report; the current run passes all 38/38.
+schema-2.17.0 machine-readable report; the current run passes all 40/40.
 The report also contains a 50-sample paired selection-overhead profile. It alternates measurement
 order between identical 10,000-node stores with zero and 2,000 indexed selections and subtracts
 their five-edit batch medians. This removes shared transaction work without assigning an unrelated
@@ -130,8 +132,13 @@ Exact schema-valid document fixtures exercise the public composition-expansion a
 boundary. Cold 500-node preparation measured 1.23/1.81/2.17 ms against the 50 ms p95 limit; a
 prewarmed bounded, defensively cloned `UnifoldDocumentCompiler` cache measured 1.04/1.43/1.68 ms
 against 16 ms. Full 2,000-node validation and normalization measured 6.18/7.35/7.66 ms against the
-200 ms off-interaction-path limit. Cache correctness tests cover isolation, bounded LRU retention,
-clear, invalid capacity, and non-JSON collision resistance.
+200 ms off-interaction-path limit. A schema-valid document with 500 composition instances expands to
+exactly 1,001 IR nodes and measured 8.78/9.89/10.16 ms; recompiling a revision that changes exactly
+one instance measured 8.62/9.70/10.18 ms. Both enforce 100 ms p95 limits. Because complete revision
+compilation remains comfortably within budget, an incremental subtree cache is deliberately deferred
+until these gates or representative product traces justify its invalidation complexity. Cache
+correctness tests cover isolation, bounded LRU retention, clear, invalid capacity, and non-JSON
+collision resistance.
 
 The public application startup fixture compiles and mounts one exact schema-valid 10,000-option
 `VirtualList` twenty times after warm-up. It measured 20.19/24.20/32.36 ms p50/p95/p99 against the

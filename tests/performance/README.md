@@ -26,7 +26,9 @@ approval, navigation, and error intent categories. The overhead profile alternat
 order across 50 paired 10,000-node baseline and 2,000-selection batches, using each five-edit batch
 median to subtract the shared immutable-store work without treating an unrelated scheduler pause as
 selection cost. Exact 500-node fixtures enforce 50 ms cold and 16 ms cached compilation p95 limits;
-a 2,000-node fixture enforces the 200 ms validation/normalization limit. Developer results remain
+a 2,000-node fixture enforces the 200 ms validation/normalization limit. A 500-instance composition
+fixture expands to exactly 1,001 nodes; its complete compilation and a revision changing one
+instance each enforce a 100 ms p95 limit. Developer results remain
 descriptive until repeated on the pinned release runner; deterministic candidate, notification,
 aggregate-validation, and changed-node counts remain mandatory everywhere.
 

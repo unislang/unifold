@@ -11,6 +11,7 @@ import type { UnifoldIrDocument } from "@unislang/unifold-ir";
 
 import { UnifoldApplication } from "./application.js";
 import { createApplicationSnapshots } from "./application-snapshots.js";
+import { UiCompositionMigrationError } from "./composition-migrations.js";
 import { prepareUnifoldDocument } from "./compiler.js";
 import { UiMachineConfigurationError } from "./machine-coordinator.js";
 import { UiSemanticConfigurationError, UiSemanticCoordinator } from "./semantic-coordinator.js";
@@ -194,7 +195,8 @@ function createApplication(
     storeAdapters(options),
     machineCommands(options),
     storeCommands,
-    semantics
+    semantics,
+    options.compositionMigrations
   );
   try {
     semantics.publishRuntime(prepared.document, runtime);
@@ -260,6 +262,8 @@ function restoreCapturedFocus(
 }
 
 function mountErrorStage(error: unknown): UnifoldApplicationDiagnosticStage {
+  if (error instanceof UiCompositionMigrationError)
+    return UnifoldApplicationDiagnosticStage.Composition;
   if (error instanceof UiStoreConfigurationError) return UnifoldApplicationDiagnosticStage.Store;
   return secondaryMountErrorStage(error);
 }

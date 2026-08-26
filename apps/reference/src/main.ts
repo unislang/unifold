@@ -29,6 +29,7 @@ import { installStoreFixtureHooks } from "./store-fixture.js";
 
 const host = requireElement<HTMLElement>("app");
 const application = requireApplication(mountReference(host));
+const testHooksEnabled = import.meta.env.MODE === "e2e";
 
 function mountReference(
   container: HTMLElement,
@@ -122,8 +123,10 @@ function matchesOptionalConfirmation(value: { confirmName: string; name: string 
 }
 
 application.runtime.events$.subscribe(handleRuntimeEvent);
-installPrototypeHooks(application);
-installStoreFixtureHooks();
+if (testHooksEnabled) {
+  installPrototypeHooks(application);
+  installStoreFixtureHooks();
+}
 
 function handleRuntimeEvent(event: UiEvent): void {
   writeEvent(event);
@@ -137,6 +140,7 @@ function showFormResult(event: UiEvent): void {
 }
 
 function captureRuntimeEvent(event: UiEvent): void {
+  if (!testHooksEnabled) return;
   const target = window as unknown as PrototypeWindow;
   target.__unifoldCapturedEvents?.push(event);
 }

@@ -88,13 +88,43 @@ experimental expansion API, but new consumers should use the manifest-backed run
 - Each expanded node retains definition, instance, local-ID, ancestry, source-pointer, and optional
   slot provenance through IR and runtime snapshots.
 
+## Version migrations
+
+Hosts opt into every definition change with an exact reviewed edge. Mappings name public exports,
+not generated node IDs:
+
+```ts
+import { UiCompositionUnmappedMigration, mountUnifoldApplication } from "@unislang/unifold";
+
+mountUnifoldApplication(source, container, {
+  compositionMigrations: [
+    {
+      from: { name: "ProfileEditor", version: "1.0.0" },
+      preserve: [{ source: "name", target: "fullName" }],
+      to: { name: "ProfileEditor", version: "2.0.0" },
+      unmapped: UiCompositionUnmappedMigration.Reset
+    }
+  ]
+});
+```
+
+Every changed instance resets to the successor's authored defaults unless a public export is
+explicitly preserved. A preserved source and target must resolve to nodes with the same IR kind and
+component type; compatible dirty state and focus then follow the export rename. Missing, duplicate,
+cyclic, malformed, reused, unknown, or incompatible edges reject before the candidate mutates the
+application. Registries and preserved-export lists are each bounded at 128 entries. A failed update
+restores exact prior runtime snapshots and authored state; if compensation itself fails, the
+application is disposed and quarantined instead of accepting another write against uncertain state.
+
 ## Current experimental limitations
 
 The composition contract is a Phase 0 feasibility slice and packages remain private. Definitions are
 local to one authored document, versions are selected exactly, and parameters are scalar. The
 application coordinator recompiles the complete candidate document before atomically reconciling
 the changed graph; incremental subtree compilation and an authored structural-diff wire format are
-not implemented. The readable `::` namespace is deterministic and collision-safe through the
+not implemented because the current measured 500-instance complete and one-instance-revision paths
+are both below 10 ms p95 on the recorded workstation; the repeatable 100 ms gates will identify when
+that decision must be revisited. The readable `::` namespace is deterministic and collision-safe through the
 manifest-declared `1.0.0` identity codec. A one-to-one alias map migrates compatible dirty control
 state and focus from IDs produced by the pre-codec implementation; ambiguous aliases are omitted by
 the legacy grammar, while IR and runtime still reject malformed or reused aliases rather than
@@ -118,13 +148,20 @@ exports; it does not make generated node IDs a supported external API.
 - Authored IDs no longer reserve `::`, `:`, or `%`. Canonical reversible segment encoding is
   versioned in the composition manifest, exports and provenance retain authored local IDs, and
   exact legacy aliases preserve compatible dirty/focused state during the one-time identity move.
+- Exact host-reviewed definition-version edges reset unmapped state and preserve only compatible
+  mapped exports. Missing or invalid edges retain last-known-good state, rollback uses exact prior
+  snapshots, and failed compensation quarantines the application.
+- Complete 500-instance composition compilation and a revision changing one instance have separate
+  correctness fixtures and executable 100 ms p95 regression gates. The schema-2.17.0 report records
+  9.89 ms and 9.70 ms p95 respectively, so subtree-cache complexity is not currently justified.
 
 ## P0 hardening follow-ups
 
 Before compositions become a stable authoring or AI-editing boundary, complete these P0 items:
 
-1. Define explicit cross-version migration policies for incompatible component or composition changes and verify rollback when compensation itself cannot complete.
-2. Route AI-authored changes through schema-validated typed operations with policy checks, preview transactions, approval boundaries, undo, audit provenance, deterministic replay, and export from committed authored state.
-3. Benchmark complete-document compilation and add incremental subtree compilation only where measurements justify the additional cache and invalidation complexity.
+1. Route AI-authored changes through schema-validated typed operations with policy checks, preview transactions, approval boundaries, undo, audit provenance, deterministic replay, and export from committed authored state.
+2. Add dedicated cross-browser migration, accessibility, and event-identity journeys before declaring
+   the composition contract stable; retain the complete-compilation gates and introduce subtree
+   compilation only if representative measurements exceed their budgets.
 
 Each item needs positive, negative, lifecycle, accessibility, event-identity, and browser coverage before the composition contract is declared stable.

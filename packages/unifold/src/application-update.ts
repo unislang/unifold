@@ -1,0 +1,222 @@
+import {
+  UiCommandType,
+  type StructureReconcileCommand,
+  type UiNodeSnapshot
+} from "@unislang/unifold-events";
+import type { UnifoldIrDocument } from "@unislang/unifold-ir";
+import type { DomRenderController } from "@unislang/unifold-renderer-dom";
+import type { UnifoldRuntime } from "@unislang/unifold-runtime";
+
+import {
+  planCompositionMigration,
+  type UiCompositionMigrationPlan,
+  type UiCompositionVersionMigration
+} from "./composition-migrations.js";
+import { UiSemanticConfigurationError } from "./semantic-coordinator.js";
+import type { UiSemanticCoordinator } from "./semantic-coordinator.js";
+import type { PreparedApplicationStores } from "./store-adapters.js";
+import type { StoreCommandController } from "./store-command-port.js";
+import {
+  UnifoldApplicationDiagnosticStage,
+  UnifoldApplicationUpdateStatus,
+  type PreparedUnifoldDocument,
+  type UnifoldApplicationDiagnostic,
+  type UnifoldApplicationUpdateResult
+} from "./types.js";
+
+export function reconcileCommand(
+  document: UnifoldIrDocument,
+  nodes: readonly UiNodeSnapshot[],
+  migration?: UiCompositionMigrationPlan
+): StructureReconcileCommand {
+  return {
+    compositionInstances: document.compositionsByInstanceId,
+    nodeIdentityAliases: migrationAliases(document, migration),
+    nodes,
+    ...migrationResets(migration),
+    type: UiCommandType.StructureReconcile
+  };
+}
+
+function migrationAliases(
+  document: UnifoldIrDocument,
+  migration: UiCompositionMigrationPlan | undefined
+): Readonly<Record<string, string>> {
+  return migration === undefined ? document.nodeIdentityAliases : migration.nodeIdentityAliases;
+}
+
+function migrationResets(
+  migration: UiCompositionMigrationPlan | undefined
+): Pick<StructureReconcileCommand, "resetNodeIds"> | Record<string, never> {
+  return migration === undefined ? {} : { resetNodeIds: migration.resetNodeIds };
+}
+
+export function reverseMigrationPlan(
+  migration: UiCompositionMigrationPlan
+): UiCompositionMigrationPlan {
+  return {
+    nodeIdentityAliases: Object.fromEntries(
+      Object.entries(migration.nodeIdentityAliases).map(([target, source]) => [source, target])
+    ),
+    resetNodeIds: []
+  };
+}
+
+export function prepareCompositionMigration(
+  current: UnifoldIrDocument,
+  next: UnifoldIrDocument,
+  migrations: readonly UiCompositionVersionMigration[]
+): UiCompositionMigrationPlan | UnifoldApplicationDiagnostic {
+  const mismatch = identityDiagnostic(current, next);
+  if (mismatch !== undefined) return mismatch;
+  try {
+    return planCompositionMigration(current, next, migrations);
+  } catch (error) {
+    return errorDiagnostic(error, UnifoldApplicationDiagnosticStage.Composition);
+  }
+}
+
+export function isApplicationDiagnostic(
+  value: UiCompositionMigrationPlan | UnifoldApplicationDiagnostic
+): value is UnifoldApplicationDiagnostic {
+  return "stage" in value;
+}
+
+export function unavailableDiagnostic(): UnifoldApplicationDiagnostic {
+  return {
+    code: "application-unavailable",
+    message: "The application is disposed or quarantined.",
+    path: "/",
+    stage: UnifoldApplicationDiagnosticStage.Coordination
+  };
+}
+
+function rollbackFailureDiagnostic(): UnifoldApplicationDiagnostic {
+  return {
+    code: "application-update-rollback-failed",
+    message: "The update rollback failed and the application was quarantined.",
+    path: "/",
+    stage: UnifoldApplicationDiagnosticStage.Coordination
+  };
+}
+
+export function rollbackResultDiagnostic(
+  rollbackError: Error | undefined,
+  updateError: unknown,
+  stage: UnifoldApplicationDiagnosticStage
+): UnifoldApplicationDiagnostic {
+  if (rollbackError !== undefined) return rollbackFailureDiagnostic();
+  return errorDiagnostic(updateError, stage);
+}
+
+export function captureRuntimeSnapshots(
+  runtime: UnifoldRuntime,
+  document: UnifoldIrDocument,
+  renderer?: DomRenderController
+): readonly UiNodeSnapshot[] {
+  const snapshots = document.renderOrder.map((id) => runtime.getSnapshot(id));
+  const focused = renderedFocusedNodeId(renderer, document);
+  if (focused === undefined) return snapshots;
+  return snapshots.map((snapshot) => ({
+    ...snapshot,
+    base: { ...snapshot.base, focused: snapshot.id === focused }
+  }));
+}
+
+function renderedFocusedNodeId(
+  renderer: DomRenderController | undefined,
+  document: UnifoldIrDocument
+): string | undefined {
+  if (renderer === undefined) return undefined;
+  return document.renderOrder.find((id) => renderedNodeHasFocus(renderer.getElement(id)));
+}
+
+function renderedNodeHasFocus(element: HTMLElement | undefined): boolean {
+  if (element === undefined) return false;
+  return element.ownerDocument.activeElement === element;
+}
+
+export function focusedNodeId(nodes: readonly UiNodeSnapshot[]): string | undefined {
+  return nodes.find(({ base }) => base.focused)?.id;
+}
+
+export function migratedFocusedNodeId(
+  nodes: readonly UiNodeSnapshot[],
+  migration: UiCompositionMigrationPlan
+): string | undefined {
+  const focused = focusedNodeId(nodes);
+  if (focused === undefined) return undefined;
+  return Object.entries(migration.nodeIdentityAliases).find(
+    ([, source]) => source === focused
+  )?.[0];
+}
+
+export function restoreFocus(renderer: DomRenderController, nodeId: string | undefined): void {
+  if (nodeId === undefined) return;
+  void renderer.restoreFocus(nodeId);
+}
+
+export function replaceStoreCommands(
+  controller: StoreCommandController | undefined,
+  document: UnifoldIrDocument,
+  stores: PreparedApplicationStores
+): void {
+  controller?.replace(document, stores);
+}
+
+export function publishRuntimeSemantics(
+  semantics: UiSemanticCoordinator | undefined,
+  document: UnifoldIrDocument,
+  runtime: UnifoldRuntime
+): void {
+  semantics?.publishRuntime(document, runtime);
+}
+
+export function identityDiagnostic(
+  current: UnifoldIrDocument,
+  next: UnifoldIrDocument
+): UnifoldApplicationDiagnostic | undefined {
+  if (current.documentId === next.documentId) return undefined;
+  return {
+    code: "document-id-changed",
+    message: "An application update cannot change the document ID.",
+    path: "/id",
+    stage: UnifoldApplicationDiagnosticStage.Coordination
+  };
+}
+
+export function errorDiagnostic(
+  error: unknown,
+  stage: UnifoldApplicationDiagnosticStage
+): UnifoldApplicationDiagnostic {
+  return {
+    code: "application-update-failed",
+    message: error instanceof Error ? error.message : "Unknown application update failure.",
+    path: "/",
+    stage
+  };
+}
+
+export function updateFailureStage(error: unknown): UnifoldApplicationDiagnosticStage {
+  return error instanceof UiSemanticConfigurationError
+    ? UnifoldApplicationDiagnosticStage.Semantics
+    : UnifoldApplicationDiagnosticStage.Renderer;
+}
+
+export function requirePrepared(
+  prepared: PreparedUnifoldDocument | undefined
+): PreparedUnifoldDocument {
+  if (prepared === undefined) throw new Error("A valid preparation result has no document.");
+  return prepared;
+}
+
+export function appliedUpdate(revision: number): UnifoldApplicationUpdateResult {
+  return { diagnostics: [], revision, status: UnifoldApplicationUpdateStatus.Applied };
+}
+
+export function rejectedUpdate(
+  revision: number,
+  diagnostics: readonly UnifoldApplicationDiagnostic[]
+): UnifoldApplicationUpdateResult {
+  return { diagnostics, revision, status: UnifoldApplicationUpdateStatus.Rejected };
+}

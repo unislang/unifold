@@ -1,11 +1,5 @@
 import { ElementEventName } from "@unislang/unifold-elements";
-import {
-  UiCommandType,
-  UiEventType,
-  type StructureReconcileCommand,
-  type UiEvent,
-  type UiNodeSnapshot
-} from "@unislang/unifold-events";
+import { UiEventType, type UiEvent, type UiNodeSnapshot } from "@unislang/unifold-events";
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
 import type { DomRenderController } from "@unislang/unifold-renderer-dom";
 import { UnifoldRuntime } from "@unislang/unifold-runtime";
@@ -16,19 +10,38 @@ import {
 import type { Subscription } from "rxjs";
 
 import { prepareUnifoldDocument } from "./compiler.js";
+import {
+  planCompositionMigration,
+  type UiCompositionMigrationPlan,
+  type UiCompositionVersionMigration
+} from "./composition-migrations.js";
 import { createApplicationSnapshots } from "./application-snapshots.js";
+import {
+  appliedUpdate,
+  captureRuntimeSnapshots,
+  errorDiagnostic,
+  focusedNodeId,
+  isApplicationDiagnostic,
+  migratedFocusedNodeId,
+  prepareCompositionMigration,
+  publishRuntimeSemantics,
+  reconcileCommand,
+  replaceStoreCommands,
+  rejectedUpdate,
+  requirePrepared,
+  rollbackResultDiagnostic,
+  reverseMigrationPlan,
+  restoreFocus,
+  unavailableDiagnostic,
+  updateFailureStage
+} from "./application-update.js";
 import { commandForEvent, eventExecutionContext } from "./event-command.js";
 import { UiMachineCoordinator } from "./machine-coordinator.js";
-import {
-  UiSemanticConfigurationError,
-  UiSemanticCoordinator,
-  semanticSnapshotRecord
-} from "./semantic-coordinator.js";
+import { UiSemanticCoordinator, semanticSnapshotRecord } from "./semantic-coordinator.js";
 import { prepareApplicationStores, type PreparedApplicationStores } from "./store-adapters.js";
 import type { StoreCommandController } from "./store-command-port.js";
 import {
   UnifoldApplicationDiagnosticStage,
-  UnifoldApplicationUpdateStatus,
   UnifoldPreparationStatus,
   type PreparedUnifoldDocument,
   type UiStoreAdapterRegistry,
@@ -43,6 +56,7 @@ export class UnifoldApplication {
   private readonly machines: UiMachineCoordinator;
   private readonly subscription: Subscription;
   private stores: PreparedApplicationStores;
+  private unavailable = false;
   private updating = false;
 
   constructor(
@@ -54,8 +68,10 @@ export class UnifoldApplication {
     private readonly storeAdapters: UiStoreAdapterRegistry,
     machineCommands: UiMachineCommandRegistry = createMachineCommandRegistry(),
     private readonly storeCommands?: StoreCommandController,
-    private readonly semantics?: UiSemanticCoordinator
+    private readonly semantics?: UiSemanticCoordinator,
+    private readonly compositionMigrations: readonly UiCompositionVersionMigration[] = []
   ) {
+    planCompositionMigration(prepared.document, prepared.document, compositionMigrations);
     this.current = prepared;
     this.stores = stores;
     this.runtime = runtime;
@@ -77,6 +93,7 @@ export class UnifoldApplication {
   }
 
   update(authored: unknown): UnifoldApplicationUpdateResult {
+    if (this.unavailable) return rejectedUpdate(this.runtime.revision, [unavailableDiagnostic()]);
     const preparation = prepareUnifoldDocument(authored);
     if (preparation.status === UnifoldPreparationStatus.Invalid) {
       return rejectedUpdate(this.runtime.revision, preparation.diagnostics);
@@ -89,6 +106,8 @@ export class UnifoldApplication {
   }
 
   dispose(): void {
+    if (this.unavailable) return;
+    this.unavailable = true;
     this.container.removeEventListener(ElementEventName.UiEvent, this.onElementEvent);
     this.subscription.unsubscribe();
     this.renderer.dispose();
@@ -98,15 +117,29 @@ export class UnifoldApplication {
   }
 
   private applyPrepared(next: PreparedUnifoldDocument): UnifoldApplicationUpdateResult {
+    const migration = prepareCompositionMigration(
+      this.current.document,
+      next.document,
+      this.compositionMigrations
+    );
+    if (isApplicationDiagnostic(migration))
+      return rejectedUpdate(this.runtime.revision, [migration]);
+    return this.applyMigrated(next, migration);
+  }
+
+  private applyMigrated(
+    next: PreparedUnifoldDocument,
+    migration: UiCompositionMigrationPlan
+  ): UnifoldApplicationUpdateResult {
     const stores = this.prepareStores(next.document);
     if (stores instanceof Error) {
       return rejectedUpdate(this.runtime.revision, [
         errorDiagnostic(stores, UnifoldApplicationDiagnosticStage.Store)
       ]);
     }
-    const diagnostic = this.preflightDiagnostic(next.document, stores);
+    const diagnostic = this.configurationDiagnostic(next.document, stores);
     if (diagnostic !== undefined) return rejectedUpdate(this.runtime.revision, [diagnostic]);
-    return this.commitPrepared(next, stores);
+    return this.commitPrepared(next, stores, migration);
   }
 
   private prepareStores(document: UnifoldIrDocument): PreparedApplicationStores | Error {
@@ -115,12 +148,6 @@ export class UnifoldApplication {
     } catch (error) {
       return error instanceof Error ? error : new Error("Unknown store preparation failure.");
     }
-  }
-
-  private preflightDiagnostic(document: UnifoldIrDocument, stores: PreparedApplicationStores) {
-    const mismatch = identityDiagnostic(this.current.document, document);
-    if (mismatch !== undefined) return mismatch;
-    return this.configurationDiagnostic(document, stores);
   }
 
   private configurationDiagnostic(document: UnifoldIrDocument, stores: PreparedApplicationStores) {
@@ -164,45 +191,53 @@ export class UnifoldApplication {
 
   private commitPrepared(
     next: PreparedUnifoldDocument,
-    nextStores: PreparedApplicationStores
+    nextStores: PreparedApplicationStores,
+    migration: UiCompositionMigrationPlan
   ): UnifoldApplicationUpdateResult {
     const previous = this.current;
     const previousStores = this.stores;
     const previousRevision = this.runtime.revision;
-    this.current = next;
-    this.stores = nextStores;
-    this.runtime.replaceStoreBindings(nextStores.bindings);
-    this.storeCommands?.replace(next.document, nextStores);
+    const previousNodes = captureRuntimeSnapshots(this.runtime, previous.document, this.renderer);
+    this.stageCandidate(next, nextStores);
     this.updating = true;
     try {
       const nodes = createApplicationSnapshots(next.document, this.runtime.revision, nextStores);
       this.runtime.replaceRules(next.document.rules, nodes);
-      this.runtime.execute([reconcileCommand(next.document, nodes)]);
+      this.runtime.execute([reconcileCommand(next.document, nodes, migration)]);
     } catch (error) {
-      this.restoreRuntime(previous, previousStores, previousRevision);
+      const rollbackError = this.restoreRuntime(
+        previous,
+        previousStores,
+        previousRevision,
+        previousNodes,
+        migration
+      );
       this.updating = false;
       return rejectedUpdate(this.runtime.revision, [
-        errorDiagnostic(error, UnifoldApplicationDiagnosticStage.Runtime)
+        rollbackResultDiagnostic(rollbackError, error, UnifoldApplicationDiagnosticStage.Runtime)
       ]);
     }
-    return this.commitRenderer(previous, previousStores, next);
+    return this.commitRenderer(previous, previousStores, previousNodes, migration, next);
   }
 
   private commitRenderer(
     previous: PreparedUnifoldDocument,
     previousStores: PreparedApplicationStores,
+    previousNodes: readonly UiNodeSnapshot[],
+    migration: UiCompositionMigrationPlan,
     next: PreparedUnifoldDocument
   ): UnifoldApplicationUpdateResult {
     try {
       this.renderer.update(next.document);
       this.projectAll(next.document);
+      restoreFocus(this.renderer, migratedFocusedNodeId(previousNodes, migration));
       this.machines.replace(next.document.machines);
       this.semantics?.publishRuntime(next.document, this.runtime);
       return appliedUpdate(this.runtime.revision);
     } catch (error) {
-      this.restore(previous, previousStores);
+      const rollbackError = this.restore(previous, previousStores, previousNodes, migration);
       return rejectedUpdate(this.runtime.revision, [
-        errorDiagnostic(error, updateFailureStage(error))
+        rollbackResultDiagnostic(rollbackError, error, updateFailureStage(error))
       ]);
     } finally {
       this.updating = false;
@@ -211,42 +246,69 @@ export class UnifoldApplication {
 
   private restore(
     previous: PreparedUnifoldDocument,
-    previousStores: PreparedApplicationStores
-  ): void {
-    this.current = previous;
-    this.stores = previousStores;
-    this.runtime.replaceStoreBindings(previousStores.bindings);
-    this.storeCommands?.replace(previous.document, previousStores);
-    const nodes = createApplicationSnapshots(
-      previous.document,
-      this.runtime.revision,
-      previousStores
-    );
-    this.runtime.replaceRules(previous.document.rules, nodes);
-    this.runtime.execute([reconcileCommand(previous.document, nodes)]);
-    this.renderer.update(previous.document);
-    this.projectAll(previous.document);
-    this.machines.replace(previous.document.machines);
-    this.semantics?.publishRuntime(previous.document, this.runtime);
+    previousStores: PreparedApplicationStores,
+    previousNodes: readonly UiNodeSnapshot[],
+    migration: UiCompositionMigrationPlan
+  ): Error | undefined {
+    try {
+      this.current = previous;
+      this.stores = previousStores;
+      this.runtime.replaceStoreBindings(previousStores.bindings);
+      replaceStoreCommands(this.storeCommands, previous.document, previousStores);
+      this.runtime.replaceRules(previous.document.rules, previousNodes);
+      this.runtime.execute([
+        reconcileCommand(previous.document, previousNodes, reverseMigrationPlan(migration))
+      ]);
+      this.renderer.update(previous.document);
+      this.projectAll(previous.document);
+      restoreFocus(this.renderer, focusedNodeId(previousNodes));
+      this.machines.replace(previous.document.machines);
+      publishRuntimeSemantics(this.semantics, previous.document, this.runtime);
+      return undefined;
+    } catch (error) {
+      this.dispose();
+      return asError(error);
+    }
   }
 
   private restoreRuntime(
     previous: PreparedUnifoldDocument,
     previousStores: PreparedApplicationStores,
-    previousRevision: number
+    previousRevision: number,
+    previousNodes: readonly UiNodeSnapshot[],
+    migration: UiCompositionMigrationPlan
+  ): Error | undefined {
+    try {
+      this.current = previous;
+      this.stores = previousStores;
+      this.runtime.replaceStoreBindings(previousStores.bindings);
+      replaceStoreCommands(this.storeCommands, previous.document, previousStores);
+      this.runtime.replaceRules(previous.document.rules, previousNodes);
+      this.restoreRuntimeTransaction(previous, previousRevision, previousNodes, migration);
+      return undefined;
+    } catch (error) {
+      this.dispose();
+      return asError(error);
+    }
+  }
+
+  private stageCandidate(next: PreparedUnifoldDocument, stores: PreparedApplicationStores): void {
+    this.current = next;
+    this.stores = stores;
+    this.runtime.replaceStoreBindings(stores.bindings);
+    this.storeCommands?.replace(next.document, stores);
+  }
+
+  private restoreRuntimeTransaction(
+    previous: PreparedUnifoldDocument,
+    previousRevision: number,
+    previousNodes: readonly UiNodeSnapshot[],
+    migration: UiCompositionMigrationPlan
   ): void {
-    this.current = previous;
-    this.stores = previousStores;
-    this.runtime.replaceStoreBindings(previousStores.bindings);
-    this.storeCommands?.replace(previous.document, previousStores);
-    const nodes = createApplicationSnapshots(
-      previous.document,
-      this.runtime.revision,
-      previousStores
-    );
-    this.runtime.replaceRules(previous.document.rules, nodes);
     if (this.runtime.revision === previousRevision) return;
-    this.runtime.execute([reconcileCommand(previous.document, nodes)]);
+    this.runtime.execute([
+      reconcileCommand(previous.document, previousNodes, reverseMigrationPlan(migration))
+    ]);
   }
 
   private readonly onElementEvent = (event: Event): void => {
@@ -283,61 +345,6 @@ export class UnifoldApplication {
   }
 }
 
-function reconcileCommand(
-  document: UnifoldIrDocument,
-  nodes: readonly UiNodeSnapshot[]
-): StructureReconcileCommand {
-  return {
-    compositionInstances: document.compositionsByInstanceId,
-    nodeIdentityAliases: document.nodeIdentityAliases,
-    nodes,
-    type: UiCommandType.StructureReconcile
-  };
-}
-
-function identityDiagnostic(
-  current: UnifoldIrDocument,
-  next: UnifoldIrDocument
-): UnifoldApplicationDiagnostic | undefined {
-  if (current.documentId === next.documentId) return undefined;
-  return {
-    code: "document-id-changed",
-    message: "An application update cannot change the document ID.",
-    path: "/id",
-    stage: UnifoldApplicationDiagnosticStage.Coordination
-  };
-}
-
-function errorDiagnostic(
-  error: unknown,
-  stage: UnifoldApplicationDiagnosticStage
-): UnifoldApplicationDiagnostic {
-  return {
-    code: "application-update-failed",
-    message: error instanceof Error ? error.message : "Unknown application update failure.",
-    path: "/",
-    stage
-  };
-}
-
-function updateFailureStage(error: unknown): UnifoldApplicationDiagnosticStage {
-  return error instanceof UiSemanticConfigurationError
-    ? UnifoldApplicationDiagnosticStage.Semantics
-    : UnifoldApplicationDiagnosticStage.Renderer;
-}
-
-function requirePrepared(prepared: PreparedUnifoldDocument | undefined): PreparedUnifoldDocument {
-  if (prepared === undefined) throw new Error("A valid preparation result has no document.");
-  return prepared;
-}
-
-function appliedUpdate(revision: number): UnifoldApplicationUpdateResult {
-  return { diagnostics: [], revision, status: UnifoldApplicationUpdateStatus.Applied };
-}
-
-function rejectedUpdate(
-  revision: number,
-  diagnostics: readonly UnifoldApplicationDiagnostic[]
-): UnifoldApplicationUpdateResult {
-  return { diagnostics, revision, status: UnifoldApplicationUpdateStatus.Rejected };
+function asError(error: unknown): Error {
+  return error instanceof Error ? error : new Error("Unknown rollback failure.");
 }

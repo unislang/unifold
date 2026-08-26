@@ -25,12 +25,16 @@ export class NodeTransactionDraft implements UiNodeTransactionDraft {
 
   reconcile(
     nodes: readonly UiNodeSnapshot[],
-    identityAliases: Readonly<Record<UiNodeId, UiNodeId>> = {}
+    identityAliases: Readonly<Record<UiNodeId, UiNodeId>> = {},
+    resetNodeIds: readonly UiNodeId[] = []
   ): void {
     validateDesiredNodes(nodes);
     const desiredIds = new Set(nodes.map(({ id }) => id));
+    const resets = validateResetNodes(resetNodeIds, desiredIds, identityAliases);
     validateIdentityAliases(this.state, desiredIds, identityAliases);
-    nodes.forEach((node) => reconcileNode(this.state, node, identityAliases[node.id]));
+    nodes.forEach((node) =>
+      reconcileNode(this.state, node, identityAliases[node.id], resets.has(node.id))
+    );
     removeMissingNodes(this.state, desiredIds);
     reconcileChildren(this.state, nodes);
   }
@@ -118,9 +122,10 @@ function removeMissingNodes(
 function reconcileNode(
   state: Draft<NormalizedNodeState>,
   desired: UiNodeSnapshot,
-  migratedFrom: UiNodeId | undefined
+  migratedFrom: UiNodeId | undefined,
+  reset: boolean
 ): void {
-  const current = state.nodes[reconciliationSourceId(desired.id, migratedFrom)];
+  const current = currentNode(state, desired.id, migratedFrom, reset);
   if (current === undefined) {
     state.nodes[desired.id] = castDraft(desired);
     return;
@@ -128,6 +133,35 @@ function reconcileNode(
   const reconciled = migrateSnapshot(current as unknown as UiNodeSnapshot, desired);
   if (sameValue(current, reconciled)) return;
   state.nodes[desired.id] = castDraft(reconciled);
+}
+
+function currentNode(
+  state: Draft<NormalizedNodeState>,
+  id: UiNodeId,
+  migratedFrom: UiNodeId | undefined,
+  reset: boolean
+): Draft<UiNodeSnapshot> | undefined {
+  if (reset) return undefined;
+  return state.nodes[reconciliationSourceId(id, migratedFrom)];
+}
+
+function validateResetNodes(
+  resetNodeIds: readonly UiNodeId[],
+  desiredIds: ReadonlySet<UiNodeId>,
+  aliases: Readonly<Record<UiNodeId, UiNodeId>>
+): ReadonlySet<UiNodeId> {
+  const resets = new Set<UiNodeId>();
+  resetNodeIds.forEach((id) => {
+    assertResetNode(desiredIds.has(id));
+    assertResetNode(aliases[id] === undefined);
+    assertResetNode(!resets.has(id));
+    resets.add(id);
+  });
+  return resets;
+}
+
+function assertResetNode(valid: boolean): void {
+  if (!valid) throw new Error("Invalid reset node.");
 }
 
 function reconciliationSourceId(id: UiNodeId, migratedFrom: UiNodeId | undefined): UiNodeId {

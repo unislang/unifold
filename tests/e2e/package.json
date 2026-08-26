@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "pnpm --filter @unislang/unifold-reference build && pnpm test:unit && playwright test --config playwright.config.ts",
+    "test": "pnpm --filter @unislang/unifold-reference build:e2e && pnpm test:unit && playwright test --config playwright.config.ts",
     "test:unit": "node --test scripts/*.test.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },

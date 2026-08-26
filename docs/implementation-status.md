@@ -218,11 +218,14 @@ critical seam; it is not yet the full catalog or Studio product described by the
    binding/validation plus redacted canonical-event behavioral oracle are executable. No fabricated
    profile migration is published because `unifold-jsonui@1.0.0` still has no successor; the first
    successor must add its reviewed edge and golden/recovery fixtures in the same release.
-4. Composition identity hardening now has reversible canonical segment encoding, a versioned
-   manifest contract, validated one-to-one legacy aliases, and atomic dirty/focus migration.
-   Continue with explicit cross-version definition migrations and measured complete/incremental
-   compilation; then add combobox/autocomplete, menus, overlays, tabs, navigation, upload, and
-   variable-height or two-dimensional virtualization. See
+4. Composition hardening now has reversible canonical identity encoding, exact bounded and acyclic
+   definition-version migration edges, reset-by-default state policy, compatible public-export
+   preservation, DOM-focus migration, exact-snapshot rollback, and failed-compensation quarantine.
+   Complete 500-instance and one-instance-revision compilation are independently gated at 100 ms
+   p95; the schema-2.17.0 run measured 9.89 ms and 9.70 ms, so subtree caching is deferred pending
+   evidence. Add the dedicated cross-browser migration/accessibility/event journey, then continue
+   with combobox/autocomplete, menus, overlays, tabs, navigation, upload, and variable-height or
+   two-dimensional virtualization. See
    [composition P0 follow-ups](./compositions.md#p0-hardening-follow-ups).
 5. Add stable-release evidence and generated documentation/test skeletons to the complete core
    `ComponentDefinition` pipeline, then benchmark representative native/Lion/Spectrum patterns

@@ -4,6 +4,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const REFERENCE_BUNDLE_LIMIT_BYTES = 180 * 1024;
+const FORBIDDEN_TEST_HOOKS = ["__unifoldStoreFixture", "__unifoldUpdateDocument"];
 const applicationRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 if (isMain()) {
@@ -16,14 +17,21 @@ if (isMain()) {
 
 export async function checkReferenceBundle(assetsRoot, limitBytes = REFERENCE_BUNDLE_LIMIT_BYTES) {
   const names = (await readdir(assetsRoot)).filter((name) => name.endsWith(".js")).sort();
-  const sizes = await Promise.all(
-    names.map(async (name) => gzipSync(await readFile(resolve(assetsRoot, name))).byteLength)
-  );
+  const assets = await Promise.all(names.map((name) => readFile(resolve(assetsRoot, name))));
+  assertNoTestHooks(assets);
+  const sizes = assets.map((asset) => gzipSync(asset).byteLength);
   const gzipBytes = sizes.reduce((total, size) => total + size, 0);
   if (gzipBytes > limitBytes) {
     throw new Error(`Reference JavaScript is ${gzipBytes} gzip bytes; limit is ${limitBytes}.`);
   }
   return { files: names, gzipBytes, limitBytes };
+}
+
+function assertNoTestHooks(assets) {
+  const source = Buffer.concat(assets).toString("utf8");
+  if (FORBIDDEN_TEST_HOOKS.some((hook) => source.includes(hook))) {
+    throw new Error("Reference production JavaScript contains an end-to-end test hook.");
+  }
 }
 
 function isMain() {

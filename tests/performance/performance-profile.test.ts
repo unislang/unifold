@@ -7,9 +7,13 @@ import { CANONICAL_EVENT_GATE_NAME, measureCanonicalEventPath } from "./canonica
 import {
   CACHED_500_COMPILATION_NAME,
   COLD_500_COMPILATION_NAME,
+  COMPOSED_500_COMPILATION_NAME,
+  COMPOSED_500_REVISION_NAME,
   NORMALIZE_2000_DOCUMENT_NAME,
   compileCachedDocument,
   compileColdDocument,
+  compileComposedDocument,
+  compileComposedRevision,
   createDocumentCompilationHarness,
   normalizeLargeDocument
 } from "./document-compilation-fixture.js";
@@ -85,6 +89,8 @@ function createBench(harnesses: ReturnType<typeof createHarnesses>): Bench {
     .add(COLD_500_COMPILATION_NAME, () => compileColdDocument(harnesses.compilation))
     .add(CACHED_500_COMPILATION_NAME, () => compileCachedDocument(harnesses.compilation))
     .add(NORMALIZE_2000_DOCUMENT_NAME, () => normalizeLargeDocument(harnesses.compilation))
+    .add(COMPOSED_500_COMPILATION_NAME, () => compileComposedDocument(harnesses.compilation))
+    .add(COMPOSED_500_REVISION_NAME, () => compileComposedRevision(harnesses.compilation))
     .add("10k selection-free leaf edit", () => updateOne(harnesses.baseline, ++sequence))
     .add("10k selective leaf edit", () => updateOne(harnesses.selected, ++sequence))
     .add("10k one-percent bulk edit", () => updateBulk(harnesses.bulk, ++sequence))
@@ -145,7 +151,23 @@ function timingGates(
     timingGate(CANONICAL_EVENT_GATE_NAME, canonicalEventPath.p95Milliseconds, 8),
     timingGate(COLD_500_COMPILATION_NAME, requireP95(timings, COLD_500_COMPILATION_NAME), 50),
     timingGate(CACHED_500_COMPILATION_NAME, requireP95(timings, CACHED_500_COMPILATION_NAME), 16),
-    timingGate(NORMALIZE_2000_DOCUMENT_NAME, requireP95(timings, NORMALIZE_2000_DOCUMENT_NAME), 200)
+    timingGate(
+      NORMALIZE_2000_DOCUMENT_NAME,
+      requireP95(timings, NORMALIZE_2000_DOCUMENT_NAME),
+      200
+    ),
+    ...compositionCompilationGates(timings)
+  ];
+}
+
+function compositionCompilationGates(timings: ReturnType<typeof timingResults>) {
+  return [
+    timingGate(
+      COMPOSED_500_COMPILATION_NAME,
+      requireP95(timings, COMPOSED_500_COMPILATION_NAME),
+      100
+    ),
+    timingGate(COMPOSED_500_REVISION_NAME, requireP95(timings, COMPOSED_500_REVISION_NAME), 100)
   ];
 }
 

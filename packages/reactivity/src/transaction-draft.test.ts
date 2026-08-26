@@ -106,6 +106,29 @@ it("migrates dirty compatible control state through one-to-one identity aliases"
   expect(() => store.getSnapshot("profile:editor::name%field")).toThrow("Unknown node");
 });
 
+it("resets explicitly migrated nodes and rejects invalid reset plans atomically", () => {
+  const store = new NormalizedNodeStore([dirtyControl(controlNode("field", "User"))]);
+  store.transact(metadata("reset-migration"), (draft) => {
+    draft.reconcile([controlNode("field", "Default")], {}, ["field"]);
+  });
+  expect(store.getSnapshot("field").control).toMatchObject({
+    dirty: false,
+    pristine: true,
+    value: "Default"
+  });
+  expectChangeError(
+    store,
+    (draft) => draft.reconcile([controlNode("field", "Default")], {}, ["missing"]),
+    "Invalid reset node"
+  );
+  expectChangeError(
+    store,
+    (draft) => draft.reconcile([controlNode("field", "Default")], {}, ["field", "field"]),
+    "Invalid reset node"
+  );
+  expect(store.revision).toBe(1);
+});
+
 it("rejects ambiguous or stale identity aliases without committing", () => {
   expectIdentityAliasError({ missing: "legacy" });
   expectIdentityAliasError({ target: "missing" });

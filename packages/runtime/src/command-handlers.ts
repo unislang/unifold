@@ -261,7 +261,8 @@ function reconcileStructure(
   if (command.type !== UiCommandType.StructureReconcile) return;
   draft.reconcile(
     command.nodes.map((node) => withValidatedControl(node, validators)),
-    command.nodeIdentityAliases
+    command.nodeIdentityAliases,
+    command.resetNodeIds
   );
   command.nodes.forEach(({ id }) =>
     draft.update(id, (node) => touchlessValidation(node, validators))

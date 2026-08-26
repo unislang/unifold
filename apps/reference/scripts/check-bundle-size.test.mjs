@@ -20,4 +20,6 @@ test("sums every JavaScript chunk and enforces the gzip budget", async (context)
   assert.deepEqual(evidence.files, ["entry.js", "lazy.js"]);
   assert(evidence.gzipBytes > 0);
   await assert.rejects(() => checkReferenceBundle(root, evidence.gzipBytes - 1), /limit is/u);
+  await writeFile(join(root, "hook.js"), "globalThis.__unifoldUpdateDocument = () => {};", "utf8");
+  await assert.rejects(() => checkReferenceBundle(root, 1_024), /test hook/u);
 });

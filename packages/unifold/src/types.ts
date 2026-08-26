@@ -3,6 +3,7 @@ import type { UnifoldIrDocument } from "@unislang/unifold-ir";
 import type { DomRenderController, DomRendererOptions } from "@unislang/unifold-renderer-dom";
 import type { UnifoldRuntime, UnifoldRuntimeOptions } from "@unislang/unifold-runtime";
 import type { UiMachineCommandRegistry } from "@unislang/unifold-xstate";
+import type { UiCompositionVersionMigration } from "./composition-migrations.js";
 
 export enum UnifoldApplicationDiagnosticStage {
   Compilation = "compilation",
@@ -66,6 +67,7 @@ export type CoordinatedRuntimeOptions = Omit<
 >;
 
 export interface MountUnifoldApplicationOptions {
+  readonly compositionMigrations?: readonly UiCompositionVersionMigration[];
   readonly machineCommands?: UiMachineCommandRegistry;
   readonly mountMode?: UnifoldApplicationMountMode;
   readonly renderer?: DomRendererOptions;

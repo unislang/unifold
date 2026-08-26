@@ -129,6 +129,12 @@ Composition identity tests round-trip delimiter, percent, and Unicode segments; 
 instance, template, slot, export, and provenance IDs; reject malformed or ambiguous manifest
 aliases; and prove runtime reconciliation moves compatible dirty/focused state exactly once while
 invalid alias transactions preserve the prior revision.
+Composition-version tests require an exact acyclic host-reviewed edge, reset every unmapped node,
+preserve compatible dirty state and DOM focus only through named public-export mappings, reject
+missing/duplicate/malformed/incompatible policies before mutation, restore exact prior snapshots on
+failure, and quarantine the application when renderer compensation also fails. The compilation
+profile expands 500 instances to exactly 1,001 nodes and separately recompiles a revision changing
+one instance; both paths enforce 100 ms p95 limits.
 The lifecycle-memory profile first runs five public application cycles to establish bounded
 element-registration and renderer caches. It then runs twenty schema-valid 500-node
 mount/revision/dispose cycles, forcing garbage collection after each cycle and at the final
