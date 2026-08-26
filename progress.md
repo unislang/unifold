@@ -17,10 +17,10 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest implementation checkpoint: `777ebcd` (`feat: add hierarchical JSON layout authoring`)
-- Verified pre-slice remote state: `origin/main` independently resolved to
-  `96f37a615e4eb3349917a9e1edab1d802abecda0`. The release-verified hierarchical implementation is
-  committed at `777ebcdd9cbc4d932273115530ca751ee6bd0a0b`; its requested push is the next action.
+- Latest implementation checkpoint: `d9ed981508ed0f28e1f536084f8d92837161c941`
+  (`feat: add catalog-authoritative popover`), preceded by the packed-consumer guard checkpoint
+  `e69e9ff48f3e74239d86622185434cec815f7967`. The pre-push `origin/main` reference remains
+  `26a99c514edd4b896cbbfd50fb019fff44080f9b`; push and independent remote-SHA verification are next.
 - Working tree: the broad post-`96f37a6` implementation is committed and release-verified. It includes the
   derived-rule engine and 1,000-rule selective benchmark, Tooltip optional family work, a strict
   hierarchy-oriented layout authoring layer, enum-backed source-specific workflow event bindings,
@@ -28,8 +28,12 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   and a standalone hierarchical example site that consumes those boundaries. Preserve all unrelated
   changes. Repository quality, unit/tooling/script, performance, production build/bundle, and focused
   Chromium/WebKit browser gates pass. The prior packed-consumer, formatting, duplication, upstream
-  parity, and broad release evidence remains recorded below; the latest Firefox example rerun again
-  fails before page creation with the managed Windows `_page` defect.
+  parity, and broad release evidence remains recorded below. Uncommitted work now includes a
+  release-verified and committed packed-consumer workflow-guard journey and a complete committed catalog-authoritative
+  Popover slice spanning catalog, IR, elements, static export, deferred facade registration,
+  reference/static browser integrations, and performance evidence. Preserve both until the pending
+  progress checkpoint and push complete. Current quality, correctness, coverage, build/bundle,
+  benchmark, packed-consumer, duplication, formatting, and focused three-engine browser gates pass.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
@@ -61,8 +65,9 @@ record new measurements rather than treating the numbers above as proof for late
 
 ## Active slice
 
-The public authoring contract and executable example are implemented and committed; the requested
-push checkpoint is next. On 2026-08-26 the user clarified that
+The public authoring contract and executable example are implemented, committed, and present on the
+local `origin/main` tracking reference. Post-checkpoint implementation continues. On 2026-08-26 the
+user clarified that
 the intended JSON UI is modeled on
 [`scratch/angular-ui/DYNAMIC-UI-README.md`](./scratch/angular-ui/DYNAMIC-UI-README.md): a
 `layoutType` selects a reusable definition, `variables` parameterize it, and nested nodes use
@@ -111,7 +116,7 @@ Their catalog, IR, element, static export, registration, and browser paths are i
 latest production build emits 23,215 deferred gzip bytes and the initial reference closure passes at
 184,227 bytes (179.91 KiB) against the unchanged 184,320-byte gate.
 
-### 2026-08-26 hierarchical authoring checkpoint (release verified; push pending)
+### 2026-08-26 hierarchical authoring checkpoint (release verified and tracked remotely)
 
 - Added deterministic Scratch-compatible lowering for exact `layoutType`/`layoutVersion`, typed
   variables, nested `type`/`props`/`children`, safe variable references, and named `onClick`,
@@ -196,7 +201,7 @@ latest production build emits 23,215 deferred gzip bytes and the initial referen
 - A clean reference build exposed and now guards strict XState parameter typing: optional guards are
   omitted instead of emitted as `undefined`, trusted guard implementations have typed parameters,
   and optional-element registration validates tag/catalog metadata even for the same constructor.
-- Formatting and duplication thresholds pass. After pushing this checkpoint, resume by auditing the
+- Formatting and duplication thresholds pass. After this checkpoint, resume by auditing the
   remaining priorities in `docs/implementation-status.md`; do not re-open the completed hierarchical
   authoring slice unless a regression is found.
 
@@ -225,6 +230,55 @@ latest production build emits 23,215 deferred gzip bytes and the initial referen
 - Chromium/WebKit functional and axe journeys pass 4/4. Both current Firefox cases fail in
   `browserContext.newPage` while reading `_page`, before application code; this environment result
   supersedes the earlier transient 6/6 example claim and remains an external release gate.
+
+### 2026-08-26 packed-consumer workflow-guard checkpoint (release verified and committed)
+
+- The clean downstream fixture now imports `createMachineGuardRegistry()` and its context type from
+  the packed `@unislang/unifold` facade. Its JSON document declares a named guarded transition, and
+  Playwright proves both fail-closed denial for an empty shared control snapshot and acceptance after
+  that control changes through the unified runtime stream.
+- The fixture uses the intentional load/mount API separation correctly: governed document trust is
+  passed as the third argument to `loadAndMountUnifoldApplication()`, while the trusted runtime guard
+  capability is passed in the fourth mount-options argument.
+- Fixture formatting, cyclomatic-complexity linting, and `git diff --check` pass. The isolated
+  tarball pack/install/typecheck/Vite/Playwright consumer command passes 3/3 against the last
+  completed package artifacts.
+- The final clean `pnpm test:consumer` rebuilds the full workspace and passes all 3/3 isolated
+  pack/install/typecheck/Vite/Chromium lifecycle tests. This supersedes the earlier point-in-time
+  registry and evolving-manifest failures.
+- The checkpoint is committed as `e69e9ff48f3e74239d86622185434cec815f7967`
+  (`test: verify packed workflow guard integration`).
+
+### 2026-08-26 bounded Popover checkpoint (release verified and committed)
+
+- `Popover` is the thirty-first catalog-authoritative JSON component. Its exact descriptor requires
+  `label`, `panelLabel`, and 1–32 JSON children, accepts the shared logical placement enum, exposes
+  reviewed accessibility/privacy/behavior sidecars, and compiles through the ordinary IR node path.
+- The deferred `@unislang/unifold/popover` family renders a labeled non-modal dialog, progressively
+  uses the native Popover API, focuses the surface, restores trigger focus on Escape, dismisses on
+  focus departure/outside input/native close, and emits one canonical activation intent with the
+  requested open state. Static HTML degrades to escaped native `details`/`summary` content.
+- Reference and static-export JSON exercise real nested Text/Link children. Chromium, Firefox, and
+  WebKit pass the focused 3/3 reference journey and all 27/27 static-export cases, including axe,
+  invalid-placement rollback/recovery, stable host identity, no-JavaScript disclosure, upgrade, and
+  focus restoration.
+- Repository quality passes file/function/complexity, one-to-one tests, lint, source/test typecheck,
+  1,652-module/3,633-edge dependency analysis, and Knip. Correctness passes 400 package files/1,010
+  tests, 16 tooling tests, 10 generated/script tests, and 24 performance files/34 tests with 18
+  opt-in profiles skipped. Coverage passes at 97.38% lines/statements, 97.02% functions, and 90.01%
+  branches. Formatting and the 1.56% duplication threshold pass.
+- The production build passes with 184,037 initial gzip bytes (179.72 KiB) against the unchanged
+  184,320-byte gate and 25,417 deferred gzip bytes. The Popover/reference chunk is 2.04 KiB gzip.
+  Clean packed-consumer verification passes 3/3.
+- Benchmark schema 2.21.0 passes 45/45 executable gates. Twenty samples render exactly 434 buttons;
+  32-action Popover opening is 0.70/1.15/5.03 ms p50/p95/p99 against 100 ms, and the combined
+  workflow startup is 77.19/100.41/104.22 ms against 1,000 ms.
+- Next locally actionable architecture work remains the Phase 2 component inventory: choose the next
+  overlay/navigation family only after applying any comparative native/Lion/Spectrum prerequisite
+  recorded in `docs/implementation-status.md`. Production identity/storage provisioning remains an
+  external integration prerequisite rather than local substitute work.
+- The checkpoint is committed as `d9ed981508ed0f28e1f536084f8d92837161c941`
+  (`feat: add catalog-authoritative popover`).
 
 ### 2026-08-26 durability checkpoint
 
@@ -579,6 +633,15 @@ silently waived.
 
 ## Session log
 
+- 2026-08-26: Completed and release-verified the catalog-authoritative Popover slice across the
+  component contract, shared catalog-property descriptors, IR, deferred Web Component, canonical
+  activation event, static fallback, public facade, reference/static integrations, generated
+  manifests, accessibility/rollback journeys, and schema-2.21.0 performance gates. The final
+  three-engine focused browser matrices pass 3/3 and 27/27; quality, 400-file/1,010-test correctness,
+  90.01% branch coverage, full build/bundle, 45/45 benchmark, duplication, formatting, and clean
+  packed-consumer 3/3 gates pass. The implementation and consumer commits are recorded above;
+  progress checkpoint commit, push, and remote SHA confirmation are the immediate remaining actions.
+
 - 2026-08-26: Implemented and quality-hardened hierarchical layout authoring, enum-backed per-node
   event aliases, catalog/IR validation, exact XState source routing, bounded/schema-validated
   lowering, conditions, and stable-key repetition. Added a standalone hierarchical Vite example
@@ -613,6 +676,13 @@ silently waived.
   179.91 KiB. Chromium/WebKit example behavior plus axe passes 4/4. The latest Firefox rerun fails before page creation with the managed Windows
   `_page` defect, superseding the earlier transient 6/6 result without supplying application
   behavioral evidence.
+
+- 2026-08-26: Extended the clean packed-consumer fixture to prove the public workflow-guard API from
+  installed tarballs. Its browser journey denies an empty-name transition, accepts the same event
+  after the shared control snapshot changes, and passes the isolated consumer lifecycle 3/3.
+  Formatting and scoped complexity lint pass. A new unrelated Popover slice appeared and continued
+  changing in the shared worktree during verification; a point-in-time manifest failure and the need
+  for a stable full rerun are recorded above without modifying or discarding that work.
 
 - 2026-08-25: Established and validated the initial 31-gate architecture baseline; committed it as
   `424763d`.
