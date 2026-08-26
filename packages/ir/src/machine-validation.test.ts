@@ -10,6 +10,18 @@ it("accepts a versioned machine owned by a known node", () => {
   expect(result.diagnostics).toEqual([]);
 });
 
+it("accepts named guards and rejects empty guard references", () => {
+  const guarded = validMachine();
+  guarded.states.editing.on.submit.guard = "has-name";
+  expect(validateUiDocument(withMachine(guarded)).diagnostics).toEqual([]);
+
+  guarded.states.editing.on.submit.guard = "";
+  expect(validateUiDocument(withMachine(guarded)).diagnostics[0]).toMatchObject({
+    code: DiagnosticCode.InvalidMachine,
+    path: "/machines/0/states/editing/on/submit/guard"
+  });
+});
+
 it("rejects duplicate ids, unknown owners, and unknown states", () => {
   const invalid = validMachine();
   invalid.ownerId = "missing";
@@ -50,7 +62,9 @@ function validMachine() {
     ownerId: "editor",
     schemaVersion: UiMachineSchemaVersion.Version1,
     states: {
-      editing: { on: { submit: { commands: ["mark-saved"], target: "saved" } } },
+      editing: {
+        on: { submit: { commands: ["mark-saved"], guard: "has-name", target: "saved" } }
+      },
       saved: {}
     },
     version: "1.0.0"

@@ -4,11 +4,13 @@ import { expect, it } from "vitest";
 import {
   FIVE_HUNDRED_DOCUMENT_NODES,
   FIVE_HUNDRED_COMPOSITION_INSTANCES,
+  LAYOUT_500_COMPILATION_NAME,
   COMPOSED_DOCUMENT_NODES,
   TWO_THOUSAND_DOCUMENT_NODES,
   compileCachedDocument,
   compileComposedDocument,
   compileComposedRevision,
+  compileLayoutDocument,
   compileColdDocument,
   createCompilationDocument,
   createDocumentCompilationHarness,
@@ -29,6 +31,12 @@ it("compiles exact 500-node and 2,000-node schema-valid documents through public
   expect(large.status).toBe(UnifoldPreparationStatus.Valid);
   expect(requireDocument(large).renderOrder).toHaveLength(TWO_THOUSAND_DOCUMENT_NODES);
   expect(() => createCompilationDocument(0)).toThrow("positive integer");
+});
+
+it(`${LAYOUT_500_COMPILATION_NAME} produces the exact executable graph`, () => {
+  const result = compileLayoutDocument(createDocumentCompilationHarness());
+  expect(result.status).toBe(UnifoldPreparationStatus.Valid);
+  expect(requireDocument(result).renderOrder).toHaveLength(FIVE_HUNDRED_DOCUMENT_NODES);
 });
 
 it("compiles 500 composition instances and preserves unaffected node identity across revisions", () => {

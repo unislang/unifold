@@ -270,7 +270,6 @@
           },
           {
             "$comp": "MenuButton",
-            "disabled": false,
             "id": "account-actions",
             "items": [
               { "label": "Edit account", "value": "edit" },
@@ -279,6 +278,13 @@
             ],
             "label": "Account actions",
             "testId": "account-actions"
+          },
+          {
+            "$comp": "Tooltip",
+            "content": "Account actions affect the currently selected tenant.",
+            "id": "account-actions-help",
+            "label": "About account actions",
+            "testId": "account-actions-help"
           }
         ]
       },

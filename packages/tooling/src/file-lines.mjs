@@ -17,6 +17,7 @@ const ignoredDirectoryNames = new Set([
   "node_modules",
   "playwright-report",
   "report",
+  "scratch",
   "test-results"
 ]);
 const ignoredGeneratedFileNames = new Set(["pnpm-lock.yaml"]);

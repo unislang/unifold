@@ -200,6 +200,36 @@ function menuDiagnostics(items: readonly JsonObject[]) {
   }).diagnostics;
 }
 
+it("validates required Tooltip text, placement, and leaf shape at exact pointers", () => {
+  const invalid = validateUiDocument({
+    ...choiceDocument(),
+    view: {
+      $children: [{ $comp: "Text", content: "Unexpected", id: "child" }],
+      $comp: "Tooltip",
+      id: "help",
+      placement: "center"
+    }
+  });
+
+  expect(invalid.diagnostics).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        code: DiagnosticCode.MissingRequiredProperty,
+        path: "/view/label"
+      }),
+      expect.objectContaining({
+        code: DiagnosticCode.MissingRequiredProperty,
+        path: "/view/content"
+      }),
+      expect.objectContaining({ code: DiagnosticCode.InvalidProperty, path: "/view/placement" }),
+      expect.objectContaining({
+        code: DiagnosticCode.InvalidChildCount,
+        path: "/view/$children"
+      })
+    ])
+  );
+});
+
 it("rejects missing and unknown Icon names", () => {
   const document = choiceDocument();
   const missing = { ...document, view: { $comp: "Icon", id: "missing" } };

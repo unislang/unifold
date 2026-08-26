@@ -15,6 +15,7 @@ import {
   compositionNodeIds,
   expandedAccessibilityScenario
 } from "./reference.scenarios.js";
+import type { DynamicUpdateResult, DynamicWindow } from "./reference.types.js";
 
 type ScenarioPage = Parameters<typeof readRenderUpdates>[0];
 type CapturedEvent = Awaited<ReturnType<UnifoldHarness["events"]>>[number];
@@ -190,7 +191,11 @@ async function nameUpdateCount(page: ScenarioPage, baseline: RenderBaseline): Pr
 }
 
 function nodeHost(page: ScenarioPage, nodeId: string) {
-  return page.locator(`[data-unifold-node-id="${nodeId}"]`);
+  return page.locator(nodeSelector(nodeId));
+}
+
+function nodeSelector(nodeId: string): string {
+  return `[data-unifold-node-id="${nodeId}"]`;
 }
 
 async function rememberStableNode(page: ScenarioPage, nodeId: string): Promise<void> {
@@ -303,30 +308,4 @@ async function requireSubmittedEvent(unifold: UnifoldHarness) {
 
 function submittedValue(event: Awaited<ReturnType<typeof requireSubmittedEvent>>) {
   return event.data.snapshot?.control?.value;
-}
-
-interface DynamicNode {
-  $comp: string;
-  id: string;
-  label: string;
-  options?: { label: string; value: string }[];
-}
-
-interface DynamicAuthoredDocument {
-  compositions: [
-    {
-      template: { $children: [{ $children: DynamicNode[] }] };
-    }
-  ];
-  revision: string;
-}
-
-interface DynamicUpdateResult {
-  readonly status: UnifoldApplicationUpdateStatus;
-}
-
-interface DynamicWindow {
-  __unifoldAuthoredDocument: DynamicAuthoredDocument;
-  __unifoldStableNode: Element | null;
-  __unifoldUpdateDocument(source: unknown): DynamicUpdateResult;
 }

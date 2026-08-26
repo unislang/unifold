@@ -8,11 +8,80 @@ function packageSource(packageName: string): string {
 export default defineConfig({
   resolve: {
     alias: {
+      "@unislang/unifold-theme/tokens.css": fileURLToPath(
+        new URL("./packages/theme/src/tokens.css", import.meta.url)
+      ),
       "@unislang/unifold-contracts/schemas/semantic-graph.schema.json": fileURLToPath(
         new URL("./packages/contracts/schemas/semantic-graph.schema.json", import.meta.url)
       ),
       "@unislang/unifold-contracts/schemas/derived-rule.schema.json": fileURLToPath(
         new URL("./packages/contracts/schemas/derived-rule.schema.json", import.meta.url)
+      ),
+      "@unislang/unifold-elements/tooltip": fileURLToPath(
+        new URL("./packages/elements/src/tooltip-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/audit-log": fileURLToPath(
+        new URL("./packages/elements/src/audit-log-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/combobox": fileURLToPath(
+        new URL("./packages/elements/src/combobox-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/data-grid": fileURLToPath(
+        new URL("./packages/elements/src/data-grid-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/search-results": fileURLToPath(
+        new URL("./packages/elements/src/search-results-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/stepper": fileURLToPath(
+        new URL("./packages/elements/src/stepper-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/menu-button": fileURLToPath(
+        new URL("./packages/elements/src/menu-button-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/master-detail": fileURLToPath(
+        new URL("./packages/elements/src/master-detail-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/tabs": fileURLToPath(
+        new URL("./packages/elements/src/tabs-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/wizard": fileURLToPath(
+        new URL("./packages/elements/src/wizard-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/virtual-list": fileURLToPath(
+        new URL("./packages/elements/src/virtual-list-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold/audit-log": fileURLToPath(
+        new URL("./packages/unifold/src/audit-log.ts", import.meta.url)
+      ),
+      "@unislang/unifold/combobox": fileURLToPath(
+        new URL("./packages/unifold/src/combobox.ts", import.meta.url)
+      ),
+      "@unislang/unifold/data-grid": fileURLToPath(
+        new URL("./packages/unifold/src/data-grid.ts", import.meta.url)
+      ),
+      "@unislang/unifold/search-results": fileURLToPath(
+        new URL("./packages/unifold/src/search-results.ts", import.meta.url)
+      ),
+      "@unislang/unifold/stepper": fileURLToPath(
+        new URL("./packages/unifold/src/stepper.ts", import.meta.url)
+      ),
+      "@unislang/unifold/menu-button": fileURLToPath(
+        new URL("./packages/unifold/src/menu-button.ts", import.meta.url)
+      ),
+      "@unislang/unifold/master-detail": fileURLToPath(
+        new URL("./packages/unifold/src/master-detail.ts", import.meta.url)
+      ),
+      "@unislang/unifold/tabs": fileURLToPath(
+        new URL("./packages/unifold/src/tabs.ts", import.meta.url)
+      ),
+      "@unislang/unifold/wizard": fileURLToPath(
+        new URL("./packages/unifold/src/wizard.ts", import.meta.url)
+      ),
+      "@unislang/unifold/virtual-list": fileURLToPath(
+        new URL("./packages/unifold/src/virtual-list.ts", import.meta.url)
+      ),
+      "@unislang/unifold/tooltip": fileURLToPath(
+        new URL("./packages/unifold/src/tooltip.ts", import.meta.url)
       ),
       "@unislang/unifold-ai": packageSource("ai"),
       "@unislang/unifold-catalog": packageSource("catalog"),

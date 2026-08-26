@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import { UiCommandType } from "@unislang/unifold-events";
+import { createTrustedLayoutDefinitionRegistry } from "@unislang/unifold-compositions";
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
 import { expect, it } from "vitest";
 
@@ -12,6 +13,7 @@ import {
   updateComplete
 } from "./application.test-data.js";
 import { mountUnifoldApplication } from "./mount.js";
+import { layoutDocument } from "./compiler-layout.test-data.js";
 import { UnifoldApplicationDiagnosticStage, UnifoldApplicationUpdateStatus } from "./types.js";
 import {
   appliedUpdate,
@@ -119,6 +121,42 @@ it("creates stable coordination and result diagnostics", () => {
       UnifoldApplicationDiagnosticStage.Runtime
     ).code
   ).toBe("application-update-rollback-failed");
+});
+
+it("retains the last-known-good hierarchy after an invalid layout update", () => {
+  const container = document.createElement("div");
+  const application = requireApplication(mountUnifoldApplication(layoutDocument(), container));
+  const name = application.renderer.getElement("name");
+  const invalid = layoutDocument();
+  invalid.revision = "2";
+  const field = invalid.variables.fields[0];
+  if (field === undefined) throw new Error("Missing layout field fixture.");
+  field.type = "MissingComponent";
+  const result = application.update(invalid);
+  expect(result).toMatchObject({
+    diagnostics: [expect.objectContaining({ path: "/variables/fields/0/type" })],
+    status: UnifoldApplicationUpdateStatus.Rejected
+  });
+  expect(application.renderer.getElement("name")).toBe(name);
+  expect(application.document.documentRevision).toBe("1");
+  expect(application.authored).toMatchObject({ revision: "1" });
+  application.dispose();
+});
+
+it("reuses the trusted layout registry for mounted document updates", () => {
+  const source = layoutDocument();
+  const registry = createTrustedLayoutDefinitionRegistry(source.layouts);
+  Reflect.deleteProperty(source, "layouts");
+  const container = document.createElement("div");
+  const application = requireApplication(
+    mountUnifoldApplication(source, container, { layoutRegistry: registry })
+  );
+  const next = structuredClone(source);
+  next.revision = "2";
+  next.variables.heading = "Updated heading";
+  expect(application.update(next).status).toBe(UnifoldApplicationUpdateStatus.Applied);
+  expect(application.document.documentRevision).toBe("2");
+  application.dispose();
 });
 
 function fixtureDocument(documentId: string): UnifoldIrDocument {

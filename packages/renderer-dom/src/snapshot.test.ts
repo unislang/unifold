@@ -27,6 +27,19 @@ it("creates configured aggregate control state for forms", () => {
   });
 });
 
+it("materializes catalog defaults in authoritative runtime snapshots", () => {
+  const node = {
+    ...composedNode(),
+    componentType: "MenuButton",
+    kind: UiNodeKind.Component,
+    properties: { items: [{ label: "Archive", value: "archive" }], label: "Actions" }
+  };
+  expect(createNodeSnapshot(node, 0).properties).toMatchObject({
+    disabled: false,
+    label: "Actions"
+  });
+});
+
 function composedNode(): UnifoldIrNode {
   return {
     childIds: [],
@@ -40,6 +53,7 @@ function composedNode(): UnifoldIrNode {
       instanceSourcePointer: "/view",
       localId: "name"
     },
+    eventBindings: {},
     id: "editor::name",
     kind: UiNodeKind.Control,
     parentId: "editor",

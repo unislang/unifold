@@ -19,7 +19,7 @@ import { isWorkflowStepList } from "./step-navigation-validation.js";
 
 type PropertyValidator = (value: unknown, descriptor: CatalogPropertyDescriptor) => boolean;
 
-const reservedProperties = new Set(["$children", "$comp", "id", "path", "store"]);
+const reservedProperties = new Set(["$children", "$comp", "events", "id", "path", "store"]);
 const optionKeys = new Set(["disabled", "label", "value"]);
 const validators: Readonly<Record<CatalogPropertyType, PropertyValidator>> = {
   [CatalogPropertyType.AuditLogEntryList]: isAuditLogEntryList,

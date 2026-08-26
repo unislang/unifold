@@ -13,6 +13,7 @@ import {
 import { errorDiagnostic } from "./diagnostics.js";
 import { validateCompositionManifest } from "./composition-validation.js";
 import { validateDerivedRules } from "./derived-rule-validation.js";
+import { validateNodeEventBindings } from "./event-binding-validation.js";
 import { CoreComponentType, DiagnosticCode } from "./enums.js";
 import { isJsonSafe, isPlainObject } from "./json-safety.js";
 import { validateMachineDefinitions } from "./machine-validation.js";
@@ -146,6 +147,7 @@ function validateNode(value: unknown, path: string, state: ValidationState): voi
   const id = validateNodeId(value["id"], `${path}/id`, state);
   const component = validateComponent(value["$comp"], `${path}/$comp`, id, state.diagnostics);
   recordNodeComponent(id, component, state);
+  validateNodeEventBindings(value["events"], component, `${path}/events`, state.diagnostics);
   validateNodeStoreBinding(value, component, path, state.stores, state.diagnostics);
   validateNodeProperties(value, component, path, state.diagnostics);
   validateChildren(value["$children"], `${path}/$children`, state);

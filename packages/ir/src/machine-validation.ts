@@ -7,7 +7,7 @@ import type { CompilerDiagnostic } from "./types.js";
 
 const machineKeys = new Set(["id", "initial", "ownerId", "schemaVersion", "states", "version"]);
 const stateKeys = new Set(["on"]);
-const transitionKeys = new Set(["commands", "target"]);
+const transitionKeys = new Set(["commands", "guard", "target"]);
 
 export function validateMachineDefinitions(
   value: unknown,
@@ -116,6 +116,7 @@ function validateTransition(
   const target = requiredString(value["target"], `${path}/target`, diagnostics);
   validateStateTarget(target, states, `${path}/target`, diagnostics);
   validateCommands(value["commands"], `${path}/commands`, diagnostics);
+  validateOptionalString(value["guard"], `${path}/guard`, diagnostics);
 }
 
 function validateCommands(value: unknown, path: string, diagnostics: CompilerDiagnostic[]): void {
@@ -123,6 +124,15 @@ function validateCommands(value: unknown, path: string, diagnostics: CompilerDia
   if (!Array.isArray(value))
     return addInvalid("Transition commands must be an array.", path, diagnostics);
   value.forEach((command, index) => requiredString(command, `${path}/${index}`, diagnostics));
+}
+
+function validateOptionalString(
+  value: unknown,
+  path: string,
+  diagnostics: CompilerDiagnostic[]
+): void {
+  if (value === undefined) return;
+  requiredString(value, path, diagnostics);
 }
 
 function validateOwner(

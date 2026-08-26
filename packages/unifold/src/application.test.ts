@@ -35,9 +35,12 @@ import {
   runtimeFor,
   updateComplete,
   withoutButton,
-  workflowCommandRegistry
+  workflowCommandRegistry,
+  workflowGuardRegistry
 } from "./application.test-data.js";
+import { eventBoundMachineDocument } from "./application-event-binding.test-data.js";
 import { dataGridStoreDocument } from "./data-grid-store.test-data.js";
+import { defineUnifoldDataGrid } from "./data-grid.js";
 
 it("rejects an incompatible element registry before partial registration or rendering", () => {
   const realm = new Window();
@@ -85,6 +88,7 @@ it("mounts the complete pipeline and preserves state and focus across an update"
 });
 
 it("hydrates and writes the complete bound DataGrid value", async () => {
+  defineUnifoldDataGrid(customElements);
   const container = document.createElement("main");
   document.body.append(container);
   const adapter = createMemoryStoreAdapter("2.1.0", { grid: { selectedRowIds: [] } });
@@ -255,19 +259,66 @@ it("mounts JSON workflow machines that emit typed runtime commands", () => {
   application.dispose();
 });
 
-it("rejects unknown machine commands before mounting", () => {
-  const result = mountUnifoldApplication(machineDocument(), document.createElement("div"));
+it("routes public mount guards through current normalized state", () => {
+  const application = requireApplication(
+    mountUnifoldApplication(machineDocument("has-name"), document.createElement("div"), {
+      machineCommands: workflowCommandRegistry(),
+      machineGuards: workflowGuardRegistry()
+    })
+  );
 
-  expect(result.status).toBe(UnifoldApplicationMountStatus.Rejected);
-  expect(result.diagnostics[0]?.stage).toBe(UnifoldApplicationDiagnosticStage.Workflow);
+  application.runtime.execute([{ id: "form", type: UiCommandType.FormSubmit }]);
+  expect(application.machineState("profile-workflow")).toBe("editing");
+  application.runtime.execute([
+    { id: "name", type: UiCommandType.ControlSetValue, value: "Ada" },
+    { id: "form", type: UiCommandType.FormSubmit }
+  ]);
+  expect(application.machineState("profile-workflow")).toBe("saved");
+  application.dispose();
+});
+
+it("routes a child component signal to its declarative workflow event", async () => {
+  const container = document.createElement("main");
+  document.body.append(container);
+  const application = requireApplication(
+    mountUnifoldApplication(eventBoundMachineDocument(), container)
+  );
+  const button = requireElement(application, "details");
+  await updateComplete(button);
+
+  requireShadowElement<HTMLButtonElement>(button, "button").click();
+
+  expect(application.machineState("details-workflow")).toBe("open");
+  application.dispose();
+  container.remove();
+});
+
+it("rejects unknown machine commands and guards before mounting", () => {
+  const unknownCommand = mountUnifoldApplication(machineDocument(), document.createElement("div"));
+  const unknownGuard = mountUnifoldApplication(
+    machineDocument("missing"),
+    document.createElement("div"),
+    { machineCommands: workflowCommandRegistry() }
+  );
+
+  expect([unknownCommand, unknownGuard].map(({ status }) => status)).toEqual([
+    UnifoldApplicationMountStatus.Rejected,
+    UnifoldApplicationMountStatus.Rejected
+  ]);
+  expect([unknownCommand, unknownGuard].map(({ diagnostics }) => diagnostics[0]?.stage)).toEqual([
+    UnifoldApplicationDiagnosticStage.Workflow,
+    UnifoldApplicationDiagnosticStage.Workflow
+  ]);
 });
 
 it("retains the last-known-good workflow after an invalid machine update", () => {
   const application = requireApplication(
-    mountUnifoldApplication(authoredDocument(), document.createElement("div"))
+    mountUnifoldApplication(authoredDocument(), document.createElement("div"), {
+      machineCommands: workflowCommandRegistry()
+    })
   );
 
-  const result = application.update(machineDocument());
+  const result = application.update(machineDocument("missing"));
 
   expect(result.status).toBe(UnifoldApplicationUpdateStatus.Rejected);
   expect(result.diagnostics[0]?.stage).toBe(UnifoldApplicationDiagnosticStage.Workflow);

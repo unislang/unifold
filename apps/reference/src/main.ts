@@ -26,9 +26,18 @@ import {
 import { check, forward, looseObject, pipe, string } from "valibot";
 
 import uiDefinition from "./ui.json" with { type: "json" };
+import type {
+  ProfileDefinition,
+  ProfileDocument,
+  ProfileExport,
+  ProfileMigrationMode,
+  PrototypeWindow,
+  RealmCopyResult
+} from "./main.types.js";
 import "./reference.css";
 import { installStoreFixtureHooks } from "./store-fixture.js";
 
+await defineReferenceComponentFamilies();
 const host = requireElement<HTMLElement>("app");
 const application = requireApplication(mountReference(host));
 const testHooksEnabled = import.meta.env.MODE === "e2e";
@@ -37,6 +46,63 @@ const profileMigrationVersions: Readonly<Record<ProfileMigrationMode, string>> =
   reset: "3.0.0",
   unreviewed: "4.0.0"
 };
+
+async function defineReferenceComponentFamilies(): Promise<void> {
+  registerReferenceComponentFamilies(await loadReferenceComponentFamilies());
+}
+
+function loadReferenceComponentFamilies() {
+  return Promise.all([
+    import("@unislang/unifold/audit-log"),
+    import("@unislang/unifold/combobox"),
+    import("@unislang/unifold/data-grid"),
+    import("@unislang/unifold/master-detail"),
+    import("@unislang/unifold/menu-button"),
+    import("@unislang/unifold/search-results"),
+    import("@unislang/unifold/stepper"),
+    import("@unislang/unifold/tabs"),
+    import("@unislang/unifold/tooltip"),
+    import("@unislang/unifold/virtual-list"),
+    import("@unislang/unifold/wizard")
+  ]);
+}
+
+function registerReferenceComponentFamilies(
+  families: Awaited<ReturnType<typeof loadReferenceComponentFamilies>>
+): void {
+  const [
+    auditLog,
+    combobox,
+    dataGrid,
+    masterDetail,
+    menuButton,
+    searchResults,
+    stepper,
+    tabs,
+    tooltip,
+    virtualList,
+    wizard
+  ] = families;
+  assertFamilyRegistration("AuditLog", auditLog.defineUnifoldAuditLog());
+  assertFamilyRegistration("Combobox", combobox.defineUnifoldCombobox());
+  assertFamilyRegistration("DataGrid", dataGrid.defineUnifoldDataGrid());
+  assertFamilyRegistration("MasterDetail", masterDetail.defineUnifoldMasterDetail());
+  assertFamilyRegistration("MenuButton", menuButton.defineUnifoldMenuButton());
+  assertFamilyRegistration("SearchResults", searchResults.defineUnifoldSearchResults());
+  assertFamilyRegistration("Stepper", stepper.defineUnifoldStepper());
+  assertFamilyRegistration("Tabs", tabs.defineUnifoldTabs());
+  assertFamilyRegistration("Tooltip", tooltip.defineUnifoldTooltip());
+  assertFamilyRegistration("VirtualList", virtualList.defineUnifoldVirtualList());
+  assertFamilyRegistration("Wizard", wizard.defineUnifoldWizard());
+}
+
+function assertFamilyRegistration(
+  name: string,
+  result: ReturnType<typeof import("@unislang/unifold/tooltip").defineUnifoldTooltip>
+): void {
+  if (result.status !== "registered")
+    throw new Error(`${name} family registration failed: ${JSON.stringify(result.diagnostics)}`);
+}
 
 function mountReference(
   container: HTMLElement,
@@ -73,6 +139,11 @@ function profileMachineCommands() {
   const registry = createMachineCommandRegistry();
   registry.register("show-submitted", () => submitLabelCommand("Submitted"));
   registry.register("show-editing", () => submitLabelCommand("Create greeting"));
+  registry.register("show-layout-details", () => ({
+    id: "layout-status",
+    properties: { content: "Details open" },
+    type: UiCommandType.NodePatchProperties
+  }));
   return registry;
 }
 
@@ -260,46 +331,4 @@ function isRecord(value: JsonValue | undefined): value is Readonly<Record<string
   if (value === null) return false;
   if (typeof value !== "object") return false;
   return !Array.isArray(value);
-}
-
-interface PrototypeWindow {
-  __unifoldAuthoredDocument?: unknown;
-  __unifoldCapturedEvents?: UiEvent[];
-  __unifoldDefineElements?: typeof defineUnifoldElements;
-  __unifoldMigrateProfile?: (mode: ProfileMigrationMode) => UnifoldApplicationUpdateResult;
-  __unifoldMountRealmCopy?: () => RealmCopyResult;
-  __unifoldUpdateDocument?: (source: unknown) => UnifoldApplicationUpdateResult;
-}
-
-type ProfileMigrationMode = "preserve" | "reset" | "unreviewed";
-
-interface ProfileDocument {
-  readonly compositions: [ProfileDefinition];
-  revision: string;
-  readonly semantics: {
-    readonly entities: [{ readonly properties: { readonly name: { exportName: string } } }];
-  };
-  readonly view: { $version: string };
-}
-
-interface ProfileDefinition {
-  readonly exports: Record<string, ProfileExport>;
-  readonly template: { readonly $children: [{ readonly $children: ProfileField[] }] };
-  version: string;
-}
-
-interface ProfileExport {
-  localId: string;
-  readonly [property: string]: unknown;
-}
-
-interface ProfileField {
-  id: string;
-  label: unknown;
-  value: unknown;
-}
-
-interface RealmCopyResult {
-  readonly childCount: number;
-  readonly status: UnifoldApplicationMountStatus;
 }

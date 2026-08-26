@@ -6,7 +6,6 @@ import {
   type StaticDomHydrationState
 } from "@unislang/unifold-renderer-dom";
 import { UnifoldRuntime } from "@unislang/unifold-runtime";
-import { createMachineCommandRegistry } from "@unislang/unifold-xstate";
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
 
 import { UnifoldApplication } from "./application.js";
@@ -39,7 +38,7 @@ export function mountUnifoldApplication(
   container: HTMLElement,
   options: MountUnifoldApplicationOptions = {}
 ): MountUnifoldApplicationResult {
-  const preparation = prepareUnifoldDocument(authored);
+  const preparation = prepareUnifoldDocument(authored, options);
   if (preparation.status === UnifoldPreparationStatus.Invalid) {
     return { diagnostics: preparation.diagnostics, status: UnifoldApplicationMountStatus.Rejected };
   }
@@ -66,7 +65,7 @@ export function mountPreparedUnifoldApplicationWithStores(
   storeCommands: StoreCommandController
 ): MountUnifoldApplicationResult {
   try {
-    const registration = registerApplicationElements(container);
+    const registration = registerApplicationElements(container, prepared.document);
     if (registration !== undefined) return registration;
     return mountConfigured(prepared, container, options, stores, storeCommands);
   } catch (error) {
@@ -79,7 +78,7 @@ function mountPrepared(
   container: HTMLElement,
   options: MountUnifoldApplicationOptions
 ): MountUnifoldApplicationResult {
-  const registration = registerApplicationElements(container);
+  const registration = registerApplicationElements(container, prepared.document);
   if (registration !== undefined) return registration;
   return mountRegistered(prepared, container, options);
 }
@@ -193,26 +192,33 @@ function createApplication(
     renderer,
     stores,
     storeAdapters(options),
-    machineCommands(options),
+    options.machineCommands,
+    options.machineGuards,
     storeCommands,
     semantics,
-    options.compositionMigrations
+    options.compositionMigrations,
+    options
   );
-  try {
-    semantics.publishRuntime(prepared.document, runtime);
-    return application;
-  } catch (error) {
-    application.dispose();
-    throw error;
-  }
+  return publishApplicationSemantics(application, semantics, prepared.document, runtime);
 }
 
 function storeAdapters(options: MountUnifoldApplicationOptions) {
   return options.storeAdapters ?? {};
 }
 
-function machineCommands(options: MountUnifoldApplicationOptions) {
-  return options.machineCommands ?? createMachineCommandRegistry();
+function publishApplicationSemantics(
+  application: UnifoldApplication,
+  semantics: UiSemanticCoordinator,
+  document: UnifoldIrDocument,
+  runtime: UnifoldRuntime
+): UnifoldApplication {
+  try {
+    semantics.publishRuntime(document, runtime);
+    return application;
+  } catch (error) {
+    application.dispose();
+    throw error;
+  }
 }
 
 function createRuntime(

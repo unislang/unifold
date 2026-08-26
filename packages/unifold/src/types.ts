@@ -1,8 +1,10 @@
 import type { JsonValue } from "@unislang/unifold-contracts";
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
+import type { TrustedLayoutDefinitionRegistry } from "@unislang/unifold-compositions";
 import type { DomRenderController, DomRendererOptions } from "@unislang/unifold-renderer-dom";
 import type { UnifoldRuntime, UnifoldRuntimeOptions } from "@unislang/unifold-runtime";
 import type { UiMachineCommandRegistry } from "@unislang/unifold-xstate";
+import type { UiMachineGuardRegistry } from "@unislang/unifold-xstate";
 import type { UiCompositionVersionMigration } from "./composition-migrations.js";
 
 export enum UnifoldApplicationDiagnosticStage {
@@ -61,14 +63,19 @@ export interface UnifoldPreparationResult {
   readonly status: UnifoldPreparationStatus;
 }
 
+export interface UnifoldPreparationOptions {
+  readonly layoutRegistry?: TrustedLayoutDefinitionRegistry;
+}
+
 export type CoordinatedRuntimeOptions = Omit<
   UnifoldRuntimeOptions,
   "compositionInstances" | "documentId" | "initialNodes" | "storeBindings"
 >;
 
-export interface MountUnifoldApplicationOptions {
+export interface MountUnifoldApplicationOptions extends UnifoldPreparationOptions {
   readonly compositionMigrations?: readonly UiCompositionVersionMigration[];
   readonly machineCommands?: UiMachineCommandRegistry;
+  readonly machineGuards?: UiMachineGuardRegistry;
   readonly mountMode?: UnifoldApplicationMountMode;
   readonly renderer?: DomRendererOptions;
   readonly runtime?: CoordinatedRuntimeOptions;

@@ -2,7 +2,7 @@
 import type { AuditLogEntry } from "@unislang/unifold-catalog";
 import { expect, it } from "vitest";
 
-import { registerCoreElements, UnifoldAuditLog } from "./index.js";
+import { defineUnifoldAuditLog, UnifoldAuditLog } from "./audit-log-entry.js";
 
 it("renders an escaped, authored-order audit timeline with native time semantics", async () => {
   const audit = configuredAudit(2);
@@ -45,7 +45,7 @@ it("renders one deterministic empty-history message", async () => {
 });
 
 function configuredAudit(count: number): UnifoldAuditLog {
-  registerCoreElements();
+  defineUnifoldAuditLog();
   const audit = document.createElement("unifold-audit-log") as UnifoldAuditLog;
   Object.assign(audit, { entries: entries(count), id: "account-audit", label: "Account history" });
   return audit;

@@ -210,7 +210,15 @@ function node(
   properties: Record<string, string>,
   parentId?: string
 ) {
-  const value = { childIds, componentType, id, kind, properties, scopePath: ["form", id] };
+  const value = {
+    childIds,
+    componentType,
+    eventBindings: {},
+    id,
+    kind,
+    properties,
+    scopePath: ["form", id]
+  };
   return parentId === undefined ? value : { ...value, parentId };
 }
 

@@ -9,6 +9,51 @@ import type { UiEvent } from "@unislang/unifold-events";
 
 import uiDefinition from "../ui.json";
 
+const [
+  auditLogFamily,
+  comboboxFamily,
+  dataGridFamily,
+  masterDetailFamily,
+  menuButtonFamily,
+  searchResultsFamily,
+  stepperFamily,
+  tabsFamily,
+  tooltipFamily,
+  virtualListFamily,
+  wizardFamily
+] = await Promise.all([
+  import("@unislang/unifold/audit-log"),
+  import("@unislang/unifold/combobox"),
+  import("@unislang/unifold/data-grid"),
+  import("@unislang/unifold/master-detail"),
+  import("@unislang/unifold/menu-button"),
+  import("@unislang/unifold/search-results"),
+  import("@unislang/unifold/stepper"),
+  import("@unislang/unifold/tabs"),
+  import("@unislang/unifold/tooltip"),
+  import("@unislang/unifold/virtual-list"),
+  import("@unislang/unifold/wizard")
+]);
+assertFamily("AuditLog", auditLogFamily.defineUnifoldAuditLog());
+assertFamily("Combobox", comboboxFamily.defineUnifoldCombobox());
+assertFamily("DataGrid", dataGridFamily.defineUnifoldDataGrid());
+assertFamily("MasterDetail", masterDetailFamily.defineUnifoldMasterDetail());
+assertFamily("MenuButton", menuButtonFamily.defineUnifoldMenuButton());
+assertFamily("SearchResults", searchResultsFamily.defineUnifoldSearchResults());
+assertFamily("Stepper", stepperFamily.defineUnifoldStepper());
+assertFamily("Tabs", tabsFamily.defineUnifoldTabs());
+assertFamily("Tooltip", tooltipFamily.defineUnifoldTooltip());
+assertFamily("VirtualList", virtualListFamily.defineUnifoldVirtualList());
+assertFamily("Wizard", wizardFamily.defineUnifoldWizard());
+
+function assertFamily(
+  name: string,
+  result: ReturnType<typeof tooltipFamily.defineUnifoldTooltip>
+): void {
+  if (result.status !== "registered")
+    throw new Error(`${name} registration failed: ${JSON.stringify(result.diagnostics)}`);
+}
+
 export interface StaticUpgradeResult {
   readonly diagnostics: MountUnifoldApplicationResult["diagnostics"];
   readonly status: UnifoldApplicationMountStatus;

@@ -28,7 +28,9 @@ median to subtract the shared immutable-store work without treating an unrelated
 selection cost. Exact 500-node fixtures enforce 50 ms cold and 16 ms cached compilation p95 limits;
 a 2,000-node fixture enforces the 200 ms validation/normalization limit. A 500-instance composition
 fixture expands to exactly 1,001 nodes; its complete compilation and a revision changing one
-instance each enforce a 100 ms p95 limit. Developer results remain
+instance each enforce a 100 ms p95 limit. A 500-node hierarchical layout fixture additionally gates
+the complete schema-validation, typed-variable lowering, IR-compilation, and normalization path at
+100 ms p95. Developer results remain
 descriptive until repeated on the pinned release runner; deterministic candidate, notification,
 aggregate-validation, and changed-node counts remain mandatory everywhere.
 

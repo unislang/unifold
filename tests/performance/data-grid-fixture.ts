@@ -9,6 +9,7 @@ import {
   type JsonObject
 } from "@unislang/unifold-contracts";
 import type { UnifoldDataGrid } from "@unislang/unifold-elements";
+import { defineUnifoldDataGrid } from "@unislang/unifold-elements/data-grid";
 import {
   mountUnifoldApplication,
   UnifoldApplicationMountStatus,
@@ -57,6 +58,7 @@ export async function measureDataGridPerformance() {
 }
 
 export async function mountDataGrid(): Promise<MountedDataGrid> {
+  defineUnifoldDataGrid(customElements);
   const container = document.createElement("main");
   document.body.append(container);
   const mounted = requireMounted(mountUnifoldApplication(dataGridDocument(), container), container);

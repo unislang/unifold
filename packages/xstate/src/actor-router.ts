@@ -11,7 +11,6 @@ export interface UiActorRef {
 
 export class XStateEventRouter {
   private readonly owners = new Map<UiNodeId, Set<UiActorRef>>();
-
   register(id: UiNodeId, actor: UiActorRef): () => void {
     const actors = this.owners.get(id) ?? new Set<UiActorRef>();
     actors.add(actor);

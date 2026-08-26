@@ -17,7 +17,8 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./schemas/composed-ui-document.schema.json": "./dist/composed-ui-document.schema.json"
+    "./schemas/composed-ui-document.schema.json": "./dist/composed-ui-document.schema.json",
+    "./schemas/layout-document.schema.json": "./dist/layout-document.schema.json"
   },
   "scripts": {
     "build": "tsc -b",

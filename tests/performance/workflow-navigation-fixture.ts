@@ -14,13 +14,14 @@ import type {
   UnifoldTabs,
   UnifoldWizard
 } from "@unislang/unifold-elements";
-import {
-  mountUnifoldApplication,
-  UnifoldApplicationMountStatus,
-  type UnifoldApplicationPort
-} from "@unislang/unifold";
+import { defineUnifoldStepper } from "@unislang/unifold-elements/stepper";
+import { defineUnifoldMenuButton } from "@unislang/unifold-elements/menu-button";
+import { defineUnifoldTabs } from "@unislang/unifold-elements/tabs";
+import { defineUnifoldWizard } from "@unislang/unifold-elements/wizard";
+import { mountUnifoldApplication, UnifoldApplicationMountStatus } from "@unislang/unifold";
 
 import { percentile } from "./profile-statistics.js";
+import type { MountedWorkflow, WorkflowInteraction } from "./workflow-navigation.types.js";
 import { measureMenuActivation, workflowMenuNode } from "./workflow-menu-fixture.js";
 
 const WORKFLOW_STEP_COUNT = 100;
@@ -28,30 +29,6 @@ export const WORKFLOW_BUTTON_LIMIT = 401;
 const STARTUP_P95_LIMIT_MILLISECONDS = 1_000;
 const INTERACTION_P95_LIMIT_MILLISECONDS = 100;
 const PROFILE_SAMPLES = 20;
-
-interface MountedWorkflow {
-  readonly application: UnifoldApplicationPort;
-  readonly container: HTMLElement;
-  readonly menu: UnifoldMenuButton;
-  readonly stepper: UnifoldStepper;
-  readonly tabs: UnifoldTabs;
-  readonly wizard: UnifoldWizard;
-}
-
-interface WorkflowInteraction {
-  readonly menuItemId: string;
-  readonly menuMilliseconds: number;
-  readonly menuTriggerFocused: boolean;
-  readonly renderedButtons: number;
-  readonly stepperMilliseconds: number;
-  readonly stepperValue: string;
-  readonly tabMilliseconds: number;
-  readonly tabValue: string;
-  readonly visibleTabPanels: number;
-  readonly visiblePanels: number;
-  readonly wizardMilliseconds: number;
-  readonly wizardValue: string;
-}
 
 export async function measureWorkflowNavigationPerformance() {
   disposeWorkflow(await mountWorkflow());
@@ -68,6 +45,10 @@ export async function measureWorkflowNavigationPerformance() {
 }
 
 export async function mountWorkflow(): Promise<MountedWorkflow> {
+  defineUnifoldMenuButton(customElements);
+  defineUnifoldStepper(customElements);
+  defineUnifoldTabs(customElements);
+  defineUnifoldWizard(customElements);
   const container = document.createElement("main");
   document.body.append(container);
   const mounted = mountUnifoldApplication(workflowDocument(), container);

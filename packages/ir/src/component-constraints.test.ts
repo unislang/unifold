@@ -40,8 +40,34 @@ it("defers malformed values to property validation", () => {
   expect(validateChoice(CoreComponentType.Select, 42, "invalid")).toEqual([]);
 });
 
+it("rejects children for an exact leaf component", () => {
+  const descriptor = getCoreDescriptor(CoreComponentType.Tooltip);
+  if (descriptor === undefined) throw new Error("Missing Tooltip descriptor.");
+  const diagnostics: CompilerDiagnostic[] = [];
+  validateComponentConstraints(
+    {
+      $children: [{ $comp: CoreComponentType.Text, content: "Hidden", id: "hidden" }],
+      $comp: CoreComponentType.Tooltip,
+      content: "Help",
+      id: "help",
+      label: "More information"
+    },
+    descriptor,
+    "/view",
+    diagnostics
+  );
+
+  expect(diagnostics).toEqual([
+    expect.objectContaining({
+      code: DiagnosticCode.InvalidChildCount,
+      nodeId: "help",
+      path: "/view/$children"
+    })
+  ]);
+});
+
 it("has a validator for every enum-backed constraint kind", () => {
-  expect(Object.values(CatalogConstraintKind)).toHaveLength(8);
+  expect(Object.values(CatalogConstraintKind)).toHaveLength(9);
 });
 
 function validateChoice(

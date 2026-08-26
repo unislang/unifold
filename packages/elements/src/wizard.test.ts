@@ -3,12 +3,8 @@ import type { WorkflowStep } from "@unislang/unifold-catalog";
 import { expect, it, vi } from "vitest";
 
 import { controlNode } from "./elements.test-data.js";
-import {
-  ElementEventName,
-  ElementEventType,
-  registerCoreElements,
-  UnifoldWizard
-} from "./index.js";
+import { defineUnifoldWizard } from "./wizard-entry.js";
+import { ElementEventName, ElementEventType, type UnifoldWizard } from "./index.js";
 
 it("navigates stable authored panels linearly and emits controlled state", async () => {
   const wizard = configuredWizard();
@@ -56,7 +52,7 @@ it("emits an explicit final completion intent and supports backward navigation",
 });
 
 function configuredWizard(): UnifoldWizard {
-  registerCoreElements();
+  defineUnifoldWizard();
   const wizard = document.createElement("unifold-wizard") as UnifoldWizard;
   const workflowSteps: readonly WorkflowStep[] = [
     { id: "account", label: "Account" },

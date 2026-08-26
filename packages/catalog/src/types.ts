@@ -49,6 +49,12 @@ export interface CatalogUniqueOptionValuesConstraint {
   readonly optionsProperty: string;
 }
 
+export interface CatalogChildCountConstraint {
+  readonly kind: CatalogConstraintKind.ChildCount;
+  readonly maximum: number;
+  readonly minimum: number;
+}
+
 export interface CatalogAuditLogDataConstraint {
   readonly entriesProperty: string;
   readonly kind: CatalogConstraintKind.AuditLogData;
@@ -100,6 +106,7 @@ export interface CatalogStepNavigationStateConstraint {
 
 export type CatalogConstraintDescriptor =
   | CatalogAuditLogDataConstraint
+  | CatalogChildCountConstraint
   | CatalogDataGridStateConstraint
   | CatalogMasterDetailStateConstraint
   | CatalogSearchResultsStateConstraint

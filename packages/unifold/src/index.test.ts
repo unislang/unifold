@@ -12,5 +12,7 @@ describe("index module", () => {
     expect(subject.migrateUiStoreSnapshot).toBeTypeOf("function");
     expect(subject.connectAsyncStore).toBeTypeOf("function");
     expect(subject.mountUnifoldApplicationAsync).toBeTypeOf("function");
+    expect(subject.createTrustedLayoutDefinitionRegistry).toBeTypeOf("function");
+    expect(subject.createMachineGuardRegistry).toBeTypeOf("function");
   });
 });

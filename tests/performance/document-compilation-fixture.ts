@@ -21,6 +21,7 @@ export const CACHED_500_COMPILATION_NAME = "500-node cached document compilation
 export const NORMALIZE_2000_DOCUMENT_NAME = "2k-node document validation and normalization";
 export const COMPOSED_500_COMPILATION_NAME = "500-instance composed document compilation";
 export const COMPOSED_500_REVISION_NAME = "500-instance composed document revision compilation";
+export const LAYOUT_500_COMPILATION_NAME = "500-node hierarchical layout compilation";
 export const FIVE_HUNDRED_DOCUMENT_NODES = 500;
 export const TWO_THOUSAND_DOCUMENT_NODES = 2_000;
 export const FIVE_HUNDRED_COMPOSITION_INSTANCES = 500;
@@ -31,6 +32,7 @@ interface DocumentCompilationHarness {
   readonly composed: JsonObject;
   readonly composedRevision: JsonObject;
   readonly fiveHundred: UiDocument;
+  readonly layout: JsonObject;
   readonly twoThousand: UiDocument;
 }
 
@@ -47,6 +49,7 @@ export function createDocumentCompilationHarness(): DocumentCompilationHarness {
       250
     ),
     fiveHundred,
+    layout: createLayoutCompilationDocument(FIVE_HUNDRED_DOCUMENT_NODES),
     twoThousand: createCompilationDocument(TWO_THOUSAND_DOCUMENT_NODES)
   };
 }
@@ -79,6 +82,12 @@ export function compileComposedRevision(
   return prepareUnifoldDocument(harness.composedRevision);
 }
 
+export function compileLayoutDocument(
+  harness: DocumentCompilationHarness
+): UnifoldPreparationResult {
+  return prepareUnifoldDocument(harness.layout);
+}
+
 export function createCompilationDocument(nodeCount: number, revision = "1"): UiDocument {
   assertCompilationNodeCount(nodeCount);
   return {
@@ -94,6 +103,34 @@ export function createCompilationDocument(nodeCount: number, revision = "1"): Ui
     revision,
     schemaVersion: UiSchemaVersion.Version1,
     view: compilationRoot(nodeCount)
+  };
+}
+
+function createLayoutCompilationDocument(nodeCount: number): JsonObject {
+  assertCompilationNodeCount(nodeCount);
+  return {
+    $schema: "https://schemas.unifold.org/layout-document/1.0/schema.json",
+    catalog: { name: CoreCatalogName.UnifoldCore, version: CoreCatalogVersion.Version1 },
+    id: `layout-compilation-${nodeCount}`,
+    layoutType: "performance-list",
+    layoutVersion: "1.0.0",
+    layouts: [
+      {
+        layoutType: "performance-list",
+        template: { children: { $var: "items" }, id: "layout-root", type: "Stack" },
+        variables: { items: { required: true, type: "nodes" } },
+        version: "1.0.0"
+      }
+    ],
+    revision: "1",
+    schemaVersion: UiSchemaVersion.Version1,
+    variables: {
+      items: Array.from({ length: nodeCount - 1 }, (_, index) => ({
+        id: `layout-node-${String(index + 1).padStart(5, "0")}`,
+        props: { content: `Item ${String(index + 1)}` },
+        type: "Text"
+      }))
+    }
   };
 }
 

@@ -9,6 +9,7 @@ import {
   type JsonObject
 } from "@unislang/unifold-contracts";
 import type { UnifoldMasterDetail } from "@unislang/unifold-elements";
+import { defineUnifoldMasterDetail } from "@unislang/unifold-elements/master-detail";
 import {
   mountUnifoldApplication,
   UnifoldApplicationMountStatus,
@@ -54,6 +55,7 @@ export async function measureMasterDetailPerformance() {
 }
 
 export async function mountMasterDetail(): Promise<MountedMasterDetail> {
+  defineUnifoldMasterDetail(customElements);
   const container = document.createElement("main");
   document.body.append(container);
   const mounted = requireMounted(

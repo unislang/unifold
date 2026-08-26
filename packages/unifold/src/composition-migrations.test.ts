@@ -115,6 +115,7 @@ function node(id: string, componentType = "Text", instanceId?: string): UnifoldI
     childIds: [],
     componentType,
     ...compositionProvenance(id, instanceId),
+    eventBindings: {},
     id,
     kind: nodeKind(componentType),
     properties: {},

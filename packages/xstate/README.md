@@ -11,10 +11,13 @@ runtime, scheduler, retry engine, or cancellation system.
   invoke a registered capability.
 - `createUiMachineActor` compiles the validated flat machine profile to XState v5.
 - `UiMachineCommandRegistry` maps portable command IDs to trusted typed command factories.
+- `UiMachineGuardRegistry` maps portable guard IDs to bounded synchronous predicates over canonical
+  events and read-only normalized snapshots. Predicate failures deny the transition.
 
 Register `createCommandAction` under
 `UiXStateImplementationName.EmitCommand` in an XState `setup(...)` definition.
-Effects remain named capabilities; portable JSON never embeds executable code.
+Register guard predicates through `createMachineGuardRegistry()` and reference only their names in
+portable transitions. Effects remain named capabilities; portable JSON never embeds executable code.
 
 The application coordinator attaches each actor to its declared owner scope, retains unchanged
 actors during document reconciliation, and sends commands back through the normal runtime with

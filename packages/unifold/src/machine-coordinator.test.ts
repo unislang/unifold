@@ -17,13 +17,13 @@ it("retains unchanged actors and emits causally linked runtime commands", () => 
   const events: UiEvent[] = [];
   runtime.events$.subscribe((event) => events.push(event));
   const coordinator = new UiMachineCoordinator(runtime, workflowCommandRegistry());
-  coordinator.replace(prepared.document.machines);
+  coordinator.replace(prepared.document.machines, prepared.document.nodesById);
 
   runtime.execute([{ id: "form", type: UiCommandType.FormSubmit }]);
 
   expect(coordinator.state("profile-workflow")).toBe("saved");
   expect(runtime.getSnapshot("name").properties["label"]).toBe("Saved name");
-  coordinator.replace(prepared.document.machines);
+  coordinator.replace(prepared.document.machines, prepared.document.nodesById);
   expect(coordinator.state("profile-workflow")).toBe("saved");
   expectCausalCommand(events);
   coordinator.dispose();

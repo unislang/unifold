@@ -89,7 +89,10 @@ function missingAttributeNames(descriptor, declaration) {
 function publicFieldNames(declaration) {
   return new Set(
     (declaration.members ?? [])
-      .filter((item) => item.kind === "field" && item.privacy === "public")
+      .filter(
+        (item) =>
+          item.kind === "field" && item.privacy !== "private" && item.privacy !== "protected"
+      )
       .map(({ name }) => name)
   );
 }

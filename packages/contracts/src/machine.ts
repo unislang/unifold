@@ -6,6 +6,7 @@ export enum UiMachineSchemaVersion {
 
 export interface UiMachineTransitionDefinition extends JsonObject {
   readonly commands?: readonly string[];
+  readonly guard?: string;
   readonly target: string;
 }
 

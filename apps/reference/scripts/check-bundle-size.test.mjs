@@ -6,20 +6,41 @@ import { test } from "node:test";
 
 import { checkReferenceBundle } from "./check-bundle-size.mjs";
 
-test("sums every JavaScript chunk and enforces the gzip budget", async (context) => {
+test("gates the initial import closure and audits deferred chunks separately", async (context) => {
   const root = await mkdtemp(join(tmpdir(), "unifold-reference-bundle-"));
   context.after(() => rm(root, { force: true, recursive: true }));
-  await mkdir(root, { recursive: true });
+  await mkdir(join(root, ".vite"), { recursive: true });
+  await mkdir(join(root, "assets"), { recursive: true });
   await Promise.all([
-    writeFile(join(root, "entry.js"), "export const entry = 'entry';", "utf8"),
-    writeFile(join(root, "lazy.js"), "export const lazy = 'lazy';", "utf8"),
-    writeFile(join(root, "styles.css"), "ignored", "utf8")
+    writeFile(join(root, "assets", "entry.js"), "export const entry = 'entry';", "utf8"),
+    writeFile(join(root, "assets", "shared.js"), "export const shared = 'shared';", "utf8"),
+    writeFile(join(root, "assets", "lazy.js"), "export const lazy = 'lazy';", "utf8"),
+    writeFile(
+      join(root, ".vite", "manifest.json"),
+      JSON.stringify({
+        "index.html": {
+          dynamicImports: ["src/lazy.ts"],
+          file: "assets/entry.js",
+          imports: ["src/shared.ts"],
+          isEntry: true
+        },
+        "src/lazy.ts": { file: "assets/lazy.js", isDynamicEntry: true },
+        "src/shared.ts": { file: "assets/shared.js" }
+      }),
+      "utf8"
+    )
   ]);
 
   const evidence = await checkReferenceBundle(root, 1_024);
-  assert.deepEqual(evidence.files, ["entry.js", "lazy.js"]);
+  assert.deepEqual(evidence.files, ["assets/entry.js", "assets/shared.js"]);
+  assert.deepEqual(evidence.lazyFiles, ["assets/lazy.js"]);
   assert(evidence.gzipBytes > 0);
+  assert(evidence.lazyGzipBytes > 0);
   await assert.rejects(() => checkReferenceBundle(root, evidence.gzipBytes - 1), /limit is/u);
-  await writeFile(join(root, "hook.js"), "globalThis.__unifoldMigrateProfile = () => {};", "utf8");
+  await writeFile(
+    join(root, "assets", "lazy.js"),
+    "globalThis.__unifoldMigrateProfile = () => {};",
+    "utf8"
+  );
   await assert.rejects(() => checkReferenceBundle(root, 1_024), /test hook/u);
 });

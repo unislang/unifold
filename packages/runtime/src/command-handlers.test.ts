@@ -24,12 +24,21 @@ function verifyStateCommands(): void {
   runtime.execute([
     { type: UiCommandType.ControlSetValue, id: "field", value: "Edited" },
     { type: UiCommandType.ControlSetStatus, id: "field", status: UiControlStatus.Pending },
-    { type: UiCommandType.NodePatchProperties, id: "field", properties: { label: "Name" } }
+    { type: UiCommandType.NodePatchProperties, id: "field", properties: { label: "Name" } },
+    {
+      type: UiCommandType.NodePatchProperties,
+      id: "button",
+      properties: { disabled: true, readonly: true }
+    }
   ]);
   expect(runtime.getSnapshot("field")).toMatchObject({
     base: { disabled: false },
     control: { pending: true, status: UiControlStatus.Pending },
     properties: { label: "Name" }
+  });
+  expect(runtime.getSnapshot("button")).toMatchObject({
+    base: { disabled: true, readonly: true },
+    properties: { disabled: true, readonly: true }
   });
   const child = controlNode("child", "", "form");
   runtime.execute([{ type: UiCommandType.StructureInstantiate, node: child }]);
@@ -105,7 +114,7 @@ function verifyRejectedTransaction(): void {
 function createRuntime(): UnifoldRuntime {
   return new UnifoldRuntime({
     documentId: "test",
-    initialNodes: [controlNode("field", "A"), compositionNode("form")]
+    initialNodes: [controlNode("field", "A"), compositionNode("form"), compositionNode("button")]
   });
 }
 

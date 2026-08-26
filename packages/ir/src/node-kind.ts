@@ -28,6 +28,7 @@ const NODE_KINDS: Readonly<Record<CoreComponentType, UiNodeKind>> = {
   [CoreComponentType.Text]: UiNodeKind.Component,
   [CoreComponentType.TextArea]: UiNodeKind.Control,
   [CoreComponentType.TextField]: UiNodeKind.Control,
+  [CoreComponentType.Tooltip]: UiNodeKind.Component,
   [CoreComponentType.VirtualList]: UiNodeKind.Control,
   [CoreComponentType.Wizard]: UiNodeKind.Control
 };

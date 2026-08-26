@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Executable hierarchical JSON authoring example for the Unifold UI framework."
+    />
+    <title>Unifold hierarchical JSON example</title>
+  </head>
+  <body>
+    <main class="site-shell">
+      <header>
+        <p class="eyebrow">Unifold capability example</p>
+        <h1>Hierarchical JSON contact workflow</h1>
+        <p>
+          This page is generated from layout variables, nested component nodes, derived rules, and
+          an XState workflow.
+        </p>
+      </header>
+      <div id="app"></div>
+      <aside class="inspector" aria-labelledby="inspector-heading">
+        <h2 id="inspector-heading">Runtime inspector</h2>
+        <p>Workflow state: <output data-testid="machine-state">loading</output></p>
+        <h3>Latest unified event</h3>
+        <pre data-testid="event-log" aria-live="polite" tabindex="0">Waiting for input.</pre>
+      </aside>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

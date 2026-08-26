@@ -37,6 +37,18 @@ export enum CoreCatalogVersion {
   Version1 = "1.0.0"
 }
 
+/** Declarative component signals that may be routed to a workflow event. */
+export enum UiComponentEventBinding {
+  Activated = "activated",
+  Blurred = "blurred",
+  Input = "input",
+  ResetRequested = "reset-requested",
+  SubmitRequested = "submit-requested",
+  Submitted = "submitted"
+}
+
+export type UiNodeEventBindings = Readonly<Partial<Record<UiComponentEventBinding, string>>>;
+
 export interface JsonUiProfile extends JsonObject {
   readonly name: JsonUiProfileName;
   readonly upstream: JsonUiUpstreamRevision;
@@ -52,6 +64,7 @@ export interface ComponentCatalogReference extends JsonObject {
 export interface JsonUiNode extends JsonObject {
   readonly $children?: readonly JsonUiNode[];
   readonly $comp: string;
+  readonly events?: UiNodeEventBindings;
   readonly id: string;
   readonly path?: string;
   readonly store?: string;

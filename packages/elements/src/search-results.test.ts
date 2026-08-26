@@ -3,7 +3,8 @@ import type { SearchResult, SearchResultsValue } from "@unislang/unifold-catalog
 import { expect, it, vi } from "vitest";
 
 import { controlNode } from "./elements.test-data.js";
-import { ElementEventName, registerCoreElements, UnifoldSearchResults } from "./index.js";
+import { ElementEventName } from "./index.js";
+import { defineUnifoldSearchResults, UnifoldSearchResults } from "./search-results-entry.js";
 
 it("emits complete controlled query and keyboard selection snapshots", async () => {
   const search = configuredSearch();
@@ -68,7 +69,7 @@ it("announces loading, count, empty, and error states deterministically", async 
 });
 
 function configuredSearch(): UnifoldSearchResults {
-  registerCoreElements();
+  defineUnifoldSearchResults();
   const search = document.createElement("unifold-search-results") as UnifoldSearchResults;
   const value: SearchResultsValue = { query: "Ada", selectedResultId: "result-00000" };
   Object.assign(search, {

@@ -32,6 +32,7 @@ import * as dataViews from "./data-view-catalog.js";
 import * as workflows from "./workflow-catalog.js";
 import { choiceConstraints, choiceProperties, comboboxDescriptor } from "./choice-catalog.js";
 import { menuButtonDescriptor } from "./menu-catalog.js";
+import { tooltipDescriptor } from "./tooltip-catalog.js";
 const property = (
   name: string,
   valueType: CatalogPropertyType,
@@ -292,6 +293,7 @@ const descriptors: Record<CoreComponentType, ComponentDescriptor> = {
     tagName: CoreElementTag.TextField,
     version: "1.0.0"
   },
+  [CoreComponentType.Tooltip]: tooltipDescriptor,
   [CoreComponentType.VirtualList]: {
     componentType: CoreComponentType.VirtualList,
     constraints: choiceConstraints,

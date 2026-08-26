@@ -1,0 +1,104 @@
+{
+  "$schema": "https://schemas.unifold.org/layout-document/1.0/schema.json",
+  "schemaVersion": "1.0.0",
+  "id": "hierarchical-contact-example",
+  "revision": "1",
+  "catalog": { "name": "unifold-core", "version": "1.0.0" },
+  "layoutType": "contact-workflow",
+  "layoutVersion": "1.0.0",
+  "variables": {
+    "heading": "Tell us about yourself",
+    "description": "Every interaction enters one observable event stream.",
+    "fields": [
+      {
+        "id": "contact-name",
+        "type": "TextField",
+        "props": {
+          "label": "Your name",
+          "name": "name",
+          "required": true,
+          "testId": "contact-name",
+          "value": ""
+        }
+      },
+      {
+        "id": "contact-consent",
+        "type": "Checkbox",
+        "props": {
+          "label": "I agree to create the summary",
+          "name": "consent",
+          "testId": "contact-consent",
+          "value": false
+        }
+      },
+      {
+        "id": "contact-actions",
+        "type": "Stack",
+        "props": { "direction": "horizontal", "gap": "sm" },
+        "children": [
+          {
+            "id": "show-summary",
+            "type": "Button",
+            "props": { "label": "Create summary", "testId": "show-summary" },
+            "events": { "onClick": "SHOW_SUMMARY" }
+          },
+          {
+            "id": "summary-status",
+            "type": "Text",
+            "props": { "content": "Summary not created", "testId": "summary-status" }
+          }
+        ]
+      }
+    ]
+  },
+  "machines": [
+    {
+      "schemaVersion": "1.0.0",
+      "id": "contact-workflow",
+      "version": "1.0.0",
+      "ownerId": "contact-form",
+      "initial": "editing",
+      "states": {
+        "editing": {
+          "on": {
+            "SHOW_SUMMARY": {
+              "target": "summarized",
+              "guard": "consent-granted",
+              "commands": ["show-summary-created"]
+            }
+          }
+        },
+        "summarized": {}
+      }
+    }
+  ],
+  "rules": [
+    {
+      "schemaVersion": "1.0.0",
+      "id": "require-consent",
+      "version": "1.0.0",
+      "inputs": [{ "name": "consent", "nodeId": "contact-consent", "pointer": "/control/value" }],
+      "expression": { "!": [{ "var": "consent" }] },
+      "output": {
+        "kind": "node-patch-property",
+        "nodeId": "show-summary",
+        "property": "disabled"
+      }
+    }
+  ],
+  "semantics": {
+    "contractVersion": "1.0.0",
+    "vocabulary": { "uri": "https://schema.org", "release": "30.0" },
+    "primaryEntity": "urn:unifold:example:person",
+    "entities": [
+      {
+        "id": "urn:unifold:example:person",
+        "type": "Person",
+        "properties": {
+          "name": { "kind": "node-control-value", "nodeId": "contact-name" }
+        }
+      }
+    ],
+    "publication": { "mode": "public-page", "profile": "schema.org" }
+  }
+}

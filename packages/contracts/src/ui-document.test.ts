@@ -37,6 +37,15 @@ it("keeps the catalog enums and executable schema pin aligned", () => {
   expect(properties.version.enum).toEqual([subject.CoreCatalogVersion.Version1]);
 });
 
+it("executes enum-backed hierarchical node event bindings", () => {
+  const valid = baseDocument();
+  const events = { [subject.UiComponentEventBinding.SubmitRequested]: "FORM_SUBMIT" };
+  Object.assign(valid.view, { events });
+  expect(validateDocument(valid)).toBe(true);
+  Object.assign(events, { click: "FORM_SUBMIT" });
+  expect(validateDocument(valid)).toBe(false);
+});
+
 it("executes the closed derived-rule JSON Schema boundary", () => {
   const valid = documentWithRule();
   expect(validateDocument(valid)).toBe(true);
@@ -46,10 +55,13 @@ it("executes the closed derived-rule JSON Schema boundary", () => {
 
 it("executes the machine JSON Schema boundary", () => {
   const valid = documentWithMachine();
+  requireMachine(valid).states.editing["on"] = {
+    SUBMIT: { guard: "has-name", target: "editing" }
+  };
 
   expect(validateDocument(valid)).toBe(true);
   const machine = requireMachine(valid);
-  machine.states.editing["entry"] = ["inline-action"];
+  machine.states.editing["on"] = { SUBMIT: { guard: "", target: "editing" } };
   expect(validateDocument(valid)).toBe(false);
 });
 

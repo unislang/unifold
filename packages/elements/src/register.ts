@@ -1,60 +1,31 @@
-import { CoreCatalogMajor, CoreElementTag, coreCatalog } from "@unislang/unifold-catalog";
+import { CoreElementTag } from "@unislang/unifold-catalog";
 
 import { coreElementDefinitions } from "./core-element-definitions.js";
+import {
+  catalogIdentity,
+  markDefinition,
+  metadataFor,
+  readDefinitionMetadata,
+  sameCatalogRelease
+} from "./element-definition-metadata.js";
 import { ElementRegistrationDiagnosticCode, ElementRegistrationStatus } from "./enums.js";
+import type {
+  ElementDefinitionMetadata,
+  ElementRegistrationDiagnostic,
+  ElementRegistrationResult,
+  ElementRegistryPort,
+  RegisteredElementsResult,
+  RejectedElementsResult
+} from "./register-types.js";
 
-export const UNIFOLD_ELEMENT_DEFINITION = Symbol.for("org.unifold.element-definition");
-
-export interface ElementCatalogIdentity {
-  readonly catalogMajor: string;
-  readonly catalogName: string;
-  readonly catalogVersion: string;
-}
-
-export interface ElementDefinitionMetadata extends ElementCatalogIdentity {
-  readonly tagName: CoreElementTag;
-}
-
-export interface ElementRegistrationDiagnostic {
-  readonly code: ElementRegistrationDiagnosticCode;
-  readonly expected?: ElementDefinitionMetadata;
-  readonly found?: ElementDefinitionMetadata;
-  readonly message: string;
-  readonly tagName?: CoreElementTag;
-}
-
-export interface RegisteredElementsResult {
-  readonly catalog: ElementCatalogIdentity;
-  readonly definedTags: readonly CoreElementTag[];
-  readonly diagnostics: readonly [];
-  readonly status: ElementRegistrationStatus.Registered;
-}
-
-export interface RejectedElementsResult {
-  readonly definedTags: readonly CoreElementTag[];
-  readonly diagnostics: readonly ElementRegistrationDiagnostic[];
-  readonly status: ElementRegistrationStatus.Rejected;
-}
-
-export type ElementRegistrationResult = RegisteredElementsResult | RejectedElementsResult;
-
-export interface ElementRegistryPort {
-  define(name: string, constructor: CustomElementConstructor): void;
-  get(name: string): CustomElementConstructor | undefined;
-  getName?(constructor: CustomElementConstructor): string | null;
-}
+export type * from "./register-types.js";
+export { UNIFOLD_ELEMENT_DEFINITION } from "./element-definition-metadata.js";
 
 interface DefinitionOutcome {
   readonly definedTags: readonly CoreElementTag[];
   readonly failedTag?: CoreElementTag;
   readonly message?: string;
 }
-
-const catalogIdentity = Object.freeze({
-  catalogMajor: CoreCatalogMajor.Version1,
-  catalogName: coreCatalog.name,
-  catalogVersion: coreCatalog.version
-});
 
 coreElementDefinitions.forEach(([tagName, constructor]) => markDefinition(tagName, constructor));
 
@@ -63,6 +34,25 @@ export function defineUnifoldElements(
 ): ElementRegistrationResult {
   if (registry === null) return rejected([registryUnavailableDiagnostic()], []);
   return defineInRegistry(registry);
+}
+
+export function validateUnifoldElementTags(
+  tagNames: readonly CoreElementTag[],
+  registry: ElementRegistryPort | null = defaultElementRegistry()
+): ElementRegistrationResult {
+  if (registry === null) return rejected([registryUnavailableDiagnostic()], []);
+  return validateRegisteredTags(tagNames, registry);
+}
+
+function validateRegisteredTags(
+  tagNames: readonly CoreElementTag[],
+  registry: ElementRegistryPort
+): ElementRegistrationResult {
+  const diagnostics = tagNames.flatMap((tagName) => {
+    const diagnostic = registeredTagDiagnostic(registry, tagName);
+    return diagnostic === undefined ? [] : [diagnostic];
+  });
+  return diagnostics.length === 0 ? registered([]) : rejected(diagnostics, []);
 }
 
 function defineInRegistry(registry: ElementRegistryPort): ElementRegistrationResult {
@@ -82,6 +72,15 @@ function defineAfterPreflight(registry: ElementRegistryPort): ElementRegistratio
   };
 }
 
+function registered(definedTags: readonly CoreElementTag[]): RegisteredElementsResult {
+  return {
+    catalog: catalogIdentity,
+    definedTags,
+    diagnostics: [],
+    status: ElementRegistrationStatus.Registered
+  };
+}
+
 /** @deprecated Use defineUnifoldElements. */
 export function registerCoreElements(
   registry: ElementRegistryPort | null = defaultElementRegistry()
@@ -91,8 +90,7 @@ export function registerCoreElements(
 export function readElementDefinition(
   constructor: CustomElementConstructor
 ): ElementDefinitionMetadata | undefined {
-  const candidate = Reflect.get(constructor, UNIFOLD_ELEMENT_DEFINITION) as unknown;
-  return isDefinitionMetadata(candidate) ? Object.freeze({ ...candidate }) : undefined;
+  return readDefinitionMetadata(constructor);
 }
 
 function registrationDiagnostics(
@@ -121,6 +119,17 @@ function registeredDefinitionDiagnostic(
   expectedConstructor: CustomElementConstructor
 ): ElementRegistrationDiagnostic | undefined {
   if (registered === expectedConstructor) return undefined;
+  const found = readElementDefinition(registered);
+  if (found === undefined) return foreignDefinitionDiagnostic(tagName);
+  return metadataDiagnostic(tagName, found);
+}
+
+function registeredTagDiagnostic(
+  registry: ElementRegistryPort,
+  tagName: CoreElementTag
+): ElementRegistrationDiagnostic | undefined {
+  const registered = registry.get(tagName);
+  if (registered === undefined) return missingDefinitionDiagnostic(tagName);
   const found = readElementDefinition(registered);
   if (found === undefined) return foreignDefinitionDiagnostic(tagName);
   return metadataDiagnostic(tagName, found);
@@ -246,47 +255,15 @@ function registryUnavailableDiagnostic(): ElementRegistrationDiagnostic {
   };
 }
 
+function missingDefinitionDiagnostic(tagName: CoreElementTag): ElementRegistrationDiagnostic {
+  return {
+    code: ElementRegistrationDiagnosticCode.MissingDefinition,
+    expected: metadataFor(tagName),
+    message: `${tagName} requires its optional component-family entry point before mount.`,
+    tagName
+  };
+}
+
 function defaultElementRegistry(): ElementRegistryPort | null {
   return typeof customElements === "undefined" ? null : customElements;
-}
-
-function markDefinition(tagName: CoreElementTag, constructor: CustomElementConstructor): void {
-  if (Object.prototype.hasOwnProperty.call(constructor, UNIFOLD_ELEMENT_DEFINITION)) return;
-  Object.defineProperty(constructor, UNIFOLD_ELEMENT_DEFINITION, {
-    value: Object.freeze(metadataFor(tagName))
-  });
-}
-
-function metadataFor(tagName: CoreElementTag): ElementDefinitionMetadata {
-  return { ...catalogIdentity, tagName };
-}
-
-function sameCatalogRelease(found: ElementDefinitionMetadata): boolean {
-  return (
-    found.catalogName === catalogIdentity.catalogName &&
-    found.catalogMajor === catalogIdentity.catalogMajor &&
-    found.catalogVersion === catalogIdentity.catalogVersion
-  );
-}
-
-function isDefinitionMetadata(value: unknown): value is ElementDefinitionMetadata {
-  if (Object.prototype.toString.call(value) !== "[object Object]") return false;
-  const candidate = value as Readonly<Record<string, unknown>>;
-  return hasCatalogFields(candidate) && isCoreElementTag(candidate["tagName"]);
-}
-
-function isCoreElementTag(value: unknown): value is CoreElementTag {
-  return (
-    typeof value === "string" && Object.values(CoreElementTag).includes(value as CoreElementTag)
-  );
-}
-function hasCatalogFields(candidate: Readonly<Record<string, unknown>>): boolean {
-  return (
-    isNonEmptyString(candidate["catalogMajor"]) &&
-    isNonEmptyString(candidate["catalogName"]) &&
-    isNonEmptyString(candidate["catalogVersion"])
-  );
-}
-function isNonEmptyString(value: unknown): value is string {
-  return typeof value === "string" && value.length > 0;
 }

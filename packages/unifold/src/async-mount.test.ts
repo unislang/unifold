@@ -2,6 +2,7 @@
 import { UiCommandType, UiEventType, type UiEvent } from "@unislang/unifold-events";
 import { UiStoreInitialDataPolicy } from "@unislang/unifold-contracts";
 import { expect, it, vi } from "vitest";
+import { createTrustedLayoutDefinitionRegistry } from "@unislang/unifold-compositions";
 
 import { mountUnifoldApplicationAsync } from "./async-mount.js";
 import { createAsyncMemoryStoreAdapter } from "./async-memory-store-adapter.js";
@@ -12,6 +13,7 @@ import type {
   UiStoreSinkAuthorizationPort
 } from "./async-store-types.js";
 import { boundDocument, storeDefinition } from "./store-adapters-base.test-data.js";
+import { layoutDocument } from "./compiler-layout.test-data.js";
 import {
   UnifoldApplicationDiagnosticStage,
   UnifoldApplicationMountStatus,
@@ -106,6 +108,19 @@ it("creates the first revision for an optional initially empty store", async () 
   await vi.waitFor(() => expect(adapter.snapshot()?.value).toEqual({ name: "Grace" }));
 
   expect(adapter.snapshot()?.revision).toBe("memory-1");
+  application.dispose();
+});
+
+it("retains a trusted external layout registry across async wrapper updates", async () => {
+  const source = layoutDocument();
+  const layoutRegistry = createTrustedLayoutDefinitionRegistry(source.layouts);
+  Reflect.deleteProperty(source, "layouts");
+  const application = requireApplication(
+    await mountUnifoldApplicationAsync(source, document.createElement("div"), { layoutRegistry })
+  );
+  const next = structuredClone(source);
+  next.revision = "2";
+  expect(application.update(next).status).toBe(UnifoldApplicationUpdateStatus.Applied);
   application.dispose();
 });
 

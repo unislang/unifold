@@ -65,6 +65,7 @@ export {
   JsonUiProfileName,
   JsonUiProfileVersion,
   JsonUiUpstreamRevision,
+  UiComponentEventBinding,
   UiContractSchemaUri,
   UiSchemaVersion
 } from "./ui-document.js";
@@ -72,6 +73,7 @@ export type {
   ComponentCatalogReference,
   JsonUiNode,
   JsonUiProfile,
+  UiNodeEventBindings,
   UiDocument
 } from "./ui-document.js";
 export { CoreComponentType } from "./component.js";

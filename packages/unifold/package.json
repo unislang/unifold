@@ -17,6 +17,50 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./tooltip": {
+      "types": "./dist/tooltip.d.ts",
+      "import": "./dist/tooltip.js"
+    },
+    "./audit-log": {
+      "types": "./dist/audit-log.d.ts",
+      "import": "./dist/audit-log.js"
+    },
+    "./data-grid": {
+      "types": "./dist/data-grid.d.ts",
+      "import": "./dist/data-grid.js"
+    },
+    "./search-results": {
+      "types": "./dist/search-results.d.ts",
+      "import": "./dist/search-results.js"
+    },
+    "./combobox": {
+      "types": "./dist/combobox.d.ts",
+      "import": "./dist/combobox.js"
+    },
+    "./stepper": {
+      "types": "./dist/stepper.d.ts",
+      "import": "./dist/stepper.js"
+    },
+    "./menu-button": {
+      "types": "./dist/menu-button.d.ts",
+      "import": "./dist/menu-button.js"
+    },
+    "./master-detail": {
+      "types": "./dist/master-detail.d.ts",
+      "import": "./dist/master-detail.js"
+    },
+    "./tabs": {
+      "types": "./dist/tabs.d.ts",
+      "import": "./dist/tabs.js"
+    },
+    "./wizard": {
+      "types": "./dist/wizard.d.ts",
+      "import": "./dist/wizard.js"
+    },
+    "./virtual-list": {
+      "types": "./dist/virtual-list.d.ts",
+      "import": "./dist/virtual-list.js"
     }
   },
   "scripts": {
@@ -37,6 +81,7 @@
   "dependencies": {
     "@sagold/json-pointer": "7.2.1",
     "@unislang/unifold-compositions": "workspace:*",
+    "@unislang/unifold-catalog": "workspace:*",
     "@unislang/unifold-contracts": "workspace:*",
     "@unislang/unifold-data": "workspace:*",
     "@unislang/unifold-elements": "workspace:*",
@@ -49,7 +94,6 @@
     "rxjs": "^7.8.2"
   },
   "devDependencies": {
-    "@unislang/unifold-catalog": "workspace:*",
     "happy-dom": "^20.0.10",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"

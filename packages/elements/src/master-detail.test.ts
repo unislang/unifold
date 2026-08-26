@@ -2,13 +2,9 @@
 import type { TableColumn, TableRow } from "@unislang/unifold-catalog";
 import { expect, it, vi } from "vitest";
 
-import {
-  ElementEventName,
-  registerCoreElements,
-  UnifoldMasterDetail,
-  type UnifoldVirtualList
-} from "./index.js";
+import { ElementEventName, type UnifoldMasterDetail, type UnifoldVirtualList } from "./index.js";
 import { controlNode } from "./elements.test-data.js";
+import { defineUnifoldMasterDetail } from "./master-detail-entry.js";
 
 it("selects a virtual master record and emits its complete canonical value", async () => {
   const workspace = configuredWorkspace();
@@ -59,7 +55,7 @@ it("shows deterministic empty and no-selection detail states", async () => {
 });
 
 function configuredWorkspace(): UnifoldMasterDetail {
-  registerCoreElements();
+  defineUnifoldMasterDetail();
   const workspace = document.createElement("unifold-master-detail") as UnifoldMasterDetail;
   Object.assign(workspace, {
     columns: columns(),

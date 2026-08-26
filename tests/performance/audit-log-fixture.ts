@@ -9,6 +9,7 @@ import {
   type JsonObject
 } from "@unislang/unifold-contracts";
 import type { UnifoldAuditLog } from "@unislang/unifold-elements";
+import { defineUnifoldAuditLog } from "@unislang/unifold-elements/audit-log";
 import {
   mountUnifoldApplication,
   UnifoldApplicationMountStatus,
@@ -50,6 +51,7 @@ export async function measureAuditLogPerformance() {
 }
 
 export async function mountAuditLog(): Promise<MountedAuditLog> {
+  defineUnifoldAuditLog(customElements);
   const container = document.createElement("main");
   document.body.append(container);
   const mounted = mountUnifoldApplication(auditDocument(), container);

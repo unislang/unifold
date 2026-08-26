@@ -18,6 +18,50 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./tooltip": {
+      "types": "./dist/tooltip-entry.d.ts",
+      "import": "./dist/tooltip-entry.js"
+    },
+    "./audit-log": {
+      "types": "./dist/audit-log-entry.d.ts",
+      "import": "./dist/audit-log-entry.js"
+    },
+    "./data-grid": {
+      "types": "./dist/data-grid-entry.d.ts",
+      "import": "./dist/data-grid-entry.js"
+    },
+    "./search-results": {
+      "types": "./dist/search-results-entry.d.ts",
+      "import": "./dist/search-results-entry.js"
+    },
+    "./combobox": {
+      "types": "./dist/combobox-entry.d.ts",
+      "import": "./dist/combobox-entry.js"
+    },
+    "./stepper": {
+      "types": "./dist/stepper-entry.d.ts",
+      "import": "./dist/stepper-entry.js"
+    },
+    "./menu-button": {
+      "types": "./dist/menu-button-entry.d.ts",
+      "import": "./dist/menu-button-entry.js"
+    },
+    "./master-detail": {
+      "types": "./dist/master-detail-entry.d.ts",
+      "import": "./dist/master-detail-entry.js"
+    },
+    "./tabs": {
+      "types": "./dist/tabs-entry.d.ts",
+      "import": "./dist/tabs-entry.js"
+    },
+    "./wizard": {
+      "types": "./dist/wizard-entry.d.ts",
+      "import": "./dist/wizard-entry.js"
+    },
+    "./virtual-list": {
+      "types": "./dist/virtual-list-entry.d.ts",
+      "import": "./dist/virtual-list-entry.js"
+    },
     "./component-definitions.json": "./dist/component-definitions.json",
     "./custom-elements.json": "./dist/custom-elements.json"
   },

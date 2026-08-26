@@ -12,15 +12,26 @@ if (result.status === ElementRegistrationStatus.Rejected) {
 }
 ```
 
-`defineUnifoldElements()` preflights the entire native registry before defining accordion, alert,
-box, button, checkbox, composition, data-grid, form, grid, heading, icon, link, master-detail,
-combobox, menu-button, multi-select, radio-group, search-results, select, stack, stepper, tabs, table,
-text, text-area, text-field, virtual-list, and wizard. Repeated calls and duplicate copies of the exact core
-catalog release are idempotent. Foreign, differently versioned, malformed, or incorrectly tagged
+`defineUnifoldElements()` preflights the entire native registry before defining the nineteen small
+baseline elements: accordion, alert, box, button, checkbox, composition, form, grid, heading, icon,
+link, multi-select, radio-group, select, stack, table, text, text-area, and text-field. Repeated calls
+and duplicate copies of the exact core catalog release are idempotent. Foreign, differently
+versioned, malformed, or incorrectly tagged
 definitions return enum-backed diagnostics without defining any missing tags. An unexpected native
 definition failure reports the tags already defined because the platform registry cannot roll back.
 Use an iframe or another document realm for incompatible catalog releases. The shared constructor
 marker coordinates trusted same-realm packages; it is not a security boundary.
+
+The eleven larger interaction families are explicit, side-effect-free subpath imports so an
+application pays for only the families its JSON can reference: `audit-log`, `combobox`, `data-grid`,
+`master-detail`, `menu-button`, `search-results`, `stepper`, `tabs`, `tooltip`, `virtual-list`, and
+`wizard`. Each entry exports its element class and a `defineUnifold*()` function with the same
+preflight diagnostics. For example:
+
+```ts
+const { defineUnifoldTabs } = await import("@unislang/unifold-elements/tabs");
+defineUnifoldTabs();
+```
 
 The clean packed-consumer test expands the published artifact into two physical directories and
 proves that their distinct constructors remain compatible over a deduplicated Lit runtime. It also
@@ -49,7 +60,7 @@ for JSON examples, value types, and the current accessibility boundary.
 
 ## Component manifests
 
-`pnpm generate:cem` analyzes all twenty-nine core elements with the official Custom Elements Manifest
+`pnpm generate:cem` analyzes all thirty catalog elements with the official Custom Elements Manifest
 analyzer and Lit plugin. It validates the output against the official manifest schema and writes
 `dist/custom-elements.json`. The package exposes that file through its standard `customElements`
 metadata and `./custom-elements.json` export.

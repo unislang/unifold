@@ -1,6 +1,8 @@
 import {
   CompositionExpansionStatus,
+  LayoutExpansionStatus,
   expandComposedUiDocument,
+  expandLayoutDocument,
   type CompositionDiagnostic,
   type CompositionExpansionResult
 } from "@unislang/unifold-compositions";
@@ -9,6 +11,7 @@ import {
   compileUiDocument,
   isJsonSafe,
   type CompilerDiagnostic,
+  type CompileUiDocumentOptions,
   type CompileResult,
   type UnifoldIrDocument
 } from "@unislang/unifold-ir";
@@ -18,6 +21,7 @@ import {
   UnifoldPreparationStatus,
   type PreparedUnifoldDocument,
   type UnifoldApplicationDiagnostic,
+  type UnifoldPreparationOptions,
   type UnifoldPreparationResult
 } from "./types.js";
 
@@ -26,7 +30,10 @@ const DEFAULT_COMPILATION_CACHE_ENTRIES = 32;
 export class UnifoldDocumentCompiler {
   private readonly cache = new Map<string, UnifoldPreparationResult>();
 
-  constructor(private readonly maximumEntries = DEFAULT_COMPILATION_CACHE_ENTRIES) {
+  constructor(
+    private readonly maximumEntries = DEFAULT_COMPILATION_CACHE_ENTRIES,
+    private readonly options: UnifoldPreparationOptions = {}
+  ) {
     assertCacheCapacity(maximumEntries);
   }
 
@@ -36,14 +43,14 @@ export class UnifoldDocumentCompiler {
 
   prepare(authored: unknown): UnifoldPreparationResult {
     const key = documentCacheKey(authored);
-    if (key === undefined) return prepareUnifoldDocument(authored);
+    if (key === undefined) return prepareUnifoldDocument(authored, this.options);
     const cached = this.cache.get(key);
     if (cached !== undefined) return this.cacheHit(key, cached);
     return this.cacheMiss(key, authored);
   }
 
   private cacheMiss(key: string, authored: unknown): UnifoldPreparationResult {
-    const result = prepareUnifoldDocument(authored);
+    const result = prepareUnifoldDocument(authored, this.options);
     if (result.status === UnifoldPreparationStatus.Valid) this.retain(key, result);
     return result;
   }
@@ -66,17 +73,44 @@ export class UnifoldDocumentCompiler {
   }
 }
 
-export function prepareUnifoldDocument(authored: unknown): UnifoldPreparationResult {
-  const expansion = expandComposedUiDocument(authored);
+export function prepareUnifoldDocument(
+  authored: unknown,
+  options: UnifoldPreparationOptions = {}
+): UnifoldPreparationResult {
+  const layout = expandAuthoredLayout(authored, options);
+  if (layout.status === LayoutExpansionStatus.Invalid)
+    return invalid(compositionDiagnostics(layout.diagnostics));
+  return prepareExpandedLayout(authored, layout.document, layoutSourcePointers(layout));
+}
+
+function expandAuthoredLayout(authored: unknown, options: UnifoldPreparationOptions) {
+  if (options.layoutRegistry === undefined) return expandLayoutDocument(authored);
+  return expandLayoutDocument(authored, { registry: options.layoutRegistry });
+}
+
+function layoutSourcePointers(layout: ReturnType<typeof expandLayoutDocument>) {
+  return layout.sourcePointersByNodeId ?? {};
+}
+
+function prepareExpandedLayout(
+  authored: unknown,
+  layoutDocument: unknown,
+  sourcePointersByNodeId: Readonly<Record<string, string>>
+): UnifoldPreparationResult {
+  const expansion = expandComposedUiDocument(layoutDocument ?? authored);
   const expanded = expandedDocument(expansion);
-  if (expanded === undefined) {
-    return invalid(compositionDiagnostics(expansion.diagnostics));
-  }
-  const compilation = compileUiDocument(expanded);
+  if (expanded === undefined) return invalid(compositionDiagnostics(expansion.diagnostics));
+  return compileExpandedDocument(authored, expanded, { sourcePointersByNodeId });
+}
+
+function compileExpandedDocument(
+  authored: unknown,
+  expanded: unknown,
+  options: CompileUiDocumentOptions
+): UnifoldPreparationResult {
+  const compilation = compileUiDocument(expanded, options);
   const document = compiledDocument(compilation);
-  if (document === undefined) {
-    return invalid(compilerDiagnostics(compilation.diagnostics));
-  }
+  if (document === undefined) return invalid(compilerDiagnostics(compilation.diagnostics));
   return valid({ authored: structuredClone(authored), document });
 }
 

@@ -70,10 +70,18 @@ function formDependencies(
 
 function propertyDependencies(command: UiCommand): readonly RuleDependency[] {
   if (command.type !== UiCommandType.NodePatchProperties) return [];
-  return Object.keys(command.properties).map((property) => ({
-    nodeId: command.id,
-    pointer: `/properties/${escapePointerToken(property)}`
-  }));
+  return Object.keys(command.properties).flatMap((property) => [
+    {
+      nodeId: command.id,
+      pointer: `/properties/${escapePointerToken(property)}`
+    },
+    ...basePropertyDependency(command.id, property)
+  ]);
+}
+
+function basePropertyDependency(nodeId: string, property: string): readonly RuleDependency[] {
+  if (property !== "disabled" && property !== "readonly") return [];
+  return [{ nodeId, pointer: `/base/${property}` }];
 }
 
 function structuralDependencies(

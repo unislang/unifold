@@ -56,6 +56,10 @@
       ],
       "project": ["**/*.{ts,tsx,mjs,svelte}"]
     },
+    "tests/hierarchical-site": {
+      "entry": ["*.config.ts", "*.spec.ts", "*.mjs"],
+      "project": ["**/*.{ts,mjs}"]
+    },
     "tests/jsonui-parity": {
       "entry": ["src/main.tsx", "scripts/*.mjs"],
       "project": ["**/*.{ts,tsx,mjs}"],

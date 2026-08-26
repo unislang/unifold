@@ -29,7 +29,7 @@ async function expectRegistrationEvidence(page: Page): Promise<void> {
     constructorsDistinct: true,
     diagnosticIsCatalogMismatch: true,
     differentReleaseRejected: true,
-    firstDefinedEveryTag: true,
+    firstDefinedBaseline: true,
     firstOwnsButton: true,
     firstRegistered: true,
     iframeWasNotPartiallyRegistered: true,

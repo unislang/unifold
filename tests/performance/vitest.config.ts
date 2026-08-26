@@ -12,6 +12,36 @@ function schema(name: string): string {
 export default defineConfig({
   resolve: {
     alias: {
+      "@unislang/unifold-elements/audit-log": fileURLToPath(
+        new URL("../../packages/elements/src/audit-log-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/combobox": fileURLToPath(
+        new URL("../../packages/elements/src/combobox-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/data-grid": fileURLToPath(
+        new URL("../../packages/elements/src/data-grid-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/search-results": fileURLToPath(
+        new URL("../../packages/elements/src/search-results-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/stepper": fileURLToPath(
+        new URL("../../packages/elements/src/stepper-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/menu-button": fileURLToPath(
+        new URL("../../packages/elements/src/menu-button-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/master-detail": fileURLToPath(
+        new URL("../../packages/elements/src/master-detail-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/tabs": fileURLToPath(
+        new URL("../../packages/elements/src/tabs-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/wizard": fileURLToPath(
+        new URL("../../packages/elements/src/wizard-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/virtual-list": fileURLToPath(
+        new URL("../../packages/elements/src/virtual-list-entry.ts", import.meta.url)
+      ),
       "@unislang/unifold-contracts/schemas/derived-rule.schema.json": schema(
         "derived-rule.schema.json"
       ),

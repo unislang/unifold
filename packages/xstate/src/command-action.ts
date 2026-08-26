@@ -4,7 +4,8 @@ import type { UiXStateEvent } from "./actor-router.js";
 import type { UiMachineCommandRegistry } from "./command-registry.js";
 
 export enum UiXStateImplementationName {
-  EmitCommand = "unifold.emitCommand"
+  EmitCommand = "unifold.emitCommand",
+  EvaluateGuard = "unifold.evaluateGuard"
 }
 
 export interface UiCommandActionParameters {

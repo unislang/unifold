@@ -42,6 +42,8 @@ test("does not report Markdown, binary, or generated lockfiles", async () => {
   await writeFile(join(directoryPath, "test-results-filtered", "trace.json"), "1\n2\n3\n", "utf8");
   await mkdir(join(directoryPath, "benchmark-results"));
   await writeFile(join(directoryPath, "benchmark-results", "result.json"), "1\n2\n3\n", "utf8");
+  await mkdir(join(directoryPath, "scratch"));
+  await writeFile(join(directoryPath, "scratch", "prototype.ts"), "1\n2\n3\n", "utf8");
   const violations = await findLineLimitViolations([directoryPath], 1);
   assert.deepEqual(violations, []);
 });

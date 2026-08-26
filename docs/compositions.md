@@ -156,16 +156,14 @@ exports; it does not make generated node IDs a supported external API.
   9.89 ms and 9.70 ms p95 respectively, so subtree-cache complexity is not currently justified.
 - The built reference application exercises reviewed preservation, reset-by-default, unreviewed
   rejection and recovery, renamed-export focus/state/semantics, unaffected sibling DOM identity,
-  canonical event provenance, and axe checks in Chromium and WebKit.
+  canonical event provenance, and axe checks in Chromium, Firefox, and WebKit.
 
 ## P0 hardening follow-ups
 
 Before compositions become a stable authoring or AI-editing boundary, complete these P0 items:
 
 1. Route AI-authored changes through schema-validated typed operations with policy checks, preview transactions, approval boundaries, undo, audit provenance, deterministic replay, and export from committed authored state.
-2. Repeat the passing Chromium/WebKit migration journey on a provisioned Firefox runner before
-   declaring the composition contract stable. The current managed Windows runner fails before page
-   creation with Playwright's `_page` error, so it provides no Firefox behavior result. Retain the
+2. Keep the now-passing Chromium/Firefox/WebKit migration journey as a release gate. Retain the
    complete-compilation gates and introduce subtree compilation only if representative measurements
    exceed their budgets.
 

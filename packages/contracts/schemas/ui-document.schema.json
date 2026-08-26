@@ -144,6 +144,9 @@
           "items": {
             "$ref": "#/$defs/nonEmptyString"
           }
+        },
+        "guard": {
+          "$ref": "#/$defs/nonEmptyString"
         }
       },
       "additionalProperties": false
@@ -282,6 +285,9 @@
           "maxLength": 2048,
           "pattern": "^(?:/(?:[^~/]|~[01])*)*$"
         },
+        "events": {
+          "$ref": "#/$defs/nodeEventBindings"
+        },
         "$children": {
           "type": "array",
           "items": {
@@ -294,6 +300,22 @@
         "path": ["store"]
       },
       "additionalProperties": true
+    },
+    "nodeEventBindings": {
+      "type": "object",
+      "propertyNames": {
+        "enum": [
+          "activated",
+          "blurred",
+          "input",
+          "reset-requested",
+          "submit-requested",
+          "submitted"
+        ]
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
     }
   }
 }

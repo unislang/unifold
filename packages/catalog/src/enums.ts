@@ -24,6 +24,7 @@ export enum CatalogBindingKind {
 
 export enum CatalogConstraintKind {
   AuditLogData = "audit-log-data",
+  ChildCount = "child-count",
   DataGridState = "data-grid-state",
   MasterDetailState = "master-detail-state",
   SearchResultsState = "search-results-state",
@@ -74,6 +75,7 @@ export enum ComponentAccessibilityPattern {
   SearchResults = "search-results",
   StepNavigation = "step-navigation",
   Tabs = "tabs",
+  Tooltip = "tooltip",
   Listbox = "listbox",
   StaticText = "static-text",
   SvgImage = "svg-image"
@@ -159,6 +161,7 @@ export enum CoreElementTag {
   Text = "unifold-text",
   TextArea = "unifold-text-area",
   TextField = "unifold-text-field",
+  Tooltip = "unifold-tooltip",
   VirtualList = "unifold-virtual-list",
   Wizard = "unifold-wizard"
 }
@@ -279,4 +282,11 @@ export enum TextFieldInputType {
   Tel = "tel",
   Text = "text",
   Url = "url"
+}
+
+export enum TooltipPlacement {
+  Bottom = "bottom",
+  End = "end",
+  Start = "start",
+  Top = "top"
 }

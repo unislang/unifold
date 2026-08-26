@@ -12,6 +12,7 @@ it("exports every specialized static data-view renderer", () => {
     "renderStaticStepper",
     "renderStaticTable",
     "renderStaticTabs",
+    "renderStaticTooltip",
     "renderStaticVirtualList",
     "renderStaticWizard"
   ]);

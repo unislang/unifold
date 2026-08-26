@@ -31,6 +31,10 @@ test.describe("without JavaScript", () => {
     await page.getByText("Account actions", { exact: true }).click();
     await expect(page.getByRole("button", { name: "Archive account" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Delete account" })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "About account actions" })).toBeVisible();
+    await expect(page.getByRole("tooltip")).toHaveText(
+      "Account actions apply to the current profile."
+    );
     await expect(page.locator(`[data-unifold-static-document="${documentId}"]`)).toHaveCount(1);
     await expect(page.locator("[data-unifold-node-id]")).toHaveCount(0);
     await expect(page.locator(semanticsSelector)).toHaveCount(1);
@@ -61,12 +65,27 @@ test("upgrades the static menu into one canonical keyboard action", async ({ pag
   await loadUpgrade(page);
   await invokeUpgrade(page);
   await clearEvents(page);
-  const trigger = page.getByRole("button", { name: "Account actions" });
+  const trigger = page.getByRole("button", { exact: true, name: "Account actions" });
   await trigger.press("ArrowUp");
   await expect(page.getByRole("menuitem", { name: "Archive account" })).toBeFocused();
   await page.getByRole("menuitem", { name: "Archive account" }).press("Enter");
   await expect(trigger).toBeFocused();
   expect(await eventTypes(page)).toEqual(["org.unifold.ui.component.activated.v1"]);
+});
+
+test("upgrades static Tooltip help into one dismissible top-layer interaction", async ({
+  page
+}) => {
+  await page.goto("/?upgrade=manual");
+  await loadUpgrade(page);
+  await invokeUpgrade(page);
+  const trigger = page.getByRole("button", { name: "About account actions" });
+  const tooltip = page.getByRole("tooltip");
+  await trigger.focus();
+  await expect(tooltip).toBeVisible();
+  await trigger.press("Escape");
+  await expect(tooltip).toBeHidden();
+  await expect(trigger).toBeFocused();
 });
 
 test("does not duplicate mounts or canonical events", async ({ page }) => {

@@ -9,14 +9,16 @@ it("maps state commands to precise rule dependency footprints", () => {
     { id: "field", type: UiCommandType.ControlSetValue, value: "next" },
     {
       id: "summary",
-      properties: { "a/b": true },
+      properties: { "a/b": true, disabled: true },
       type: UiCommandType.NodePatchProperties
     }
   ];
   const dependencies = ruleCommandDependencies(commands, draft(), { rules: [] } as never);
   expect(dependencies).toEqual([
     { nodeId: "field", pointer: "/control" },
-    { nodeId: "summary", pointer: "/properties/a~1b" }
+    { nodeId: "summary", pointer: "/properties/a~1b" },
+    { nodeId: "summary", pointer: "/properties/disabled" },
+    { nodeId: "summary", pointer: "/base/disabled" }
   ]);
 });
 

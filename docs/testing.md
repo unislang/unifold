@@ -95,7 +95,7 @@ The pinned JsonUI parity matrix runs the real upstream React artifact beside Uni
 tree/IR/static-output cases, its behavioral case drives upstream shorthand binding and AJV
 validation against Unifold's declared store and required validation behavior, then verifies the
 exact redacted canonical event chain. Run it with `pnpm test:jsonui-parity`; use explicit Chromium
-and WebKit projects when auditing the documented elevated-Windows Firefox runner limitation.
+Firefox, and WebKit projects so the three-engine contract remains executable.
 
 The deterministic 1k/10k node-store suite asserts exact selective-dispatch and aggregate-validation
 behavior on every machine. The separate benchmark emits direct p50/p95/p99 and forced-GC heap JSON;
@@ -139,15 +139,16 @@ The built-reference composition-migration journey uses real `ProfileEditor@1.0.0
 It proves mapped dirty-value and focus preservation, reset defaults without stale focus, stable
 unaffected DOM identity, missing-edge last-known-good rejection and recovery, semantic binding
 continuity, canonical successor event provenance, and axe checks. All four Chromium/WebKit cases
-pass. Both Firefox cases currently fail before page creation with the existing managed-Windows
-Playwright `_page` error and therefore remain an external-runner release gate.
+pass. The same migration cases also pass in the configured Firefox project; do not remove any engine
+from CI even when one runner requires an unsandboxed browser subprocess boundary.
 The select-only Combobox suite verifies catalog and sidecar agreement, option constraints, keyboard
 active-descendant navigation, disabled-option skipping, pointer selection, no-results status,
 interaction-local unmatched queries, Escape restoration, canonical clearing, external projection,
 static native-select fallback, and hydration capture. Its 10,000-option fixture caps the live DOM at
 200 options and commits a distant filtered result. The complete Chromium/WebKit reference matrix
-passes 81 cases with 3 intentional scale skips; focused Firefox cases currently fail before page
-creation with the same managed-runner `_page` error and provide no component behavioral result.
+passes, and the configured Firefox project supplies the same behavioral evidence. Scale profiles
+remain intentionally limited to Chromium, so the complete three-engine reference matrix reports six
+explicit scale skips rather than silently waiving component behavior.
 The lifecycle-memory profile first runs five public application cycles to establish bounded
 element-registration and renderer caches. It then runs twenty schema-valid 500-node
 mount/revision/dispose cycles, forcing garbage collection after each cycle and at the final

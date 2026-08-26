@@ -9,6 +9,7 @@ import {
   type JsonObject
 } from "@unislang/unifold-contracts";
 import type { UnifoldSearchResults } from "@unislang/unifold-elements";
+import { defineUnifoldSearchResults } from "@unislang/unifold-elements/search-results";
 import {
   mountUnifoldApplication,
   UnifoldApplicationMountStatus,
@@ -58,6 +59,7 @@ export async function measureSearchResultsPerformance() {
 }
 
 export async function mountSearchResults(): Promise<MountedSearchResults> {
+  defineUnifoldSearchResults(customElements);
   const container = document.createElement("main");
   document.body.append(container);
   const mounted = requireMounted(

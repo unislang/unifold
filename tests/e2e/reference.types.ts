@@ -1,0 +1,24 @@
+import type { UnifoldApplicationUpdateStatus } from "@unislang/unifold";
+
+interface DynamicNode {
+  $comp: string;
+  id: string;
+  label: string;
+  options?: { label: string; value: string }[];
+}
+
+interface DynamicAuthoredDocument {
+  compositions: [{ template: { $children: [{ $children: DynamicNode[] }] } }];
+  revision: string;
+}
+
+export interface DynamicUpdateResult {
+  readonly diagnostics: readonly { readonly path: string }[];
+  readonly status: UnifoldApplicationUpdateStatus;
+}
+
+export interface DynamicWindow {
+  __unifoldAuthoredDocument: DynamicAuthoredDocument;
+  __unifoldStableNode: Element | null;
+  __unifoldUpdateDocument(source: unknown): DynamicUpdateResult;
+}

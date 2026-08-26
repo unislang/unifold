@@ -77,7 +77,7 @@ function sameReleaseEvidence() {
   const second = defineSecondCopy();
   return {
     constructorsDistinct: !Object.is(FirstButton, SecondButton),
-    firstDefinedEveryTag: first.definedTags.length === Object.values(CoreElementTag).length,
+    firstDefinedBaseline: first.definedTags.length === 19,
     firstOwnsButton: registeredButton === FirstButton,
     firstRegistered: first.status === FirstRegistrationStatus.Registered,
     litRuntimeShared: litBase(FirstButton) === litBase(SecondButton),

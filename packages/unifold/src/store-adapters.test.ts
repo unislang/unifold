@@ -20,7 +20,10 @@ import {
   type UnifoldApplicationPort
 } from "./index.js";
 import { masterDetailStoreDocument } from "./master-detail-store.test-data.js";
+import { defineUnifoldMasterDetail } from "./master-detail.js";
 import { searchResultsStoreDocument } from "./search-results-store.test-data.js";
+import { defineUnifoldSearchResults } from "./search-results.js";
+import { defineUnifoldWizard } from "./wizard.js";
 import { boundDocument, storeDefinition } from "./store-adapters-base.test-data.js";
 import {
   UiStoreConfigurationError,
@@ -55,6 +58,7 @@ it("loads, validates, resolves, classifies, and writes through trusted adapters"
 });
 
 it("hydrates and writes a bound MasterDetail selection", async () => {
+  defineUnifoldMasterDetail(customElements);
   const container = document.createElement("main");
   document.body.append(container);
   const adapter = createMemoryStoreAdapter("2.1.0", { selection: "grace" });
@@ -79,6 +83,7 @@ it("hydrates and writes a bound MasterDetail selection", async () => {
 });
 
 it("hydrates and writes a complete bound SearchResults value", async () => {
+  defineUnifoldSearchResults(customElements);
   const container = document.createElement("main");
   document.body.append(container);
   const initial = { query: "Grace", selectedResultId: "grace" };
@@ -107,6 +112,7 @@ it("hydrates and writes a complete bound SearchResults value", async () => {
 });
 
 it("hydrates and writes a bound Wizard step while preserving its panels", async () => {
+  defineUnifoldWizard(customElements);
   const container = document.createElement("main");
   document.body.append(container);
   const adapter = createMemoryStoreAdapter("2.1.0", { step: "review" });

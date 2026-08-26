@@ -13,6 +13,11 @@ import {
   type UiCausedCommandSink
 } from "./command-action.js";
 import type { UiMachineCommandRegistry } from "./command-registry.js";
+import type { UiMachineGuardRegistry, UiMachineSnapshotReader } from "./guard-registry.js";
+
+interface UiRegisteredGuardParameters {
+  readonly guardId: string;
+}
 
 export interface UiMachineActor extends UiActorRef {
   readonly definition: UiMachineDefinition;
@@ -24,16 +29,12 @@ export interface UiMachineActor extends UiActorRef {
 export function createUiMachineActor(
   definition: UiMachineDefinition,
   registry: UiMachineCommandRegistry,
-  sink: UiCausedCommandSink
+  sink: UiCausedCommandSink,
+  guards?: UiMachineGuardRegistry,
+  snapshot: UiMachineSnapshotReader = () => undefined
 ): UiMachineActor {
-  requireCommands(definition, registry);
-  const machineSetup = setup({
-    actions: {
-      [UiXStateImplementationName.EmitCommand]: createRegisteredCommandAction(registry, sink)
-    },
-    types: { events: {} as UiXStateEvent }
-  });
-  const logic = machineSetup.createMachine(machineConfig(definition));
+  requireImplementations(definition, registry, guards);
+  const logic = createMachineLogic(definition, registry, sink, guards, snapshot);
   const actor = createActor(logic);
   return {
     definition,
@@ -44,6 +45,29 @@ export function createUiMachineActor(
     start: () => actor.start(),
     stop: () => actor.stop()
   };
+}
+
+function createMachineLogic(
+  definition: UiMachineDefinition,
+  registry: UiMachineCommandRegistry,
+  sink: UiCausedCommandSink,
+  guards: UiMachineGuardRegistry | undefined,
+  snapshot: UiMachineSnapshotReader
+) {
+  const machineSetup = setup({
+    actions: {
+      [UiXStateImplementationName.EmitCommand]: createRegisteredCommandAction(registry, sink)
+    },
+    guards: {
+      [UiXStateImplementationName.EvaluateGuard]: (
+        actorArgs: { readonly event: UiXStateEvent },
+        parameters: UiRegisteredGuardParameters
+      ): boolean =>
+        guards?.evaluate(parameters.guardId, { event: actorArgs.event.uiEvent, snapshot }) === true
+    },
+    types: { events: {} as UiXStateEvent }
+  });
+  return machineSetup.createMachine(machineConfig(definition));
 }
 
 function machineConfig(definition: UiMachineDefinition) {
@@ -71,21 +95,34 @@ function transitionConfig(transition: UiMachineTransitionDefinition) {
       params: { commandId },
       type: UiXStateImplementationName.EmitCommand as const
     })),
+    ...(transition.guard === undefined ? {} : { guard: guardConfig(transition.guard) }),
     target: transition.target
   };
 }
 
-function requireCommands(
-  definition: UiMachineDefinition,
-  registry: UiMachineCommandRegistry
-): void {
-  machineCommandIds(definition).forEach((id) => {
-    if (!registry.has(id)) throw new Error(`Unknown machine command: ${id}.`);
-  });
+function guardConfig(id: string) {
+  return {
+    params: { guardId: id },
+    type: UiXStateImplementationName.EvaluateGuard as const
+  };
 }
 
-function machineCommandIds(definition: UiMachineDefinition): readonly string[] {
-  return Object.values(definition.states).flatMap((state) =>
-    Object.values(state.on ?? {}).flatMap(({ commands }) => commands ?? [])
+function requireImplementations(
+  definition: UiMachineDefinition,
+  commands: UiMachineCommandRegistry,
+  guards: UiMachineGuardRegistry | undefined
+): void {
+  const transitions = Object.values(definition.states).flatMap((state) =>
+    Object.values(state.on ?? {})
   );
+  transitions
+    .flatMap(({ commands: ids }) => ids ?? [])
+    .forEach((id) => {
+      if (!commands.has(id)) throw new Error(`Unknown machine command: ${id}.`);
+    });
+  transitions
+    .flatMap(({ guard }) => guard ?? [])
+    .forEach((id) => {
+      if (guards?.has(id) !== true) throw new Error(`Unknown machine guard: ${id}.`);
+    });
 }

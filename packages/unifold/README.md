@@ -48,12 +48,21 @@ with foreign, malformed, or differently versioned `unifold-*` registrations retu
 `element-registration` diagnostic at `/catalog`; it does not partially register or render the
 application. Incompatible catalog releases require independent iframe/document realms.
 
+Larger component families are deferred from the baseline entry and must be registered before a
+document that references them is mounted. Supported subpaths are `audit-log`, `combobox`,
+`data-grid`, `master-detail`, `menu-button`, `search-results`, `stepper`, `tabs`, `tooltip`,
+`virtual-list`, and `wizard`; each exports its matching `defineUnifold*()` function. This keeps the
+reference application's initial executable bundle below its enforced 180 KiB-gzip ceiling while
+preserving the same catalog and registration checks.
+
 Persist and export authored JSON, not normalized IR. IR, generated composition IDs, and runtime
 snapshots are derived execution artifacts. The coordinator currently recompiles the full candidate
 document; subtree compilation is reserved for a measured performance optimization.
 
 `mountUnifoldApplication` also mounts document-declared workflow machines when the host supplies a
-`UiMachineCommandRegistry`. Invalid or unknown command references reject before mutation, and
+`UiMachineCommandRegistry` and, for guarded transitions, a `UiMachineGuardRegistry`. Trusted guards
+receive the canonical event and read-only current runtime snapshots; false or thrown results deny the
+transition. Invalid or unknown command/guard references reject before mutation, and
 `machineState(id)` exposes synchronous workflow inspection without copying UI values into XState.
 
 Remote or governed documents should enter through asynchronous `loadAndMountUnifoldApplication()`

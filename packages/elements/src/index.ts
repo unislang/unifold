@@ -1,12 +1,12 @@
 export { UnifoldAccordion } from "./accordion.js";
 export { UnifoldAlert } from "./alert.js";
-export { UnifoldAuditLog } from "./audit-log.js";
+export type { UnifoldAuditLog } from "./audit-log.js";
 export { UnifoldBox } from "./box.js";
 export { UnifoldButton } from "./button.js";
 export { UnifoldCheckbox } from "./checkbox.js";
-export { UnifoldCombobox } from "./combobox.js";
+export type { UnifoldCombobox } from "./combobox.js";
 export { UnifoldComposition } from "./composition.js";
-export { UnifoldDataGrid } from "./data-grid.js";
+export type { UnifoldDataGrid } from "./data-grid.js";
 export {
   ElementEventName,
   ElementEventType,
@@ -18,11 +18,12 @@ export { UnifoldGrid } from "./grid.js";
 export { UnifoldHeading } from "./heading.js";
 export { UnifoldIcon } from "./icon.js";
 export { UnifoldLink } from "./link.js";
-export { UnifoldMasterDetail } from "./master-detail.js";
-export { UnifoldMenuButton } from "./menu-button.js";
+export type { UnifoldMasterDetail } from "./master-detail.js";
+export type { UnifoldMenuButton } from "./menu-button.js";
 export { UnifoldMultiSelect } from "./multi-select.js";
 export {
   defineUnifoldElements,
+  validateUnifoldElementTags,
   registerCoreElements,
   type ElementCatalogIdentity,
   type ElementDefinitionMetadata,
@@ -32,15 +33,15 @@ export {
   type RejectedElementsResult
 } from "./register.js";
 export { UnifoldRadioGroup } from "./radio-group.js";
-export { UnifoldSearchResults } from "./search-results.js";
+export type { UnifoldSearchResults } from "./search-results.js";
 export { UnifoldSelect } from "./select.js";
 export { UnifoldStack } from "./stack.js";
-export { UnifoldStepper } from "./stepper.js";
-export { UnifoldTabs } from "./tabs.js";
+export type { UnifoldStepper } from "./stepper.js";
+export type { UnifoldTabs } from "./tabs.js";
 export { UnifoldTable } from "./table.js";
 export { UnifoldText } from "./text.js";
 export { UnifoldTextArea } from "./text-area.js";
 export { UnifoldTextField } from "./text-field.js";
-export { UnifoldVirtualList } from "./virtual-list.js";
-export { UnifoldWizard } from "./wizard.js";
+export type { UnifoldVirtualList } from "./virtual-list.js";
+export type { UnifoldWizard } from "./wizard.js";
 export { UnifoldElement } from "./unifold-element.js";

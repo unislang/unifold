@@ -7,6 +7,7 @@ import type { UnifoldIrDocument } from "@unislang/unifold-ir";
 import type { DomRenderController } from "@unislang/unifold-renderer-dom";
 import type { UnifoldRuntime } from "@unislang/unifold-runtime";
 
+import { prepareUnifoldDocument } from "./compiler.js";
 import {
   planCompositionMigration,
   type UiCompositionMigrationPlan,
@@ -21,8 +22,16 @@ import {
   UnifoldApplicationUpdateStatus,
   type PreparedUnifoldDocument,
   type UnifoldApplicationDiagnostic,
-  type UnifoldApplicationUpdateResult
+  type UnifoldApplicationUpdateResult,
+  type UnifoldPreparationOptions
 } from "./types.js";
+
+export function prepareApplicationUpdate(
+  authored: unknown,
+  options: UnifoldPreparationOptions | undefined
+) {
+  return prepareUnifoldDocument(authored, options ?? {});
+}
 
 export function reconcileCommand(
   document: UnifoldIrDocument,

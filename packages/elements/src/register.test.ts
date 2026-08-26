@@ -3,6 +3,7 @@ import { expect, it } from "vitest";
 import {
   CatalogBindingKind,
   CoreCatalogMajor,
+  CoreComponentType,
   CoreElementTag,
   coreCatalog,
   type ComponentDescriptor
@@ -15,7 +16,8 @@ import {
   ElementRegistrationStatus,
   ElementEventType,
   defineUnifoldElements,
-  registerCoreElements
+  registerCoreElements,
+  validateUnifoldElementTags
 } from "./index.js";
 import {
   UNIFOLD_ELEMENT_DEFINITION,
@@ -24,6 +26,17 @@ import {
   type ElementRegistryPort
 } from "./register.js";
 import { componentNode } from "./elements.test-data.js";
+import { defineUnifoldAuditLog } from "./audit-log-entry.js";
+import { defineUnifoldCombobox } from "./combobox-entry.js";
+import { defineUnifoldDataGrid } from "./data-grid-entry.js";
+import { defineUnifoldMasterDetail } from "./master-detail-entry.js";
+import { defineUnifoldMenuButton } from "./menu-button-entry.js";
+import { defineUnifoldSearchResults } from "./search-results-entry.js";
+import { defineUnifoldStepper } from "./stepper-entry.js";
+import { defineUnifoldTabs } from "./tabs-entry.js";
+import { defineUnifoldTooltip } from "./tooltip-entry.js";
+import { defineUnifoldVirtualList } from "./virtual-list-entry.js";
+import { defineUnifoldWizard } from "./wizard-entry.js";
 
 it("registers the core elements explicitly and idempotently", () => {
   const first = defineUnifoldElements(customElements);
@@ -31,9 +44,10 @@ it("registers the core elements explicitly and idempotently", () => {
 
   expect(first.status).toBe(ElementRegistrationStatus.Registered);
   expect(second).toMatchObject({ definedTags: [], status: ElementRegistrationStatus.Registered });
-  Object.values(CoreElementTag).forEach((tagName) => {
+  foundationTags().forEach((tagName) => {
     expect(customElements.get(tagName)).toBeDefined();
   });
+  expect(customElements.get(CoreElementTag.Tooltip)).toBeUndefined();
 });
 
 it("keeps the deprecated registration alias behavior-compatible", () => {
@@ -44,11 +58,29 @@ it("keeps the deprecated registration alias behavior-compatible", () => {
 
 it("emits exactly every catalog-bound public property in component snapshots", () => {
   defineUnifoldElements(customElements);
-  Object.values(coreCatalog.components).forEach(assertSnapshotProperties);
+  defineDeferredElements(customElements);
+  Object.values(coreCatalog.components)
+    .filter(({ componentType }) => componentType !== CoreComponentType.Tooltip)
+    .forEach(assertSnapshotProperties);
+});
+
+it("rejects a missing optional family and accepts its compatible definition", () => {
+  const registry = new TestRegistry();
+  defineUnifoldElements(registry);
+  expect(validateUnifoldElementTags([CoreElementTag.Tooltip], registry)).toMatchObject({
+    diagnostics: [{ code: ElementRegistrationDiagnosticCode.MissingDefinition }],
+    status: ElementRegistrationStatus.Rejected
+  });
+  defineUnifoldTooltip(registry);
+  expect(validateUnifoldElementTags([CoreElementTag.Tooltip], registry).status).toBe(
+    ElementRegistrationStatus.Registered
+  );
 });
 
 function assertSnapshotProperties(descriptor: ComponentDescriptor): void {
   const element = document.createElement(descriptor.tagName) as unknown as SnapshotProbe;
+  if (typeof element.emitUiEvent !== "function")
+    throw new Error(`Missing snapshot emitter for ${descriptor.tagName}.`);
   element.eventNode = componentNode(`probe-${descriptor.componentType}`, descriptor.componentType);
   const event = element.emitUiEvent(ElementEventType.ComponentActivated, {});
   const actual = Object.keys(requiredSnapshot(event).properties).sort();
@@ -87,7 +119,7 @@ it("accepts a duplicate package constructor from the same catalog release", () =
   const result = registerCoreElements(registry);
 
   expect(result.status).toBe(ElementRegistrationStatus.Registered);
-  expect(registry.names()).toEqual(expect.arrayContaining(Object.values(CoreElementTag)));
+  expect([...registry.names()]).toEqual(expect.arrayContaining([...foundationTags()]));
 });
 
 it("rejects a same-major but different catalog release", () => {
@@ -170,12 +202,7 @@ it("reports an unexpected native definition failure and partial progress", () =>
   const result = defineUnifoldElements(registry);
 
   expect(result).toMatchObject({
-    definedTags: [
-      CoreElementTag.Accordion,
-      CoreElementTag.Alert,
-      CoreElementTag.AuditLog,
-      CoreElementTag.Box
-    ],
+    definedTags: [CoreElementTag.Accordion, CoreElementTag.Alert, CoreElementTag.Box],
     diagnostics: [{ code: ElementRegistrationDiagnosticCode.DefinitionFailed }],
     status: ElementRegistrationStatus.Rejected
   });
@@ -184,6 +211,8 @@ it("reports an unexpected native definition failure and partial progress", () =>
 it("exposes immutable tag-specific metadata on owned constructors", () => {
   const registry = new TestRegistry();
   registerCoreElements(registry);
+  defineUnifoldStepper(registry);
+  defineUnifoldWizard(registry);
   const metadata = readElementDefinition(requireDefinition(registry, CoreElementTag.TextField));
   const stepper = readElementDefinition(requireDefinition(registry, CoreElementTag.Stepper));
   const wizard = readElementDefinition(requireDefinition(registry, CoreElementTag.Wizard));
@@ -252,4 +281,35 @@ function requireDefinition(
   const constructor = registry.get(tagName);
   if (constructor === undefined) throw new Error(`Missing definition: ${tagName}.`);
   return constructor;
+}
+
+function foundationTags(): readonly CoreElementTag[] {
+  const deferred = new Set([
+    CoreElementTag.AuditLog,
+    CoreElementTag.Combobox,
+    CoreElementTag.DataGrid,
+    CoreElementTag.MasterDetail,
+    CoreElementTag.MenuButton,
+    CoreElementTag.SearchResults,
+    CoreElementTag.Stepper,
+    CoreElementTag.Tabs,
+    CoreElementTag.Tooltip,
+    CoreElementTag.VirtualList,
+    CoreElementTag.Wizard
+  ]);
+  return Object.values(CoreElementTag).filter((tag) => !deferred.has(tag));
+}
+
+function defineDeferredElements(registry: ElementRegistryPort): void {
+  defineUnifoldAuditLog(registry);
+  defineUnifoldCombobox(registry);
+  defineUnifoldDataGrid(registry);
+  defineUnifoldMasterDetail(registry);
+  defineUnifoldMenuButton(registry);
+  defineUnifoldSearchResults(registry);
+  defineUnifoldStepper(registry);
+  defineUnifoldTabs(registry);
+  defineUnifoldTooltip(registry);
+  defineUnifoldVirtualList(registry);
+  defineUnifoldWizard(registry);
 }

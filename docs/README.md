@@ -5,6 +5,7 @@
 - [Runtime event disclosure](event-disclosure.md)
 - [Core components](components.md)
 - [Reusable JSON compositions](compositions.md)
+- [Layout-oriented JSON authoring](layout-authoring.md)
 - [Pinned JsonUI profile](jsonui-profile.md)
 - [Stores and control bindings](stores-and-bindings.md)
 - [Document trust, signatures, and migrations](document-trust.md)

@@ -4,12 +4,8 @@ import type { UiEvent } from "@unislang/unifold-events";
 import { expect, it, vi } from "vitest";
 
 import { componentNode } from "./elements.test-data.js";
-import {
-  ElementEventName,
-  ElementEventType,
-  registerCoreElements,
-  UnifoldMenuButton
-} from "./index.js";
+import { defineUnifoldMenuButton } from "./menu-button-entry.js";
+import { ElementEventName, ElementEventType, type UnifoldMenuButton } from "./index.js";
 
 it("opens with exact ARIA relationships and wraps past disabled items", async () => {
   const menu = configuredMenu();
@@ -100,7 +96,7 @@ it("renders one hundred escaped item labels without creating authored markup", a
 });
 
 function configuredMenu(items: readonly MenuItem[] = menuItems()): UnifoldMenuButton {
-  registerCoreElements();
+  defineUnifoldMenuButton();
   const element = document.createElement("unifold-menu-button") as UnifoldMenuButton;
   Object.assign(element, { id: "account-menu", items, label: "Account actions" });
   element.eventNode = componentNode("account-menu", "MenuButton");

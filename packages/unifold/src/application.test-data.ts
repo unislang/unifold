@@ -11,10 +11,10 @@ import {
   type UiMachineDefinition
 } from "@unislang/unifold-contracts";
 import { coreCatalog } from "@unislang/unifold-catalog";
-import { UiCommandType, UiEventType } from "@unislang/unifold-events";
+import { UiCommandType, UiEventType, type UiNodeSnapshot } from "@unislang/unifold-events";
 import { createNodeSnapshot, type DomRenderController } from "@unislang/unifold-renderer-dom";
 import { UnifoldRuntime } from "@unislang/unifold-runtime";
-import { createMachineCommandRegistry } from "@unislang/unifold-xstate";
+import { createMachineCommandRegistry, createMachineGuardRegistry } from "@unislang/unifold-xstate";
 
 import { prepareUnifoldDocument } from "./compiler.js";
 import {
@@ -49,7 +49,7 @@ export function authoredDocument(
   };
 }
 
-export function workflowDefinition(): UiMachineDefinition {
+export function workflowDefinition(guard?: string): UiMachineDefinition {
   return {
     id: "profile-workflow",
     initial: "editing",
@@ -58,7 +58,11 @@ export function workflowDefinition(): UiMachineDefinition {
     states: {
       editing: {
         on: {
-          [UiEventType.FormSubmitted]: { commands: ["show-saved"], target: "saved" }
+          [UiEventType.FormSubmitted]: {
+            commands: ["show-saved"],
+            ...(guard === undefined ? {} : { guard }),
+            target: "saved"
+          }
         }
       },
       saved: {}
@@ -77,14 +81,28 @@ export function workflowCommandRegistry() {
   return registry;
 }
 
+export function workflowGuardRegistry() {
+  const registry = createMachineGuardRegistry();
+  registry.register("has-name", ({ snapshot }) => hasNonEmptyControlValue(snapshot("name")));
+  return registry;
+}
+
+function hasNonEmptyControlValue(snapshot: UiNodeSnapshot | undefined): boolean {
+  return snapshot === undefined ? false : isNonEmptyString(snapshot.control?.value);
+}
+
+function isNonEmptyString(value: unknown): boolean {
+  return typeof value === "string" && value.length > 0;
+}
+
 export function withoutButton() {
   const components = { ...coreCatalog.components };
   Reflect.deleteProperty(components, "Button");
   return { ...coreCatalog, components };
 }
 
-export function machineDocument() {
-  return { ...authoredDocument(), machines: [workflowDefinition()] };
+export function machineDocument(guard?: string) {
+  return { ...authoredDocument(), machines: [workflowDefinition(guard)] };
 }
 
 export function requirePrepared(source: unknown): PreparedUnifoldDocument {

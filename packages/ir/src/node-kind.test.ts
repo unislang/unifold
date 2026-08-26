@@ -9,6 +9,7 @@ it("owns the single component-to-node-kind mapping", () => {
   expect(nodeKindForComponent("DataGrid")).toBe(UiNodeKind.Control);
   expect(nodeKindForComponent("MasterDetail")).toBe(UiNodeKind.Control);
   expect(nodeKindForComponent("MenuButton")).toBe(UiNodeKind.Component);
+  expect(nodeKindForComponent("Tooltip")).toBe(UiNodeKind.Component);
   expect(nodeKindForComponent("Stepper")).toBe(UiNodeKind.Control);
   expect(nodeKindForComponent("Tabs")).toBe(UiNodeKind.Control);
   expect(nodeKindForComponent("Wizard")).toBe(UiNodeKind.Control);

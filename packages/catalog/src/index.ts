@@ -1,4 +1,5 @@
 export { coreCatalog, getCoreDescriptor } from "./core-catalog.js";
+export { getCoreComponentEvents } from "./component-events.js";
 export {
   componentDefinitionSidecars,
   getComponentDefinitionSidecar
@@ -44,13 +45,16 @@ export {
   TextTone,
   TextWeight,
   TextAreaWrap,
-  TextFieldInputType
+  TextFieldInputType,
+  TooltipPlacement
 } from "./enums.js";
 export { isSafeUrl } from "./url.js";
 export { MAXIMUM_MENU_ITEMS } from "./menu-catalog.js";
+export { tooltipDescriptor } from "./tooltip-catalog.js";
 export type {
   AuditLogEntry,
   CatalogAuditLogDataConstraint,
+  CatalogChildCountConstraint,
   CatalogDataGridStateConstraint,
   CatalogMasterDetailStateConstraint,
   CatalogSearchResultsStateConstraint,

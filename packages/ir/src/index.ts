@@ -15,6 +15,7 @@ export { isSafeStorePointer } from "./store-schema.js";
 export { UiNodeKind } from "@unislang/unifold-contracts";
 export type {
   CompileResult,
+  CompileUiDocumentOptions,
   CompilerDiagnostic,
   UnifoldIrDocument,
   UnifoldIrNode,

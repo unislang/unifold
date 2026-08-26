@@ -12,6 +12,7 @@ import { comboboxSidecar } from "./combobox-sidecar.js";
 import { ComponentAccessibilityPattern, IconName } from "./enums.js";
 import { searchResultsSidecar } from "./search-results-sidecar.js";
 import { menuButtonSidecar } from "./menu-sidecar.js";
+import { tooltipSidecar } from "./tooltip-sidecar.js";
 import { stepperSidecar, tabsSidecar, wizardSidecar } from "./workflow-sidecars.js";
 import type { ComponentDefinitionSidecar } from "./types.js";
 
@@ -322,6 +323,7 @@ const sidecars: Readonly<Record<CoreComponentType, ComponentDefinitionSidecar>> 
     semanticAttachmentPoints: [],
     sensitiveProperties: ["errorMessage", "value"]
   }),
+  [CoreComponentType.Tooltip]: tooltipSidecar,
   [CoreComponentType.VirtualList]: definition({
     behaviors: ["Renders at most 200 options", "Preserves selection across virtual windows"],
     browserScenarios: ["virtualizes 10,000 options with stable focus and selection"],

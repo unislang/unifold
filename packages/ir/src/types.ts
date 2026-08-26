@@ -3,6 +3,7 @@ import type {
   UiCompositionInstanceManifest,
   UiCompositionNodeProvenance,
   UiMachineDefinition,
+  UiNodeEventBindings,
   UiDerivedRuleDefinition,
   UiStoreBinding,
   UiStoreDefinition,
@@ -37,6 +38,7 @@ export interface UnifoldIrNode {
   readonly childIds: readonly string[];
   readonly componentType: string;
   readonly composition?: UiCompositionNodeProvenance;
+  readonly eventBindings: UiNodeEventBindings;
   readonly id: string;
   readonly binding?: UiStoreBinding;
   readonly kind: UiNodeKind;
@@ -66,4 +68,8 @@ export interface CompileResult {
   readonly diagnostics: readonly CompilerDiagnostic[];
   readonly document?: UnifoldIrDocument;
   readonly status: CompilationStatus;
+}
+
+export interface CompileUiDocumentOptions {
+  readonly sourcePointersByNodeId?: Readonly<Record<string, string>>;
 }

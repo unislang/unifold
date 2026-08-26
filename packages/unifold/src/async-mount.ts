@@ -1,9 +1,7 @@
 import type { UiStoreDefinition } from "@unislang/unifold-contracts";
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
-import type { DomRenderController } from "@unislang/unifold-renderer-dom";
-import type { UnifoldRuntime } from "@unislang/unifold-runtime";
-
 import { AsyncStoreCommandController } from "./async-store-command-port.js";
+import { AsyncMountedApplication } from "./async-mounted-application.js";
 import { connectAsyncStore } from "./async-store-connection.js";
 import type {
   MountAsyncUnifoldApplicationOptions,
@@ -19,29 +17,23 @@ import { prepareApplicationStores } from "./store-adapters.js";
 import {
   UnifoldApplicationDiagnosticStage,
   UnifoldApplicationMountStatus,
-  UnifoldApplicationUpdateStatus,
   UnifoldPreparationStatus,
   type MountUnifoldApplicationOptions,
   type MountUnifoldApplicationResult,
   type PreparedUnifoldDocument,
-  type UiStoreAdapterRegistry,
-  type UnifoldApplicationDiagnostic,
-  type UnifoldApplicationPort,
-  type UnifoldApplicationUpdateResult
+  type UiStoreAdapterRegistry
 } from "./types.js";
-
 export async function mountUnifoldApplicationAsync(
   authored: unknown,
   container: HTMLElement,
   options: MountAsyncUnifoldApplicationOptions = {}
 ): Promise<MountUnifoldApplicationResult> {
-  const preparation = prepareUnifoldDocument(authored);
+  const preparation = prepareUnifoldDocument(authored, options);
   if (preparation.status === UnifoldPreparationStatus.Invalid) {
     return { diagnostics: preparation.diagnostics, status: UnifoldApplicationMountStatus.Rejected };
   }
   return mountPreparedAsync(requirePrepared(preparation.prepared), container, options);
 }
-
 async function mountPreparedAsync(
   prepared: PreparedUnifoldDocument,
   container: HTMLElement,
@@ -102,63 +94,25 @@ function mountWithController(
     controller.dispose();
     return result;
   }
+  return attachController(result, controller, prepared.document, options);
+}
+
+function attachController(
+  result: Extract<MountUnifoldApplicationResult, { application: unknown }>,
+  controller: AsyncStoreCommandController,
+  document: UnifoldIrDocument,
+  options: MountUnifoldApplicationOptions
+): MountUnifoldApplicationResult {
   try {
     controller.attach(result.application.runtime);
     return {
       ...result,
-      application: new AsyncMountedApplication(result.application, controller, prepared.document)
+      application: new AsyncMountedApplication(result.application, controller, document, options)
     };
   } catch (error) {
     result.application.dispose();
     controller.dispose();
     return rejectedMount(safeErrorMessage(error));
-  }
-}
-
-class AsyncMountedApplication implements UnifoldApplicationPort {
-  readonly renderer: DomRenderController;
-  readonly runtime: UnifoldRuntime;
-  readonly #application: UnifoldApplicationPort;
-  readonly #controller: AsyncStoreCommandController;
-  readonly #stores: UnifoldIrDocument["storesById"];
-  #disposed = false;
-
-  constructor(
-    application: UnifoldApplicationPort,
-    controller: AsyncStoreCommandController,
-    document: UnifoldIrDocument
-  ) {
-    this.#application = application;
-    this.#controller = controller;
-    this.#stores = document.storesById;
-    this.renderer = application.renderer;
-    this.runtime = application.runtime;
-  }
-
-  get authored(): unknown {
-    return this.#application.authored;
-  }
-
-  get document(): UnifoldIrDocument {
-    return this.#application.document;
-  }
-
-  machineState(id: string) {
-    return this.#application.machineState(id);
-  }
-
-  update(authored: unknown): UnifoldApplicationUpdateResult {
-    const preparation = prepareUnifoldDocument(authored);
-    if (storeDefinitionsChanged(this.#stores, preparation.prepared))
-      return rejectedUpdate(this.runtime.revision);
-    return this.#application.update(authored);
-  }
-
-  dispose(): void {
-    if (this.#disposed) return;
-    this.#disposed = true;
-    this.#controller.dispose();
-    this.#application.dispose();
   }
 }
 
@@ -286,40 +240,8 @@ function mountOptions(
   return { ...shared, storeAdapters };
 }
 
-function storeDefinitionsChanged(
-  current: UnifoldIrDocument["storesById"],
-  prepared: PreparedUnifoldDocument | undefined
-): boolean {
-  if (prepared === undefined) return false;
-  return !sameStoreDefinitions(current, prepared.document.storesById);
-}
-
-function sameStoreDefinitions(
-  left: UnifoldIrDocument["storesById"],
-  right: UnifoldIrDocument["storesById"]
-): boolean {
-  return JSON.stringify(left) === JSON.stringify(right);
-}
-
 function disposeSessions(sessions: ConnectedStores["sessions"]): void {
   Object.values(sessions).forEach((session) => session.dispose());
-}
-
-function rejectedUpdate(revision: number): UnifoldApplicationUpdateResult {
-  return {
-    diagnostics: [storeDefinitionDiagnostic()],
-    revision,
-    status: UnifoldApplicationUpdateStatus.Rejected
-  };
-}
-
-function storeDefinitionDiagnostic(): UnifoldApplicationDiagnostic {
-  return {
-    code: "async-store-definition-changed",
-    message: "A mounted async store definition cannot change during a synchronous update.",
-    path: "/stores",
-    stage: UnifoldApplicationDiagnosticStage.Store
-  };
 }
 
 function rejectedMount(message: string): MountUnifoldApplicationResult {

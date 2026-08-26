@@ -1,4 +1,5 @@
-import type { JsonValue } from "@unislang/unifold-contracts";
+import { getCoreDescriptor } from "@unislang/unifold-catalog";
+import type { JsonObject, JsonValue } from "@unislang/unifold-contracts";
 import {
   DataClassification,
   UiControlStatus,
@@ -61,8 +62,32 @@ function createBaseSnapshot(node: UnifoldIrNode, stateRevision: number): UiNodeS
       dataClassification: DataClassification.Public
     },
     attributes: {},
-    properties: node.properties
+    properties: snapshotProperties(node)
   };
+}
+
+function snapshotProperties(node: UnifoldIrNode): JsonObject {
+  const descriptor = getCoreDescriptor(node.componentType);
+  if (descriptor === undefined) return node.properties;
+  const defaults = descriptor.properties.flatMap((property) => {
+    const defaultValue = property.defaultValue;
+    if (defaultValue === undefined || node.properties[property.name] !== undefined) return [];
+    return [[property.name, cloneJson(defaultValue)] as const];
+  });
+  return { ...Object.fromEntries(defaults), ...node.properties };
+}
+
+function cloneJson(value: JsonValue): JsonValue {
+  if (Array.isArray(value)) return value.map(cloneJson);
+  if (!isJsonObject(value)) return value;
+  return Object.fromEntries(
+    Object.entries(value).map(([key, item]) => [key, cloneJson(item as JsonValue)])
+  );
+}
+
+function isJsonObject(value: JsonValue): value is JsonObject {
+  if (value === null) return false;
+  return typeof value === "object";
 }
 
 function withParent(node: UnifoldIrNode, snapshot: UiNodeSnapshot): UiNodeSnapshot {

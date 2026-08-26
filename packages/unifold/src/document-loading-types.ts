@@ -8,7 +8,8 @@ import { UnifoldApplicationMountStatus } from "./types.js";
 import type {
   PreparedUnifoldDocument,
   UnifoldApplicationDiagnostic,
-  UnifoldApplicationPort
+  UnifoldApplicationPort,
+  UnifoldPreparationOptions
 } from "./types.js";
 
 export enum UnifoldDocumentTrustRequirement {
@@ -123,7 +124,7 @@ export interface UnifoldDocumentProvenancePolicy {
   readonly trustResolver: UnifoldDocumentTrustResolver;
 }
 
-export interface LoadUnifoldDocumentOptions {
+export interface LoadUnifoldDocumentOptions extends UnifoldPreparationOptions {
   readonly keyResolver?: UnifoldDocumentKeyResolver;
   readonly maxPayloadBytes?: number;
   readonly migrations?: readonly UnifoldDocumentMigration[];

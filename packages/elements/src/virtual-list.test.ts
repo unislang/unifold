@@ -2,7 +2,8 @@
 import type { ChoiceOption } from "@unislang/unifold-catalog";
 import { expect, it, vi } from "vitest";
 
-import { ElementEventName, registerCoreElements, UnifoldVirtualList } from "./index.js";
+import { ElementEventName } from "./index.js";
+import { defineUnifoldVirtualList, UnifoldVirtualList } from "./virtual-list-entry.js";
 import { controlNode } from "./elements.test-data.js";
 
 it("bounds a 10k list while preserving focus, selection, and canonical input", async () => {
@@ -66,7 +67,7 @@ it("caps oversized windows and ignores disabled control selection", async () => 
 });
 
 function configuredList(): UnifoldVirtualList {
-  registerCoreElements();
+  defineUnifoldVirtualList();
   const list = document.createElement("unifold-virtual-list") as UnifoldVirtualList;
   Object.assign(list, {
     id: "records",

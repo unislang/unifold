@@ -1,6 +1,6 @@
 # Core components
 
-The implemented core catalog contains twenty-nine JSON-constructible Web Components. Every component has a
+The implemented core catalog contains thirty JSON-constructible Web Components. Every component has a
 stable node ID, participates in the same canonical event stream, and receives selective state
 projection through the application runtime. The catalog descriptor is the authority for accepted
 properties; the IR compiler rejects unknown properties and values of the wrong type before render.
@@ -34,11 +34,19 @@ properties; the IR compiler rejects unknown properties and values of the wrong t
 | `Text`          | `unifold-text`           | none           | paragraph                 | none                                   |
 | `TextArea`      | `unifold-text-area`      | string         | textarea                  | `control.input`, `control.blurred`     |
 | `TextField`     | `unifold-text-field`     | string         | typed input               | `control.input`, `control.blurred`     |
+| `Tooltip`       | `unifold-tooltip`        | none           | button + Popover API      | none                                   |
 | `VirtualList`   | `unifold-virtual-list`   | string         | ARIA listbox              | `control.input`, `control.blurred`     |
 | `Wizard`        | `unifold-wizard`         | string         | navigation + region       | `control.input`, `component.activated` |
 
 Event names above use their readable suffixes. The wire values are versioned enums such as
 `org.unifold.ui.control.input.v1`, exported as `ElementEventType`.
+
+The baseline registration includes the nineteen small families. AuditLog, Combobox, DataGrid,
+MasterDetail, MenuButton, SearchResults, Stepper, Tabs, Tooltip, VirtualList, and Wizard are deferred
+families loaded through matching `@unislang/unifold/<kebab-case-name>` subpaths before mounting JSON
+that references them. Every subpath exports a `defineUnifold*()` registration function and the
+element class. The split is a delivery boundary only: descriptors, IR validation, snapshots,
+events, static rendering, and accessibility requirements remain catalog-authoritative.
 
 ## Choice-control example
 
@@ -101,6 +109,29 @@ buttons.
     { "label": "Edit account", "value": "edit" },
     { "label": "Archive account", "value": "archive" }
   ]
+}
+```
+
+`Tooltip` accepts required `label` and `content` strings plus a logical `placement` of `top`,
+`bottom`, `start`, or `end`. It is a leaf component: authored children are rejected. Focus or
+pointer hover opens the non-interactive `role="tooltip"` surface, Escape and outside pointer input
+dismiss it, and focus remains on the labeled trigger. The browser element uses the native Popover
+API when available with a deterministic fixed-position fallback; static export emits escaped
+`aria-describedby` help text. Tooltip belongs to a deferred family and must be loaded before a
+document that references it is mounted:
+
+```ts
+const { defineUnifoldTooltip } = await import("@unislang/unifold/tooltip");
+defineUnifoldTooltip();
+```
+
+```json
+{
+  "$comp": "Tooltip",
+  "id": "shipping-help",
+  "label": "Shipping information",
+  "content": "Delivery excludes holidays.",
+  "placement": "top"
 }
 ```
 

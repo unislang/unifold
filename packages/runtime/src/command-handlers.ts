@@ -231,11 +231,20 @@ function resultStatus(errorCount: number, disabled: boolean): UiControlStatus {
 function patchProperties(draft: UiNodeTransactionDraft, command: UiCommand): void {
   if (command.type !== UiCommandType.NodePatchProperties) return;
   draft.update(command.id, (node) => {
+    assignBaseProperties(node, command.properties);
     assignProperties(
       node.properties as unknown as Record<string, unknown>,
       command.properties as Readonly<Record<string, unknown>>
     );
   });
+}
+
+function assignBaseProperties(
+  node: DraftNode,
+  properties: Readonly<Record<string, unknown>>
+): void {
+  if (typeof properties["disabled"] === "boolean") node.base.disabled = properties["disabled"];
+  if (typeof properties["readonly"] === "boolean") node.base.readonly = properties["readonly"];
 }
 
 function assignProperties(

@@ -1,0 +1,19 @@
+{
+  "name": "@unislang/unifold-hierarchical-example-e2e",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "pnpm --filter @unislang/unifold-hierarchical-example build:e2e && playwright test --config playwright.config.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@unislang/unifold-playwright": "workspace:*",
+    "@unislang/unifold-testkit": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "typescript": "^5.9.2",
+    "vite": "7.3.6"
+  }
+}

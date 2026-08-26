@@ -3,7 +3,8 @@ import { TabActivationMode, type TabItem } from "@unislang/unifold-catalog";
 import { expect, it, vi } from "vitest";
 
 import { controlNode } from "./elements.test-data.js";
-import { ElementEventName, ElementEventType, registerCoreElements, UnifoldTabs } from "./index.js";
+import { ElementEventName, ElementEventType, type UnifoldTabs } from "./index.js";
+import { defineUnifoldTabs } from "./tabs-entry.js";
 
 it("switches stable panels with automatic roving focus and one controlled intent", async () => {
   const tabs = configuredTabs();
@@ -61,7 +62,7 @@ it("renders exact bounded ARIA relationships and preserves hostile panel text", 
 });
 
 function configuredTabs(count = 3): UnifoldTabs {
-  registerCoreElements();
+  defineUnifoldTabs();
   const element = document.createElement("unifold-tabs") as UnifoldTabs;
   const items = tabItems(count);
   Object.assign(element, {

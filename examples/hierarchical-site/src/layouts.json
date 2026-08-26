@@ -1,0 +1,34 @@
+[
+  {
+    "layoutType": "contact-workflow",
+    "version": "1.0.0",
+    "variables": {
+      "heading": { "type": "string", "required": true },
+      "description": { "type": "string", "required": true },
+      "fields": { "type": "nodes", "required": true }
+    },
+    "template": {
+      "id": "contact-page",
+      "type": "Stack",
+      "props": { "label": "Contact workflow", "gap": "lg" },
+      "children": [
+        {
+          "id": "contact-heading",
+          "type": "Heading",
+          "props": { "content": { "$var": "heading" }, "level": "2" }
+        },
+        {
+          "id": "contact-description",
+          "type": "Text",
+          "props": { "content": { "$var": "description" }, "tone": "muted" }
+        },
+        {
+          "id": "contact-form",
+          "type": "Form",
+          "props": { "label": "Contact details" },
+          "children": { "$var": "fields" }
+        }
+      ]
+    }
+  }
+]

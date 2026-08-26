@@ -71,3 +71,14 @@ The E2E configuration builds and serves the reference application automatically.
 ## Current vertical slice
 
 Phase 0 deliberately proves the narrow end-to-end seam first: an authored JSON document expands reusable compositions, compiles to normalized IR, renders accessible Web Components, emits canonical events, updates normalized state atomically, reconciles revised JSON, and selectively refreshes only subscribed nodes. The initial composition contract and twenty-nine-component catalog are not presented as the complete framework vocabulary.
+
+For the hierarchy-oriented authoring form, run the executable example:
+
+```powershell
+pnpm --filter @unislang/unifold-hierarchical-example dev
+```
+
+Its [`ui.json`](../examples/hierarchical-site/src/ui.json) defines a complete nested page using
+`layoutType`, `variables`, `type`, `props`, `children`, and `events`. The companion Playwright
+workspace verifies derived rules, source-specific XState routing, selective projection, the unified
+event stream, Schema.org publication, and automated accessibility checks.

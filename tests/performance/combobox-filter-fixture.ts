@@ -9,6 +9,7 @@ import {
   type JsonObject
 } from "@unislang/unifold-contracts";
 import type { UnifoldCombobox } from "@unislang/unifold-elements";
+import { defineUnifoldCombobox } from "@unislang/unifold-elements/combobox";
 import {
   mountUnifoldApplication,
   UnifoldApplicationMountStatus,
@@ -40,6 +41,7 @@ export async function measureComboboxFilter() {
 }
 
 export async function mountCombobox(): Promise<MountedCombobox> {
+  defineUnifoldCombobox(customElements);
   const container = document.createElement("main");
   document.body.append(container);
   const mounted = mountUnifoldApplication(comboboxDocument(), container);

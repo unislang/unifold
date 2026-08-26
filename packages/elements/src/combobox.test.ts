@@ -2,12 +2,8 @@
 import type { UiEvent } from "@unislang/unifold-events";
 import { expect, it } from "vitest";
 
-import {
-  ElementEventName,
-  ElementEventType,
-  registerCoreElements,
-  UnifoldCombobox
-} from "./index.js";
+import { ElementEventName, ElementEventType } from "./index.js";
+import { defineUnifoldCombobox, UnifoldCombobox } from "./combobox-entry.js";
 import { controlNode } from "./elements.test-data.js";
 
 it("filters and commits a registered option with active-descendant keyboard semantics", async () => {
@@ -123,7 +119,7 @@ it("bounds broad 10k-option results while retaining the full accessible set size
 });
 
 function configuredCombobox(): UnifoldCombobox {
-  registerCoreElements();
+  defineUnifoldCombobox();
   const combobox = document.createElement("unifold-combobox") as UnifoldCombobox;
   Object.assign(combobox, {
     id: "assignee",

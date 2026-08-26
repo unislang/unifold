@@ -27,19 +27,20 @@ test("joins all sidecars, catalog schemas, and CEM declarations", async () => {
 
 test("derives required, enum, attribute, and public snapshot schemas", async () => {
   const document = await definitions();
-  const icon = requireDefinition(document, CoreComponentType.Icon);
-  const auditLog = requireDefinition(document, CoreComponentType.AuditLog);
-  const link = requireDefinition(document, CoreComponentType.Link);
-  const dataGrid = requireDefinition(document, CoreComponentType.DataGrid);
-  const searchResults = requireDefinition(document, CoreComponentType.SearchResults);
-  const stepper = requireDefinition(document, CoreComponentType.Stepper);
-  const table = requireDefinition(document, CoreComponentType.Table);
-  const wizard = requireDefinition(document, CoreComponentType.Wizard);
+  const { auditLog, dataGrid, icon, link, searchResults, stepper, table, tooltip, wizard } =
+    schemaDefinitions(document);
   assert.deepEqual(icon.propertiesSchema.required, ["name"]);
   assert.deepEqual(link.propertiesSchema.required, ["href"]);
   assert.deepEqual(link.attributesSchema.properties.href, { type: "string" });
   assert.deepEqual(table.propertiesSchema.required, ["caption", "columns", "rows"]);
   assertMenuButtonSchemas(document);
+  assert.deepEqual(tooltip.propertiesSchema.required, ["label", "content"]);
+  assert.deepEqual(tooltip.propertiesSchema.properties.placement.enum, [
+    "bottom",
+    "end",
+    "start",
+    "top"
+  ]);
   assertAuditLogSchemas(auditLog);
   assert.equal(table.propertiesSchema.properties.columns.maxItems, 64);
   assert.equal(table.propertiesSchema.properties.rows.maxItems, 10_000);
@@ -49,6 +50,25 @@ test("derives required, enum, attribute, and public snapshot schemas", async () 
   assert(link.publicSnapshotSchema.properties.testId === undefined);
   assertIconSchema(icon);
 });
+
+function schemaDefinitions(document) {
+  return Object.fromEntries(
+    [
+      "auditLog",
+      "dataGrid",
+      "icon",
+      "link",
+      "searchResults",
+      "stepper",
+      "table",
+      "tooltip",
+      "wizard"
+    ].map((name) => [
+      name,
+      requireDefinition(document, CoreComponentType[name[0].toUpperCase() + name.slice(1)])
+    ])
+  );
+}
 
 test("derives control adapters and enum-backed common capabilities", async () => {
   const document = await definitions();

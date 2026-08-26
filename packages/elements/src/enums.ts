@@ -7,6 +7,7 @@ export enum ElementRegistrationDiagnosticCode {
   ConstructorAlreadyDefined = "element-constructor-already-defined",
   DefinitionFailed = "element-definition-failed",
   ForeignDefinition = "foreign-element-definition",
+  MissingDefinition = "element-definition-missing",
   RegistryUnavailable = "element-registry-unavailable",
   TagMismatch = "element-tag-mismatch"
 }

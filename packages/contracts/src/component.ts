@@ -26,6 +26,7 @@ export enum CoreComponentType {
   Text = "Text",
   TextArea = "TextArea",
   TextField = "TextField",
+  Tooltip = "Tooltip",
   VirtualList = "VirtualList",
   Wizard = "Wizard"
 }

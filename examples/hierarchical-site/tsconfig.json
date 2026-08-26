@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true,
+    "tsBuildInfoFile": "node_modules/.cache/hierarchical-example.tsbuildinfo",
+    "types": ["vite/client"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.json"],
+  "references": [
+    { "path": "../../packages/unifold" },
+    { "path": "../../packages/contracts" },
+    { "path": "../../packages/events" },
+    { "path": "../../packages/theme" }
+  ]
+}

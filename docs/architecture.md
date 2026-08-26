@@ -3,7 +3,7 @@
 Unifold is a framework-neutral UI runtime. JSON is the portable source, the normalized node graph is the single state authority, and public event facts join components, forms, pages, applications, actors, tooling, and tests.
 
 ```text
-JSON document
+Hierarchical layout JSON or canonical JsonUI tree
     │ validate and expand compositions
     ▼
 Expanded JSON UI document
@@ -50,6 +50,28 @@ compatible state from pre-codec identities atomically; consumers integrate throu
 `runtime.composition(instanceId)` export aliases.
 
 The authored document remains the editable and exportable source; expanded JSON is a derived compiler input. See [Reusable JSON compositions](./compositions.md) for the current contract and its P0 hardening gates.
+
+## Hierarchical layout authoring boundary
+
+The normalized graph is an execution format, not the authored shape. Authors may define a page as
+an exact versioned `layoutType`, typed `variables`, and recursively nested nodes with `type`,
+`props`, `children`, and `events`. Deterministic lowering converts this ergonomic hierarchy into the
+same `$comp`/`$children` JsonUI tree used by direct authors and reusable compositions. IDs and parent
+scopes survive lowering; the renderer never interprets both syntaxes.
+
+Named component signals are data-only bindings. For example, `onClick: "DETAILS_OPEN"` lowers to
+the enum-backed `activated` signal on that exact node. The canonical activation fact remains
+unchanged in `runtime.events$`; only the XState input delivered to an owning ancestor actor receives
+the alias. Component capability validation prevents a Text node from claiming an input event, and
+JSON still cannot contain functions or inline actions. See [Layout-oriented JSON authoring](./layout-authoring.md).
+
+Before lowering, the packaged layout schema and JSON-safety budget validate the complete authored
+tree. Conditions resolve to booleans only; repeated nodes require a durable item key and reuse the
+composition identity codec. Host-reviewed external definitions enter through an immutable bounded
+registry capability supplied to preparation/mount options; JSON cannot name a registry or trigger a
+fetch. Exact-version collisions reject, registry diagnostics use a virtual source pointer, authored
+pointer provenance survives lowering, and invalid updates retain the last-known-good runtime and
+DOM. A 500-node compilation workload is enforced as a repeatable p95 gate.
 
 ## JsonUI authoring profile
 
@@ -272,16 +294,18 @@ successful transaction; semantic metadata is not inferred from clicks or accessi
 
 Versioned machine definitions are compiled from the document into XState v5 actors. An actor is
 indexed to one owning node and receives canonical events only when that owner appears in the source
-scope. JSON transitions contain targets and trusted command IDs; host code registers factories that
-return typed `UiCommand` values. The command re-enters the normal transaction boundary with inherited
-correlation and explicit causation, so XState owns temporal state without becoming a second UI-value
-store.
+scope. JSON transitions contain targets, trusted command IDs, and an optional named guard. Host code
+registers command factories that return typed `UiCommand` values and synchronous guard predicates
+that receive the canonical event plus read-only access to current normalized snapshots. Commands
+re-enter the normal transaction boundary with inherited correlation and explicit causation, so
+XState owns temporal state without becoming a second UI-value store.
 
-Unknown owners, states, properties, or command IDs reject before mount or update. Unchanged
+Unknown owners, states, properties, command IDs, or guard IDs reject before mount or update. Guard
+exceptions and non-true results fail closed without state transition. Unchanged
 canonical definitions retain actor identity during structural reconciliation, while removed or
 changed definitions are stopped. The initial flat-state profile is documented in
-[JSON workflows with XState](./workflows.md); persistence, migrations, named guards, invoked effects,
-and nested/parallel states remain future schema additions.
+[JSON workflows with XState](./workflows.md); persistence, migrations, delays, invoked effects, and
+nested/parallel states remain future schema additions.
 
 ## Framework boundary
 

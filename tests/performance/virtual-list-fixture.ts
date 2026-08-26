@@ -9,6 +9,7 @@ import {
   type JsonObject
 } from "@unislang/unifold-contracts";
 import type { UnifoldVirtualList } from "@unislang/unifold-elements";
+import { defineUnifoldVirtualList } from "@unislang/unifold-elements/virtual-list";
 import {
   mountUnifoldApplication,
   UnifoldApplicationMountStatus,
@@ -47,6 +48,7 @@ export async function measureVirtualListStartup() {
 export async function mountVirtualList(
   authored = virtualListDocument()
 ): Promise<MountedVirtualList> {
+  defineUnifoldVirtualList(customElements);
   const container = document.createElement("main");
   document.body.append(container);
   const mounted = requireMounted(mountUnifoldApplication(authored, container), container);

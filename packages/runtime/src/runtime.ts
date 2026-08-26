@@ -180,7 +180,6 @@ export class UnifoldRuntime {
     this.assertActive();
     return this.actors.register(id, actor);
   }
-
   replaceStoreBindings(
     bindings: Readonly<Record<string, import("./types.js").UiRuntimeStoreBinding>>
   ): void {

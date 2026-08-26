@@ -1,5 +1,6 @@
 import {
   CatalogConstraintKind,
+  type CatalogChildCountConstraint,
   type CatalogConstraintDescriptor,
   type CatalogSelectionInOptionsConstraint,
   type CatalogUniqueOptionValuesConstraint,
@@ -32,6 +33,7 @@ interface SelectionEntry {
 
 const validators: Readonly<Record<CatalogConstraintKind, ConstraintValidator>> = {
   [CatalogConstraintKind.AuditLogData]: validateAuditLogDataConstraint,
+  [CatalogConstraintKind.ChildCount]: validateChildCount,
   [CatalogConstraintKind.DataGridState]: validateDataGridStateConstraint,
   [CatalogConstraintKind.MasterDetailState]: validateMasterDetailStateConstraint,
   [CatalogConstraintKind.SearchResultsState]: validateSearchResultsStateConstraint,
@@ -40,6 +42,54 @@ const validators: Readonly<Record<CatalogConstraintKind, ConstraintValidator>> =
   [CatalogConstraintKind.TableData]: validateTableDataConstraint,
   [CatalogConstraintKind.UniqueOptionValues]: validateUniqueOptionValues
 };
+
+function validateChildCount(
+  node: Readonly<Record<string, unknown>>,
+  descriptor: CatalogConstraintDescriptor,
+  path: string,
+  diagnostics: CompilerDiagnostic[]
+): void {
+  if (descriptor.kind !== CatalogConstraintKind.ChildCount) return;
+  validateTypedChildCount(node, descriptor, path, diagnostics);
+}
+
+function validateTypedChildCount(
+  node: Readonly<Record<string, unknown>>,
+  descriptor: CatalogChildCountConstraint,
+  path: string,
+  diagnostics: CompilerDiagnostic[]
+): void {
+  const count = childCount(node["$children"]);
+  if (count === undefined) return;
+  if (outsideChildRange(count, descriptor))
+    addChildCountDiagnostic(count, descriptor, nodeId(node), path, diagnostics);
+}
+
+function childCount(value: unknown): number | undefined {
+  if (value === undefined) return 0;
+  return Array.isArray(value) ? value.length : undefined;
+}
+
+function outsideChildRange(count: number, descriptor: CatalogChildCountConstraint): boolean {
+  return count < descriptor.minimum || count > descriptor.maximum;
+}
+
+function addChildCountDiagnostic(
+  count: number,
+  descriptor: CatalogChildCountConstraint,
+  id: string | undefined,
+  path: string,
+  diagnostics: CompilerDiagnostic[]
+): void {
+  diagnostics.push(
+    errorDiagnostic(
+      DiagnosticCode.InvalidChildCount,
+      `Component requires ${descriptor.minimum} to ${descriptor.maximum} children; received ${count}.`,
+      `${path}/$children`,
+      id
+    )
+  );
+}
 
 export function validateComponentConstraints(
   node: Readonly<Record<string, unknown>>,

@@ -7,7 +7,8 @@ import {
 } from "@unislang/unifold-catalog";
 import { expect, it, vi } from "vitest";
 
-import { ElementEventName, registerCoreElements, UnifoldDataGrid } from "./index.js";
+import { defineUnifoldDataGrid, UnifoldDataGrid } from "./data-grid-entry.js";
+import { ElementEventName } from "./index.js";
 import { controlNode } from "./elements.test-data.js";
 
 it("renders escaped native grid semantics and stable sorted row identities", async () => {
@@ -74,7 +75,7 @@ it("uses one native radio selection and spans selection-aware empty state", asyn
 });
 
 function configuredGrid(): UnifoldDataGrid {
-  registerCoreElements();
+  defineUnifoldDataGrid();
   const value: DataGridValue = { selectedRowIds: [] };
   const grid = document.createElement("unifold-data-grid") as UnifoldDataGrid;
   Object.assign(grid, {

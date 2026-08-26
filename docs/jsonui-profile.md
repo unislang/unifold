@@ -81,8 +81,8 @@ Unifold commits through its normalized transaction and trusted adapter. The Unif
 the exact intent → state commands → committed transaction → requested/completed store-effect chain,
 with one source/correlation/causation/transaction identity, contiguous runtime sequence, exact
 revision, and metadata-only disclosure. Chromium and WebKit pass locally; the managed elevated
-Windows Firefox runner still fails before page creation for every old and new parity case, so Linux
-or non-elevated Windows CI retains that release gate.
+Windows Firefox installation now passes the same suite when its browser subprocess runs outside the
+filesystem sandbox. The release gate remains all three engines, not a Chromium/WebKit waiver.
 
 Action detection follows the pinned upstream event-property grammar rather than scanning arbitrary
 application data. Modifier detection follows recursively resolved property values. This prevents an

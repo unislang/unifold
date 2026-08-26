@@ -74,7 +74,7 @@ async function loadVerifiedDocument(
   const migration = migrateUnifoldDocument(parsed, options.migrations ?? []);
   const migrated = requireMigration(migration);
   evidence.migrationCount = migrated.appliedMigrations.length;
-  const prepared = requirePreparation(prepareUnifoldDocument(migrated.document));
+  const prepared = requirePreparation(prepareUnifoldDocument(migrated.document, options));
   const provenance: UnifoldDocumentProvenance = {
     appliedMigrations: migrated.appliedMigrations,
     integrity: verified.integrity,

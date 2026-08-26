@@ -11,7 +11,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
   JsonUI-compatible profile for Accordion, Alert, AuditLog, Box, Button, Checkbox, Combobox,
   Composition, DataGrid, Form, Grid, Heading, Icon, Link, MasterDetail, MenuButton, MultiSelect,
   RadioGroup, SearchResults, Select, Stack, Stepper, Tabs, Table, Text, TextArea, TextField,
-  VirtualList, and Wizard. Catalog-backed property validation rejects unknown properties, invalid enum values,
+  Tooltip, VirtualList, and Wizard. Catalog-backed property validation rejects unknown properties, invalid enum values,
   malformed option, table, or audit lists, invalid string-array values, duplicate option values, duplicate
   table column/row or audit-entry identities, undeclared table cells, and selections absent from their declared
   options before rendering. Reusable enum-backed catalog constraint descriptors keep cross-property
@@ -45,6 +45,20 @@ critical seam; it is not yet the full catalog or Studio product described by the
 - Deterministic reusable JSON composition expansion with exact version pins, scalar structural
   parameters, declared slots, nested instances, namespaced IDs, typed exports, versioned manifests,
   per-node provenance, runtime composition handles, and diagnostics.
+- A hierarchy-oriented authoring layer compatible with the original Angular prototype's useful
+  shape: exact `layoutType`/`layoutVersion`, typed `variables`, recursively nested
+  `type`/`props`/`children`, safe structural references, boolean conditions, durable-key repetition,
+  and named component events lower into the canonical JsonUI/composition compiler path. A packaged
+  draft-2020-12 schema and bounded JSON-safety pass reject malformed, cyclic, shared, executable,
+  over-depth, over-count, oversized-string, non-finite, and prototype-key input before lowering.
+  Enum-backed source-specific bindings are validated against catalog event capabilities and alias
+  only XState input; canonical stream facts are not rewritten. The standalone hierarchical example
+  passes unit, build, selective-update, workflow, Schema.org, canonical-stream, and axe checks in
+  Chromium and WebKit. A bounded immutable host-supplied registry supports reviewed external layout
+  modules without document-selected URLs or runtime I/O; exact version collisions, forged registry
+  objects, unsafe definitions, source provenance, mounted/async updates, and signed-load mounting
+  fail closed or pass through the same compiler boundary. Invalid revisions retain last-known-good
+  state and DOM, and 500-node layout compilation has an executable p95 regression gate.
 - CloudEvents-shaped canonical UI events with node identity, correlation, causation, transaction,
   sequence, state revision, and classification-aware disclosure. Public ordinary facts may carry
   complete snapshots and changes; non-public and store-write facts retain source identity with
@@ -56,8 +70,9 @@ critical seam; it is not yet the full catalog or Studio product described by the
   an environment-tagged Vitest benchmark harness.
 - A versioned data-only workflow-machine contract compiled to live XState v5 actors, scope-indexed
   canonical event routing, trusted typed-command factories, causal runtime transactions,
-  last-known-good command validation, actor retention across unchanged reconciliation, and
-  synchronous state inspection.
+  bounded trusted named guards over canonical events and current normalized snapshots, fail-closed
+  predicate execution, last-known-good implementation validation, actor retention across unchanged
+  reconciliation, and synchronous state inspection.
 - A closed, allowlisted JSON Logic derived-rule profile with declared state dependencies, expression
   budgets, cycle and multiple-writer diagnostics, a compiled dependency DAG, typed state-command
   outputs, and incremental transitive evaluation. Its deterministic reference graph evaluates
@@ -228,14 +243,14 @@ critical seam; it is not yet the full catalog or Studio product described by the
    Complete 500-instance and one-instance-revision compilation are independently gated at 100 ms
    p95; the schema-2.18.0 run measured 9.32 ms and 9.02 ms, so subtree caching is deferred pending
    evidence. The dedicated preservation/reset/rejection/recovery journey passes state, focus,
-   semantics, stable DOM identity, canonical event, and axe assertions in Chromium and WebKit;
-   Firefox still fails before page creation on the managed Windows runner. The select-only Combobox
+   semantics, stable DOM identity, canonical event, and axe assertions in Chromium, Firefox, and
+   WebKit. The select-only Combobox
    path is now catalog-authoritative from JSON through static/interactive rendering, runtime events,
    reset, keyboard, axe, and bounded 10k-option filtering evidence. Tabs and MenuButton are now
    catalog-authoritative through static/interactive rendering, controlled or registered-action
    events, focus, axe, rollback, and exact 100-item gates. Continue with free-form autocomplete
    variants, menu variants, overlays, navigation, upload, and variable-height or
-   two-dimensional virtualization while retaining Firefox as an external release gate. See
+   two-dimensional virtualization while retaining all three browsers as release gates. See
    [composition P0 follow-ups](./compositions.md#p0-hardening-follow-ups).
 5. Add stable-release evidence and generated documentation/test skeletons to the complete core
    `ComponentDefinition` pipeline, then benchmark representative native/Lion/Spectrum patterns
@@ -252,19 +267,17 @@ critical seam; it is not yet the full catalog or Studio product described by the
    SSR/declarative shadow DOM, localization, RTL, design-token interchange, security hardening,
    observability, persistence, offline, and enterprise deployment. Plain DOM, React, Vue, and Svelte
    host neutrality is now executable without framework-specific state adapters.
-10. Expand the initial flat workflow profile with named guards, delays, invoked effect actors,
-    nested/parallel states, inspection subscriptions, portable replay records, and versioned snapshot
-    migration or safe-discard policy.
+10. Expand the initial flat workflow profile beyond its implemented trusted named guards with delays,
+    invoked effect actors, nested/parallel states, inspection subscriptions, portable replay records,
+    and versioned snapshot migration or safe-discard policy.
 
 ## Open release and verification gates
 
 - The 350-line check applies to authored non-Markdown files. It explicitly and narrowly excludes the
   generated pnpm lockfile, which remains committed for reproducibility and supply-chain review.
-- Chromium and WebKit complete on the current managed Windows runner. Its Firefox process starts but
-  fails before page creation with Playwright's elevated-Windows `browserContext.newPage` `_page`
-  error, including a single-worker retry; this is an environment limitation, not a passed browser
-  result. Non-elevated Windows or Linux CI must execute Firefox, and CI must retain all three engines
-  rather than waiving that release evidence.
+- Chromium, Firefox, and WebKit complete on the current Windows runner when browser subprocesses run
+  outside the filesystem sandbox. CI must retain all three engines rather than waiving that release
+  evidence.
 - All packages are intentionally private until the project license is selected and ownership of the
   `@unislang` npm scope is verified.
 - The packed-tarball gate proves artifact integrity without weakening that private boundary. After

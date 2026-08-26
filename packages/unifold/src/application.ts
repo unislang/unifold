@@ -3,13 +3,8 @@ import { UiEventType, type UiEvent, type UiNodeSnapshot } from "@unislang/unifol
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
 import type { DomRenderController } from "@unislang/unifold-renderer-dom";
 import { UnifoldRuntime } from "@unislang/unifold-runtime";
-import {
-  createMachineCommandRegistry,
-  type UiMachineCommandRegistry
-} from "@unislang/unifold-xstate";
+import type { UiMachineCommandRegistry, UiMachineGuardRegistry } from "@unislang/unifold-xstate";
 import type { Subscription } from "rxjs";
-
-import { prepareUnifoldDocument } from "./compiler.js";
 import {
   planCompositionMigration,
   type UiCompositionMigrationPlan,
@@ -23,6 +18,7 @@ import {
   focusedNodeId,
   isApplicationDiagnostic,
   migratedFocusedNodeId,
+  prepareApplicationUpdate,
   prepareCompositionMigration,
   publishRuntimeSemantics,
   reconcileCommand,
@@ -36,7 +32,7 @@ import {
   updateFailureStage
 } from "./application-update.js";
 import { commandForEvent, eventExecutionContext } from "./event-command.js";
-import { UiMachineCoordinator } from "./machine-coordinator.js";
+import { createUiMachineCoordinator, type UiMachineCoordinator } from "./machine-coordinator.js";
 import { UiSemanticCoordinator, semanticSnapshotRecord } from "./semantic-coordinator.js";
 import { prepareApplicationStores, type PreparedApplicationStores } from "./store-adapters.js";
 import type { StoreCommandController } from "./store-command-port.js";
@@ -46,9 +42,9 @@ import {
   type PreparedUnifoldDocument,
   type UiStoreAdapterRegistry,
   type UnifoldApplicationDiagnostic,
-  type UnifoldApplicationUpdateResult
+  type UnifoldApplicationUpdateResult,
+  type UnifoldPreparationOptions
 } from "./types.js";
-
 export class UnifoldApplication {
   readonly runtime: UnifoldRuntime;
   readonly renderer: DomRenderController;
@@ -66,22 +62,24 @@ export class UnifoldApplication {
     renderer: DomRenderController,
     stores: PreparedApplicationStores,
     private readonly storeAdapters: UiStoreAdapterRegistry,
-    machineCommands: UiMachineCommandRegistry = createMachineCommandRegistry(),
+    machineCommands?: UiMachineCommandRegistry,
+    machineGuards?: UiMachineGuardRegistry,
     private readonly storeCommands?: StoreCommandController,
     private readonly semantics?: UiSemanticCoordinator,
-    private readonly compositionMigrations: readonly UiCompositionVersionMigration[] = []
+    private readonly compositionMigrations: readonly UiCompositionVersionMigration[] = [],
+    private readonly preparationOptions?: UnifoldPreparationOptions
   ) {
     planCompositionMigration(prepared.document, prepared.document, compositionMigrations);
     this.current = prepared;
     this.stores = stores;
     this.runtime = runtime;
     this.renderer = renderer;
-    this.machines = new UiMachineCoordinator(runtime, machineCommands);
+    this.machines = createUiMachineCoordinator(runtime, machineCommands, machineGuards);
     this.machines.validate(prepared.document.machines);
     this.container.addEventListener(ElementEventName.UiEvent, this.onElementEvent);
     this.subscription = runtime.events$.subscribe(this.onRuntimeEvent);
     this.projectAll(this.current.document);
-    this.machines.replace(prepared.document.machines);
+    this.machines.replace(prepared.document.machines, prepared.document.nodesById);
   }
 
   get document(): UnifoldIrDocument {
@@ -94,7 +92,7 @@ export class UnifoldApplication {
 
   update(authored: unknown): UnifoldApplicationUpdateResult {
     if (this.unavailable) return rejectedUpdate(this.runtime.revision, [unavailableDiagnostic()]);
-    const preparation = prepareUnifoldDocument(authored);
+    const preparation = prepareApplicationUpdate(authored, this.preparationOptions);
     if (preparation.status === UnifoldPreparationStatus.Invalid) {
       return rejectedUpdate(this.runtime.revision, preparation.diagnostics);
     }
@@ -231,7 +229,7 @@ export class UnifoldApplication {
       this.renderer.update(next.document);
       this.projectAll(next.document);
       restoreFocus(this.renderer, migratedFocusedNodeId(previousNodes, migration));
-      this.machines.replace(next.document.machines);
+      this.machines.replace(next.document.machines, next.document.nodesById);
       this.semantics?.publishRuntime(next.document, this.runtime);
       return appliedUpdate(this.runtime.revision);
     } catch (error) {
@@ -262,7 +260,7 @@ export class UnifoldApplication {
       this.renderer.update(previous.document);
       this.projectAll(previous.document);
       restoreFocus(this.renderer, focusedNodeId(previousNodes));
-      this.machines.replace(previous.document.machines);
+      this.machines.replace(previous.document.machines, previous.document.nodesById);
       publishRuntimeSemantics(this.semantics, previous.document, this.runtime);
       return undefined;
     } catch (error) {

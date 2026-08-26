@@ -1,4 +1,4 @@
-import { readdir, readFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { gzipSync } from "node:zlib";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,23 +12,69 @@ const FORBIDDEN_TEST_HOOKS = [
 const applicationRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 if (isMain()) {
-  const evidence = await checkReferenceBundle(resolve(applicationRoot, "dist", "assets"));
+  const evidence = await checkReferenceBundle(resolve(applicationRoot, "dist"));
   console.log(
-    `Reference JavaScript: ${evidence.gzipBytes} gzip bytes ` +
-      `(${(evidence.gzipBytes / 1024).toFixed(2)} KiB / 180.00 KiB).`
+    `Reference initial JavaScript: ${evidence.gzipBytes} gzip bytes ` +
+      `(${(evidence.gzipBytes / 1024).toFixed(2)} KiB / 180.00 KiB); ` +
+      `${evidence.lazyGzipBytes} deferred gzip bytes.`
   );
 }
 
-export async function checkReferenceBundle(assetsRoot, limitBytes = REFERENCE_BUNDLE_LIMIT_BYTES) {
-  const names = (await readdir(assetsRoot)).filter((name) => name.endsWith(".js")).sort();
-  const assets = await Promise.all(names.map((name) => readFile(resolve(assetsRoot, name))));
-  assertNoTestHooks(assets);
-  const sizes = assets.map((asset) => gzipSync(asset).byteLength);
+export async function checkReferenceBundle(outputRoot, limitBytes = REFERENCE_BUNDLE_LIMIT_BYTES) {
+  const manifest = JSON.parse(
+    await readFile(resolve(outputRoot, ".vite", "manifest.json"), "utf8")
+  );
+  const initialKeys = initialManifestKeys(manifest);
+  const files = manifestFiles(manifest, initialKeys);
+  const allFiles = manifestFiles(manifest, Object.keys(manifest));
+  const lazyFiles = allFiles.filter((file) => !files.includes(file));
+  const allAssets = await readAssets(outputRoot, allFiles);
+  assertNoTestHooks(allAssets);
+  const sizes = await gzipSizes(outputRoot, files);
   const gzipBytes = sizes.reduce((total, size) => total + size, 0);
   if (gzipBytes > limitBytes) {
-    throw new Error(`Reference JavaScript is ${gzipBytes} gzip bytes; limit is ${limitBytes}.`);
+    throw new Error(
+      `Reference initial JavaScript is ${gzipBytes} gzip bytes; limit is ${limitBytes}.`
+    );
   }
-  return { files: names, gzipBytes, limitBytes };
+  const lazySizes = await gzipSizes(outputRoot, lazyFiles);
+  const lazyGzipBytes = lazySizes.reduce((total, size) => total + size, 0);
+  return { files, gzipBytes, lazyFiles, lazyGzipBytes, limitBytes };
+}
+
+function initialManifestKeys(manifest) {
+  const entries = Object.entries(manifest)
+    .filter(([, value]) => value.isEntry === true)
+    .map(([key]) => key);
+  const visited = new Set();
+  entries.forEach((key) => collectStaticImports(manifest, key, visited));
+  return [...visited];
+}
+
+function collectStaticImports(manifest, key, visited) {
+  if (visited.has(key)) return;
+  visited.add(key);
+  const record = manifest[key];
+  if (record === undefined) throw new Error(`Bundle manifest import is missing: ${key}.`);
+  (record.imports ?? []).forEach((dependency) =>
+    collectStaticImports(manifest, dependency, visited)
+  );
+}
+
+function manifestFiles(manifest, keys) {
+  return [...new Set(keys.map((key) => manifest[key]?.file).filter(isJavaScript))].sort();
+}
+
+function isJavaScript(value) {
+  return typeof value === "string" && value.endsWith(".js");
+}
+
+function readAssets(outputRoot, files) {
+  return Promise.all(files.map((file) => readFile(resolve(outputRoot, file))));
+}
+
+async function gzipSizes(outputRoot, files) {
+  return (await readAssets(outputRoot, files)).map((asset) => gzipSync(asset).byteLength);
 }
 
 function assertNoTestHooks(assets) {

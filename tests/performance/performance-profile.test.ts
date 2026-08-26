@@ -9,11 +9,13 @@ import {
   COLD_500_COMPILATION_NAME,
   COMPOSED_500_COMPILATION_NAME,
   COMPOSED_500_REVISION_NAME,
+  LAYOUT_500_COMPILATION_NAME,
   NORMALIZE_2000_DOCUMENT_NAME,
   compileCachedDocument,
   compileColdDocument,
   compileComposedDocument,
   compileComposedRevision,
+  compileLayoutDocument,
   createDocumentCompilationHarness,
   normalizeLargeDocument
 } from "./document-compilation-fixture.js";
@@ -41,44 +43,58 @@ import {
 } from "./selection-overhead-profile.js";
 
 const outputPath = process.env["UNIFOLD_PERFORMANCE_PROFILE_OUTPUT"];
+const harnessesByBench = new WeakMap<Bench, readonly unknown[]>();
+let measuredTimings: ReturnType<typeof timingResults> = {};
 
-it.runIf(outputPath !== undefined)(
-  "writes direct percentiles and heap-retention evidence",
-  async () => {
-    const profile = await measureProfile();
-    await writeFile(outputPath as string, `${JSON.stringify(profile, null, 2)}\n`);
-    expect(profile.heap.retainedHeapBytes).toBeLessThan(64 * 1024 * 1024);
-    expect(profile.gates.every(({ passed }) => passed)).toBe(true);
-  }
-);
+it.runIf(outputPath !== undefined)("measures core selective timing evidence", async () => {
+  measuredTimings = { ...measuredTimings, ...(await measureBench(createCoreBench())) };
+});
 
-async function measureProfile() {
-  const harnesses = createHarnesses();
+it.runIf(outputPath !== undefined)("measures expensive scale timing evidence", async () => {
+  measuredTimings = { ...measuredTimings, ...(await measureBench(createExpensiveBench())) };
+});
+
+it.runIf(outputPath !== undefined)("measures compilation timing evidence", async () => {
+  measuredTimings = { ...measuredTimings, ...(await measureBench(createCompilationBench())) };
+});
+
+it.runIf(outputPath !== undefined)("writes direct percentile and heap evidence", async () => {
+  const profile = measureProfile(measuredTimings);
+  await writeFile(outputPath as string, `${JSON.stringify(profile, null, 2)}\n`);
+  expect(profile.heap.retainedHeapBytes).toBeLessThan(64 * 1024 * 1024);
+  expect(profile.gates.every(({ passed }) => passed)).toBe(true);
+});
+
+async function measureBench(subject: Bench) {
   try {
-    const bench = createBench(harnesses);
-    await bench.warmup();
-    await bench.run();
-    const timings = timingResults(bench);
-    const canonicalEventPath = measureCanonicalEventPath();
-    const selectionOverhead = measureSelectionDispatchOverhead();
-    return {
-      canonicalEventPath,
-      gates: timingGates(timings, selectionOverhead, canonicalEventPath),
-      heap: measureHeapRetention(),
-      selectionOverhead,
-      timings
-    };
+    await subject.warmup();
+    await subject.run();
+    return timingResults(subject);
   } finally {
-    Object.values(harnesses).forEach((harness) => {
-      if ("store" in harness) harness.store.dispose();
-      if ("runtime" in harness) harness.runtime.dispose();
-    });
+    disposeHarnesses(subject);
   }
 }
 
-function createBench(harnesses: ReturnType<typeof createHarnesses>): Bench {
+function measureProfile(timings: ReturnType<typeof timingResults>) {
+  const canonicalEventPath = measureCanonicalEventPath();
+  const selectionOverhead = measureSelectionDispatchOverhead();
+  return {
+    canonicalEventPath,
+    gates: timingGates(timings, selectionOverhead, canonicalEventPath),
+    heap: measureHeapRetention(),
+    selectionOverhead,
+    timings
+  };
+}
+
+function baseBench(iterations = 20): Bench {
+  return new Bench({ iterations, time: 250, warmupIterations: 5, warmupTime: 50 });
+}
+
+function createCoreBench(): Bench {
+  const harnesses = createCoreHarnesses();
   let sequence = 0;
-  return new Bench({ iterations: 20, time: 250, warmupIterations: 5, warmupTime: 50 })
+  return trackHarnesses(baseBench(), harnesses)
     .add("1k selective leaf edit", () => updateOne(harnesses.oneThousand, ++sequence))
     .add("100-control aggregate leaf edit", () =>
       updateAggregateOne(harnesses.hundredControlAggregate, ++sequence)
@@ -86,40 +102,89 @@ function createBench(harnesses: ReturnType<typeof createHarnesses>): Bench {
     .add(REACTIVE_TRANSACTION_BENCHMARK_NAME, () =>
       executeReactiveTransaction(harnesses.reactiveTransaction, ++sequence)
     )
-    .add(COLD_500_COMPILATION_NAME, () => compileColdDocument(harnesses.compilation))
-    .add(CACHED_500_COMPILATION_NAME, () => compileCachedDocument(harnesses.compilation))
-    .add(NORMALIZE_2000_DOCUMENT_NAME, () => normalizeLargeDocument(harnesses.compilation))
-    .add(COMPOSED_500_COMPILATION_NAME, () => compileComposedDocument(harnesses.compilation))
-    .add(COMPOSED_500_REVISION_NAME, () => compileComposedRevision(harnesses.compilation))
     .add("10k selection-free leaf edit", () => updateOne(harnesses.baseline, ++sequence))
     .add("10k selective leaf edit", () => updateOne(harnesses.selected, ++sequence))
-    .add("10k one-percent bulk edit", () => updateBulk(harnesses.bulk, ++sequence))
+    .add("10k one-percent bulk edit", () => updateBulk(harnesses.bulk, ++sequence));
+}
+
+function createExpensiveBench(): Bench {
+  const harnesses = createExpensiveHarnesses();
+  let sequence = 0;
+  return trackHarnesses(baseBench(12), harnesses)
     .add("10k one-hundred-sibling reconcile", () =>
       reorderFirstGroup(harnesses.reorder, ++sequence)
     )
     .add("10k one-hundred-transaction replay", () =>
       replay(harnesses.replay, 100, (sequence += 100))
     )
-    .add("10k aggregate-heavy leaf edit", () => updateAggregateOne(harnesses.aggregate, ++sequence))
+    .add("10k aggregate-heavy leaf edit", () =>
+      updateAggregateOne(harnesses.aggregate, ++sequence)
+    );
+}
+
+function createCompilationBench(): Bench {
+  const harnesses = createCompilationHarnesses();
+  let sequence = 0;
+  return trackHarnesses(baseBench(), harnesses)
+    .add(COLD_500_COMPILATION_NAME, () => compileColdDocument(harnesses.compilation))
+    .add(CACHED_500_COMPILATION_NAME, () => compileCachedDocument(harnesses.compilation))
+    .add(NORMALIZE_2000_DOCUMENT_NAME, () => normalizeLargeDocument(harnesses.compilation))
+    .add(COMPOSED_500_COMPILATION_NAME, () => compileComposedDocument(harnesses.compilation))
+    .add(COMPOSED_500_REVISION_NAME, () => compileComposedRevision(harnesses.compilation))
+    .add(LAYOUT_500_COMPILATION_NAME, () => compileLayoutDocument(harnesses.compilation))
     .add("1k rule graph with 25 affected rules", () =>
       evaluateRuleChain(harnesses.rules, 0, ++sequence)
     );
 }
 
-function createHarnesses() {
+function createCoreHarnesses() {
   return {
-    aggregate: createAggregateScaleHarness(TEN_THOUSAND_NODES),
     baseline: createScaleHarness(TEN_THOUSAND_NODES, false),
     bulk: createScaleHarness(TEN_THOUSAND_NODES),
-    compilation: createDocumentCompilationHarness(),
     hundredControlAggregate: createAggregateScaleHarness(ONE_HUNDRED_CONTROL_FORM_NODES, 10),
     oneThousand: createScaleHarness(ONE_THOUSAND_NODES),
-    reorder: createScaleHarness(TEN_THOUSAND_NODES),
-    replay: createScaleHarness(TEN_THOUSAND_NODES),
     reactiveTransaction: createReactiveTransactionHarness(),
-    rules: createRuleScaleHarness(),
     selected: createScaleHarness(TEN_THOUSAND_NODES)
   };
+}
+
+function createExpensiveHarnesses() {
+  return {
+    aggregate: createAggregateScaleHarness(TEN_THOUSAND_NODES),
+    reorder: createScaleHarness(TEN_THOUSAND_NODES),
+    replay: createScaleHarness(TEN_THOUSAND_NODES)
+  };
+}
+
+function createCompilationHarnesses() {
+  return { compilation: createDocumentCompilationHarness(), rules: createRuleScaleHarness() };
+}
+
+function trackHarnesses<T extends Record<string, unknown>>(bench: Bench, harnesses: T): Bench {
+  harnessesByBench.set(bench, Object.values(harnesses));
+  return bench;
+}
+
+function disposeHarnesses(bench: Bench): void {
+  harnessesByBench.get(bench)?.forEach(disposeHarness);
+  harnessesByBench.delete(bench);
+}
+
+function disposeHarness(value: unknown): void {
+  if (!isRecord(value)) return;
+  disposeCandidate(Reflect.get(value, "store"));
+  disposeCandidate(Reflect.get(value, "runtime"));
+}
+
+function disposeCandidate(value: unknown): void {
+  if (!isRecord(value)) return;
+  const dispose = Reflect.get(value, "dispose") as unknown;
+  if (typeof dispose === "function") dispose.call(value);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  if (value === null) return false;
+  return typeof value === "object";
 }
 
 function timingResults(bench: Bench) {
@@ -156,6 +221,7 @@ function timingGates(
       requireP95(timings, NORMALIZE_2000_DOCUMENT_NAME),
       200
     ),
+    timingGate(LAYOUT_500_COMPILATION_NAME, requireP95(timings, LAYOUT_500_COMPILATION_NAME), 100),
     ...compositionCompilationGates(timings)
   ];
 }

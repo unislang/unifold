@@ -8,37 +8,53 @@ import type {
   UiDocument,
   UiDerivedRuleDefinition,
   UiMachineDefinition,
+  UiNodeEventBindings,
   UiStoreBinding,
   UiStoreDefinition
 } from "@unislang/unifold-contracts";
 
 import { CompilationStatus, UnifoldIrVersion } from "./enums.js";
-import type { CompileResult, UnifoldIrDocument, UnifoldIrNode } from "./types.js";
+import { remapCompilerDiagnosticPaths } from "./compiler-diagnostic-paths.js";
+import type {
+  CompileResult,
+  CompileUiDocumentOptions,
+  UnifoldIrDocument,
+  UnifoldIrNode
+} from "./types.js";
 import { validateUiDocument } from "./validation.js";
 import { nodeKindForComponent } from "./node-kind.js";
 
-const RESERVED_NODE_PROPERTIES = new Set(["$children", "$comp", "id", "path", "store"]);
+const RESERVED_NODE_PROPERTIES = new Set(["$children", "$comp", "events", "id", "path", "store"]);
 interface CompileContext {
+  readonly authoredSourcePointers: Readonly<Record<string, string>>;
   readonly nodes: Map<string, UnifoldIrNode>;
   readonly provenance: Readonly<Record<string, UiCompositionNodeProvenance>>;
   readonly renderOrder: string[];
   readonly sourcePointers: Map<string, string>;
 }
 
-export function compileUiDocument(input: unknown): CompileResult {
+export function compileUiDocument(
+  input: unknown,
+  options: CompileUiDocumentOptions = {}
+): CompileResult {
   const validation = validateUiDocument(input);
+  const diagnostics = remapCompilerDiagnosticPaths(
+    input,
+    validation.diagnostics,
+    sourcePointersOption(options)
+  );
   if (validation.document === undefined) {
-    return { diagnostics: validation.diagnostics, status: CompilationStatus.Invalid };
+    return { diagnostics, status: CompilationStatus.Invalid };
   }
   return {
-    diagnostics: validation.diagnostics,
-    document: buildDocument(validation.document),
+    diagnostics,
+    document: buildDocument(validation.document, options),
     status: CompilationStatus.Valid
   };
 }
 
-function buildDocument(document: UiDocument): UnifoldIrDocument {
-  const context = createContext(document);
+function buildDocument(document: UiDocument, options: CompileUiDocumentOptions): UnifoldIrDocument {
+  const context = createContext(document, options);
   compileNode(document.view, "/view", undefined, [], context);
   return {
     compositionsByInstanceId: compositionInstances(document),
@@ -85,13 +101,24 @@ function canonicalRules(
     .sort(({ id: left }, { id: right }) => left.localeCompare(right));
 }
 
-function createContext(document: UiDocument): CompileContext {
+function createContext(document: UiDocument, options: CompileUiDocumentOptions): CompileContext {
   return {
+    authoredSourcePointers: sourcePointersOption(options),
     nodes: new Map(),
-    provenance: document.compositionManifest?.nodeProvenanceById ?? {},
+    provenance: compositionProvenance(document),
     renderOrder: [],
     sourcePointers: new Map()
   };
+}
+
+function sourcePointersOption(options: CompileUiDocumentOptions): Readonly<Record<string, string>> {
+  return options.sourcePointersByNodeId ?? {};
+}
+
+function compositionProvenance(
+  document: UiDocument
+): Readonly<Record<string, UiCompositionNodeProvenance>> {
+  return document.compositionManifest?.nodeProvenanceById ?? {};
 }
 
 function compileNode(
@@ -108,10 +135,14 @@ function compileNode(
     createIrNode(node, children, parentId, scopePath, context.provenance[node.id])
   );
   context.renderOrder.push(node.id);
-  context.sourcePointers.set(node.id, sourcePointer);
+  context.sourcePointers.set(node.id, authoredSourcePointer(node.id, sourcePointer, context));
   children.forEach((child, index) =>
     compileNode(child, `${sourcePointer}/$children/${index}`, node.id, scopePath, context)
   );
+}
+
+function authoredSourcePointer(nodeId: string, fallback: string, context: CompileContext): string {
+  return context.authoredSourcePointers[nodeId] ?? fallback;
 }
 
 function createIrNode(
@@ -124,14 +155,34 @@ function createIrNode(
   const base = {
     childIds: children.map(({ id }) => id),
     componentType: node.$comp,
+    eventBindings: canonicalEventBindings(node),
     id: node.id,
     kind: nodeKindForComponent(node.$comp) as NonNullable<ReturnType<typeof nodeKindForComponent>>,
     properties: extractProperties(node),
     scopePath
   };
-  const withComposition = composition === undefined ? base : { ...base, composition };
-  const withBinding = binding(node, withComposition);
-  return parentId === undefined ? withBinding : { ...withBinding, parentId };
+  return withParent(parentId, binding(node, withComposition(base, composition)));
+}
+
+function canonicalEventBindings(node: JsonUiNode): UiNodeEventBindings {
+  if (node.events === undefined) return {};
+  return canonicalize(node.events) as UiNodeEventBindings;
+}
+
+function withComposition<T extends object>(
+  value: T,
+  composition: UiCompositionNodeProvenance | undefined
+): T & { composition?: UiCompositionNodeProvenance } {
+  if (composition === undefined) return value;
+  return { ...value, composition };
+}
+
+function withParent<T extends object>(
+  parentId: string | undefined,
+  value: T
+): T & { parentId?: string } {
+  if (parentId === undefined) return value;
+  return { ...value, parentId };
 }
 
 function binding<T extends object>(node: JsonUiNode, value: T): T & { binding?: UiStoreBinding } {

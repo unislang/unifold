@@ -7,12 +7,6 @@ import {
   JsonUiUpstreamRevision,
   UiContractSchemaUri,
   UiSchemaVersion,
-  UiStoreAccess,
-  UiStoreInitialDataPolicy,
-  UiStoreOwnership,
-  UiStorePersistence,
-  UiStoreSchemaVersion,
-  UiStoreSourceKind,
   type JsonObject
 } from "@unislang/unifold-contracts";
 import {
@@ -24,6 +18,8 @@ import {
 import { referenceAuditLogNode } from "./static-audit-log-reference.test-data.js";
 import { referenceSearchResultsNode } from "./static-search-results-reference.test-data.js";
 import { referenceMenuButton } from "./static-menu-reference.test-data.js";
+import { referenceTooltipNode } from "./static-tooltip-reference.test-data.js";
+import { referenceStoreDefinition } from "./static-store-reference.test-data.js";
 import { largeVirtualListNode } from "./static-virtual-list-reference.test-data.js";
 import {
   referenceStepperNode,
@@ -40,7 +36,7 @@ export const largeVirtualListDocument = (): JsonObject => documentWithView(large
 export function classifiedVirtualListDocument(classification: DataClassification): JsonObject {
   return {
     ...documentWithView({ ...virtualList(), path: "/name", store: "profile" }),
-    stores: [storeDefinition(classification)]
+    stores: [referenceStoreDefinition(classification)]
   };
 }
 
@@ -49,7 +45,13 @@ function referenceRoot(): JsonObject {
     $comp: "Composition",
     id: "root",
     label: "Reference",
-    $children: [referenceForm(), referenceDisclosure(), referenceMenuButton(), referenceTabsNode()]
+    $children: [
+      referenceForm(),
+      referenceDisclosure(),
+      referenceMenuButton(),
+      referenceTabsNode(),
+      referenceTooltipNode()
+    ]
   };
 }
 
@@ -144,7 +146,7 @@ export function semanticDocument(
   return {
     ...documentWithView({ ...textField(), path: "/name", store: "profile", value }),
     semantics: semanticGraph(value),
-    stores: [storeDefinition(classification)]
+    stores: [referenceStoreDefinition(classification)]
   };
 }
 
@@ -323,27 +325,5 @@ function constantSemanticGraph(value: string): JsonObject {
         type: "Person"
       }
     ]
-  };
-}
-
-function storeDefinition(classification: DataClassification): JsonObject {
-  return {
-    access: UiStoreAccess.ReadOnly,
-    classification,
-    id: "profile",
-    initialData: UiStoreInitialDataPolicy.Optional,
-    maxBytes: 1024,
-    migrations: { maximum: "1.0.0", minimum: "1.0.0" },
-    ownership: UiStoreOwnership.Host,
-    persistence: UiStorePersistence.Memory,
-    schema: {
-      $schema: "https://json-schema.org/draft/2020-12/schema",
-      additionalProperties: false,
-      properties: { name: { type: "string" } },
-      required: ["name"],
-      type: "object"
-    },
-    schemaVersion: UiStoreSchemaVersion.Version1,
-    source: { kind: UiStoreSourceKind.Host }
   };
 }

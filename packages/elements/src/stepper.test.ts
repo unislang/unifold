@@ -3,12 +3,8 @@ import type { WorkflowStep } from "@unislang/unifold-catalog";
 import { expect, it, vi } from "vitest";
 
 import { controlNode } from "./elements.test-data.js";
-import {
-  ElementEventName,
-  ElementEventType,
-  registerCoreElements,
-  UnifoldStepper
-} from "./index.js";
+import { ElementEventName, ElementEventType } from "./index.js";
+import { defineUnifoldStepper, UnifoldStepper } from "./stepper-entry.js";
 
 it("uses roving keyboard focus and emits one complete controlled step selection", async () => {
   const stepper = configuredStepper();
@@ -47,7 +43,7 @@ it("bounds exact step DOM, disables authored steps, and renders hostile text saf
 });
 
 function configuredStepper(count = 3): UnifoldStepper {
-  registerCoreElements();
+  defineUnifoldStepper();
   const stepper = document.createElement("unifold-stepper") as UnifoldStepper;
   const workflowSteps = steps(count);
   Object.assign(stepper, {

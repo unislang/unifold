@@ -47,6 +47,13 @@
         "label": "Account actions"
       },
       {
+        "$comp": "Tooltip",
+        "content": "Account actions apply to the current profile.",
+        "id": "account-actions-help",
+        "label": "About account actions",
+        "placement": "bottom"
+      },
+      {
         "$comp": "Form",
         "id": "form",
         "label": "Profile",

@@ -40,6 +40,7 @@ const renderers: Readonly<Record<CoreComponentType, NodeRenderer>> = {
   [CoreComponentType.Text]: renderText,
   [CoreComponentType.TextArea]: renderTextArea,
   [CoreComponentType.TextField]: renderTextField,
+  [CoreComponentType.Tooltip]: staticComponents.renderStaticTooltip,
   [CoreComponentType.VirtualList]: staticComponents.renderStaticVirtualList,
   [CoreComponentType.Wizard]: staticComponents.renderStaticWizard
 };
