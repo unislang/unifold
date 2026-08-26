@@ -1,4 +1,5 @@
 export enum ComponentAccessibilityPattern {
+  Article = "article",
   AuditTimeline = "audit-timeline",
   Breadcrumb = "breadcrumb",
   Combobox = "combobox",
@@ -19,6 +20,7 @@ export enum ComponentAccessibilityPattern {
   NativeFileInput = "native-file-input",
   NativeForm = "native-form",
   NativeHeading = "native-heading",
+  NativeImage = "native-image",
   NativeLink = "native-link",
   NativeRadioGroup = "native-radio-group",
   NativeSelect = "native-select",

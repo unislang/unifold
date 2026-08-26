@@ -35,6 +35,9 @@ export default defineConfig({
       "@unislang/unifold-elements/form-structure": fileURLToPath(
         new URL("./packages/elements/src/form-structure-entry.ts", import.meta.url)
       ),
+      "@unislang/unifold-elements/content-media": fileURLToPath(
+        new URL("./packages/elements/src/content-media-entry.ts", import.meta.url)
+      ),
       "@unislang/unifold-elements/audit-log": fileURLToPath(
         new URL("./packages/elements/src/audit-log-entry.ts", import.meta.url)
       ),
@@ -112,6 +115,9 @@ export default defineConfig({
       ),
       "@unislang/unifold/form-structure": fileURLToPath(
         new URL("./packages/unifold/src/form-structure.ts", import.meta.url)
+      ),
+      "@unislang/unifold/content-media": fileURLToPath(
+        new URL("./packages/unifold/src/content-media.ts", import.meta.url)
       ),
       "@unislang/unifold-ai": packageSource("ai"),
       "@unislang/unifold-catalog": packageSource("catalog"),

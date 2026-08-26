@@ -95,6 +95,20 @@ test("renders nested Dialog JSON through the layoutType authoring pipeline", asy
   await expect(trigger).toBeFocused();
 });
 
+test("renders bounded Image and Card content with native semantics", async ({ page, unifold }) => {
+  await page.goto("/");
+  const card = page.getByTestId("profile-card");
+  await expect(card.locator("article")).toHaveAttribute("aria-label", "Profile media summary");
+  await expect(card).toContainText("This card is authored entirely through nested layout JSON.");
+  const image = page.getByTestId("profile-image").locator("img");
+  await expect(image).toHaveAttribute("alt", "Blue and green geometric profile placeholder");
+  await expect(image).toHaveAttribute("src", "/profile-placeholder.svg");
+  await expect(image).toHaveAttribute("width", "320");
+  await expect(image).toHaveAttribute("height", "180");
+  await expect(image).toHaveAttribute("loading", "lazy");
+  await unifold.assertAccessibility();
+});
+
 async function semanticName(page: Parameters<typeof readRenderBaseline>[0]) {
   return page.locator("script[data-unifold-semantics]").evaluate((element) => {
     const graph = JSON.parse(element.textContent ?? "{}") as { "@graph": [{ name: string }] };

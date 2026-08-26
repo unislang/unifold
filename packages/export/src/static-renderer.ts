@@ -4,6 +4,7 @@ import type { UnifoldIrDocument, UnifoldIrNode } from "@unislang/unifold-ir";
 import { escapeHtml } from "./html-escape.js";
 import { staticNodeClassification } from "./static-classification.js";
 import * as staticComponents from "./static-components.js";
+import * as staticContent from "./static-content-media.js";
 import * as staticForm from "./static-form-structure.js";
 export { staticNodeClassification } from "./static-classification.js";
 type NodeRenderer = (context: RenderContext) => string;
@@ -20,6 +21,7 @@ const renderers: Readonly<Record<CoreComponentType, NodeRenderer>> = {
   [CoreComponentType.Box]: renderContainer,
   [CoreComponentType.Breadcrumb]: staticComponents.renderStaticBreadcrumb,
   [CoreComponentType.Button]: renderButton,
+  [CoreComponentType.Card]: staticContent.renderStaticCard,
   [CoreComponentType.Checkbox]: renderCheckbox,
   [CoreComponentType.Combobox]: renderSelect,
   [CoreComponentType.Composition]: renderSection,
@@ -33,6 +35,7 @@ const renderers: Readonly<Record<CoreComponentType, NodeRenderer>> = {
   [CoreComponentType.Grid]: renderContainer,
   [CoreComponentType.Heading]: renderHeading,
   [CoreComponentType.Icon]: renderIcon,
+  [CoreComponentType.Image]: staticContent.renderStaticImage,
   [CoreComponentType.Link]: renderLink,
   [CoreComponentType.MasterDetail]: staticComponents.renderStaticMasterDetail,
   [CoreComponentType.MenuButton]: staticComponents.renderStaticMenuButton,

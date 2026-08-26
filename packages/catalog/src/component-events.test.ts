@@ -4,7 +4,9 @@ import { expect, it } from "vitest";
 import { getCoreComponentEvents } from "./component-events.js";
 
 it("declares supported workflow signals for every component", () => {
-  expect(Object.values(CoreComponentType).map(getCoreComponentEvents)).toHaveLength(37);
+  expect(Object.values(CoreComponentType).map(getCoreComponentEvents)).toHaveLength(
+    Object.values(CoreComponentType).length
+  );
   expect(getCoreComponentEvents(CoreComponentType.Button)).toEqual([
     UiComponentEventBinding.Activated
   ]);

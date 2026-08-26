@@ -75,6 +75,9 @@ denials per sample through the public loader. Five samples require p95 at or bel
 1,000 ms respectively while proving exact compilation, issuer/key/hash/receipt evidence, stable
 revocation diagnostics, and one metadata-only durable-audit receipt per operation.
 
+An exact content/media fixture mounts 100 `Card`/`Image` pairs and updates all 100 alternative-text
+properties across 50 samples. It requires exact host counts and projection p95 at or below 100 ms.
+
 An exact 10,000-row MasterDetail document adds twenty post-warm-up startup and selection samples.
 Its gates require startup p95 at or below 1,000 ms, selection p95 at or below 100 ms, no more than
 200 rendered master options, the expected canonical selected row, and the matching detail content.

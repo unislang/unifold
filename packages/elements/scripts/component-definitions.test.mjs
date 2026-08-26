@@ -46,7 +46,15 @@ test("derives required, enum, attribute, and public snapshot schemas", async () 
   assertWorkflowSchemas(schemas.stepper, schemas.wizard);
   assert(schemas.link.publicSnapshotSchema.properties.testId === undefined);
   assertIconSchema(schemas.icon);
+  assertImageSchema(schemas.image);
 });
+
+function assertImageSchema(image) {
+  assert.deepEqual(image.propertiesSchema.required, ["alt", "height", "src", "width"]);
+  assert.deepEqual(image.propertiesSchema.properties.fit.enum, ["contain", "cover"]);
+  assert.deepEqual(image.propertiesSchema.properties.loading.enum, ["eager", "lazy"]);
+  assert.equal(image.propertiesSchema.properties.width.minimum, 1);
+}
 
 function assertOverlaySchemas(document) {
   const dialog = requireDefinition(document, CoreComponentType.Dialog);
@@ -84,6 +92,7 @@ function schemaDefinitions(document) {
       "dialog",
       "fileInput",
       "icon",
+      "image",
       "link",
       "popover",
       "searchResults",

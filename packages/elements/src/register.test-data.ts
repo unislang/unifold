@@ -3,6 +3,7 @@ import { CoreElementTag } from "@unislang/unifold-catalog";
 import { defineUnifoldAuditLog } from "./audit-log-entry.js";
 import { defineUnifoldBreadcrumb } from "./breadcrumb-entry.js";
 import { defineUnifoldCombobox } from "./combobox-entry.js";
+import { defineUnifoldCard, defineUnifoldImage } from "./content-media-entry.js";
 import { defineUnifoldDataGrid } from "./data-grid-entry.js";
 import { defineUnifoldDialog } from "./dialog-entry.js";
 import { defineUnifoldFileInput } from "./file-input-entry.js";
@@ -87,10 +88,12 @@ export function foundationTags(): readonly CoreElementTag[] {
   const deferred = new Set([
     CoreElementTag.AuditLog,
     CoreElementTag.Breadcrumb,
+    CoreElementTag.Card,
     CoreElementTag.Combobox,
     CoreElementTag.DataGrid,
     CoreElementTag.Dialog,
     CoreElementTag.FileInput,
+    CoreElementTag.Image,
     CoreElementTag.ErrorSummary,
     CoreElementTag.Field,
     CoreElementTag.Fieldset,
@@ -111,6 +114,8 @@ export function defineDeferredElements(registry: ElementRegistryPort): void {
   defineUnifoldAuditLog(registry);
   defineUnifoldBreadcrumb(registry);
   defineUnifoldCombobox(registry);
+  defineUnifoldCard(registry);
+  defineUnifoldImage(registry);
   defineUnifoldDataGrid(registry);
   [defineUnifoldDialog, defineUnifoldFileInput].forEach((define) => define(registry));
   [defineUnifoldErrorSummary, defineUnifoldField, defineUnifoldFieldset].forEach((define) =>

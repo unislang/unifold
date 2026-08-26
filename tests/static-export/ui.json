@@ -37,6 +37,30 @@
         "level": "1"
       },
       {
+        "$comp": "Card",
+        "id": "profile-card",
+        "label": "Profile media summary",
+        "padding": "lg",
+        "surface": "subtle",
+        "$children": [
+          {
+            "$comp": "Image",
+            "alt": "Blue and green geometric profile placeholder",
+            "fit": "contain",
+            "height": 180,
+            "id": "profile-image",
+            "loading": "lazy",
+            "src": "/profile-placeholder.svg",
+            "width": 320
+          },
+          {
+            "$comp": "Text",
+            "content": "This card remains visible without JavaScript.",
+            "id": "profile-card-copy"
+          }
+        ]
+      },
+      {
         "$comp": "Breadcrumb",
         "id": "profile-breadcrumb",
         "items": [

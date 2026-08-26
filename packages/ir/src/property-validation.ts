@@ -10,6 +10,7 @@ import {
 import { errorDiagnostic } from "./diagnostics.js";
 import { isAuditLogEntryList } from "./audit-log-validation.js";
 import { isBreadcrumbItemList } from "./breadcrumb-validation.js";
+import { isSafeResourceProperty } from "./content-media-validation.js";
 import { isDataGridValue } from "./data-grid-validation.js";
 import { validateComponentConstraints } from "./component-constraints.js";
 import { isFileMetadataList } from "./file-input-validation.js";
@@ -40,6 +41,7 @@ const validators: Readonly<Record<CatalogPropertyType, PropertyValidator>> = {
   [CatalogPropertyType.OptionList]: isOptionList,
   [CatalogPropertyType.PositiveInteger]: (value) =>
     typeof value === "number" && Number.isSafeInteger(value) && value > 0,
+  [CatalogPropertyType.SafeResourceUrl]: isSafeResourceProperty,
   [CatalogPropertyType.SafeUrl]: (value) => typeof value === "string" && isSafeUrl(value),
   [CatalogPropertyType.SearchResultList]: isSearchResultList,
   [CatalogPropertyType.SearchResultsValue]: isSearchResultsValue,

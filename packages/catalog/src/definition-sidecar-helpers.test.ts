@@ -4,6 +4,7 @@ import { expect, it } from "vitest";
 import {
   definition,
   exampleNode,
+  imageUrlProperty,
   urlProperty,
   visibleProperty,
   visibleSubject
@@ -39,4 +40,11 @@ it("builds a frozen full-document sidecar from enum-backed inputs", () => {
 it("builds visible property and subject attachment points", () => {
   expect(visibleProperty("content", "content").kind).toBe(ComponentSemanticAttachmentKind.Property);
   expect(visibleSubject("content", "content").kind).toBe(ComponentSemanticAttachmentKind.Subject);
+});
+
+it("builds an image URL attachment without treating it as visible text", () => {
+  expect(imageUrlProperty("image", "src")).toMatchObject({
+    normalization: ComponentSemanticNormalization.ImageUrl,
+    valueSource: ComponentSemanticValueSource.PublicProperty
+  });
 });

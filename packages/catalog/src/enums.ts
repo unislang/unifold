@@ -53,6 +53,7 @@ export enum CatalogPropertyType {
   MenuItemList = "menu-item-list",
   OptionList = "option-list",
   PositiveInteger = "positive-integer",
+  SafeResourceUrl = "safe-resource-url",
   SafeUrl = "safe-url",
   SearchResultList = "search-result-list",
   SearchResultsValue = "search-results-value",
@@ -82,6 +83,7 @@ export enum CoreElementTag {
   Box = "unifold-box",
   Breadcrumb = "unifold-breadcrumb",
   Button = "unifold-button",
+  Card = "unifold-card",
   Checkbox = "unifold-checkbox",
   Combobox = "unifold-combobox",
   Composition = "unifold-composition",
@@ -95,6 +97,7 @@ export enum CoreElementTag {
   Grid = "unifold-grid",
   Heading = "unifold-heading",
   Icon = "unifold-icon",
+  Image = "unifold-image",
   Link = "unifold-link",
   MasterDetail = "unifold-master-detail",
   MenuButton = "unifold-menu-button",
@@ -164,6 +167,16 @@ export enum IconTone {
   Primary = "primary",
   Success = "success",
   Warning = "warning"
+}
+
+export enum ImageFit {
+  Contain = "contain",
+  Cover = "cover"
+}
+
+export enum ImageLoading {
+  Eager = "eager",
+  Lazy = "lazy"
 }
 
 export enum LayoutAlignment {

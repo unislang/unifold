@@ -8,14 +8,12 @@ import {
   type UnifoldApplicationPort
 } from "@unislang/unifold";
 import { UiCommandType, type UiEvent } from "@unislang/unifold-events";
-import { defineUnifoldDialog } from "@unislang/unifold/dialog";
 
 import definition from "./ui.json" with { type: "json" };
 import layoutDefinitions from "./layouts.json" with { type: "json" };
 import "./example.css";
 
 const layoutRegistry = createTrustedLayoutDefinitionRegistry(layoutDefinitions);
-defineUnifoldDialog();
 
 export interface ExampleController {
   readonly application: UnifoldApplicationPort;
@@ -87,9 +85,30 @@ function disposeExample(application: UnifoldApplicationPort, unsubscribe: () => 
   application.dispose();
 }
 
-const container = document.getElementById("app");
-const eventLog = document.querySelector<HTMLElement>("[data-testid='event-log']");
-const machineState = document.querySelector<HTMLElement>("[data-testid='machine-state']");
-if (container instanceof HTMLElement && eventLog !== null && machineState !== null) {
-  mountHierarchicalExample(container, eventLog, machineState);
+async function bootstrap(): Promise<void> {
+  const [dialog, contentMedia] = await Promise.all([
+    import("@unislang/unifold/dialog"),
+    import("@unislang/unifold/content-media")
+  ]);
+  dialog.defineUnifoldDialog();
+  contentMedia.defineUnifoldCard();
+  contentMedia.defineUnifoldImage();
+  const container = document.getElementById("app");
+  const eventLog = document.querySelector<HTMLElement>("[data-testid='event-log']");
+  const machineState = document.querySelector<HTMLElement>("[data-testid='machine-state']");
+  const targets = exampleTargets(container, eventLog, machineState);
+  if (targets === undefined) return;
+  mountHierarchicalExample(...targets);
 }
+
+function exampleTargets(
+  container: HTMLElement | null,
+  eventLog: HTMLElement | null,
+  machineState: HTMLElement | null
+): readonly [HTMLElement, HTMLElement, HTMLElement] | undefined {
+  const values = [container, eventLog, machineState];
+  if (!values.every((value) => value instanceof HTMLElement)) return undefined;
+  return values as [HTMLElement, HTMLElement, HTMLElement];
+}
+
+void bootstrap();

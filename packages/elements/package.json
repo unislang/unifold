@@ -42,6 +42,10 @@
       "types": "./dist/form-structure-entry.d.ts",
       "import": "./dist/form-structure-entry.js"
     },
+    "./content-media": {
+      "types": "./dist/content-media-entry.d.ts",
+      "import": "./dist/content-media-entry.js"
+    },
     "./audit-log": {
       "types": "./dist/audit-log-entry.d.ts",
       "import": "./dist/audit-log-entry.js"

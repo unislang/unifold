@@ -9,7 +9,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
   Changesets, and executable file/function/complexity policies.
 - A safe JSON document contract, validation diagnostics, normalized immutable IR, and a minimal
   JsonUI-compatible profile for Accordion, Alert, AuditLog, Box, Breadcrumb, Button, Checkbox, Combobox,
-  Composition, DataGrid, Dialog, ErrorSummary, Field, Fieldset, FileInput, Form, Grid, Heading, Icon, Link, MasterDetail, MenuButton, MultiSelect,
+  Card, Composition, DataGrid, Dialog, ErrorSummary, Field, Fieldset, FileInput, Form, Grid, Heading, Icon, Image, Link, MasterDetail, MenuButton, MultiSelect,
   Popover, RadioGroup, SearchResults, Select, Stack, Stepper, Tabs, Table, Text, TextArea, TextField,
   Tooltip, VirtualList, and Wizard. Catalog-backed property validation rejects unknown properties, invalid enum values,
   malformed option, table, or audit lists, invalid string-array values, duplicate option values, duplicate
@@ -29,6 +29,11 @@ critical seam; it is not yet the full catalog or Studio product described by the
   validity while the Unifold runtime remains the only committed state authority. Scalar controls
   add IME de-duplication; boolean, repeated-string, and file codecs preserve native submission
   semantics without admitting live file handles into canonical state or events.
+- Deferred `Card` and `Image` content/media primitives. `Card` preserves 1 to 100 authored children
+  inside a native article; `Image` requires deliberate alternative text, a catalog-safe relative or
+  HTTP(S) resource URL, and positive intrinsic dimensions. Both lower from the Scratch-compatible
+  `type`/`props`/`children` authoring shape, render statically without JavaScript, upgrade without
+  duplication, and remain outside the initial production closure.
 - Strict custom-element preflight remains the default. Trusted hosts may opt into enum-backed
   `AllowPending` mounting for catalog-known deferred families. Compatible late definitions replay
   the latest properties, event snapshot, runtime context, and child container after synchronous
@@ -45,7 +50,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
   outcomes and verifies Unifold's exact redacted canonical event chain in Chromium, Firefox, and
   WebKit. Its
   measured isolated production-profile cost is 5.88 kB minified/1.76 kB
-  gzip. The current startup closure is 179.96 KiB gzip against the executable 180 KiB Phase 1
+  gzip. The current startup closure is 179.89 KiB gzip against the executable 180 KiB Phase 1
   budget; required validation is included and optional families are audited post-mount.
 - Typed `UiStoreDefinition` contracts and a Unifold `store`/`path` profile extension. The compiler
   validates unique definitions, enum-backed policy, embedded local-only Draft 2020-12 schemas,
@@ -122,7 +127,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
 - A Vercel AI SDK 7 provider-model boundary with schema-constrained patch proposals, RFC 8785 base
   fingerprints, RFC 6902 operations, stable-path and revision policy, risk enums, approval gating,
   compiler validation, and commit through the normal application coordinator.
-- Browser-safe portable JSON and static HTML exporters. Static HTML covers all thirty-seven core
+- Browser-safe portable JSON and static HTML exporters. Static HTML covers all thirty-nine core
   components with native no-JavaScript content, deterministic upgrade markers, public-data-only
   values, exactly one script-safe JSON-LD graph, and a versioned SHA-256 integrity manifest.
 - A versioned detached Ed25519 document envelope and JSON Schema, browser-safe signing helper, and
@@ -198,16 +203,16 @@ critical seam; it is not yet the full catalog or Studio product described by the
   JSON children, focus restoration, native top-layer enhancement, and static disclosure fallback; a read-only,
   virtualized AuditLog with native list/time semantics; a Tailwind theme foundation;
   component metadata; a DOM renderer; and a JSON-defined reference form.
-- An experimental full-catalog `ComponentDefinition` pipeline for all thirty-seven core elements. The
+- An experimental full-catalog `ComponentDefinition` pipeline for all thirty-nine core elements. The
   official Custom Elements Manifest analyzer and schema derive and validate element API facts;
   enum-backed catalog sidecars supply behavior, accessibility, privacy, structured semantics,
   complete examples, and test evidence. The package publishes standard CEM and joined definition
   artifacts with generated authoring, attribute, public-snapshot, and control schemas. Cross-source
   and live-event drift checks prove every catalog property is exposed and represented exactly in
   canonical snapshots.
-- The complete 15-component Phase 1 foundation release group, plus Composition, Combobox, MultiSelect,
+- The complete 15-component Phase 1 foundation release group, plus Card, Composition, Combobox, MultiSelect,
   Accordion, VirtualList, Table, DataGrid, MasterDetail, SearchResults, Stepper, Tabs, MenuButton,
-  Popover, Dialog, Breadcrumb, Tooltip, Wizard, AuditLog, Field, Fieldset, and ErrorSummary components exercised by later
+  Popover, Dialog, Breadcrumb, Tooltip, Wizard, AuditLog, Field, Fieldset, ErrorSummary, and Image components exercised by later
   interaction slices.
 - A pinned Schema.org 30.0 semantic graph contract carried through the typed document and IR,
   with public/visible committed-state bindings, typed composition-export bindings, an allowlisted
@@ -332,9 +337,9 @@ critical seam; it is not yet the full catalog or Studio product described by the
   identity, and pre-render adapter rejection. The default runtime stream applies
   classification-aware public-safe disclosure.
 - Client-side validation and application coordination contribute materially to the reference bundle.
-  The current startup closure is 183,882 gzip bytes (179.57 KiB) and remains below the executable
+  The current startup closure is 184,204 gzip bytes (179.89 KiB) and remains below the executable
   180 KiB gate. It includes startup-required validation; optional component families load after
-  mount and are audited separately at 35,959 gzip bytes. Preserve the `/validation` boundary and evaluate schema
+  mount and are audited separately at 35,966 gzip bytes. Preserve the `/validation` boundary and evaluate schema
   precompilation, build-time validation, or an explicit lazy authoring/compiler boundary before
   setting production bundle budgets.
 - Valid dynamic option replacement, declarative dependency scheduling, localization, configurable
@@ -383,8 +388,11 @@ critical seam; it is not yet the full catalog or Studio product described by the
   operations, paging/cache identity, retention, offline recovery, retries, conflicts, optimistic
   rollback, cross-context notifications, cancellation, timeout abort, and stale completion.
   The metadata-only 32-file selection profile measures 0.24 ms p95 against 100 ms, retains exactly
-  32 ephemeral handles, and proves file bytes never enter canonical JSON. All forty-eight timing and
-  lifecycle limits are executable benchmark gates. Ratification still requires a provisioned,
+  32 ephemeral handles, and proves file bytes never enter canonical JSON. The exact
+  100-Card/100-Image projection profile
+  updates all alternative text across 50 samples and measures 3.57 ms p95 against 100 ms while
+  requiring exact host counts. All fifty-one timing and lifecycle limits are executable benchmark
+  gates. Ratification still requires a provisioned,
   versioned mid-tier runner.
   Full-document 10k structural reconciliation remains materially slower than leaf and bulk
   transactions. See [performance evidence](./performance.md).

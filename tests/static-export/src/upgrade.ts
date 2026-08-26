@@ -13,6 +13,7 @@ const [
   auditLogFamily,
   breadcrumbFamily,
   comboboxFamily,
+  contentMediaFamily,
   dataGridFamily,
   dialogFamily,
   fileInputFamily,
@@ -29,6 +30,7 @@ const [
   import("@unislang/unifold/audit-log"),
   import("@unislang/unifold/breadcrumb"),
   import("@unislang/unifold/combobox"),
+  import("@unislang/unifold/content-media"),
   import("@unislang/unifold/data-grid"),
   import("@unislang/unifold/dialog"),
   import("@unislang/unifold/file-input"),
@@ -45,6 +47,8 @@ const [
 assertFamily("AuditLog", auditLogFamily.defineUnifoldAuditLog());
 assertFamily("Breadcrumb", breadcrumbFamily.defineUnifoldBreadcrumb());
 assertFamily("Combobox", comboboxFamily.defineUnifoldCombobox());
+assertFamily("Card", contentMediaFamily.defineUnifoldCard());
+assertFamily("Image", contentMediaFamily.defineUnifoldImage());
 assertFamily("DataGrid", dataGridFamily.defineUnifoldDataGrid());
 assertFamily("Dialog", dialogFamily.defineUnifoldDialog());
 assertFamily("FileInput", fileInputFamily.defineUnifoldFileInput());

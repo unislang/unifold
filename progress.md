@@ -17,20 +17,19 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Previous published progress checkpoint: `7584477890d707ded9e23888249c9d7f93ae84cf`
-  (`docs: record JSON UI implementation checkpoint`).
+- Previous published progress checkpoint: `5735ec81b0d1b83ee1d688e6e42b5b75e55f74c3`
+  (`docs: record native form checkpoint`).
 - Latest verified implementation checkpoint: `33d80faf35b6ccd85d12b68e93c66db4bcd07032`
   (`feat: add native form structures`), pushed to `https://github.com/unislang/unifold.git` and
   independently verified at `refs/heads/main` with `git ls-remote`.
-- Current completed slice: a generic `ElementInternals`/Lit lifecycle controller and
-  enum-backed value codecs extend native form projection to Checkbox, MultiSelect, and FileInput
-  without a second state authority. The integrated parallel slice also adds deferred Field,
-  Fieldset, and ErrorSummary structures across catalog, IR, elements, static export, reference,
-  browser, and performance surfaces. Release verification is complete and the implementation is
-  present on the `unifold` remote.
+- Current local slice: catalog-authoritative `Card` and `Image` primitives are implemented across
+  contracts, catalog sidecars, IR validation, deferred Lit definitions, package subpaths, static
+  rendering/upgrade, the Scratch-style hierarchical JSON example, browser evidence, and an exact
+  100-pair performance gate. This slice is verified locally but is not a remote checkpoint until the
+  commit and `unifold` push recorded below complete.
 - Goal status: active. This checkpoint does not complete the architecture plan; the authoritative
-  inventory still lists Image, Card, NumberField, SearchField, CheckboxGroup, Switch, DateField,
-  Toast, and Pagination as component-family gaps, followed by the
+  inventory still lists NumberField, SearchField, CheckboxGroup, Switch, DateField, Toast, and
+  Pagination as component-family gaps, followed by the
   broader Studio and production-integration gates.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
@@ -39,38 +38,35 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 
 ## Active slice
 
-The current slice closes its originally identified privacy and deferred-upgrade defects:
+The current slice closes the remaining Phase 2 content/media pair:
 
-- `FileInput` now admits only exact `{ id, size, type }` metadata into canonical JSON. IDs are opaque
-  UUIDs, names and modification times stay outside the portable contract, file count is capped at 32,
-  sizes are safe integers, MIME/extension acceptance and per-file byte ceilings fail closed, and raw
-  bytes remain behind the trusted ephemeral `resolveSelectedFile()` boundary. Reset, disconnect,
-  rollback, static export, and restored-metadata reselection behavior are covered end to end.
-- TextField, TextArea, Select, RadioGroup, VirtualList, Checkbox, MultiSelect, and FileInput share
-  one generic `ElementInternals` lifecycle controller with bounded scalar, boolean, repeated-string,
-  and file codecs. The integration covers reassociation, disabled fieldsets, reset/state restore,
-  native `FormData`, IME de-duplication, and explicit canonical value origin without adding another
-  durable state authority.
-- Optional element families are loaded only after the initial application mount. Pending hosts replay
-  validated properties when definitions arrive, preserve rollback/disposal guarantees, and are split
-  from the production entry closure. The reference exposes an explicit readiness marker so browser
-  baselines begin only after registration and its synchronization transaction settle.
-- The reference JSON remains authored through the documented hierarchical/composition path modeled
-  on `scratch/angular-ui/DYNAMIC-UI-README.md`: reusable layout selection and variables lower through
-  nested component definitions into the canonical `$comp` IR/runtime path.
+- `Image` requires deliberate `alt` authorship (empty remains an explicit decorative choice), a
+  relative or HTTP(S) `SafeResourceUrl`, positive intrinsic width/height, and bounded `fit` and
+  `loading` enums. It rejects executable/data URL schemes and authored children before render.
+- `Card` uses a native article, optional accessible label, token-backed padding/surface, and an exact
+  1-to-100 authored-child boundary. Both components have complete catalog sidecars, generated CEM
+  evidence, canonical snapshot coverage, and deterministic static HTML.
+- `@unislang/unifold/content-media` and the matching elements subpath defer the pair. The
+  hierarchical example now authors a nested Card/Image directly with
+  `layoutType/variables/type/props/children`, matching
+  `scratch/angular-ui/DYNAMIC-UI-README.md`, and asynchronously registers the family so the initial
+  closure stays bounded.
+- Static export emits native article/image semantics without JavaScript and upgrades to the exact
+  custom-element tree without duplicate content or canonical events.
 
-Current local evidence: the complete Vitest package suite passes 442 files/1,105 tests; tooling
-passes 16/16; generated/CEM, theme, and reference scripts pass 10/10; and performance correctness
-passes 28 files/38 tests with 22 profile files intentionally skipped. The native-form Playwright
-matrix passes 12/12 across Chromium, Firefox, and WebKit. The complete reference matrix passes 168
-journeys with six intentional non-Chromium scale skips; static export passes 39/39, hierarchical
-authoring 9/9, and plain/React/Svelte/Vue host parity 12/12 across the applicable engines. Coverage
-is 97.49% statements/lines, 97.01% functions, and 90.06% branches. Benchmark schema 2.25.0 passes
-50/50 gates: the 100-control native lifecycle records 0.20/0.81/4.42 ms p50/p95/p99 against its 8
-ms p95 gate, and the exact 100-link ErrorSummary records 0.47/1.51/19.63 ms against its 100 ms p95
-gate. The production initial closure passes at 183,882 gzip bytes (179.57 KiB), below the unchanged
-180 KiB gate, with 35,959 gzip bytes requested post-mount. Full quality, build, formatting, diff,
-and authored-source duplication gates pass; total duplication is 1.59% against the 5% ceiling.
+Current local evidence: catalog/IR/export pass 95 files/220 tests, elements pass 81/172 plus 8/8
+generated-definition tests, Unifold passes 49/177, and performance correctness passes 29 files/39
+tests with 23 opt-in profiles skipped. Benchmark schema 2.26.0 passes 51/51 gates. The exact
+100-Card/100-Image fixture records 0.56/3.57/5.90 ms p50/p95/p99 across 50 samples against its 100
+ms p95 ceiling. Chromium and WebKit pass all 8 rebuilt hierarchical journeys and all 31 applicable
+static-export journeys, including both new no-JavaScript/upgrade cases and axe. Firefox fails every
+attempt before page creation in Playwright's managed Windows `_page` path, including unrelated
+existing cases; it supplies no application evidence in this session. The reference bundle passes at
+184,204 gzip bytes (179.89 KiB), 116 bytes below the unchanged 180 KiB gate, with 35,966 bytes
+deferred post-mount. File-size, colocated-test, full ESLint, this slice's source/test typechecks, and
+the 1,870-module/4,149-edge dependency audit pass. Repository-wide quality currently stops only in
+the concurrent uncommitted Studio example (`vite/client` resolution and dependency declaration),
+which is outside this slice and must not be staged here.
 
 The benchmark's 20-cycle/500-node lifecycle heap growth is 1.45% against the strict 2% ceiling.
 The clean packed-consumer boundary independently passes 3/3 outside the monorepo after rebuilding
@@ -858,3 +854,14 @@ behavioral evidence; rerun Firefox when the managed runner can create a page rel
   ceiling at 179.98 KiB gzip. The implementation is committed as `33fb53e`, pushed to
   `https://github.com/unislang/unifold.git`, and independently verified at the full SHA above;
   Firefox remains the known external pre-page runner limitation.
+- 2026-08-26: Implemented the catalog-authoritative `Card`/`Image` content-media pair across exact
+  safe-URL/dimension/child contracts, catalog/sidecars, IR, deferred elements/facade subpaths,
+  native static export and upgrade, generated definition evidence, and the real Scratch-compatible
+  hierarchical JSON example. Focused correctness passes 225 files/608 tests plus 8 generated tests;
+  the schema-2.26.0 benchmark passes 51/51 with 100 pairs at 3.57 ms p95/100 ms. The production
+  reference passes at 184,204/184,320 gzip bytes and the example's pair is a separate 0.98 kB gzip
+  chunk. Chromium/WebKit pass all new and existing applicable hierarchical/static cases; Firefox is
+  globally blocked before page creation by the current runner. Resume by keeping concurrent
+  AI/Studio files unstaged, committing/pushing the content-media allowlist below, updating this entry
+  with both local and remote SHAs, then selecting one of the seven remaining catalog gaps from
+  `docs/implementation-status.md`.

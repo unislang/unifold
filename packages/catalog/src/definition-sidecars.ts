@@ -8,6 +8,7 @@ import {
 } from "./definition-sidecar-helpers.js";
 import { auditLogSidecar } from "./audit-log-sidecar.js";
 import { breadcrumbSidecar } from "./breadcrumb-sidecar.js";
+import { cardSidecar, imageSidecar } from "./content-media-sidecars.js";
 import { comboboxSidecar } from "./combobox-sidecar.js";
 import { dialogSidecar } from "./dialog-sidecar.js";
 import { fileInputSidecar } from "./file-input-sidecar.js";
@@ -78,6 +79,7 @@ export const componentDefinitionSidecars = Object.freeze({
     semanticAttachmentPoints: [],
     sensitiveProperties: []
   }),
+  [CoreComponentType.Card]: cardSidecar,
   [CoreComponentType.Checkbox]: definition({
     behaviors: ["Uses a native checkbox", "Emits canonical change and blur intents"],
     browserScenarios: [
@@ -171,6 +173,7 @@ export const componentDefinitionSidecars = Object.freeze({
     semanticAttachmentPoints: [],
     sensitiveProperties: ["label"]
   }),
+  [CoreComponentType.Image]: imageSidecar,
   [CoreComponentType.Link]: definition({
     behaviors: ["Uses native anchor navigation", "Emits a canonical activation intent"],
     browserScenarios: [contentScenario],

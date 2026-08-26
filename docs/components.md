@@ -1,6 +1,6 @@
 # Core components
 
-The implemented core catalog contains thirty-seven JSON-constructible Web Components. Every component has a
+The implemented core catalog contains thirty-nine JSON-constructible Web Components. Every component has a
 stable node ID, participates in the same canonical event stream, and receives selective state
 projection through the application runtime. The catalog descriptor is the authority for accepted
 properties; the IR compiler rejects unknown properties and values of the wrong type before render.
@@ -13,6 +13,7 @@ properties; the IR compiler rejects unknown properties and values of the wrong t
 | `Box`           | `unifold-box`            | none           | slotted container          | descendant scope                       |
 | `Breadcrumb`    | `unifold-breadcrumb`     | none           | nav + ordered list + links | `component.activated`                  |
 | `Button`        | `unifold-button`         | none           | `button`                   | `component.activated`                  |
+| `Card`          | `unifold-card`           | none           | `article`                  | descendant scope                       |
 | `Checkbox`      | `unifold-checkbox`       | boolean        | checkbox input             | `control.input`, `control.blurred`     |
 | `Combobox`      | `unifold-combobox`       | string         | input + ARIA listbox       | `control.input`, `control.blurred`     |
 | `Composition`   | `unifold-composition`    | none           | grouping host              | descendant scope                       |
@@ -26,6 +27,7 @@ properties; the IR compiler rejects unknown properties and values of the wrong t
 | `Grid`          | `unifold-grid`           | none           | slotted grid container     | descendant scope                       |
 | `Heading`       | `unifold-heading`        | none           | native `h1`–`h6`           | none                                   |
 | `Icon`          | `unifold-icon`           | none           | inline SVG                 | none                                   |
+| `Image`         | `unifold-image`          | none           | dimensioned native image   | none                                   |
 | `Link`          | `unifold-link`           | none           | anchor                     | `component.activated`                  |
 | `MasterDetail`  | `unifold-master-detail`  | string         | virtual listbox + region   | `control.input`, `control.blurred`     |
 | `MenuButton`    | `unifold-menu-button`    | none           | button + ARIA menu         | `component.activated`                  |
@@ -48,8 +50,8 @@ properties; the IR compiler rejects unknown properties and values of the wrong t
 Event names above use their readable suffixes. The wire values are versioned enums such as
 `org.unifold.ui.control.input.v1`, exported as `ElementEventType`.
 
-The baseline registration includes the nineteen small families. AuditLog, Breadcrumb, Combobox,
-DataGrid, Dialog, ErrorSummary, Field, Fieldset, FileInput, MasterDetail, MenuButton, Popover,
+The baseline registration includes the nineteen small families. AuditLog, Breadcrumb, Card, Combobox,
+DataGrid, Dialog, ErrorSummary, Field, Fieldset, FileInput, Image, MasterDetail, MenuButton, Popover,
 SearchResults, Stepper, Tabs, Tooltip, VirtualList, and Wizard are deferred families loaded through matching
 `@unislang/unifold/<kebab-case-name>` subpaths. Strict mounting requires those definitions before
 render. A trusted host may explicitly select `ElementDefinitionPolicy.AllowPending`; catalog-known
@@ -58,6 +60,13 @@ context, and children when a compatible definition arrives. Every subpath export
 `defineUnifold*()` registration function and the element class. The split is a delivery boundary
 only: descriptors, IR validation, snapshots, events, static rendering, and accessibility
 requirements remain catalog-authoritative.
+
+`Card` and `Image` are delivered together through the deferred
+`@unislang/unifold/content-media` subpath. `Card` is a native article containing 1 to 100 authored
+children. `Image` is a leaf with required authored alternative text, a relative or HTTP(S)
+resource URL, and positive intrinsic width and height; its loading and fit values are bounded
+enums. Empty alternative text is permitted only when the author deliberately declares an image
+decorative.
 
 `Field`, `Fieldset`, and `ErrorSummary` are delivered together through the deferred
 `@unislang/unifold/form-structure` subpath. `Field` associates one control with ordered label, help,

@@ -29,6 +29,7 @@ import type { CatalogPropertyDescriptor, ComponentCatalog, ComponentDescriptor }
 import * as dataViews from "./data-view-catalog.js";
 import * as workflows from "./workflow-catalog.js";
 import { breadcrumbDescriptor } from "./breadcrumb-catalog.js";
+import { cardDescriptor, imageDescriptor } from "./content-media-catalog.js";
 import { choiceConstraints, choiceProperties, comboboxDescriptor } from "./choice-catalog.js";
 import { dialogDescriptor } from "./dialog-catalog.js";
 import { fileInputDescriptor } from "./file-input-catalog.js";
@@ -130,6 +131,7 @@ const descriptors: Record<CoreComponentType, ComponentDescriptor> = {
     tagName: CoreElementTag.Button,
     version: "1.0.0"
   },
+  [CoreComponentType.Card]: cardDescriptor,
   [CoreComponentType.Checkbox]: {
     componentType: CoreComponentType.Checkbox,
     properties: [
@@ -204,6 +206,7 @@ const descriptors: Record<CoreComponentType, ComponentDescriptor> = {
     tagName: CoreElementTag.Icon,
     version: "1.0.0"
   },
+  [CoreComponentType.Image]: imageDescriptor,
   [CoreComponentType.Link]: {
     componentType: CoreComponentType.Link,
     properties: [

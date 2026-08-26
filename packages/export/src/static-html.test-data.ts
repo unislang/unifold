@@ -48,6 +48,7 @@ function referenceRoot(): JsonObject {
     label: "Reference",
     $children: [
       referenceStaticForm(),
+      referenceContentMedia(),
       referenceDisclosure(),
       referenceBreadcrumbNode(),
       referenceMenuButton(),
@@ -56,6 +57,24 @@ function referenceRoot(): JsonObject {
       referenceTabsNode(),
       referenceTooltipNode()
     ]
+  };
+}
+
+function referenceContentMedia(): JsonObject {
+  return {
+    $children: [
+      {
+        $comp: "Image",
+        alt: "A geometric profile placeholder",
+        height: 240,
+        id: "profile-image",
+        src: "/profile-placeholder.svg",
+        width: 320
+      }
+    ],
+    $comp: "Card",
+    id: "profile-card",
+    label: "Profile summary"
   };
 }
 

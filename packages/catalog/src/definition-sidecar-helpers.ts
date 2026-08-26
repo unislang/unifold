@@ -99,6 +99,17 @@ export function urlProperty(
   };
 }
 
+export function imageUrlProperty(
+  id: string,
+  sourceProperty: string
+): ComponentSemanticAttachmentContract {
+  return {
+    ...semanticAttachment(id, ComponentSemanticAttachmentKind.Property, sourceProperty),
+    normalization: ComponentSemanticNormalization.ImageUrl,
+    valueSource: ComponentSemanticValueSource.PublicProperty
+  };
+}
+
 function exampleDocument(view: JsonUiNode): UiDocument {
   return Object.freeze({
     $schema: UiContractSchemaUri.Version1,

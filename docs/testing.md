@@ -238,6 +238,9 @@ The governed-document fixture executes exactly 1,000 accepted signed loads and e
 revoked-key denials per sample through the public loader. Its 5,000/1,000 ms p95 gates also require
 exact compilation or stable denial diagnostics, verified issuer/key/hash/receipt evidence for every
 acceptance, and one metadata-only durable-audit receipt for every operation.
+The content/media fixture mounts exactly 100 native-article `Card` hosts containing exactly 100
+dimensioned `Image` hosts, then updates every alternative-text property across 50 samples. Its gate
+requires both exact counts and p95 projection at or below 100 ms; the current local p95 is 3.57 ms.
 The Chromium scale journey complements the Node suite by observing all 1,000 or 10,000 rendered
 hosts in one page-context pass. It requires one render-counter mutation, unchanged unrelated counts,
 retained element and shadow-input identity/focus, canonical event order, and an exact one-node commit.

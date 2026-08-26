@@ -98,11 +98,20 @@ function publicFieldNames(declaration) {
 }
 
 async function evidenceSources() {
-  const e2eRoot = resolve(packageRoot, "../../tests/e2e");
-  const entries = await readdir(e2eRoot, { withFileTypes: true });
-  const paths = entries
-    .filter((entry) => entry.isFile() && entry.name.endsWith(".spec.ts"))
-    .map((entry) => resolve(e2eRoot, entry.name));
+  const browserRoots = ["e2e", "hierarchical-site"].map((name) =>
+    resolve(packageRoot, `../../tests/${name}`)
+  );
+  const entries = await Promise.all(
+    browserRoots.map(async (root) => ({
+      entries: await readdir(root, { withFileTypes: true }),
+      root
+    }))
+  );
+  const paths = entries.flatMap(({ entries: rootEntries, root }) =>
+    rootEntries
+      .filter((entry) => entry.isFile() && entry.name.endsWith(".spec.ts"))
+      .map((entry) => resolve(root, entry.name))
+  );
   return {
     browserScenarios: (await Promise.all(paths.map((path) => readFile(path, "utf8")))).join("\n"),
     componentDocs: await readFile(resolve(packageRoot, "../../docs/components.md"), "utf8")

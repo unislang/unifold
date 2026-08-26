@@ -153,6 +153,7 @@ const scalarSchemas = Object.freeze({
     minimum: 1,
     type: "integer"
   },
+  [CatalogPropertyType.SafeResourceUrl]: { type: "string" },
   [CatalogPropertyType.SafeUrl]: { type: "string" },
   [CatalogPropertyType.SearchResultList]: {
     items: {

@@ -50,6 +50,38 @@
         ]
       },
       {
+        "id": "profile-card",
+        "type": "Card",
+        "props": {
+          "label": "Profile media summary",
+          "padding": "lg",
+          "surface": "subtle",
+          "testId": "profile-card"
+        },
+        "children": [
+          {
+            "id": "profile-image",
+            "type": "Image",
+            "props": {
+              "alt": "Blue and green geometric profile placeholder",
+              "fit": "contain",
+              "height": 180,
+              "loading": "lazy",
+              "src": "/profile-placeholder.svg",
+              "testId": "profile-image",
+              "width": 320
+            }
+          },
+          {
+            "id": "profile-card-copy",
+            "type": "Text",
+            "props": {
+              "content": "This card is authored entirely through nested layout JSON."
+            }
+          }
+        ]
+      },
+      {
         "id": "account-review-dialog",
         "type": "Dialog",
         "props": {

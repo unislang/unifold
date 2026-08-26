@@ -25,6 +25,8 @@ export {
   ErrorSummaryItemProperty,
   FileMetadataProperty,
   HeadingLevel,
+  ImageFit,
+  ImageLoading,
   IconName,
   IconSize,
   IconTone,
@@ -54,7 +56,8 @@ export {
   ComponentSemanticValueSource,
   ComponentStatus
 } from "./definition-enums.js";
-export { isSafeUrl } from "./url.js";
+export { isSafeResourceUrl, isSafeUrl } from "./url.js";
+export { cardDescriptor, imageDescriptor, MAXIMUM_CARD_CHILDREN } from "./content-media-catalog.js";
 export { breadcrumbDescriptor, MAXIMUM_BREADCRUMB_ITEMS } from "./breadcrumb-catalog.js";
 export { dialogDescriptor, MAXIMUM_DIALOG_CHILDREN } from "./dialog-catalog.js";
 export {
