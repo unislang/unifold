@@ -298,16 +298,54 @@ The dedicated browser-proof sub-slice is implemented, validated, committed as `8
 - The production reference build excludes all migration test hooks and measures 179,931 gzip bytes
   (175.71 KiB) against the executable 180 KiB ceiling.
 
+### 2026-08-26 bounded Combobox checkpoint
+
+The catalog-authoritative select-only Combobox slice is implemented, validated, committed as
+`668562b`, pushed to `origin/main`, and independently verified at
+`668562ba83f82aae51a78b1707c1d1302983ddbf`:
+
+- `Combobox` now flows from the shared contract and catalog descriptor/sidecar through IR control
+  classification, composition export validation, element registration, DOM rendering, runtime
+  events, form aggregates/reset, hydration capture, and native-select static fallback. Scalar choice
+  fallback now preserves an explicit empty value rather than allowing the browser to select the
+  first option silently.
+- The editable ARIA combobox keeps query, popup, and active-descendant state interaction-local. It
+  commits only registered selections or an explicit empty clear, skips disabled options, supports
+  Arrow/Home/End/Enter/Escape and pointer operation, restores canonical labels on dismissal/blur,
+  escapes labels, announces no-results status, and exposes full set position/size metadata.
+- Broad result rendering and keyboard navigation are capped at 200 options while filtering all
+  10,000 authored options. The schema-2.18.0 benchmark report passes 41/41 gates; the new twenty-sample
+  filter gate measured 1.42/2.18/3.50 ms p50/p95/p99 against 100 ms p95 and observed exactly 200
+  rendered options against the 200-option ceiling. Correctness filtering selects distant
+  `item-09999` without promoting query text to canonical state.
+- Full quality, source/test typecheck, dependency, unused-code, formatting, duplication, diff,
+  production build, and packed-consumer gates pass. The package matrix is 338 files/873 tests,
+  performance correctness is 30 tests, coverage is 97.31% lines and 90.09% branches, and the clean
+  packed consumer passes 3/3 after its pinned dependencies are installed with network access.
+- The complete reference matrix passes 81 Chromium/WebKit cases with 3 intentional scale skips.
+  Focused unit/browser coverage proves keyboard and pointer selection, disabled skipping, local
+  unmatched queries, Escape, clear, blur, runtime event identity/snapshot semantics, selective DOM
+  projection, reset/submit aggregation, static export, hydration, and axe accessibility. Focused
+  Firefox cases again fail before page creation with the managed Windows `_page` runner defect, so
+  they provide no component behavioral result and remain an external release gate.
+- The production reference closure measures 181,632 gzip bytes (177.38 KiB) against the unchanged
+  executable 180 KiB ceiling. The next interaction-family slice should start with a bounded,
+  catalog-authoritative Tabs contract (or the adjacent Menu/Dialog family if the architecture audit
+  establishes a stronger dependency), retaining the same JSON-to-static/hydrated/runtime evidence
+  and adding a representative benchmark only where scale or interaction latency is material.
+
 ## Immediate resume procedure
 
-1. Read this file, `docs/implementation-status.md`, and the composition sections of the architecture
-   plan for slice 4.
+1. Read this file, `docs/implementation-status.md`, `docs/components.md`, and the interaction-family
+   sections of the architecture plan for slice 4.
 2. Inspect `git status --short --branch` and preserve any post-checkpoint user changes.
-3. Confirm the composition-migration browser checkpoint is present on `origin/main`, then continue
-   into the prioritized interaction-family gap (combobox/autocomplete, menus, overlays, tabs,
-   navigation, upload, and virtualization) without adding subtree caching unless the executable
-   composition gates regress. Re-run the dedicated Firefox journey when a working runner is
-   available; do not treat the current pre-page failure as behavioral evidence.
+3. Confirm the bounded Combobox checkpoint is present on `origin/main`, then continue into the next
+   prioritized interaction family: begin with catalog-authoritative Tabs unless architecture
+   dependencies favor Menu/Dialog first. Free-form autocomplete, menus, overlays, navigation,
+   upload, and variable-height/two-dimensional virtualization remain open. Do not add subtree
+   caching unless the executable composition gates regress. Re-run the dedicated Firefox journeys
+   when a working runner is available; do not treat the current pre-page failure as behavioral
+   evidence.
 4. Keep production modules and their adjacent tests within the enforced complexity, function-length,
    file-length, and one-test-per-module limits.
 5. Use `apply_patch` for edits. Run Prettier before assuming a diff is ready.
@@ -399,3 +437,10 @@ silently waived.
   limitation. Full final quality and production-build gates pass at 175.71 KiB gzip. Committed as
   `8372fb4`, pushed to `https://github.com/unislang/unifold.git`, and independently verified remote
   `main` at `8372fb4aed72064395d5de7c2edf4454c118503e`.
+- 2026-08-26: Implemented the bounded select-only Combobox end to end, including catalog/IR,
+  interactive and static rendering, hydration, form/runtime integration, accessibility, a capped
+  10,000-option workload, and complete reference journeys. Full quality, 338-file/873-test package
+  coverage, 41/41 benchmark, coverage, build/bundle, Chromium/WebKit, and clean-consumer gates pass;
+  Firefox remains the known external pre-page runner limitation. Committed as `668562b`, pushed to
+  `https://github.com/unislang/unifold.git`, and independently verified remote `main` at
+  `668562ba83f82aae51a78b1707c1d1302983ddbf`.
