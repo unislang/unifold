@@ -17,11 +17,12 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest local implementation checkpoint: `d4a3067` (`feat: add JSON number field primitive`). The
-  local `origin/main` tracking reference remains at `4f60993` until the requested push is verified.
-- Current local implementation: the `NumberField` family is committed. A separate governed AI/Studio
-  vertical slice, native string-enum work, the Studio dogfood example, and executable prevention of
-  import-then-local-re-export feature modules remain uncommitted and must be preserved separately.
+- Latest published checkpoint: `266b595` (`docs: record number field checkpoint`), following
+  `d4a3067` (`feat: add JSON number field primitive`). Local `HEAD` and the local `origin/main`
+  tracking reference both resolve to `266b595`.
+- Current local implementation: the `NumberField` family and its native string-enum domains are
+  committed. A separate governed AI/Studio vertical slice, the Studio dogfood example, and
+  executable prevention of import-then-local-re-export feature modules remain uncommitted.
 - Goal status: active. SearchField, CheckboxGroup, Switch, DateField, Toast, and Pagination remain
   component-family gaps, followed by broader Studio and production-integration gates.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
@@ -64,8 +65,8 @@ thresholds. Dependency-cruiser validates 1,921 modules and 4,264 dependencies wi
 The Studio asset boundary and complete Chromium/Firefox/WebKit matrix pass 9/9. Studio production
 JavaScript is 226.99 KiB gzip against its 250 KiB ceiling. The reference startup closure is 181.20
 KiB gzip against a narrowly rebased executable 184 KiB limit, with 35,906 post-mount gzip bytes. The
-NumberField portion is committed as `d4a3067`; no commit or push has been performed for the separate
-AI/Studio portion.
+NumberField portion is published through `266b595`; the separate AI/Studio portion remains
+uncommitted and unpushed.
 
 Remaining AI/Studio gaps are explicit: provenance-bound third-party catalog manifests; complete
 component property, event, machine, and rule authoring context; durable actor identity, approval
@@ -80,14 +81,14 @@ cancellation, stale apply, rejection, and export failure; and the full multi-tur
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
 - Previous published progress checkpoint: `5735ec81b0d1b83ee1d688e6e42b5b75e55f74c3`
   (`docs: record native form checkpoint`).
-- Latest verified implementation checkpoint: `5e15efd478c2249be198aa93e7c5f93d526e71f6`
-  (`feat: add JSON content media primitives`), pushed to `https://github.com/unislang/unifold.git` and
-  independently verified at `refs/heads/main` with `git ls-remote`.
+- Latest verified implementation checkpoint: `d4a3067c45f9d1fdf6c9cc316171938d0c4276d2`
+  (`feat: add JSON number field primitive`), pushed to `https://github.com/unislang/unifold.git` and
+  independently verified as an ancestor of `refs/heads/main` with `git ls-remote`.
 - Completed implementation slice: catalog-authoritative `NumberField` is implemented across contracts,
   catalog sidecars, IR and form validation, deferred Lit definitions, package subpaths, static
   rendering/hydration, the Scratch-style hierarchical JSON example, browser evidence, and an exact
   100-control performance gate. It is committed locally as
-  `d4a3067` (`feat: add JSON number field primitive`) and awaits remote verification.
+  `d4a3067` (`feat: add JSON number field primitive`) and is verified on the `unifold` remote.
 - Goal status: active. This checkpoint does not complete the architecture plan; the authoritative
   inventory still lists SearchField, CheckboxGroup, Switch, DateField, Toast, and Pagination as
   component-family gaps, followed by the broader production-integration gates.
@@ -138,13 +139,11 @@ Current verification evidence on 2026-08-26:
   Focused WebKit evidence independently passes the same 1/1 and 3/3 journeys. The static cases prove
   no-JavaScript fallback, edited numeric migration, and off-step rejection.
 
-Resume boundary: commit this progress checkpoint, then push and independently compare
-`git ls-remote origin refs/heads/main` with the local checkpoint commit. Preserve and do not
-accidentally stage the concurrent AI/Studio work, reference feature-module re-export work,
+Resume boundary: the NumberField implementation and progress checkpoint are published. Preserve and
+do not accidentally stage the concurrent AI/Studio work, reference feature-module re-export work,
 `ARCHITECTURE_IMPLEMENTATION_PLAN.md`, `CONTRIBUTING.md`, root dependency/config edits, or the
-separate Studio changeset. After the remote checkpoint, continue with the next ordered catalog gap
-(`SearchField`) through the same Scratch-style JSON, IR, native/static, browser, accessibility, and
-performance boundaries.
+separate Studio changeset. Continue with the next ordered catalog gap (`SearchField`) through the
+same Scratch-style JSON, IR, native/static, browser, accessibility, and performance boundaries.
 
 ## Prior hierarchical and component slice detail
 
