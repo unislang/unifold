@@ -251,7 +251,8 @@ critical seam; it is not yet the full catalog or Studio product described by the
    catalog-authoritative through static/interactive rendering, controlled or registered-action
    events, focus, axe, rollback, and exact 100-item gates. Popover is likewise catalog-authoritative
    through bounded nested JSON, static disclosure, native enhancement, canonical activation,
-   three-engine accessibility/rollback evidence, and an exact 32-action gate. Continue with free-form autocomplete
+   Chromium/WebKit accessibility/rollback evidence, and an exact 32-action gate. Its current
+   Firefox run fails before page creation in the managed Windows runner. Continue with free-form autocomplete
    variants, menu variants, overlays, navigation, upload, and variable-height or
    two-dimensional virtualization while retaining all three browsers as release gates. See
    [composition P0 follow-ups](./compositions.md#p0-hardening-follow-ups).
@@ -347,7 +348,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
   canonical-state, accessibility, privacy, rollback, and recovery evidence. The 100-step shared
   Stepper/Wizard/Tabs/MenuButton/Popover workload starts in 100.41 ms p95, selects the final Stepper,
   Wizard, and Tabs entries in 6.02/6.09/3.02 ms p95, invokes the final declared menu item and restores
-  trigger focus in 4.54 ms p95, opens the 32-action Popover in 1.15 ms p95, renders exactly 434 buttons, and passes three-engine focus,
+  trigger focus in 4.54 ms p95, opens the 32-action Popover in 1.15 ms p95, renders exactly 434 buttons, and passes Chromium/WebKit focus,
   completion, canonical action, accessibility, rollback, host identity, and child-panel identity
   evidence. The 10,000-entry AuditLog starts in 68.65 ms p95, scrolls to the exact distant
   window in 1.04 ms p95, renders at most 15 entries, and passes Chromium/WebKit list/time semantics,

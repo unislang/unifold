@@ -17,10 +17,11 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest implementation checkpoint: `d9ed981508ed0f28e1f536084f8d92837161c941`
-  (`feat: add catalog-authoritative popover`), preceded by the packed-consumer guard checkpoint
-  `e69e9ff48f3e74239d86622185434cec815f7967`. The pre-push `origin/main` reference remains
-  `26a99c514edd4b896cbbfd50fb019fff44080f9b`; push and independent remote-SHA verification are next.
+- Independently verified pre-status-update remote checkpoint: `a7a2f778a3d3fe1720f7dcc646a2406f30828943`
+  (`docs: record popover checkpoint`). The implementation is
+  `d9ed981508ed0f28e1f536084f8d92837161c941` (`feat: add catalog-authoritative popover`), preceded by
+  packed-consumer guard checkpoint `e69e9ff48f3e74239d86622185434cec815f7967`. `git ls-remote`
+  confirmed `origin/main` at the same `a7a2f77` checkpoint before this final status-only update.
 - Working tree: the broad post-`96f37a6` implementation is committed and release-verified. It includes the
   derived-rule engine and 1,000-rule selective benchmark, Tooltip optional family work, a strict
   hierarchy-oriented layout authoring layer, enum-backed source-specific workflow event bindings,
@@ -28,12 +29,14 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   and a standalone hierarchical example site that consumes those boundaries. Preserve all unrelated
   changes. Repository quality, unit/tooling/script, performance, production build/bundle, and focused
   Chromium/WebKit browser gates pass. The prior packed-consumer, formatting, duplication, upstream
-  parity, and broad release evidence remains recorded below. Uncommitted work now includes a
-  release-verified and committed packed-consumer workflow-guard journey and a complete committed catalog-authoritative
+  parity, and broad release evidence remains recorded below. The pushed checkpoints include a
+  release-verified packed-consumer workflow-guard journey and a complete catalog-authoritative
   Popover slice spanning catalog, IR, elements, static export, deferred facade registration,
-  reference/static browser integrations, and performance evidence. Preserve both until the pending
-  progress checkpoint and push complete. Current quality, correctness, coverage, build/bundle,
-  benchmark, packed-consumer, duplication, formatting, and focused three-engine browser gates pass.
+  reference/static browser integrations, and performance evidence. Both are committed and pushed;
+  only this final status correction is uncommitted. Current quality, correctness, coverage,
+  build/bundle, benchmark, packed-consumer, duplication, formatting, and focused Chromium/WebKit
+  browser gates pass. The focused Firefox rerun fails in Playwright before page creation with the
+  managed Windows `_page` defect and yields no Popover behavior result.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
@@ -111,10 +114,10 @@ immutable registry option; there is no document-selected URL, callback, implicit
 runtime lookup. Exact-version collisions reject, and registry source diagnostics use
 `/$layoutRegistry/definitions/{index}`.
 
-The Tooltip and ten other larger interaction families are now explicit deferred subpath imports.
+The Tooltip and eleven other larger interaction families are now explicit deferred subpath imports.
 Their catalog, IR, element, static export, registration, and browser paths are implemented; the
-latest production build emits 23,215 deferred gzip bytes and the initial reference closure passes at
-184,227 bytes (179.91 KiB) against the unchanged 184,320-byte gate.
+latest production build emits 25,417 deferred gzip bytes and the initial reference closure passes at
+184,037 bytes (179.72 KiB) against the unchanged 184,320-byte gate.
 
 ### 2026-08-26 hierarchical authoring checkpoint (release verified and tracked remotely)
 
@@ -258,10 +261,11 @@ latest production build emits 23,215 deferred gzip bytes and the initial referen
   uses the native Popover API, focuses the surface, restores trigger focus on Escape, dismisses on
   focus departure/outside input/native close, and emits one canonical activation intent with the
   requested open state. Static HTML degrades to escaped native `details`/`summary` content.
-- Reference and static-export JSON exercise real nested Text/Link children. Chromium, Firefox, and
-  WebKit pass the focused 3/3 reference journey and all 27/27 static-export cases, including axe,
+- Reference and static-export JSON exercise real nested Text/Link children. Chromium and WebKit pass
+  the focused 2/2 reference journey and all 18/18 static-export cases, including axe,
   invalid-placement rollback/recovery, stable host identity, no-JavaScript disclosure, upgrade, and
-  focus restoration.
+  focus restoration. The focused Firefox rerun fails before page creation with the managed Windows
+  `_page` runner defect, so it supplies no component behavioral evidence.
 - Repository quality passes file/function/complexity, one-to-one tests, lint, source/test typecheck,
   1,652-module/3,633-edge dependency analysis, and Knip. Correctness passes 400 package files/1,010
   tests, 16 tooling tests, 10 generated/script tests, and 24 performance files/34 tests with 18
@@ -637,10 +641,11 @@ silently waived.
   component contract, shared catalog-property descriptors, IR, deferred Web Component, canonical
   activation event, static fallback, public facade, reference/static integrations, generated
   manifests, accessibility/rollback journeys, and schema-2.21.0 performance gates. The final
-  three-engine focused browser matrices pass 3/3 and 27/27; quality, 400-file/1,010-test correctness,
-  90.01% branch coverage, full build/bundle, 45/45 benchmark, duplication, formatting, and clean
-  packed-consumer 3/3 gates pass. The implementation and consumer commits are recorded above;
-  progress checkpoint commit, push, and remote SHA confirmation are the immediate remaining actions.
+  Chromium/WebKit focused browser matrices pass 2/2 and 18/18; the Firefox attempt fails before page
+  creation with the managed runner defect. Quality, 400-file/1,010-test correctness, 90.01% branch
+  coverage, full build/bundle, 45/45 benchmark, duplication, formatting, and clean packed-consumer
+  3/3 gates pass. The implementation, consumer, and progress commits are pushed to `unifold`; the
+  remote SHA was independently confirmed before this final status-only correction.
 
 - 2026-08-26: Implemented and quality-hardened hierarchical layout authoring, enum-backed per-node
   event aliases, catalog/IR validation, exact XState source routing, bounded/schema-validated

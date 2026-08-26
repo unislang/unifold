@@ -391,7 +391,7 @@ import {
 
 ## Component-definition evidence pipeline
 
-All twenty-nine core elements participate in the executable `ComponentDefinition` pipeline. The
+All thirty-one core elements participate in the executable `ComponentDefinition` pipeline. The
 elements build runs the official Custom Elements Manifest analyzer with its Lit plugin, validates
 the complete result against the official manifest JSON Schema, and writes
 `dist/custom-elements.json`. The generated manifest owns facts that can be derived from source:
