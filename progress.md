@@ -17,21 +17,17 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest published progress checkpoint: `7584477890d707ded9e23888249c9d7f93ae84cf`
-  (`docs: record JSON UI implementation checkpoint`), verified against the local `origin/main`
-  tracking reference.
-- Latest implementation checkpoint: `2a59294b2a877eb458e391fbbee175a2481c8da3`
-  (`feat: add JSON-driven file input and native forms`), independently verified at
-  `origin/main` with `git ls-remote`.
-- Latest local documentation checkpoint: `dfd34a36cd5316a6da425d7fe98bba168d5ddd0c`
-  (`docs: reconcile file input verification evidence`). This commit is one revision ahead of the
-  local `origin/main` tracking reference. The active slice remains uncommitted and no push is
-  authorized.
-- Current implementation slice: a generic `ElementInternals`/Lit lifecycle controller and
+- Previous published progress checkpoint: `7584477890d707ded9e23888249c9d7f93ae84cf`
+  (`docs: record JSON UI implementation checkpoint`).
+- Latest verified implementation checkpoint: `33d80faf35b6ccd85d12b68e93c66db4bcd07032`
+  (`feat: add native form structures`), pushed to `https://github.com/unislang/unifold.git` and
+  independently verified at `refs/heads/main` with `git ls-remote`.
+- Current completed slice: a generic `ElementInternals`/Lit lifecycle controller and
   enum-backed value codecs extend native form projection to Checkbox, MultiSelect, and FileInput
   without a second state authority. The integrated parallel slice also adds deferred Field,
   Fieldset, and ErrorSummary structures across catalog, IR, elements, static export, reference,
-  browser, and performance surfaces. Release verification is complete; the worktree remains local.
+  browser, and performance surfaces. Release verification is complete and the implementation is
+  present on the `unifold` remote.
 - Goal status: active. This checkpoint does not complete the architecture plan; the authoritative
   inventory still lists Image, Card, NumberField, SearchField, CheckboxGroup, Switch, DateField,
   Toast, and Pagination as component-family gaps, followed by the
@@ -669,8 +665,9 @@ behavioral evidence; rerun Firefox when the managed runner can create a page rel
   ms. The bounded reference matrix passes 168 with six intentional scale skips; static export
   39/39, hierarchical example 9/9, JSONUI parity 27/27, host parity 12/12, and packed consumer 3/3
   pass. Production initial JavaScript is 183,882 gzip bytes with 35,959 post-mount bytes; the 438-byte
-  initial headroom is a tracked risk. Duplication is 1.59%; format and diff checks pass. The slice is
-  ready for the requested implementation checkpoint and push.
+  initial headroom is a tracked risk. Duplication is 1.59%; format and diff checks pass. The slice
+  is committed as `33d80faf35b6ccd85d12b68e93c66db4bcd07032`, pushed to `unifold`, and
+  independently verified at remote `main`.
 
 - 2026-08-26: Completed the local implementation and serialized validation of the bounded FileInput,
   native scalar form association, deferred optional definitions, and deterministic readiness slice.
