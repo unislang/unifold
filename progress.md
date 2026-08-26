@@ -17,13 +17,13 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest implementation checkpoint: `2b38399` (`feat: make composition identities reversible`)
-- Verified implementation remote state: the first push advanced `origin/main` to
-  `2b383996199391332cde78454702cb2eebc0981e`; the documentation commit that records this exact
-  state is pushed immediately afterward and independently verified.
-- Working tree: architecture slice 4 composition-identity hardening is implemented, validated,
-  committed, and pushed as described below; the remaining slice-4 migration and compilation work
-  stays open.
+- Latest implementation checkpoint: `3e31404` (`feat: add composition version migrations`)
+- Verified implementation remote state: `origin/main` independently resolved to
+  `3e3140431630cfc1aa082ee699f893c4b8b50a07` after the implementation push; the progress-only
+  commit that records this evidence is pushed immediately afterward.
+- Working tree: architecture slice 4 identity, version-migration, rollback, focus, and measured
+  composition-compilation work is implemented, fully validated, committed, and pushed as described
+  below. Dedicated cross-browser version-migration evidence and the next interaction families remain.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
@@ -56,12 +56,12 @@ record new measurements rather than treating the numbers above as proof for late
 
 ## Active slice
 
-Architecture slice 3 is implemented, fully validated, committed, and pushed. Continue with slice 4
-in
-[`docs/implementation-status.md`](./docs/implementation-status.md#next-architecture-slices):
-reversible composition identity encoding, explicit successor migrations, incremental compilation,
-and the next interaction families. Production provisioning of slices 1 and 2 remains a separate
-external-environment release gate rather than unfinished local framework code.
+Architecture slice 4 composition identity, explicit version migration, and measured compilation
+sub-slices are implemented, fully validated, committed, and pushed. Continue with the dedicated
+cross-browser migration/accessibility/event journey and the next interaction families in
+[`docs/implementation-status.md`](./docs/implementation-status.md#next-architecture-slices).
+Production provisioning of slices 1 and 2 remains a separate external-environment release gate
+rather than unfinished local framework code.
 
 ### 2026-08-26 durability checkpoint
 
@@ -244,15 +244,44 @@ The first architecture slice-4 hardening sub-slice is implemented and committed 
   rollback evidence, then measure representative complete composition compilation and add subtree
   invalidation only if the measurements justify its cache complexity.
 
+### 2026-08-26 composition-version migration checkpoint
+
+The remaining identity-adjacent slice-4 work is implemented, validated, committed as `3e31404`, and
+pushed to `origin/main`:
+
+- Hosts register bounded exact definition `{name, version}` edges. Registries reject empty,
+  duplicate, cyclic, over-budget, unknown, reused, and incompatible mappings before application
+  mutation. Every node owned by a changed instance resets by default; only explicitly mapped public
+  exports with equal IR kind and component type preserve state.
+- Structural reconcile commands carry validated reset IDs and one-to-one aliases through the public
+  event/runtime boundary. Compatible dirty state and DOM focus follow renamed exports; unchanged
+  instances retain identity, and codec aliases apply only while their legacy source is active.
+- Application updates retain exact prior runtime snapshots. Missing edges and failed candidates keep
+  last-known-good authored/runtime state; failed compensation returns a stable diagnostic, disposes
+  and quarantines the application, and rejects every later update instead of risking split state.
+- A schema-valid 500-instance fixture expands to exactly 1,001 nodes. The schema-2.17.0 benchmark
+  report passes all 40/40 gates: full composition compilation measured 9.89 ms p95 and a revision
+  changing one instance measured 9.70 ms p95, both against 100 ms. This evidence defers subtree-cache
+  and invalidation complexity until representative measurements justify it.
+- Full quality passes file/function/complexity, colocated-test, ESLint, all source and strict test
+  typechecks, Knip, and dependency rules over 1,393 modules/3,144 edges. The package matrix passes
+  335 files/863 tests; performance correctness passes 29 tests; duplication and formatting pass.
+- Coverage passes at 97.28% lines/statements, 97.07% functions, and 90.04% branches. Chromium and
+  WebKit reference journeys pass 73 with 3 intentional WebKit scale-profile skips. The clean packed
+  consumer passes 3/3 after its pinned external dependencies are installed with network access.
+- Production reference E2E hooks now compile only in explicit `e2e` mode, and the production bundle
+  gate rejects either hook marker. Deterministic three-pass module/toplevel compression yields
+  179,850 gzip bytes (175.63 KiB) against the unchanged 180 KiB ceiling.
+
 ## Immediate resume procedure
 
 1. Read this file, `docs/implementation-status.md`, and the composition sections of the architecture
    plan for slice 4.
 2. Inspect `git status --short --branch` and preserve any post-checkpoint user changes.
-3. Confirm the composition-identity checkpoint is present on `origin/main`, then implement real
-   successor composition migrations only where versions exist and measure complete versus
-   incremental composition compilation. Preserve the Firefox runner limitation as external release
-   evidence.
+3. Confirm the composition-migration checkpoint is present on `origin/main`, then add a dedicated
+   cross-browser version-migration journey covering renamed-export focus, accessibility, canonical
+   event identity, reset, rejection, and recovery. Continue into the prioritized interaction-family
+   gap without adding subtree caching unless the executable composition gates regress.
 4. Keep production modules and their adjacent tests within the enforced complexity, function-length,
    file-length, and one-test-per-module limits.
 5. Use `apply_patch` for edits. Run Prettier before assuming a diff is ready.
@@ -331,3 +360,9 @@ silently waived.
   gates pass. Committed the checkpoint as `2b38399` and pushed it to
   `https://github.com/unislang/unifold.git`; cross-version definition migrations and measured
   composition compilation remain next.
+- 2026-08-26: Implemented exact bounded composition-version migration edges, reset-by-default and
+  public-export preservation, DOM-focus migration, exact rollback/quarantine behavior, and two
+  500-instance compilation gates. Full quality, 335-file/863-test package coverage, 40/40 benchmark,
+  coverage, production bundle, Chromium/WebKit, and clean-consumer validations pass. Committed as
+  `3e31404`, pushed to `https://github.com/unislang/unifold.git`, and independently verified remote
+  `main` at `3e3140431630cfc1aa082ee699f893c4b8b50a07`.
