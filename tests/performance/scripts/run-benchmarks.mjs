@@ -33,6 +33,8 @@ const controlPlaneDurabilityPath = resolve(
 const asyncStorePath = resolve(resultDirectory, "async-store-performance.raw.json");
 const documentProvenancePath = resolve(resultDirectory, "document-provenance-performance.raw.json");
 const fileInputPath = resolve(resultDirectory, "file-input-performance.raw.json");
+const formStructurePath = resolve(resultDirectory, "form-structure-performance.raw.json");
+const nativeFormPath = resolve(resultDirectory, "native-form-performance.raw.json");
 const finalPath = resolve(resultDirectory, "selective-rendering.json");
 const profileRuns = [
   ["performance-profile.test.ts", "UNIFOLD_PERFORMANCE_PROFILE_OUTPUT", profilePath],
@@ -64,7 +66,9 @@ const profileRuns = [
     "UNIFOLD_DOCUMENT_PROVENANCE_OUTPUT",
     documentProvenancePath
   ],
-  ["file-input-profile.test.ts", "UNIFOLD_FILE_INPUT_OUTPUT", fileInputPath]
+  ["file-input-profile.test.ts", "UNIFOLD_FILE_INPUT_OUTPUT", fileInputPath],
+  ["form-structure-profile.test.ts", "UNIFOLD_FORM_STRUCTURE_OUTPUT", formStructurePath],
+  ["native-form-lifecycle-profile.test.ts", "UNIFOLD_NATIVE_FORM_OUTPUT", nativeFormPath]
 ];
 
 await mkdir(resultDirectory, { recursive: true });
@@ -93,6 +97,8 @@ const controlPlaneDurabilityPerformance = JSON.parse(
 const asyncStorePerformance = JSON.parse(await readFile(asyncStorePath, "utf8"));
 const documentProvenancePerformance = JSON.parse(await readFile(documentProvenancePath, "utf8"));
 const fileInputPerformance = JSON.parse(await readFile(fileInputPath, "utf8"));
+const formStructurePerformance = JSON.parse(await readFile(formStructurePath, "utf8"));
+const nativeFormPerformance = JSON.parse(await readFile(nativeFormPath, "utf8"));
 const profile = {
   ...measuredProfile,
   gates: [
@@ -113,7 +119,9 @@ const profile = {
     ...controlPlaneTransportPerformance.gates,
     ...asyncStorePerformance.gates,
     ...documentProvenancePerformance.gates,
-    fileInputPerformance.gate
+    fileInputPerformance.gate,
+    formStructurePerformance.gate,
+    nativeFormPerformance.gate
   ],
   asyncStorePerformance,
   comboboxFilter,
@@ -124,6 +132,8 @@ const profile = {
   devtoolsPerformance,
   documentProvenancePerformance,
   fileInputPerformance,
+  formStructurePerformance,
+  nativeFormPerformance,
   dataActorPerformance,
   lifecycleMemory,
   dataGridPerformance,
@@ -138,7 +148,7 @@ const report = {
   environment: environmentMetadata(),
   generatedAt: new Date().toISOString(),
   profile,
-  schemaVersion: "2.23.0"
+  schemaVersion: "2.25.0"
 };
 await writeFile(finalPath, `${JSON.stringify(report, null, 2)}\n`);
 process.stdout.write(`Benchmark report: ${finalPath}\n`);

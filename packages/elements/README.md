@@ -58,14 +58,15 @@ Controls emit interaction intents; the normalized runtime remains the committed 
 projects accepted values back to the element. See the [component reference](../../docs/components.md)
 for JSON examples, value types, and the current accessibility boundary.
 
-Scalar text and single-choice controls are native form-associated custom elements. A shared Lit
-reactive controller projects the committed value and validity through `ElementInternals`, combines
-authored and ancestor-fieldset disabled state, and normalizes reset, restore, autocomplete, and IME
-completion into the existing canonical input path. It does not own application state or validation.
-The host `name` reflects for native `FormData`; the accessible editing surface remains the native
-input, textarea, select, radio group, or listbox inside the component. Boolean, multi-value, and file
-controls use value-shape-specific lifecycle work and must not be assumed complete from the scalar
-adapter. See the [native form research record](../../docs/research/forms/report-source.md).
+Scalar, boolean, repeated-string, and file controls are native form-associated custom elements. A
+shared generic Lit controller projects committed values and validity through `ElementInternals`,
+combines authored and ancestor-fieldset disabled state, and normalizes reset, restore, and
+autocomplete into the existing canonical input path. A thin scalar controller additionally
+suppresses intermediate IME input. It does not own application state or validation. The host
+`name` reflects for native `FormData`; Checkbox submits `"on"` only while checked, MultiSelect uses
+repeated keys, and FileInput exposes live `File` values only at the trusted native-form boundary.
+The accessible editing surface remains the native control inside each component. See the
+[native form research record](../../docs/research/forms/report-source.md).
 
 `unifold-file-input` admits at most 32 files and emits only opaque UUIDs, MIME types, byte sizes,
 and selected/rejected counts. File names, modification times, local paths, and bytes remain outside
@@ -75,7 +76,7 @@ element invalidates those resolutions.
 
 ## Component manifests
 
-`pnpm generate:cem` analyzes all thirty-four catalog elements with the official Custom Elements Manifest
+`pnpm generate:cem` analyzes all thirty-seven catalog elements with the official Custom Elements Manifest
 analyzer and Lit plugin. It validates the output against the official manifest schema and writes
 `dist/custom-elements.json`. The package exposes that file through its standard `customElements`
 metadata and `./custom-elements.json` export.

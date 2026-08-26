@@ -32,6 +32,9 @@ export default defineConfig({
       "@unislang/unifold-elements/file-input": fileURLToPath(
         new URL("./packages/elements/src/file-input-entry.ts", import.meta.url)
       ),
+      "@unislang/unifold-elements/form-structure": fileURLToPath(
+        new URL("./packages/elements/src/form-structure-entry.ts", import.meta.url)
+      ),
       "@unislang/unifold-elements/audit-log": fileURLToPath(
         new URL("./packages/elements/src/audit-log-entry.ts", import.meta.url)
       ),
@@ -106,6 +109,9 @@ export default defineConfig({
       ),
       "@unislang/unifold/file-input": fileURLToPath(
         new URL("./packages/unifold/src/file-input.ts", import.meta.url)
+      ),
+      "@unislang/unifold/form-structure": fileURLToPath(
+        new URL("./packages/unifold/src/form-structure.ts", import.meta.url)
       ),
       "@unislang/unifold-ai": packageSource("ai"),
       "@unislang/unifold-catalog": packageSource("catalog"),

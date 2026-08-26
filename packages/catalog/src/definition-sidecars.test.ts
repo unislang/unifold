@@ -10,7 +10,7 @@ import {
   ComponentEvidenceCheck,
   ComponentSemanticHiddenContentPolicy,
   ComponentStatus
-} from "./enums.js";
+} from "./definition-enums.js";
 
 const coreTypes = Object.values(CoreComponentType);
 

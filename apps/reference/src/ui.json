@@ -166,7 +166,6 @@
               {
                 "$comp": "Box",
                 "id": "help-box",
-                "label": "Support resources",
                 "padding": "lg",
                 "surface": "subtle",
                 "$children": [
@@ -197,7 +196,6 @@
                       {
                         "$comp": "Alert",
                         "id": "support-alert",
-                        "content": "Support requests include the current document revision.",
                         "title": "Context preserved"
                       },
                       {

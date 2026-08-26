@@ -42,19 +42,22 @@ post-mount JavaScript.
 workspace, typechecks and bundles a public-API-only fixture, and runs its lifecycle in Chromium.
 See [Packaging and clean-consumer verification](./packaging.md).
 
-The 2026-08-26 local acceptance snapshot runs 428 package test files and 1,079 tests with zero
-failures. V8 coverage records 97.42% lines/statements, 97.01% functions, and 90.09% branches,
+The 2026-08-26 local acceptance snapshot runs 442 package test files and 1,105 tests with zero
+failures. V8 coverage records 97.49% lines/statements, 97.01% functions, and 90.06% branches,
 passing the executable 90% repository thresholds. The complete matrix also
-passes 16 tooling tests, 8 generated/CEM script tests, the theme/reference script tests, and 26
-performance correctness files/36 tests with the long-running profiles intentionally skipped there
+passes 16 tooling tests, 8 generated/CEM script tests, the theme/reference script tests, and 28
+performance correctness files/38 tests with the long-running profiles intentionally skipped there
 and run by `pnpm benchmark:selective`. These observations supplement, rather than replace, the
 executable coverage thresholds.
 
-The same snapshot passes 153 reference journeys across Chromium, Firefox, and WebKit with six
-intentional non-Chromium scale skips, plus 36/36 static no-JavaScript and upgrade journeys across
-all three engines. The static matrix includes JSON-LD ownership/integrity and the metadata-only
-FileInput upgrade. Run the reference matrix with a bounded worker count when collecting release
-evidence so workstation saturation is not mistaken for application latency.
+The same snapshot passes 168 reference journeys across Chromium, Firefox, and WebKit with six
+intentional non-Chromium scale skips, plus 39/39 static no-JavaScript and upgrade journeys across
+all three engines. The hierarchical authoring example passes 9/9 and plain/React/Svelte/Vue host
+parity passes 12/12. Pinned upstream JSONUI parity passes 27/27 and the clean packed consumer passes
+3/3. The static matrix includes JSON-LD ownership/integrity, metadata-only FileInput upgrade, native
+repeated form values, and form-structure semantics. Run the reference matrix with a bounded worker
+count when collecting release evidence so workstation saturation is not mistaken for application
+latency.
 
 ## Test placement
 
@@ -269,7 +272,14 @@ normalized runtime aggregate. Non-public form journeys assert metadata-only disc
 most restrictive descendant: no aggregate value, validation parameters, or snapshot may enter the
 runtime stream. The reference journey combines boolean, string, and string-array controls, proves
 disabled-value omission and raw retention, and checks selective reset projection.
-The three-browser suite also drives a Valibot-backed form-level name-confirmation rule through
+Native-form journeys additionally assert successful-control semantics through `FormData`: scalar
+values occur once, Checkbox contributes `"on"` only when checked, MultiSelect contributes repeated
+keys in option order, and FileInput contributes live `File` objects only at the trusted browser
+boundary. The same three-engine matrix covers form reassociation, ancestor fieldset disablement,
+reset, callback restoration origins, IME de-duplication, file-handle revocation, and canonical-event
+privacy. Static-upgrade coverage edits the no-JavaScript controls before definition and proves
+value, focus, repeated-entry, and exactly-once event preservation after upgrade.
+The three-browser suite also drives a Standard Schema-compatible form-level name-confirmation rule through
 invalid submission, affected-node metadata, correction, error removal, and valid resubmission.
 It then changes only the source field and proves the unchanged affected field gains and loses its
 accessible error through transactional route invalidation.

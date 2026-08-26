@@ -61,9 +61,7 @@ export const tabsDescriptor: ComponentDescriptor = {
   ],
   properties: [
     ...controlProperties().map((descriptor) =>
-      descriptor.name === "steps"
-        ? { ...descriptor, name: "tabs", bindingName: "tabs" }
-        : descriptor
+      descriptor.name === "steps" ? { ...descriptor, name: "tabs" } : descriptor
     ),
     enumProperty("activationMode", TabActivationMode.Automatic, Object.values(TabActivationMode)),
     enumProperty("orientation", StepperOrientation.Horizontal, Object.values(StepperOrientation)),

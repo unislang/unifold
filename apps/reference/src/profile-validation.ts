@@ -5,7 +5,6 @@ import {
   createValidatorRegistry,
   type UiValidationContext
 } from "@unislang/unifold-forms";
-import { check, forward, looseObject, pipe, string } from "valibot";
 
 export function profileValidators() {
   const registry = createValidatorRegistry();
@@ -58,13 +57,47 @@ function abortDelay(timer: number, reject: (reason: DOMException) => void): void
 }
 
 function namesMatchSchema() {
-  return pipe(
-    looseObject({ confirmName: string(), name: string() }),
-    forward(check(matchesOptionalConfirmation, "Names must match."), ["confirmName"])
-  );
+  return {
+    "~standard": {
+      validate: validateNamesMatch,
+      vendor: "unifold",
+      version: 1 as const
+    }
+  };
 }
 
-function matchesOptionalConfirmation(value: { confirmName: string; name: string }): boolean {
-  if (value.confirmName.length === 0) return true;
-  return value.confirmName === value.name;
+function validateNamesMatch(value: unknown) {
+  const names = readNames(value);
+  return namesMatch(names)
+    ? { value }
+    : { issues: [{ message: "Names must match.", path: ["confirmName"] }] };
+}
+
+function readNames(
+  value: unknown
+): { readonly confirmName: string; readonly name: string } | undefined {
+  if (!isRecord(value)) return undefined;
+  return readNameProperties(value);
+}
+
+function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+  if (typeof value !== "object") return false;
+  if (value === null) return false;
+  return !Array.isArray(value);
+}
+
+function readNameProperties(
+  candidate: Readonly<Record<string, unknown>>
+): { readonly confirmName: string; readonly name: string } | undefined {
+  const confirmName = candidate["confirmName"];
+  if (typeof confirmName !== "string") return undefined;
+  const name = candidate["name"];
+  return typeof name === "string" ? { confirmName, name } : undefined;
+}
+
+function namesMatch(
+  names: { readonly confirmName: string; readonly name: string } | undefined
+): boolean {
+  if (names === undefined) return false;
+  return names.confirmName === "" || names.confirmName === names.name;
 }

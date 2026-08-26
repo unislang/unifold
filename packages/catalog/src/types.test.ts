@@ -10,7 +10,7 @@ import {
   ComponentSemanticNormalization,
   ComponentSemanticValueSource,
   ComponentStatus
-} from "./enums.js";
+} from "./definition-enums.js";
 import type { ComponentDefinitionSidecar } from "./types.js";
 
 it("represents a data-only component definition sidecar", () => {

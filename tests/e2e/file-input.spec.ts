@@ -30,6 +30,7 @@ async function assertSelectionEvidence(
   input: Awaited<ReturnType<typeof lastFileInput>>
 ): Promise<void> {
   expect(input?.data.change).toEqual({
+    origin: "input",
     rejectedCount: 1,
     value: [
       {

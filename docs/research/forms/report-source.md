@@ -18,19 +18,19 @@ capabilities. The existing Unifold store remains the only committed value/status
 
 ## Implementation evidence
 
-The native child-mount surface and scalar controller are implemented in the active working slice.
-TextField, TextArea, Select, RadioGroup, and VirtualList delegate native disabled, reset, restore,
-autocomplete, validity, and submission projection to that controller. Input and restore changes add
-an enum-backed origin to the existing canonical intent; committed state still comes only from the
-runtime. A focused Playwright matrix proves text `FormData`, form reassociation, disabled fieldsets,
-IME de-duplication, and callback restoration in Chromium, Firefox, and WebKit. Choice-control
-`FormData` coverage is part of the same matrix. The final complete reference rerun passes 153
-journeys across Chromium, Firefox, and WebKit with only six intentional non-Chromium scale skips.
+The native child-mount surface and generic lifecycle controller are implemented. TextField,
+TextArea, Select, RadioGroup, VirtualList, Checkbox, MultiSelect, and FileInput delegate native
+disabled, reset, restore, autocomplete, validity, and submission projection to that controller.
+Scalar input adds a thin IME-aware layer; boolean, repeated-string, and file values use bounded
+shape-specific codecs. Input and restore changes add an enum-backed origin to the existing
+canonical intent; committed state still comes only from the runtime.
 
-This is not yet complete for every value-bearing control. Boolean, multi-value, date/range, and file
-controls require value-shape-specific adapters and the static-upgrade and 100-control performance
-rows below remain release gates. FileInput already enforces opaque metadata and a trusted ephemeral
-capability boundary, but its native form-value adapter remains separate follow-up work.
+The focused Playwright matrix proves scalar, boolean, repeated-key, and trusted live-`File`
+`FormData`, reassociation, disabled fieldsets, reset, callback restoration, privacy, and IME
+de-duplication in Chromium, Firefox, and WebKit. Static upgrade preserves pre-upgrade values, focus,
+repeated entries, and exactly one event path. The 100-control FormData/reset/restore profile passes
+the executable 8 ms gate. Date/range and future CheckboxGroup/Switch families remain separate
+component work rather than gaps in the implemented value-shape adapters.
 
 The platform boundary is feasible, and `unifold-form` now exposes a generic renderer child-mount
 surface. Its native `form` and the JSON-authored child hosts share the same shadow-tree ancestry,

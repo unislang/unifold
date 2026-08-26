@@ -9,12 +9,11 @@ import {
 
 it("creates property and test-selector descriptors through one shared boundary", () => {
   expect(catalogProperty("label", CatalogPropertyType.String, undefined, true)).toEqual({
-    bindingKind: CatalogBindingKind.Property,
-    bindingName: "label",
     name: "label",
     required: true,
     valueType: CatalogPropertyType.String
   });
+  expect(catalogProperty("label", CatalogPropertyType.String).bindingKind).toBeUndefined();
   expect(catalogProperty("disabled", CatalogPropertyType.Boolean, false)).toMatchObject({
     defaultValue: false,
     required: false

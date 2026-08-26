@@ -274,8 +274,9 @@ without introducing another store.
 
 The OSS integration boundary is [Standard Schema](https://standardschema.dev/), whose store-free
 validation interface lets Zod, Valibot, ArkType, and other compatible schemas plug into the graph.
-[Valibot object validation](https://valibot.dev/guides/objects/) supplies the reference cross-field
-rule through its Standard Schema implementation, `check`, and path-forwarding support.
+The size-constrained reference supplies its cross-field rule through a minimal Standard
+Schema-compatible validator; applications can substitute any conforming library without changing
+the form graph or introducing another state authority.
 [TanStack Form's `FormApi`](https://tanstack.com/form/latest/docs/reference/classes/FormApi) owns its
 own base and derived stores, while [Lion forms](https://lion.js.org/fundamentals/systems/form/overview/)
 center their own form-control mixins. Adopting either as the core would create a second authority, so

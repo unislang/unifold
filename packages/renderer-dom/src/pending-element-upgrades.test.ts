@@ -68,7 +68,7 @@ it("does not replay after disposal or into a rejected definition", async () => {
   expect(rejected.element.dataset["replayedLabel"]).toBeUndefined();
 });
 
-it("adopts current children into a child container exposed during upgrade", async () => {
+it("adopts current children without moving a light-DOM scaffold into itself", async () => {
   const fixture = configuredPendingFixture(() => true, tooltipWithChildDocument());
   const child = fixture.controller.getElement("action");
 
@@ -77,7 +77,7 @@ it("adopts current children into a child container exposed during upgrade", asyn
 
   const container = Reflect.get(fixture.element, "unifoldChildContainer") as HTMLElement;
   expect(container.firstElementChild).toBe(child);
-  expect(fixture.element.children).toHaveLength(0);
+  expect(fixture.element.children).toHaveLength(1);
 });
 
 function pendingFixture() {
@@ -100,7 +100,7 @@ function replayElement(realm: Window): CustomElementConstructor {
   return class extends realm.HTMLElement {
     constructor() {
       super();
-      this.attachShadow({ mode: "open" }).innerHTML = "<div data-children></div>";
+      installLightContainer(this as unknown as HTMLElement);
       Reflect.set(this, "eventNode", undefined);
       Reflect.set(this, "label", "constructor-default");
       Reflect.set(this, "runtimeContext", { documentId: "constructor" });
@@ -111,9 +111,7 @@ function replayElement(realm: Window): CustomElementConstructor {
     }
 
     get unifoldChildContainer(): HTMLElement | undefined {
-      return this.shadowRoot?.querySelector("[data-children]") as unknown as
-        | HTMLElement
-        | undefined;
+      return this.querySelector("[data-children]") as unknown as HTMLElement | undefined;
     }
   } as unknown as CustomElementConstructor;
 }
@@ -136,7 +134,15 @@ function emulateUpgradeWhenNeeded(
   Reflect.set(element, "label", "constructor-default");
   Reflect.set(element, "runtimeContext", { documentId: "constructor" });
   Reflect.setPrototypeOf(element, definition.prototype);
-  element.attachShadow({ mode: "open" }).innerHTML = "<div data-children></div>";
+  installLightContainer(element);
+}
+
+function installLightContainer(element: HTMLElement): void {
+  const scaffold = element.ownerDocument.createElement("section");
+  const children = element.ownerDocument.createElement("div");
+  children.dataset["children"] = "";
+  scaffold.append(children);
+  element.append(scaffold);
 }
 
 function registryPort(realm: Window): PendingElementDefinitionOptions["registry"] {

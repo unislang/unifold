@@ -5,6 +5,9 @@ import type {
   CatalogBindingKind,
   CatalogConstraintKind,
   CatalogPropertyType,
+  CoreElementTag
+} from "./enums.js";
+import type {
   ComponentAccessibilityPattern,
   ComponentCapability,
   ComponentDataClassification,
@@ -13,13 +16,12 @@ import type {
   ComponentSemanticHiddenContentPolicy,
   ComponentSemanticNormalization,
   ComponentSemanticValueSource,
-  ComponentStatus,
-  CoreElementTag
-} from "./enums.js";
+  ComponentStatus
+} from "./definition-enums.js";
 
 export interface CatalogPropertyDescriptor {
-  readonly bindingKind: CatalogBindingKind;
-  readonly bindingName: string;
+  readonly bindingKind?: CatalogBindingKind;
+  readonly bindingName?: string;
   readonly defaultValue?: JsonValue;
   readonly enumValues?: readonly string[];
   readonly name: string;
@@ -43,6 +45,11 @@ export interface FileMetadata extends JsonObject {
   readonly id: string;
   readonly size: number;
   readonly type: string;
+}
+
+export interface ErrorSummaryItem extends JsonObject {
+  readonly message: string;
+  readonly targetId: string;
 }
 
 export type MenuItem = ChoiceOption;

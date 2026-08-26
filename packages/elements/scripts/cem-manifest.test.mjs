@@ -73,7 +73,7 @@ function hasNamed(values, name) {
 function missingPropertyNames(descriptor, declaration) {
   const actual = publicFieldNames(declaration);
   return descriptor.properties
-    .filter(({ bindingKind }) => bindingKind === CatalogBindingKind.Property)
+    .filter(({ bindingKind }) => bindingKind !== CatalogBindingKind.Attribute)
     .map(({ name }) => name)
     .filter((name) => !actual.has(name));
 }
@@ -82,7 +82,7 @@ function missingAttributeNames(descriptor, declaration) {
   const actual = new Set((declaration.attributes ?? []).map(({ name }) => name));
   return descriptor.properties
     .filter(({ bindingKind }) => bindingKind === CatalogBindingKind.Attribute)
-    .map(({ bindingName }) => bindingName)
+    .map(({ bindingName, name }) => bindingName ?? name)
     .filter((name) => !actual.has(name));
 }
 

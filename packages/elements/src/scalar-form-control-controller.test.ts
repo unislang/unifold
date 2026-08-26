@@ -11,6 +11,7 @@ import {
 it("projects submission, validity, disabled state, reset, and restore through one host port", () => {
   const fixture = createFixture("Ada");
   fixture.controller.hostConnected();
+  fixture.controller.hostUpdated();
   expect(fixture.internals.setFormValue).toHaveBeenLastCalledWith("Ada", "Ada");
   fixture.controller.formDisabledCallback(true);
   expect(fixture.internals.setFormValue).toHaveBeenLastCalledWith(null);
@@ -48,11 +49,13 @@ function createFixture(value: string) {
     addController: vi.fn(),
     disabled: false,
     errorMessage: "",
+    eventNode: {},
     formControlAnchor: () => null,
     formControlValueChanged: (next: string, origin: NativeFormValueOrigin) => {
       host.value = next;
       changes.push([next, origin]);
     },
+    name: "field",
     requestUpdate: vi.fn(),
     required: false,
     updateComplete: Promise.resolve(true)

@@ -15,20 +15,18 @@ import {
   type PreparedUnifoldDocument
 } from "@unislang/unifold";
 
-import { referenceAuditLogNode } from "./static-audit-log-reference.test-data.js";
 import { referenceBreadcrumbNode } from "./static-breadcrumb-reference.test-data.js";
 import { referenceDialogNode } from "./static-dialog-reference.test-data.js";
-import { referenceFileInputNode } from "./static-file-input-reference.test-data.js";
-import { referenceSearchResultsNode } from "./static-search-results-reference.test-data.js";
+import {
+  referenceStaticForm,
+  referenceTextFieldNode,
+  referenceVirtualListNode
+} from "./static-form-reference.test-data.js";
 import { referenceMenuButton } from "./static-menu-reference.test-data.js";
 import { referenceTooltipNode } from "./static-tooltip-reference.test-data.js";
 import { referenceStoreDefinition } from "./static-store-reference.test-data.js";
 import { largeVirtualListNode } from "./static-virtual-list-reference.test-data.js";
-import {
-  referenceStepperNode,
-  referenceTabsNode,
-  referenceWizardNode
-} from "./static-workflow-reference.test-data.js";
+import { referenceTabsNode } from "./static-workflow-reference.test-data.js";
 
 export function completeStaticDocument(): JsonObject {
   return documentWithView(referenceRoot());
@@ -38,7 +36,7 @@ export const largeVirtualListDocument = (): JsonObject => documentWithView(large
 
 export function classifiedVirtualListDocument(classification: DataClassification): JsonObject {
   return {
-    ...documentWithView({ ...virtualList(), path: "/name", store: "profile" }),
+    ...documentWithView({ ...referenceVirtualListNode(), path: "/name", store: "profile" }),
     stores: [referenceStoreDefinition(classification)]
   };
 }
@@ -49,7 +47,7 @@ function referenceRoot(): JsonObject {
     id: "root",
     label: "Reference",
     $children: [
-      referenceForm(),
+      referenceStaticForm(),
       referenceDisclosure(),
       referenceBreadcrumbNode(),
       referenceMenuButton(),
@@ -69,57 +67,6 @@ function referencePopover(): JsonObject {
     label: "Review account summary",
     panelLabel: "Current account summary",
     placement: "bottom"
-  };
-}
-
-function referenceForm(): JsonObject {
-  return {
-    $comp: "Form",
-    id: "form",
-    label: "Profile",
-    errorMessages: ["Correct the highlighted field"],
-    $children: [
-      textField(),
-      passwordField(),
-      textArea(),
-      referenceFileInputNode(),
-      checkbox(),
-      radioGroup(),
-      selectNode("Combobox", "assignee", "Assignee", "email"),
-      selectNode("Select", "country", "Country", "us"),
-      selectNode("MultiSelect", "skills", "Skills", ["ts"]),
-      virtualList(),
-      referenceAuditLogNode(),
-      tableNode(),
-      dataGridNode(),
-      masterDetailNode(),
-      referenceSearchResultsNode(),
-      referenceStepperNode(),
-      referenceWizardNode(),
-      { $comp: "Button", action: "submit", id: "save", label: "Save" }
-    ]
-  };
-}
-
-function textArea(): JsonObject {
-  return {
-    $comp: "TextArea",
-    id: "biography",
-    label: "Biography",
-    name: "biography",
-    rows: 3,
-    value: "A pioneer",
-    wrap: "soft"
-  };
-}
-
-function checkbox(): JsonObject {
-  return {
-    $comp: "Checkbox",
-    id: "newsletter",
-    label: "Newsletter",
-    name: "newsletter",
-    value: true
   };
 }
 
@@ -162,7 +109,7 @@ export function semanticDocument(
   value = "Ada"
 ): JsonObject {
   return {
-    ...documentWithView({ ...textField(), path: "/name", store: "profile", value }),
+    ...documentWithView({ ...referenceTextFieldNode(), path: "/name", store: "profile", value }),
     semantics: semanticGraph(value),
     stores: [referenceStoreDefinition(classification)]
   };
@@ -204,113 +151,6 @@ export function documentWithView(view: JsonObject): JsonObject {
     schemaVersion: UiSchemaVersion.Version1,
     view
   };
-}
-
-function textField(): JsonObject {
-  return {
-    $comp: "TextField",
-    id: "name",
-    errorMessage: "Name is required",
-    inputType: "text",
-    label: "Name",
-    name: "name",
-    required: true,
-    value: "Ada"
-  };
-}
-
-function passwordField(): JsonObject {
-  return {
-    $comp: "TextField",
-    id: "password",
-    inputType: "password",
-    label: "Password",
-    name: "password",
-    value: "must-not-export"
-  };
-}
-
-function radioGroup(): JsonObject {
-  return {
-    $comp: "RadioGroup",
-    id: "contact",
-    label: "Contact",
-    name: "contact",
-    options: choiceOptions(),
-    value: "email"
-  };
-}
-
-function selectNode(
-  component: "Combobox" | "MultiSelect" | "Select",
-  id: string,
-  label: string,
-  value: string | readonly string[]
-): JsonObject {
-  return { $comp: component, id, label, name: id, options: choiceOptions(), value };
-}
-
-function virtualList(): JsonObject {
-  return {
-    $comp: "VirtualList",
-    id: "records",
-    label: "Records",
-    options: choiceOptions(),
-    value: "email"
-  };
-}
-
-function tableNode(): JsonObject {
-  return {
-    $comp: "Table",
-    caption: "People",
-    columns: [
-      { key: "name", label: "Name" },
-      { key: "active", label: "Active" }
-    ],
-    id: "people",
-    rows: [
-      { cells: { active: true, name: "Ada" }, id: "ada" },
-      { cells: { active: false, name: "<strong>Grace</strong>" }, id: "grace" }
-    ]
-  };
-}
-
-function dataGridNode(): JsonObject {
-  return {
-    $comp: "DataGrid",
-    caption: "Selectable people",
-    columns: [{ key: "name", label: "Name" }],
-    id: "people-grid",
-    rows: [{ cells: { name: "Ada" }, id: "ada-grid" }],
-    selectionMode: "single",
-    sortableColumns: ["name"],
-    value: { selectedRowIds: [] }
-  };
-}
-
-function masterDetailNode(): JsonObject {
-  return {
-    $comp: "MasterDetail",
-    columns: [
-      { key: "name", label: "Name" },
-      { key: "status", label: "Status" }
-    ],
-    detailLabel: "Person details",
-    id: "people-master-detail",
-    label: "People",
-    masterColumn: "name",
-    rows: [{ cells: { name: "Ada", status: "Active" }, id: "ada-master" }],
-    value: "ada-master"
-  };
-}
-
-function choiceOptions(): readonly JsonObject[] {
-  return [
-    { label: "Email", value: "email" },
-    { disabled: true, label: "TypeScript", value: "ts" },
-    { label: "United States", value: "us" }
-  ];
 }
 
 function semanticGraph(value: string): JsonObject {

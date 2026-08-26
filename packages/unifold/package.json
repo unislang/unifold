@@ -38,6 +38,10 @@
       "types": "./dist/file-input.d.ts",
       "import": "./dist/file-input.js"
     },
+    "./form-structure": {
+      "types": "./dist/form-structure.d.ts",
+      "import": "./dist/form-structure.js"
+    },
     "./audit-log": {
       "types": "./dist/audit-log.d.ts",
       "import": "./dist/audit-log.js"

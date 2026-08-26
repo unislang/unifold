@@ -22,3 +22,4 @@ export type {
   UnifoldIrSource
 } from "./types.js";
 export { validateUiDocument } from "./validation.js";
+export { isErrorSummaryItemList, validateErrorSummaryTargets } from "./error-summary-validation.js";

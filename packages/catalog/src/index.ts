@@ -18,20 +18,11 @@ export {
   CatalogBindingKind,
   CatalogConstraintKind,
   CatalogPropertyType,
-  ComponentAccessibilityPattern,
-  ComponentCapability,
-  ComponentDataClassification,
-  ComponentDefinitionSchemaVersion,
-  ComponentEvidenceCheck,
-  ComponentSemanticAttachmentKind,
-  ComponentSemanticHiddenContentPolicy,
-  ComponentSemanticNormalization,
-  ComponentSemanticValueSource,
-  ComponentStatus,
   CoreElementTag,
   DataGridSelectionMode,
   DataGridSortDirection,
   DialogActivationReason,
+  ErrorSummaryItemProperty,
   FileMetadataProperty,
   HeadingLevel,
   IconName,
@@ -51,9 +42,28 @@ export {
   TextFieldInputType,
   TooltipPlacement
 } from "./enums.js";
+export {
+  ComponentAccessibilityPattern,
+  ComponentCapability,
+  ComponentDataClassification,
+  ComponentDefinitionSchemaVersion,
+  ComponentEvidenceCheck,
+  ComponentSemanticAttachmentKind,
+  ComponentSemanticHiddenContentPolicy,
+  ComponentSemanticNormalization,
+  ComponentSemanticValueSource,
+  ComponentStatus
+} from "./definition-enums.js";
 export { isSafeUrl } from "./url.js";
 export { breadcrumbDescriptor, MAXIMUM_BREADCRUMB_ITEMS } from "./breadcrumb-catalog.js";
 export { dialogDescriptor, MAXIMUM_DIALOG_CHILDREN } from "./dialog-catalog.js";
+export {
+  errorSummaryDescriptor,
+  fieldDescriptor,
+  fieldsetDescriptor,
+  MAXIMUM_ERROR_SUMMARY_ITEMS,
+  MAXIMUM_FIELDSET_CHILDREN
+} from "./form-structure-catalog.js";
 export {
   DEFAULT_MAXIMUM_FILE_BYTES,
   MAXIMUM_FILE_ACCEPT_LENGTH,
@@ -87,6 +97,7 @@ export type {
   MenuItem,
   DataGridSort,
   DataGridValue,
+  ErrorSummaryItem,
   FileMetadata,
   SearchResult,
   SearchResultsValue,

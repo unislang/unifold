@@ -2,7 +2,7 @@
 import type { UiEvent } from "@unislang/unifold-events";
 import { expect, it } from "vitest";
 
-import { ElementEventName, ElementEventType } from "./enums.js";
+import { ElementEventName, ElementEventType, NativeFormValueOrigin } from "./enums.js";
 import { controlNode } from "./elements.test-data.js";
 import { UnifoldFileInput } from "./file-input.js";
 
@@ -23,6 +23,7 @@ it("emits bounded metadata, retains trusted handles, and clears them on rollback
     ElementEventType.ControlBlurred
   ]);
   expect(firstEvent(events).data.change).toMatchObject({
+    origin: NativeFormValueOrigin.Input,
     rejectedCount: 1,
     selectedCount: 1,
     value: input.value
@@ -33,6 +34,7 @@ it("emits bounded metadata, retains trusted handles, and clears them on rollback
   await input.updateComplete;
   expect(input.resolveSelectedFile(selectedId)).toBeUndefined();
   expect(nativeInput(input).value).toBe("");
+  expect(UnifoldFileInput.formAssociated).toBe(true);
 });
 
 it("renders persisted metadata as requiring reselection without fabricating handles", async () => {
@@ -46,6 +48,30 @@ it("renders persisted metadata as requiring reselection without fabricating hand
   expect(nativeInput(input).getAttribute("aria-invalid")).toBe("true");
   expect(shadowText(input)).toContain("Reselect 1 file(s) before upload.");
   expect(input.resolveSelectedFile(firstMetadata(input).id)).toBeUndefined();
+});
+
+it("revokes handles on restoration and resets to the authored metadata snapshot", async () => {
+  const input = await mount();
+  input.name = "attachments";
+  input.multiple = true;
+  await input.updateComplete;
+  const events: UiEvent[] = [];
+  input.addEventListener(ElementEventName.UiEvent, (event) => events.push(detail(event)));
+  select(nativeInput(input), [file("private.pdf", 4, "application/pdf")]);
+  await input.updateComplete;
+  const state = JSON.stringify(input.value);
+  const id = firstMetadata(input).id;
+  input.formStateRestoreCallback(state, NativeFormValueOrigin.Restore);
+  await input.updateComplete;
+  expect(input.resolveSelectedFile(id)).toBeUndefined();
+  expect(shadowText(input)).toContain("Reselect 1 file(s) before upload.");
+  input.formResetCallback();
+  await input.updateComplete;
+  expect(input.value).toEqual([]);
+  expect(events.at(-1)?.data.change).toEqual({
+    origin: NativeFormValueOrigin.Reset,
+    value: []
+  });
 });
 
 function configure(input: UnifoldFileInput): void {

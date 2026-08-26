@@ -2,8 +2,10 @@ import { DEFAULT_MAXIMUM_FILE_BYTES, type FileMetadata } from "@unislang/unifold
 import { UiUpdateTrigger, type JsonObject } from "@unislang/unifold-contracts";
 import { css, html, nothing, type PropertyDeclarations, type PropertyValues } from "lit";
 
-import { ElementEventType } from "./enums.js";
+import { ElementEventType, NativeFormValueOrigin } from "./enums.js";
+import { createFileFormValueAdapter } from "./file-form-value-adapter.js";
 import { sameFileMetadata, selectBoundedFiles } from "./file-selection.js";
+import { NativeFormControlController } from "./native-form-control-controller.js";
 import { focusRing, hostDefaults, validationStyles } from "./styles.js";
 import { UnifoldElement } from "./unifold-element.js";
 
@@ -16,6 +18,8 @@ import { UnifoldElement } from "./unifold-element.js";
  * @csspart selection - Selected metadata list or re-selection notice.
  */
 export class UnifoldFileInput extends UnifoldElement {
+  static formAssociated = true;
+
   static override properties: PropertyDeclarations = {
     accept: {},
     asyncValidators: { attribute: false },
@@ -24,7 +28,7 @@ export class UnifoldFileInput extends UnifoldElement {
     label: {},
     maximumFileBytes: { attribute: "maximum-file-bytes", type: Number },
     multiple: { reflect: true, type: Boolean },
-    name: {},
+    name: { reflect: true },
     required: { reflect: true, type: Boolean },
     updateOn: { attribute: "update-on" },
     validators: { attribute: false },
@@ -71,6 +75,13 @@ export class UnifoldFileInput extends UnifoldElement {
   declare value: readonly FileMetadata[];
   private files: readonly File[] = [];
   private selectedMetadata: readonly FileMetadata[] = [];
+  protected readonly formControl = new NativeFormControlController(
+    this,
+    createFileFormValueAdapter(
+      (value) => this.filesForForm(value),
+      () => this.revokeRestoredHandles()
+    )
+  );
 
   constructor() {
     super();
@@ -111,7 +122,7 @@ export class UnifoldFileInput extends UnifoldElement {
           aria-describedby=${`${selectionId} ${errorId}`}
           aria-invalid=${String(Boolean(this.errorMessage))}
           name=${this.name}
-          ?disabled=${this.disabled}
+          ?disabled=${this.formControl.disabled}
           ?multiple=${this.multiple}
           ?required=${this.required}
           @change=${this.onFileChange}
@@ -149,6 +160,32 @@ export class UnifoldFileInput extends UnifoldElement {
     return this.value;
   }
 
+  get form(): HTMLFormElement | null {
+    return this.formControl.form;
+  }
+
+  formControlAnchor(): HTMLElement | null {
+    return this.shadowRoot?.querySelector("input") ?? null;
+  }
+
+  formControlValueChanged(value: readonly FileMetadata[], origin: NativeFormValueOrigin): void {
+    this.clearNativeSelection();
+    this.value = value;
+    this.emitUiEvent(ElementEventType.ControlInput, { origin, value });
+  }
+
+  formDisabledCallback(disabled: boolean): void {
+    this.formControl.formDisabledCallback(disabled);
+  }
+
+  formResetCallback(): void {
+    this.formControl.formResetCallback();
+  }
+
+  formStateRestoreCallback(state: File | FormData | string, mode: string): void {
+    this.formControl.formStateRestoreCallback(state, mode);
+  }
+
   private selectionContent() {
     if (this.value.length === 0) return nothing;
     if (this.files.length === 0)
@@ -166,10 +203,12 @@ export class UnifoldFileInput extends UnifoldElement {
       this.maximumFileBytes,
       this.multiple
     );
+    this.formControl.captureInitialValue();
     this.files = selection.files;
     this.selectedMetadata = selection.metadata;
     this.value = selection.metadata;
     this.emitUiEvent(ElementEventType.ControlInput, {
+      origin: NativeFormValueOrigin.Input,
       rejectedCount: selection.rejectedCount,
       selectedCount: selection.metadata.length,
       value: this.value
@@ -188,6 +227,17 @@ export class UnifoldFileInput extends UnifoldElement {
     this.clearFileHandles();
     const input = this.shadowRoot?.querySelector("input");
     if (input instanceof HTMLInputElement) input.value = "";
+  }
+
+  private filesForForm(value: readonly FileMetadata[]): readonly File[] {
+    return sameFileMetadata(value, this.selectedMetadata) ? this.files : [];
+  }
+
+  private revokeRestoredHandles(): void {
+    this.clearFileHandles();
+    const input = this.shadowRoot?.querySelector("input");
+    if (input instanceof HTMLInputElement) input.value = "";
+    this.requestUpdate();
   }
 
   private clearFileHandles(): void {

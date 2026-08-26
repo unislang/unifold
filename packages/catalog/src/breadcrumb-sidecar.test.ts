@@ -2,7 +2,10 @@ import { CoreComponentType } from "@unislang/unifold-contracts";
 import { expect, it } from "vitest";
 
 import { breadcrumbSidecar } from "./breadcrumb-sidecar.js";
-import { ComponentAccessibilityPattern, ComponentSemanticAttachmentKind } from "./enums.js";
+import {
+  ComponentAccessibilityPattern,
+  ComponentSemanticAttachmentKind
+} from "./definition-enums.js";
 
 it("publishes Breadcrumb accessibility, event, and ordered semantic evidence", () => {
   expect(breadcrumbSidecar).toMatchObject({

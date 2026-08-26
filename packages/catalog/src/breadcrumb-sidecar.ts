@@ -2,13 +2,13 @@ import { CoreComponentType } from "@unislang/unifold-contracts";
 
 import { definition, exampleNode } from "./definition-sidecar-helpers.js";
 import {
-  BreadcrumbSeparator,
   ComponentAccessibilityPattern,
   ComponentSemanticAttachmentKind,
   ComponentSemanticHiddenContentPolicy,
   ComponentSemanticNormalization,
   ComponentSemanticValueSource
-} from "./enums.js";
+} from "./definition-enums.js";
+import { BreadcrumbSeparator } from "./enums.js";
 import type { ComponentDefinitionSidecar } from "./types.js";
 
 export const breadcrumbSidecar: ComponentDefinitionSidecar = definition({

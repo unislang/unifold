@@ -32,6 +32,11 @@ import { breadcrumbDescriptor } from "./breadcrumb-catalog.js";
 import { choiceConstraints, choiceProperties, comboboxDescriptor } from "./choice-catalog.js";
 import { dialogDescriptor } from "./dialog-catalog.js";
 import { fileInputDescriptor } from "./file-input-catalog.js";
+import {
+  errorSummaryDescriptor,
+  fieldDescriptor,
+  fieldsetDescriptor
+} from "./form-structure-catalog.js";
 import { menuButtonDescriptor } from "./menu-catalog.js";
 import { popoverDescriptor } from "./popover-catalog.js";
 import { tooltipDescriptor } from "./tooltip-catalog.js";
@@ -151,6 +156,9 @@ const descriptors: Record<CoreComponentType, ComponentDescriptor> = {
   },
   [CoreComponentType.DataGrid]: dataViews.dataGridDescriptor,
   [CoreComponentType.Dialog]: dialogDescriptor,
+  [CoreComponentType.ErrorSummary]: errorSummaryDescriptor,
+  [CoreComponentType.Field]: fieldDescriptor,
+  [CoreComponentType.Fieldset]: fieldsetDescriptor,
   [CoreComponentType.FileInput]: fileInputDescriptor,
   [CoreComponentType.Form]: {
     componentType: CoreComponentType.Form,

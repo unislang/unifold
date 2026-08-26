@@ -36,6 +36,18 @@ it("reports each selection that is absent from the option values", () => {
   ]);
 });
 
+it("rejects duplicate multi-value selections at the repeated entry", () => {
+  const diagnostics = validateChoice(CoreComponentType.MultiSelect, ["us", "ca", "us"]);
+
+  expect(diagnostics).toEqual([
+    expect.objectContaining({
+      code: DiagnosticCode.DuplicateOptionSelection,
+      nodeId: "choice",
+      path: "/view/value/2"
+    })
+  ]);
+});
+
 it("defers malformed values to property validation", () => {
   expect(validateChoice(CoreComponentType.Select, 42, "invalid")).toEqual([]);
 });

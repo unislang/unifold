@@ -13,6 +13,7 @@ import { isBreadcrumbItemList } from "./breadcrumb-validation.js";
 import { isDataGridValue } from "./data-grid-validation.js";
 import { validateComponentConstraints } from "./component-constraints.js";
 import { isFileMetadataList } from "./file-input-validation.js";
+import { isErrorSummaryItemList } from "./error-summary-validation.js";
 import { DiagnosticCode } from "./enums.js";
 import { isPlainObject } from "./json-safety.js";
 import type { CompilerDiagnostic } from "./types.js";
@@ -22,6 +23,7 @@ import { isWorkflowStepList } from "./step-navigation-validation.js";
 
 type PropertyValidator = (value: unknown, descriptor: CatalogPropertyDescriptor) => boolean;
 
+const MAXIMUM_COLLECTION_ITEMS = 10_000;
 const reservedProperties = new Set(["$children", "$comp", "events", "id", "path", "store"]);
 const optionKeys = new Set(["disabled", "label", "value"]);
 const validators: Readonly<Record<CatalogPropertyType, PropertyValidator>> = {
@@ -30,6 +32,7 @@ const validators: Readonly<Record<CatalogPropertyType, PropertyValidator>> = {
   [CatalogPropertyType.Boolean]: (value) => typeof value === "boolean",
   [CatalogPropertyType.DataGridValue]: isDataGridValue,
   [CatalogPropertyType.Enum]: isEnumValue,
+  [CatalogPropertyType.ErrorSummaryItemList]: isErrorSummaryItemList,
   [CatalogPropertyType.FileAccept]: (value) =>
     typeof value === "string" && isValidFileAccept(value),
   [CatalogPropertyType.FileMetadataList]: isFileMetadataList,
@@ -92,12 +95,14 @@ function isEnumValue(value: unknown, descriptor: CatalogPropertyDescriptor): boo
 
 function isStringArray(value: unknown): boolean {
   if (!Array.isArray(value)) return false;
-  return value.every((item) => typeof item === "string");
+  return (
+    value.length <= MAXIMUM_COLLECTION_ITEMS && value.every((item) => typeof item === "string")
+  );
 }
 
 function isOptionList(value: unknown): boolean {
   if (!Array.isArray(value)) return false;
-  return value.every(isChoiceOption);
+  return value.length <= MAXIMUM_COLLECTION_ITEMS && value.every(isChoiceOption);
 }
 
 function isMenuItemList(value: unknown): boolean {

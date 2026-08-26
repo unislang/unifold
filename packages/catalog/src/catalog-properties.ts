@@ -9,13 +9,7 @@ export function catalogProperty(
   defaultValue?: JsonValue,
   required = false
 ): CatalogPropertyDescriptor {
-  const descriptor = {
-    bindingKind: CatalogBindingKind.Property,
-    bindingName: name,
-    name,
-    required,
-    valueType
-  };
+  const descriptor = { name, required, valueType };
   return defaultValue === undefined ? descriptor : { ...descriptor, defaultValue };
 }
 

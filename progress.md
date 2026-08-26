@@ -23,13 +23,18 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Latest implementation checkpoint: `2a59294b2a877eb458e391fbbee175a2481c8da3`
   (`feat: add JSON-driven file input and native forms`), independently verified at
   `origin/main` with `git ls-remote`.
-- Current implementation slice: bounded metadata-only FileInput, native scalar form association,
-  immediate mount with deferred optional element definitions, composed-shadow browser observation,
-  and the Scratch-style hierarchical JSON reference path. The slice is release-verified, committed,
-  and present on the `unifold` remote.
+- Latest local documentation checkpoint: `dfd34a36cd5316a6da425d7fe98bba168d5ddd0c`
+  (`docs: reconcile file input verification evidence`). This commit is one revision ahead of the
+  local `origin/main` tracking reference. The active slice remains uncommitted and no push is
+  authorized.
+- Current implementation slice: a generic `ElementInternals`/Lit lifecycle controller and
+  enum-backed value codecs extend native form projection to Checkbox, MultiSelect, and FileInput
+  without a second state authority. The integrated parallel slice also adds deferred Field,
+  Fieldset, and ErrorSummary structures across catalog, IR, elements, static export, reference,
+  browser, and performance surfaces. Release verification is complete; the worktree remains local.
 - Goal status: active. This checkpoint does not complete the architecture plan; the authoritative
   inventory still lists Image, Card, NumberField, SearchField, CheckboxGroup, Switch, DateField,
-  Field, Fieldset, ErrorSummary, Toast, and Pagination as component-family gaps, followed by the
+  Toast, and Pagination as component-family gaps, followed by the
   broader Studio and production-integration gates.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
@@ -45,10 +50,11 @@ The current slice closes its originally identified privacy and deferred-upgrade 
   sizes are safe integers, MIME/extension acceptance and per-file byte ceilings fail closed, and raw
   bytes remain behind the trusted ephemeral `resolveSelectedFile()` boundary. Reset, disconnect,
   rollback, static export, and restored-metadata reselection behavior are covered end to end.
-- TextField, TextArea, Select, RadioGroup, and the native `Form` scaffold share one
-  `ElementInternals`-based scalar form controller. The integration covers reassociation, disabled
-  fieldsets, reset/state restore, native `FormData`, IME de-duplication, and explicit canonical value
-  origin without adding another durable state authority.
+- TextField, TextArea, Select, RadioGroup, VirtualList, Checkbox, MultiSelect, and FileInput share
+  one generic `ElementInternals` lifecycle controller with bounded scalar, boolean, repeated-string,
+  and file codecs. The integration covers reassociation, disabled fieldsets, reset/state restore,
+  native `FormData`, IME de-duplication, and explicit canonical value origin without adding another
+  durable state authority.
 - Optional element families are loaded only after the initial application mount. Pending hosts replay
   validated properties when definitions arrive, preserve rollback/disposal guarantees, and are split
   from the production entry closure. The reference exposes an explicit readiness marker so browser
@@ -57,28 +63,24 @@ The current slice closes its originally identified privacy and deferred-upgrade 
   on `scratch/angular-ui/DYNAMIC-UI-README.md`: reusable layout selection and variables lower through
   nested component definitions into the canonical `$comp` IR/runtime path.
 
-Current verified evidence: 428 Vitest files/1,079 tests pass; tooling passes 16/16; generated/CEM,
-theme, and reference scripts pass; and performance correctness passes 26 files/36 tests. V8 coverage
-records 97.42% lines/statements, 97.01% functions, and 90.09% branches. The complete quality gate
-passes the 350-line file, 30-line function, cyclomatic-complexity-below-4, one-to-one colocated-test,
-lint, strict source/test typecheck, 1,751-module/3,859-edge dependency, and unused-code policies.
-Formatting and diff checks pass; authored-source duplication is 1.54% against the 5% ceiling.
+Current local evidence: the complete Vitest package suite passes 442 files/1,105 tests; tooling
+passes 16/16; generated/CEM, theme, and reference scripts pass 10/10; and performance correctness
+passes 28 files/38 tests with 22 profile files intentionally skipped. The native-form Playwright
+matrix passes 12/12 across Chromium, Firefox, and WebKit. The complete reference matrix passes 168
+journeys with six intentional non-Chromium scale skips; static export passes 39/39, hierarchical
+authoring 9/9, and plain/React/Svelte/Vue host parity 12/12 across the applicable engines. Coverage
+is 97.49% statements/lines, 97.01% functions, and 90.06% branches. Benchmark schema 2.25.0 passes
+50/50 gates: the 100-control native lifecycle records 0.20/0.81/4.42 ms p50/p95/p99 against its 8
+ms p95 gate, and the exact 100-link ErrorSummary records 0.47/1.51/19.63 ms against its 100 ms p95
+gate. The production initial closure passes at 183,882 gzip bytes (179.57 KiB), below the unchanged
+180 KiB gate, with 35,959 gzip bytes requested post-mount. Full quality, build, formatting, diff,
+and authored-source duplication gates pass; total duplication is 1.59% against the 5% ceiling.
 
-The serialized full reference matrix passes 153 journeys across Chromium, Firefox, and WebKit with
-six intentional non-Chromium scale skips. The complete static no-JavaScript/upgrade matrix passes
-36/36 across all three engines, including Schema.org JSON-LD ownership and FileInput upgrade.
-Benchmark schema 2.23.0 passes 48/48 gates. FileInput measures 0.10/0.24/4.51 ms p50/p95/p99 for 32
-files against a 100 ms p95 limit, retains exactly 32 ephemeral handles, and proves byte isolation.
-The 20-cycle/500-node lifecycle retains 548,240 bytes (1.04%) after five warm-ups against the strict
-2% ceiling. The final production reference closure is 184,278 gzip bytes (179.96 KiB) against 180
-KiB, with 32,840 gzip bytes requested post-mount.
-
-The local plain/React/Svelte/Vue Chromium host matrix passes 4/4 and the clean packed-consumer
-boundary independently passes 3/3 outside the monorepo after rebuilding all packages. The latest
-published progress checkpoint and remote `origin/main` both resolve to the SHA above; this live
-record includes the subsequent documentation-only evidence reconciliation. Native form adapters
-for boolean, multi-value, and file controls remain the next implementation slice rather than an
-unstated part of the scalar text/choice evidence above.
+The benchmark's 20-cycle/500-node lifecycle heap growth is 1.45% against the strict 2% ceiling.
+The clean packed-consumer boundary independently passes 3/3 outside the monorepo after rebuilding
+all packages. Checkbox, MultiSelect, and FileInput native form adapters and the Field, Fieldset, and
+ErrorSummary family are therefore closed for this bounded slice; Switch and CheckboxGroup remain
+separate component-family gaps.
 
 ## Prior hierarchical and component slice detail
 
@@ -653,6 +655,22 @@ must remain explicit and cannot be silently waived. The current slice has comple
 behavioral evidence; rerun Firefox when the managed runner can create a page reliably.
 
 ## Session log
+
+- 2026-08-26: Completed the local native-form value-shape and form-structure slice. One generic
+  `ElementInternals` lifecycle controller now serves scalar, boolean, repeated-string, and file
+  codecs; Checkbox, MultiSelect, and FileInput preserve native successful-control semantics while
+  canonical state remains JSON-only. Added deferred Field, Fieldset, and ErrorSummary catalog,
+  validation, element, static, reference, browser, and performance paths. The full quality gate
+  passes the 350-line, 30-line-function, complexity-below-4, exact 1:1 colocation, lint, source/test
+  typecheck, 1,805-module/4,019-edge dependency, and unused-code policies. Correctness passes 442
+  files/1,105 tests, tooling 16/16, generated scripts 10/10, performance correctness 28 files/38
+  tests, and coverage at 97.49/97.01/90.06% lines-functions-branches. Benchmark schema 2.25.0
+  passes 50/50; native forms measure 0.81 ms p95 against 8 ms and ErrorSummary 1.51 ms against 100
+  ms. The bounded reference matrix passes 168 with six intentional scale skips; static export
+  39/39, hierarchical example 9/9, JSONUI parity 27/27, host parity 12/12, and packed consumer 3/3
+  pass. Production initial JavaScript is 183,882 gzip bytes with 35,959 post-mount bytes; the 438-byte
+  initial headroom is a tracked risk. Duplication is 1.59%; format and diff checks pass. The slice is
+  ready for the requested implementation checkpoint and push.
 
 - 2026-08-26: Completed the local implementation and serialized validation of the bounded FileInput,
   native scalar form association, deferred optional definitions, and deterministic readiness slice.

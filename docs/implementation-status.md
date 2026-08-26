@@ -9,7 +9,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
   Changesets, and executable file/function/complexity policies.
 - A safe JSON document contract, validation diagnostics, normalized immutable IR, and a minimal
   JsonUI-compatible profile for Accordion, Alert, AuditLog, Box, Breadcrumb, Button, Checkbox, Combobox,
-  Composition, DataGrid, Dialog, FileInput, Form, Grid, Heading, Icon, Link, MasterDetail, MenuButton, MultiSelect,
+  Composition, DataGrid, Dialog, ErrorSummary, Field, Fieldset, FileInput, Form, Grid, Heading, Icon, Link, MasterDetail, MenuButton, MultiSelect,
   Popover, RadioGroup, SearchResults, Select, Stack, Stepper, Tabs, Table, Text, TextArea, TextField,
   Tooltip, VirtualList, and Wizard. Catalog-backed property validation rejects unknown properties, invalid enum values,
   malformed option, table, or audit lists, invalid string-array values, duplicate option values, duplicate
@@ -23,11 +23,12 @@ critical seam; it is not yet the full catalog or Studio product described by the
   `resolveSelectedFile()` for trusted upload adapters and are cleared on rollback or disconnect;
   static export never serializes metadata or bytes and restored metadata truthfully requires
   reselection.
-- Native form interoperability for scalar text and single-choice controls through one reusable Lit
-  controller over `ElementInternals`. TextField, TextArea, Select, RadioGroup, and VirtualList
-  participate in native ownership and `FormData`, disabled fieldsets, reset/state restoration,
-  validity, and IME de-duplication while the Unifold runtime remains the only committed state
-  authority. Boolean, multi-value, and file form-value adapters remain explicit follow-up work.
+- Native form interoperability through one reusable generic Lit controller over `ElementInternals`.
+  TextField, TextArea, Select, RadioGroup, VirtualList, Checkbox, MultiSelect, and FileInput
+  participate in native ownership and `FormData`, disabled fieldsets, reset/state restoration, and
+  validity while the Unifold runtime remains the only committed state authority. Scalar controls
+  add IME de-duplication; boolean, repeated-string, and file codecs preserve native submission
+  semantics without admitting live file handles into canonical state or events.
 - Strict custom-element preflight remains the default. Trusted hosts may opt into enum-backed
   `AllowPending` mounting for catalog-known deferred families. Compatible late definitions replay
   the latest properties, event snapshot, runtime context, and child container after synchronous
@@ -121,7 +122,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
 - A Vercel AI SDK 7 provider-model boundary with schema-constrained patch proposals, RFC 8785 base
   fingerprints, RFC 6902 operations, stable-path and revision policy, risk enums, approval gating,
   compiler validation, and commit through the normal application coordinator.
-- Browser-safe portable JSON and static HTML exporters. Static HTML covers all thirty-four core
+- Browser-safe portable JSON and static HTML exporters. Static HTML covers all thirty-seven core
   components with native no-JavaScript content, deterministic upgrade markers, public-data-only
   values, exactly one script-safe JSON-LD graph, and a versioned SHA-256 integrity manifest.
 - A versioned detached Ed25519 document envelope and JSON Schema, browser-safe signing helper, and
@@ -197,7 +198,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
   JSON children, focus restoration, native top-layer enhancement, and static disclosure fallback; a read-only,
   virtualized AuditLog with native list/time semantics; a Tailwind theme foundation;
   component metadata; a DOM renderer; and a JSON-defined reference form.
-- An experimental full-catalog `ComponentDefinition` pipeline for all thirty-four core elements. The
+- An experimental full-catalog `ComponentDefinition` pipeline for all thirty-seven core elements. The
   official Custom Elements Manifest analyzer and schema derive and validate element API facts;
   enum-backed catalog sidecars supply behavior, accessibility, privacy, structured semantics,
   complete examples, and test evidence. The package publishes standard CEM and joined definition
@@ -206,7 +207,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
   canonical snapshots.
 - The complete 15-component Phase 1 foundation release group, plus Composition, Combobox, MultiSelect,
   Accordion, VirtualList, Table, DataGrid, MasterDetail, SearchResults, Stepper, Tabs, MenuButton,
-  Popover, Dialog, Breadcrumb, Tooltip, Wizard, and AuditLog components exercised by later
+  Popover, Dialog, Breadcrumb, Tooltip, Wizard, AuditLog, Field, Fieldset, and ErrorSummary components exercised by later
   interaction slices.
 - A pinned Schema.org 30.0 semantic graph contract carried through the typed document and IR,
   with public/visible committed-state bindings, typed composition-export bindings, an allowlisted
@@ -331,9 +332,9 @@ critical seam; it is not yet the full catalog or Studio product described by the
   identity, and pre-render adapter rejection. The default runtime stream applies
   classification-aware public-safe disclosure.
 - Client-side validation and application coordination contribute materially to the reference bundle.
-  The current startup closure is 184,278 gzip bytes (179.96 KiB) and remains below the executable
+  The current startup closure is 183,882 gzip bytes (179.57 KiB) and remains below the executable
   180 KiB gate. It includes startup-required validation; optional component families load after
-  mount and are audited separately at 32,840 gzip bytes. Preserve the `/validation` boundary and evaluate schema
+  mount and are audited separately at 35,959 gzip bytes. Preserve the `/validation` boundary and evaluate schema
   precompilation, build-time validation, or an explicit lazy authoring/compiler boundary before
   setting production bundle budgets.
 - Valid dynamic option replacement, declarative dependency scheduling, localization, configurable

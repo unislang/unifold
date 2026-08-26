@@ -18,8 +18,10 @@ test("supports the complete native-control keyboard journey", async ({ page }) =
   await page.keyboard.type("Ada Lovelace");
   await pressTabTo(page, "Confirm name");
   await pressTabTo(page, "Biography");
+  await pressTabToTextbox(page, "Preferred name");
+  await pressTabToTextbox(page, "Secondary email");
   await pressTabTo(page, "Receive product updates");
-  await pressTabTo(page, "Email");
+  await pressTabToRadio(page, "Email");
   await pressTabTo(page, "Country");
   await page.keyboard.press("Tab");
   await expect(page.getByRole("combobox", { name: "Assignee" })).toBeFocused();
@@ -55,6 +57,22 @@ async function pressTabTo(
 ): Promise<void> {
   await page.keyboard.press("Tab");
   await expect(page.getByLabel(label)).toBeFocused();
+}
+
+async function pressTabToTextbox(
+  page: Parameters<typeof readRenderBaseline>[0],
+  name: string
+): Promise<void> {
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("textbox", { name, exact: true })).toBeFocused();
+}
+
+async function pressTabToRadio(
+  page: Parameters<typeof readRenderBaseline>[0],
+  name: string
+): Promise<void> {
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("radio", { name, exact: true })).toBeFocused();
 }
 
 function textAreaValue(events: readonly CapturedEvent[]): unknown {

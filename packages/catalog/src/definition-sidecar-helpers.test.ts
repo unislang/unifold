@@ -13,7 +13,7 @@ import {
   ComponentSemanticAttachmentKind,
   ComponentSemanticNormalization,
   ComponentSemanticValueSource
-} from "./enums.js";
+} from "./definition-enums.js";
 
 it("builds a frozen full-document sidecar from enum-backed inputs", () => {
   const sidecar = definition({

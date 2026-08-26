@@ -3,7 +3,9 @@ import { UiUpdateTrigger } from "@unislang/unifold-contracts";
 import { css, html, type PropertyDeclarations } from "lit";
 import { live } from "lit/directives/live.js";
 
-import { ElementEventType } from "./enums.js";
+import { ElementEventType, NativeFormValueOrigin } from "./enums.js";
+import { NativeFormControlController } from "./native-form-control-controller.js";
+import { createStringArrayFormValueAdapter } from "./native-form-value-adapters.js";
 import { focusRing, hostDefaults, validationStyles } from "./styles.js";
 import { UnifoldElement } from "./unifold-element.js";
 
@@ -20,12 +22,14 @@ import { UnifoldElement } from "./unifold-element.js";
  * @cssprop --unifold-space-2 - Control padding.
  */
 export class UnifoldMultiSelect extends UnifoldElement {
+  static formAssociated = true;
+
   static override properties: PropertyDeclarations = {
     asyncValidators: { attribute: false },
     disabled: { reflect: true, type: Boolean },
     errorMessage: { attribute: "error-message" },
     label: {},
-    name: {},
+    name: { reflect: true },
     options: { attribute: false },
     required: { reflect: true, type: Boolean },
     updateOn: { attribute: "update-on" },
@@ -65,6 +69,10 @@ export class UnifoldMultiSelect extends UnifoldElement {
   declare updateOn: UiUpdateTrigger;
   declare validators: readonly string[];
   declare value: readonly string[];
+  protected readonly formControl = new NativeFormControlController(
+    this,
+    createStringArrayFormValueAdapter(() => this.options)
+  );
 
   constructor() {
     super();
@@ -90,7 +98,7 @@ export class UnifoldMultiSelect extends UnifoldElement {
           aria-invalid=${String(Boolean(this.errorMessage))}
           multiple
           name=${this.name}
-          ?disabled=${this.disabled}
+          ?disabled=${this.formControl.disabled}
           ?required=${this.required}
           @change=${this.onChange}
           @blur=${this.onBlur}
@@ -122,10 +130,34 @@ export class UnifoldMultiSelect extends UnifoldElement {
     return this.value;
   }
 
+  get form(): HTMLFormElement | null {
+    return this.formControl.form;
+  }
+
+  formControlAnchor(): HTMLElement | null {
+    return this.shadowRoot?.querySelector("select") ?? null;
+  }
+
+  formControlValueChanged(value: readonly string[], origin: NativeFormValueOrigin): void {
+    this.value = value;
+    this.emitUiEvent(ElementEventType.ControlInput, { origin, value });
+  }
+
+  formDisabledCallback(disabled: boolean): void {
+    this.formControl.formDisabledCallback(disabled);
+  }
+
+  formResetCallback(): void {
+    this.formControl.formResetCallback();
+  }
+
+  formStateRestoreCallback(state: File | FormData | string, mode: string): void {
+    this.formControl.formStateRestoreCallback(state, mode);
+  }
+
   private readonly onChange = (event: Event): void => {
     const select = event.currentTarget as HTMLSelectElement;
-    this.value = [...select.selectedOptions].map(({ value }) => value);
-    this.emitUiEvent(ElementEventType.ControlInput, { value: this.value });
+    this.formControl.commitInput([...select.selectedOptions].map(({ value }) => value));
   };
 
   private readonly onBlur = (): void => {

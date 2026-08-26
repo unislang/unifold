@@ -1,7 +1,7 @@
 import { CoreComponentType } from "@unislang/unifold-contracts";
 import { expect, it } from "vitest";
 
-import { ComponentAccessibilityPattern } from "./enums.js";
+import { ComponentAccessibilityPattern } from "./definition-enums.js";
 import { popoverSidecar } from "./popover-sidecar.js";
 
 it("publishes reviewed Popover accessibility and browser evidence", () => {

@@ -1,7 +1,7 @@
 import { CoreComponentType } from "@unislang/unifold-contracts";
 
 import { definition, exampleNode } from "./definition-sidecar-helpers.js";
-import { ComponentAccessibilityPattern } from "./enums.js";
+import { ComponentAccessibilityPattern } from "./definition-enums.js";
 import type { ComponentDefinitionSidecar } from "./types.js";
 
 export const menuButtonSidecar: ComponentDefinitionSidecar = definition({

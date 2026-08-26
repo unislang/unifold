@@ -2,7 +2,7 @@ import { CoreComponentType } from "@unislang/unifold-contracts";
 import { expect, it } from "vitest";
 
 import { auditLogSidecar } from "./audit-log-sidecar.js";
-import { ComponentAccessibilityPattern } from "./enums.js";
+import { ComponentAccessibilityPattern } from "./definition-enums.js";
 
 it("pins AuditLog authorization, privacy, accessibility, and browser evidence", () => {
   expect(auditLogSidecar).toMatchObject({

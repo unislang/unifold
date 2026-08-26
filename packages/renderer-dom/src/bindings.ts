@@ -24,10 +24,14 @@ function applyBinding(
   value: JsonValue | undefined
 ): void {
   if (descriptor.bindingKind === CatalogBindingKind.Attribute) {
-    applyAttribute(element, descriptor.bindingName, value);
+    applyAttribute(element, bindingName(descriptor), value);
     return;
   }
-  Reflect.set(element, descriptor.bindingName, value);
+  Reflect.set(element, bindingName(descriptor), value);
+}
+
+function bindingName(descriptor: CatalogPropertyDescriptor): string {
+  return descriptor.bindingName ?? descriptor.name;
 }
 
 function applyAttribute(element: HTMLElement, name: string, value: JsonValue | undefined): void {

@@ -4,6 +4,7 @@ import type { UnifoldIrDocument, UnifoldIrNode } from "@unislang/unifold-ir";
 import { escapeHtml } from "./html-escape.js";
 import { staticNodeClassification } from "./static-classification.js";
 import * as staticComponents from "./static-components.js";
+import * as staticForm from "./static-form-structure.js";
 export { staticNodeClassification } from "./static-classification.js";
 type NodeRenderer = (context: RenderContext) => string;
 interface RenderContext {
@@ -24,8 +25,11 @@ const renderers: Readonly<Record<CoreComponentType, NodeRenderer>> = {
   [CoreComponentType.Composition]: renderSection,
   [CoreComponentType.DataGrid]: staticComponents.renderStaticDataGrid,
   [CoreComponentType.Dialog]: staticComponents.renderStaticDialog,
+  [CoreComponentType.ErrorSummary]: staticForm.renderStaticErrorSummary,
+  [CoreComponentType.Field]: staticForm.renderStaticField,
+  [CoreComponentType.Fieldset]: staticForm.renderStaticFieldset,
   [CoreComponentType.FileInput]: staticComponents.renderStaticFileInput,
-  [CoreComponentType.Form]: renderForm,
+  [CoreComponentType.Form]: staticForm.renderStaticForm,
   [CoreComponentType.Grid]: renderContainer,
   [CoreComponentType.Heading]: renderHeading,
   [CoreComponentType.Icon]: renderIcon,
@@ -68,7 +72,10 @@ function wrapNode(
   root: boolean
 ): string {
   const documentMarker = root ? attribute("data-unifold-static-document", document.documentId) : "";
-  return `<div${attribute("data-unifold-static-node-id", node.id)}${attribute(
+  const targetMarker = staticForm.isErrorSummaryTarget(document, node.id)
+    ? attribute("id", node.id)
+    : "";
+  return `<div${targetMarker}${attribute("data-unifold-static-node-id", node.id)}${attribute(
     "data-unifold-static-component",
     node.componentType
   )}${documentMarker}>${content}</div>`;
@@ -113,13 +120,6 @@ function renderCheckbox({ document, node }: RenderContext): string {
   )}${booleanAttribute("checked", publicBoolean(document, node, "value"))}${commonControlAttributes(
     node
   )}><span>${textProperty(node, "label")}</span></label>${validationMessage(node)}`;
-}
-
-function renderForm({ children, node }: RenderContext): string {
-  const label = stringProperty(node, "label");
-  return `<form${attribute("aria-label", label)}><fieldset><legend>${escapeHtml(
-    label
-  )}</legend>${formErrors(node)}${children}</fieldset></form>`;
 }
 
 function renderHeading({ node }: RenderContext): string {
@@ -247,12 +247,6 @@ function commonControlAttributes(node: UnifoldIrNode): string {
 
 function controlMarker(node: UnifoldIrNode): string {
   return attribute("data-unifold-static-control", node.id);
-}
-
-function formErrors(node: UnifoldIrNode): string {
-  const errors = stringArrayProperty(node, "errorMessages");
-  const items = errors.map((message) => `<li>${escapeHtml(message)}</li>`).join("");
-  return errors.length === 0 ? "" : `<div role="alert"><ul>${items}</ul></div>`;
 }
 
 function validationMessage(node: UnifoldIrNode): string {

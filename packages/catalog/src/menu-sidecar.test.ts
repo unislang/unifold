@@ -1,7 +1,7 @@
 import { CoreComponentType } from "@unislang/unifold-contracts";
 import { expect, it } from "vitest";
 
-import { ComponentAccessibilityPattern } from "./enums.js";
+import { ComponentAccessibilityPattern } from "./definition-enums.js";
 import { menuButtonSidecar } from "./menu-sidecar.js";
 
 it("publishes executable MenuButton keyboard and activation evidence", () => {

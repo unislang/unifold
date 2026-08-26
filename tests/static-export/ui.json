@@ -120,6 +120,25 @@
             "value": "Ada Lovelace"
           },
           {
+            "$comp": "Checkbox",
+            "id": "newsletter",
+            "label": "Receive product updates",
+            "name": "newsletter",
+            "value": false
+          },
+          {
+            "$comp": "MultiSelect",
+            "id": "skills",
+            "label": "Skills",
+            "name": "skills",
+            "options": [
+              { "label": "TypeScript", "value": "ts" },
+              { "label": "Accessibility", "value": "a11y" },
+              { "disabled": true, "label": "Unavailable", "value": "disabled" }
+            ],
+            "value": ["ts"]
+          },
+          {
             "$comp": "FileInput",
             "accept": ".pdf,application/pdf",
             "id": "attachments",

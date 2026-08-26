@@ -95,8 +95,8 @@ function removeShadowingProperties(
   descriptor: ComponentDescriptor
 ): void {
   descriptor.properties
-    .filter(({ bindingKind }) => bindingKind === CatalogBindingKind.Property)
-    .forEach(({ bindingName }) => Reflect.deleteProperty(element, bindingName));
+    .filter(({ bindingKind }) => bindingKind !== CatalogBindingKind.Attribute)
+    .forEach(({ bindingName, name }) => Reflect.deleteProperty(element, bindingName ?? name));
 }
 
 function replayHostContext(rendered: RenderedNode): void {
@@ -111,5 +111,7 @@ function replayHostContext(rendered: RenderedNode): void {
 function adoptRenderedChildren(element: UnifoldElementHost): void {
   const container = element.unifoldChildContainer;
   if (container === undefined || container === element) return;
-  [...element.children].forEach((child) => container.append(child));
+  [...element.children]
+    .filter((child) => !child.contains(container))
+    .forEach((child) => container.append(child));
 }

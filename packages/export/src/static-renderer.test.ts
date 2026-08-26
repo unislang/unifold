@@ -24,6 +24,10 @@ it("renders every reference component as nested native fallback markup", () => {
   expect(html).toContain("<details");
   expect(html).toContain("<textarea");
   expect(html).toContain("<select");
+  expect(html).toContain('<a href="#name">Enter your name</a>');
+  expect(html).toContain('<div id="name" data-unifold-static-node-id="name"');
+  expect(html).toContain("<legend>Communication</legend>");
+  expect(html).toContain('role="group" aria-labelledby="nickname-field__field-label"');
   expect(html).not.toContain("must-not-export");
   expect(staticNodeIds(html)).toEqual(prepared.document.renderOrder);
 });

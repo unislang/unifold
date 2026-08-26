@@ -1,7 +1,7 @@
 import { CoreComponentType } from "@unislang/unifold-contracts";
 import { expect, it } from "vitest";
 
-import { ComponentAccessibilityPattern } from "./enums.js";
+import { ComponentAccessibilityPattern } from "./definition-enums.js";
 import { searchResultsSidecar } from "./search-results-sidecar.js";
 
 it("pins SearchResults browser, privacy, and accessibility evidence", () => {

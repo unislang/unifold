@@ -26,6 +26,8 @@ test.describe("without JavaScript", () => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "Static profile" })).toBeVisible();
     await expect(page.getByLabel("Name")).toHaveValue("Ada Lovelace");
+    await expect(page.getByLabel("Receive product updates")).not.toBeChecked();
+    await expect(page.getByLabel("Skills")).toHaveValues(["ts"]);
     await expect(page.getByLabel("Attachments")).toHaveAttribute("accept", ".pdf,application/pdf");
     await expect(page.getByLabel("Attachments")).toHaveAttribute("multiple", "");
     await expect(page.getByRole("button", { name: "Save profile" })).toBeVisible();

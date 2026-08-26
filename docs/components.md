@@ -1,6 +1,6 @@
 # Core components
 
-The implemented core catalog contains thirty-four JSON-constructible Web Components. Every component has a
+The implemented core catalog contains thirty-seven JSON-constructible Web Components. Every component has a
 stable node ID, participates in the same canonical event stream, and receives selective state
 projection through the application runtime. The catalog descriptor is the authority for accepted
 properties; the IR compiler rejects unknown properties and values of the wrong type before render.
@@ -18,6 +18,9 @@ properties; the IR compiler rejects unknown properties and values of the wrong t
 | `Composition`   | `unifold-composition`    | none           | grouping host              | descendant scope                       |
 | `DataGrid`      | `unifold-data-grid`      | object         | table and native inputs    | `control.input`, `control.blurred`     |
 | `Dialog`        | `unifold-dialog`         | none           | native dialog + fallback   | `component.activated`                  |
+| `ErrorSummary`  | `unifold-error-summary`  | none           | alert + error links        | `component.activated`                  |
+| `Field`         | `unifold-field`          | none           | labeled group              | descendant scope                       |
+| `Fieldset`      | `unifold-fieldset`       | none           | fieldset + legend          | descendant scope                       |
 | `FileInput`     | `unifold-file-input`     | metadata array | native file input          | `control.input`, `control.blurred`     |
 | `Form`          | `unifold-form`           | derived object | `form`                     | `form.submit-requested`                |
 | `Grid`          | `unifold-grid`           | none           | slotted grid container     | descendant scope                       |
@@ -46,8 +49,8 @@ Event names above use their readable suffixes. The wire values are versioned enu
 `org.unifold.ui.control.input.v1`, exported as `ElementEventType`.
 
 The baseline registration includes the nineteen small families. AuditLog, Breadcrumb, Combobox,
-DataGrid, Dialog, FileInput, MasterDetail, MenuButton, Popover, SearchResults, Stepper, Tabs,
-Tooltip, VirtualList, and Wizard are deferred families loaded through matching
+DataGrid, Dialog, ErrorSummary, Field, Fieldset, FileInput, MasterDetail, MenuButton, Popover,
+SearchResults, Stepper, Tabs, Tooltip, VirtualList, and Wizard are deferred families loaded through matching
 `@unislang/unifold/<kebab-case-name>` subpaths. Strict mounting requires those definitions before
 render. A trusted host may explicitly select `ElementDefinitionPolicy.AllowPending`; catalog-known
 hosts then mount immediately and replay their latest validated properties, event snapshot, runtime
@@ -55,6 +58,12 @@ context, and children when a compatible definition arrives. Every subpath export
 `defineUnifold*()` registration function and the element class. The split is a delivery boundary
 only: descriptors, IR validation, snapshots, events, static rendering, and accessibility
 requirements remain catalog-authoritative.
+
+`Field`, `Fieldset`, and `ErrorSummary` are delivered together through the deferred
+`@unislang/unifold/form-structure` subpath. `Field` associates one control with ordered label, help,
+required, and error context. `Fieldset` preserves native disabled propagation and legend semantics
+for related controls. `ErrorSummary` exposes an announced aggregate and routes each error link to
+the exact identified control without introducing a second validation-state authority.
 
 ## FileInput byte boundary
 
@@ -454,7 +463,7 @@ import {
 
 ## Component-definition evidence pipeline
 
-All thirty-four core elements participate in the executable `ComponentDefinition` pipeline. The
+All thirty-seven core elements participate in the executable `ComponentDefinition` pipeline. The
 elements build runs the official Custom Elements Manifest analyzer with its Lit plugin, validates
 the complete result against the official manifest JSON Schema, and writes
 `dist/custom-elements.json`. The generated manifest owns facts that can be derived from source:

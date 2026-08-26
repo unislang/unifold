@@ -120,14 +120,14 @@ emits exactly 25 typed commands, and leaves every unrelated chain unchanged. Its
 p95 is below the provisional 4 ms target on the current workstation. The combined public-runtime
 fixture proves one commit spans the leaf edit, three synchronous validations (leaf, group, form),
 two ancestor aggregates, 20 transitive rule commands, and committed-revision selector delivery.
-Its 1.35 ms p95 is below the provisional 8 ms target. All forty-eight timing and lifecycle limits
+Its current 1.25 ms p95 is below the provisional 8 ms target. All fifty timing and lifecycle limits
 are executable benchmark gates and are included with actual/limit/pass fields in the
-schema-2.23.0 machine-readable report; the current run passes all 48/48.
+schema-2.25.0 machine-readable report; the current run passes all 50/50.
 The report also contains a 50-sample paired selection-overhead profile. It alternates measurement
 order for each update between identical 10,000-node stores with zero and 2,000 indexed selections,
 subtracts the paired timings, and takes each sample's five-edit median. This removes shared
 transaction work without assigning an unrelated scheduler pause to selection dispatch before
-enforcing the provisional 2 ms p95 gate. The paired profile measured -0.11/1.42/1.71 ms
+enforcing the provisional 2 ms p95 gate. The paired profile measured 0.06/0.33/0.55 ms
 p50/p95/p99, so the unchanged subscription gate
 passes on this workstation.
 
@@ -219,6 +219,12 @@ projection measured 0.10/0.24/4.51 ms p50/p95/p99 against a 100 ms p95 gate. Eve
 exactly 32 ephemeral handles while the serialized event was scanned to prove that a marker present
 only in file bytes never entered canonical JSON state. Names and modification times are excluded
 from the portable metadata contract.
+
+The native-form lifecycle profile projects 100 mixed boolean and repeated-string controls through
+the generic adapter, materializes 150 successful `FormData` entries, then resets and restores every
+control with exact change accounting. Fifty measured samples record 0.20/0.81/4.42 ms p50/p95/p99
+against the executable 8 ms p95 transaction gate. A separate 100-item ErrorSummary profile renders
+exactly 100 target links in 0.47/1.51/19.63 ms p50/p95/p99 against its 100 ms p95 gate.
 
 The read-only AuditLog fixture compiles and mounts an exact schema-valid 10,000-entry authorized
 history twenty times after warm-up. Startup measured 60.67/68.65/72.95 ms against a 1,000 ms p95

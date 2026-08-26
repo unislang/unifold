@@ -10,6 +10,9 @@ export { UnifoldComposition } from "./composition.js";
 export type { UnifoldDataGrid } from "./data-grid.js";
 export type { UnifoldDialog } from "./dialog.js";
 export type { UnifoldFileInput } from "./file-input.js";
+export { UnifoldErrorSummary } from "./error-summary.js";
+export { UnifoldField } from "./field.js";
+export { UnifoldFieldset } from "./fieldset.js";
 export {
   ElementDefinitionPolicy,
   ElementEventName,
@@ -26,6 +29,21 @@ export { UnifoldLink } from "./link.js";
 export type { UnifoldMasterDetail } from "./master-detail.js";
 export type { UnifoldMenuButton } from "./menu-button.js";
 export { UnifoldMultiSelect } from "./multi-select.js";
+export {
+  NativeFormControlController,
+  type NativeFormControlHost,
+  type NativeFormControlInternals,
+  type NativeFormSubmissionValue,
+  type NativeFormValueAdapter,
+  type NativeFormValueProjection
+} from "./native-form-control-controller.js";
+export {
+  NativeBooleanFormState,
+  NativeBooleanSubmissionValue,
+  booleanFormValueAdapter,
+  createStringArrayFormValueAdapter,
+  scalarFormValueAdapter
+} from "./native-form-value-adapters.js";
 export type { UnifoldPopover } from "./popover.js";
 export {
   defineUnifoldElements,

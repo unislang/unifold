@@ -47,6 +47,7 @@ export enum CatalogPropertyType {
   Boolean = "boolean",
   DataGridValue = "data-grid-value",
   Enum = "enum",
+  ErrorSummaryItemList = "error-summary-item-list",
   FileAccept = "file-accept",
   FileMetadataList = "file-metadata-list",
   MenuItemList = "menu-item-list",
@@ -69,88 +70,9 @@ export enum FileMetadataProperty {
   Type = "type"
 }
 
-export enum ComponentAccessibilityPattern {
-  AuditTimeline = "audit-timeline",
-  Breadcrumb = "breadcrumb",
-  Disclosure = "disclosure",
-  Group = "group",
-  GridLayout = "grid-layout",
-  LiveRegion = "live-region",
-  MasterDetail = "master-detail",
-  MenuButton = "menu-button",
-  NativeButton = "native-button",
-  NativeCheckbox = "native-checkbox",
-  Combobox = "combobox",
-  NativeDataGrid = "native-data-grid",
-  ModalDialog = "modal-dialog",
-  NativeFileInput = "native-file-input",
-  NativeForm = "native-form",
-  NativeHeading = "native-heading",
-  NativeLink = "native-link",
-  Popover = "popover",
-  NativeRadioGroup = "native-radio-group",
-  NativeSelect = "native-select",
-  NativeTable = "native-table",
-  NativeTextInput = "native-text-input",
-  SearchResults = "search-results",
-  StepNavigation = "step-navigation",
-  Tabs = "tabs",
-  Tooltip = "tooltip",
-  Listbox = "listbox",
-  StaticText = "static-text",
-  SvgImage = "svg-image"
-}
-
-export enum ComponentDataClassification {
-  Inherit = "inherit"
-}
-
-export enum ComponentDefinitionSchemaVersion {
-  Version1 = "1.0.0"
-}
-
-export enum ComponentCapability {
-  CanonicalEventSnapshot = "canonical-event-snapshot",
-  JsonConstructible = "json-constructible",
-  SelectiveProjection = "selective-projection",
-  StableNodeIdentity = "stable-node-identity",
-  ThemeTokens = "theme-tokens"
-}
-
-export enum ComponentEvidenceCheck {
-  ForcedColors = "forced-colors",
-  Keyboard = "keyboard",
-  ScreenReader = "screen-reader",
-  Zoom = "zoom"
-}
-
-export enum ComponentStatus {
-  Deprecated = "deprecated",
-  Experimental = "experimental",
-  Stable = "stable"
-}
-
-export enum ComponentSemanticAttachmentKind {
-  OrderedCollectionPosition = "ordered-collection-position",
-  Property = "property",
-  Subject = "subject"
-}
-
-export enum ComponentSemanticHiddenContentPolicy {
-  Allowed = "allowed",
-  Prohibited = "prohibited"
-}
-
-export enum ComponentSemanticNormalization {
-  Date = "date",
-  ImageUrl = "image-url",
-  None = "none",
-  Url = "url"
-}
-
-export enum ComponentSemanticValueSource {
-  PublicProperty = "public-property",
-  VisibleText = "visible-text"
+export enum ErrorSummaryItemProperty {
+  Message = "message",
+  TargetId = "targetId"
 }
 
 export enum CoreElementTag {
@@ -165,6 +87,9 @@ export enum CoreElementTag {
   Composition = "unifold-composition",
   DataGrid = "unifold-data-grid",
   Dialog = "unifold-dialog",
+  ErrorSummary = "unifold-error-summary",
+  Field = "unifold-field",
+  Fieldset = "unifold-fieldset",
   FileInput = "unifold-file-input",
   Form = "unifold-form",
   Grid = "unifold-grid",

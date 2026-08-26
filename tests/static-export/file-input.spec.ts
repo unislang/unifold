@@ -14,6 +14,7 @@ test("upgrades the static file picker with metadata-only canonical state", async
   const events = await page.evaluate(() => window.__unifoldStaticEvents);
   const input = events.find((event) => event.type === "org.unifold.ui.control.input.v1");
   expect(input?.data.change).toEqual({
+    origin: "input",
     rejectedCount: 0,
     value: [
       {

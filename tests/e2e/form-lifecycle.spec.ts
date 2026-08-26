@@ -79,7 +79,7 @@ async function assertResetState(page: ScenarioPage): Promise<void> {
   await expect(page.getByLabel("Confirm name")).toHaveValue(initialValues.confirmName);
   await expect(page.getByLabel("Biography")).toHaveValue(initialValues.biography);
   await expect(page.getByLabel("Receive product updates")).not.toBeChecked();
-  await expect(page.getByLabel("Email")).toBeChecked();
+  await expect(page.getByRole("radio", { name: "Email", exact: true })).toBeChecked();
   await expect(page.getByLabel("Country")).toHaveValue(initialValues.country);
   await expect(page.getByRole("combobox", { name: "Assignee" })).toHaveValue("Ada Lovelace");
   await expect(page.getByLabel("Skills")).toHaveValues(initialValues.skills);

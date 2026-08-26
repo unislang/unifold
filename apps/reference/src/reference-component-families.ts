@@ -1,6 +1,7 @@
 import { UnifoldApplicationUpdateStatus } from "@unislang/unifold";
 
 import { registerReferenceInteractiveFamilies } from "./reference-interactive-families.js";
+import { appendReferenceFormStructure } from "./form-structure-reference.js";
 
 type ReferenceDocument = Parameters<typeof registerReferenceInteractiveFamilies>[1];
 type RegistrationResult = ReturnType<
@@ -36,6 +37,7 @@ function loadReferenceComponentFamilies() {
     import("@unislang/unifold/data-grid"),
     import("./dialog-reference.js"),
     import("@unislang/unifold/file-input"),
+    import("@unislang/unifold/form-structure"),
     import("@unislang/unifold/master-detail"),
     import("@unislang/unifold/menu-button"),
     import("./popover-reference.js"),
@@ -72,10 +74,21 @@ function registerReferenceComponentFamilies(
     document
   );
   assertFamilyRegistration("FileInput", modules.fileInput.defineUnifoldFileInput());
+  registerReferenceFormStructure(modules.formStructure, document);
   assertFamilyRegistration("Stepper", modules.stepper.defineUnifoldStepper());
   assertFamilyRegistration("Tabs", modules.tabs.defineUnifoldTabs());
   assertFamilyRegistration("VirtualList", modules.virtualList.defineUnifoldVirtualList());
   assertFamilyRegistration("Wizard", modules.wizard.defineUnifoldWizard());
+}
+
+function registerReferenceFormStructure(
+  formStructure: typeof import("@unislang/unifold/form-structure"),
+  document: ReferenceDocument
+): void {
+  assertFamilyRegistration("ErrorSummary", formStructure.defineUnifoldErrorSummary());
+  assertFamilyRegistration("Field", formStructure.defineUnifoldField());
+  assertFamilyRegistration("Fieldset", formStructure.defineUnifoldFieldset());
+  appendReferenceFormStructure(document);
 }
 
 function namedFamilyModules(families: Awaited<ReturnType<typeof loadReferenceComponentFamilies>>) {
@@ -85,16 +98,17 @@ function namedFamilyModules(families: Awaited<ReturnType<typeof loadReferenceCom
     dataGrid: families[2],
     dialog: families[3],
     fileInput: families[4],
-    masterDetail: families[5],
-    menuButton: families[6],
-    popover: families[7],
-    breadcrumb: families[8],
-    searchResults: families[9],
-    stepper: families[10],
-    tabs: families[11],
-    tooltip: families[12],
-    virtualList: families[13],
-    wizard: families[14]
+    formStructure: families[5],
+    masterDetail: families[6],
+    menuButton: families[7],
+    popover: families[8],
+    breadcrumb: families[9],
+    searchResults: families[10],
+    stepper: families[11],
+    tabs: families[12],
+    tooltip: families[13],
+    virtualList: families[14],
+    wizard: families[15]
   };
 }
 

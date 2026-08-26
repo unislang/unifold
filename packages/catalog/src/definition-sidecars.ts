@@ -11,7 +11,14 @@ import { breadcrumbSidecar } from "./breadcrumb-sidecar.js";
 import { comboboxSidecar } from "./combobox-sidecar.js";
 import { dialogSidecar } from "./dialog-sidecar.js";
 import { fileInputSidecar } from "./file-input-sidecar.js";
-import { ComponentAccessibilityPattern, IconName } from "./enums.js";
+import {
+  errorSummarySidecar,
+  fieldsetSidecar,
+  fieldSidecar,
+  formSidecar
+} from "./form-structure-sidecars.js";
+import { ComponentAccessibilityPattern } from "./definition-enums.js";
+import { IconName } from "./enums.js";
 import { searchResultsSidecar } from "./search-results-sidecar.js";
 import { menuButtonSidecar } from "./menu-sidecar.js";
 import { popoverSidecar } from "./popover-sidecar.js";
@@ -123,23 +130,11 @@ export const componentDefinitionSidecars = Object.freeze({
     sensitiveProperties: ["caption", "columns", "emptyMessage", "errorMessage", "rows", "value"]
   }),
   [CoreComponentType.Dialog]: dialogSidecar,
+  [CoreComponentType.ErrorSummary]: errorSummarySidecar,
+  [CoreComponentType.Field]: fieldSidecar,
+  [CoreComponentType.Fieldset]: fieldsetSidecar,
   [CoreComponentType.FileInput]: fileInputSidecar,
-  [CoreComponentType.Form]: definition({
-    behaviors: [
-      "Uses native form submission",
-      "Projects aggregate errors and canonical form facts"
-    ],
-    browserScenarios: [
-      "submits heterogeneous values, omits disabled controls, and resets atomically"
-    ],
-    componentType: CoreComponentType.Form,
-    example: node(CoreComponentType.Form, "profile", { label: "Profile" }),
-    pattern: ComponentAccessibilityPattern.NativeForm,
-    purpose: "Coordinate descendant controls as one runtime-owned form aggregate.",
-    requirementIds: ["A11Y.FORM.NATIVE", "EVENT.FORM.SUBMITTED"],
-    semanticAttachmentPoints: [],
-    sensitiveProperties: ["errorMessages"]
-  }),
+  [CoreComponentType.Form]: formSidecar,
   [CoreComponentType.Grid]: definition({
     behaviors: ["Preserves authored child order", "Projects token-backed column and gap values"],
     browserScenarios: [layoutScenario],

@@ -1,7 +1,9 @@
 import { css, html, type PropertyDeclarations } from "lit";
 import { UiUpdateTrigger } from "@unislang/unifold-contracts";
 
-import { ElementEventType } from "./enums.js";
+import { ElementEventType, NativeFormValueOrigin } from "./enums.js";
+import { NativeFormControlController } from "./native-form-control-controller.js";
+import { booleanFormValueAdapter } from "./native-form-value-adapters.js";
 import { focusRing, hostDefaults, validationStyles } from "./styles.js";
 import { UnifoldElement } from "./unifold-element.js";
 
@@ -15,12 +17,14 @@ import { UnifoldElement } from "./unifold-element.js";
  * @cssprop --unifold-color-primary - Native checkbox accent color.
  */
 export class UnifoldCheckbox extends UnifoldElement {
+  static formAssociated = true;
+
   static override properties: PropertyDeclarations = {
     asyncValidators: { attribute: false },
     disabled: { reflect: true, type: Boolean },
     errorMessage: { attribute: "error-message" },
     label: {},
-    name: {},
+    name: { reflect: true },
     required: { reflect: true, type: Boolean },
     updateOn: { attribute: "update-on" },
     validators: { attribute: false },
@@ -60,6 +64,7 @@ export class UnifoldCheckbox extends UnifoldElement {
   declare updateOn: UiUpdateTrigger;
   declare validators: readonly string[];
   declare value: boolean;
+  protected readonly formControl = new NativeFormControlController(this, booleanFormValueAdapter);
 
   constructor() {
     super();
@@ -84,7 +89,7 @@ export class UnifoldCheckbox extends UnifoldElement {
           .checked=${this.value}
           name=${this.name}
           type="checkbox"
-          ?disabled=${this.disabled}
+          ?disabled=${this.formControl.disabled}
           ?required=${this.required}
           @change=${this.onChange}
           @blur=${this.onBlur}
@@ -114,9 +119,33 @@ export class UnifoldCheckbox extends UnifoldElement {
     return this.value;
   }
 
+  get form(): HTMLFormElement | null {
+    return this.formControl.form;
+  }
+
+  formControlAnchor(): HTMLElement | null {
+    return this.shadowRoot?.querySelector("input") ?? null;
+  }
+
+  formControlValueChanged(value: boolean, origin: NativeFormValueOrigin): void {
+    this.value = value;
+    this.emitUiEvent(ElementEventType.ControlInput, { origin, value });
+  }
+
+  formDisabledCallback(disabled: boolean): void {
+    this.formControl.formDisabledCallback(disabled);
+  }
+
+  formResetCallback(): void {
+    this.formControl.formResetCallback();
+  }
+
+  formStateRestoreCallback(state: File | FormData | string, mode: string): void {
+    this.formControl.formStateRestoreCallback(state, mode);
+  }
+
   private readonly onChange = (event: Event): void => {
-    this.value = (event.currentTarget as HTMLInputElement).checked;
-    this.emitUiEvent(ElementEventType.ControlInput, { value: this.value });
+    this.formControl.commitInput((event.currentTarget as HTMLInputElement).checked);
   };
 
   private readonly onBlur = (): void => {

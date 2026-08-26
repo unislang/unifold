@@ -1,7 +1,7 @@
 import { CoreComponentType } from "@unislang/unifold-contracts";
 import { expect, it } from "vitest";
 
-import { ComponentAccessibilityPattern } from "./enums.js";
+import { ComponentAccessibilityPattern } from "./definition-enums.js";
 import { fileInputSidecar } from "./file-input-sidecar.js";
 
 it("documents FileInput byte isolation and bounded native evidence", () => {

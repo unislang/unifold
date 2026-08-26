@@ -3,8 +3,10 @@ import {
   CatalogPropertyType,
   ComponentCapability,
   ComponentDefinitionSchemaVersion,
+  ErrorSummaryItemProperty,
   FileMetadataProperty,
   MAXIMUM_BREADCRUMB_ITEMS,
+  MAXIMUM_ERROR_SUMMARY_ITEMS,
   MAXIMUM_FILE_ACCEPT_LENGTH,
   MAXIMUM_FILE_COUNT,
   MAXIMUM_FILE_ID_LENGTH,
@@ -75,6 +77,19 @@ const scalarSchemas = Object.freeze({
     },
     required: ["selectedRowIds"],
     type: "object"
+  },
+  [CatalogPropertyType.ErrorSummaryItemList]: {
+    items: {
+      additionalProperties: false,
+      properties: {
+        [ErrorSummaryItemProperty.Message]: { maxLength: 4_096, minLength: 1, type: "string" },
+        [ErrorSummaryItemProperty.TargetId]: identifierSchema
+      },
+      required: Object.values(ErrorSummaryItemProperty),
+      type: "object"
+    },
+    maxItems: MAXIMUM_ERROR_SUMMARY_ITEMS,
+    type: "array"
   },
   [CatalogPropertyType.FileAccept]: {
     maxLength: MAXIMUM_FILE_ACCEPT_LENGTH,
@@ -181,7 +196,12 @@ const scalarSchemas = Object.freeze({
     type: "array"
   },
   [CatalogPropertyType.String]: { type: "string" },
-  [CatalogPropertyType.StringArray]: { items: { type: "string" }, type: "array" },
+  [CatalogPropertyType.StringArray]: {
+    items: { type: "string" },
+    maxItems: 10_000,
+    type: "array",
+    uniqueItems: true
+  },
   [CatalogPropertyType.TableColumnList]: {
     items: {
       additionalProperties: false,
@@ -309,5 +329,5 @@ function updateTriggerField(updateOn) {
 }
 
 function isPropertyBinding({ bindingKind }) {
-  return bindingKind === CatalogBindingKind.Property;
+  return bindingKind !== CatalogBindingKind.Attribute;
 }

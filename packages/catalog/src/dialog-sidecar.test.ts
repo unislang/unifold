@@ -2,7 +2,7 @@ import { CoreComponentType } from "@unislang/unifold-contracts";
 import { expect, it } from "vitest";
 
 import { dialogSidecar } from "./dialog-sidecar.js";
-import { ComponentAccessibilityPattern } from "./enums.js";
+import { ComponentAccessibilityPattern } from "./definition-enums.js";
 
 it("publishes reviewed Dialog modal, focus, and browser evidence", () => {
   expect(dialogSidecar).toMatchObject({

@@ -1,7 +1,8 @@
 import { CoreComponentType } from "@unislang/unifold-contracts";
 
 import { definition, exampleNode } from "./definition-sidecar-helpers.js";
-import { ComponentAccessibilityPattern, TooltipPlacement } from "./enums.js";
+import { ComponentAccessibilityPattern } from "./definition-enums.js";
+import { TooltipPlacement } from "./enums.js";
 import type { ComponentDefinitionSidecar } from "./types.js";
 
 export const tooltipSidecar: ComponentDefinitionSidecar = definition({

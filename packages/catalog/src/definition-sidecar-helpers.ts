@@ -21,7 +21,7 @@ import {
   ComponentSemanticNormalization,
   ComponentSemanticValueSource,
   ComponentStatus
-} from "./enums.js";
+} from "./definition-enums.js";
 import type { ComponentDefinitionSidecar, ComponentSemanticAttachmentContract } from "./types.js";
 
 const manualChecks = Object.freeze(Object.values(ComponentEvidenceCheck));

@@ -4,12 +4,18 @@ export interface DynamicNode {
   $comp: string;
   $children?: DynamicNode[];
   id: string;
-  label: string;
+  label?: string;
+  disabled?: boolean;
+  errors?: { message: string; targetId: string }[];
   options?: { label: string; value: string }[];
 }
 
+interface DynamicRootNode extends DynamicNode {
+  $children: DynamicNode[];
+}
+
 interface DynamicAuthoredDocument {
-  compositions: [{ template: { $children: DynamicNode[] } }];
+  compositions: [{ template: DynamicRootNode }];
   revision: string;
 }
 

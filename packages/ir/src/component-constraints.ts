@@ -172,6 +172,7 @@ function validateSelectionConstraint(
   if (options === undefined) return;
   if (selections === undefined) return;
   reportUnknownSelections(options, selections, nodeId(node), diagnostics);
+  reportDuplicateSelections(selections, nodeId(node), diagnostics);
 }
 
 function reportUnknownSelections(
@@ -195,6 +196,33 @@ function addUnknownDiagnostic(
     errorDiagnostic(
       DiagnosticCode.UnknownOptionSelection,
       `Selected value "${selection.value}" is not declared in the options.`,
+      selection.path,
+      id
+    )
+  );
+}
+
+function reportDuplicateSelections(
+  selections: readonly SelectionEntry[],
+  id: string | undefined,
+  diagnostics: CompilerDiagnostic[]
+): void {
+  const seen = new Set<string>();
+  selections.forEach((selection) => {
+    if (seen.has(selection.value)) addDuplicateSelectionDiagnostic(selection, id, diagnostics);
+    seen.add(selection.value);
+  });
+}
+
+function addDuplicateSelectionDiagnostic(
+  selection: SelectionEntry,
+  id: string | undefined,
+  diagnostics: CompilerDiagnostic[]
+): void {
+  diagnostics.push(
+    errorDiagnostic(
+      DiagnosticCode.DuplicateOptionSelection,
+      `Selected value "${selection.value}" is already selected.`,
       selection.path,
       id
     )

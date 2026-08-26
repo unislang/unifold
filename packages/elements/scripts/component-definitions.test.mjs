@@ -41,6 +41,7 @@ test("derives required, enum, attribute, and public snapshot schemas", async () 
   assert.equal(schemas.table.propertiesSchema.properties.rows.maxItems, 10_000);
   assertDataGridSchemas(schemas.dataGrid);
   assertFileInputSchemas(schemas.fileInput);
+  assertMultiSelectSchema(document);
   assertSearchResultsSchemas(schemas.searchResults);
   assertWorkflowSchemas(schemas.stepper, schemas.wizard);
   assert(schemas.link.publicSnapshotSchema.properties.testId === undefined);
@@ -66,6 +67,12 @@ function assertOverlaySchemas(document) {
     "start",
     "top"
   ]);
+}
+
+function assertMultiSelectSchema(document) {
+  const value = requireDefinition(document, CoreComponentType.MultiSelect).control.valueSchema;
+  assert.equal(value.maxItems, 10_000);
+  assert.equal(value.uniqueItems, true);
 }
 
 function schemaDefinitions(document) {

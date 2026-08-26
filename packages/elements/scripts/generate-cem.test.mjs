@@ -3,6 +3,7 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
+import { coreCatalog } from "@unislang/unifold-catalog";
 import { fileURLToPath } from "node:url";
 
 import { generateComponentArtifacts } from "./generate-cem.mjs";
@@ -15,8 +16,12 @@ test("writes complete manifest and component-definition artifacts", async (conte
   await generateComponentArtifacts(sourceRoot, outputRoot);
   const manifest = await readJson(join(outputRoot, "custom-elements.json"));
   const definitions = await readJson(join(outputRoot, "component-definitions.json"));
-  assert.equal(manifest.modules.flatMap((module) => module.declarations ?? []).length, 34);
-  assert.equal(definitions.definitions.length, 34);
+  const expectedCount = Object.keys(coreCatalog.components).length;
+  assert.equal(
+    manifest.modules.flatMap((module) => module.declarations ?? []).length,
+    expectedCount
+  );
+  assert.equal(definitions.definitions.length, expectedCount);
 });
 
 async function readJson(path) {

@@ -13,6 +13,7 @@ import {
 import { errorDiagnostic } from "./diagnostics.js";
 import { validateCompositionManifest } from "./composition-validation.js";
 import { validateDerivedRules } from "./derived-rule-validation.js";
+import { validateErrorSummaryTargets } from "./error-summary-validation.js";
 import { validateNodeEventBindings } from "./event-binding-validation.js";
 import { CoreComponentType, DiagnosticCode } from "./enums.js";
 import { isJsonSafe, isPlainObject } from "./json-safety.js";
@@ -60,6 +61,7 @@ function validateProfiledDocument(
     stores
   };
   validateNode(value["view"], "/view", state);
+  validateErrorSummaryTargets(value["view"], state.nodeComponents, state.nodeIds, diagnostics);
   validateCompositionManifest(value["compositionManifest"], state.nodeComponents, diagnostics);
   validateMachineDefinitions(value["machines"], state.nodeIds, diagnostics);
   validateDerivedRules(value["rules"], state.nodeComponents, diagnostics);
