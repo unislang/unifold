@@ -19,9 +19,32 @@
         "$comp": "TextField",
         "id": "name",
         "label": "Name"
+      },
+      {
+        "$comp": "Button",
+        "events": { "activated": "CONTINUE" },
+        "id": "continue",
+        "label": "Continue"
       }
     ],
     "$comp": "Box",
     "id": "root"
-  }
+  },
+  "machines": [
+    {
+      "schemaVersion": "1.0.0",
+      "id": "packed-workflow",
+      "version": "1.0.0",
+      "ownerId": "root",
+      "initial": "editing",
+      "states": {
+        "editing": {
+          "on": {
+            "CONTINUE": { "target": "complete", "guard": "name-entered" }
+          }
+        },
+        "complete": {}
+      }
+    }
+  ]
 }

@@ -5,7 +5,9 @@ import {
   UnifoldApplicationUpdateStatus,
   UnifoldDocumentIntegrity,
   UnifoldDocumentTrustRequirement,
-  loadAndMountUnifoldApplication
+  createMachineGuardRegistry,
+  loadAndMountUnifoldApplication,
+  type UiMachineGuardContext
 } from "@unislang/unifold";
 import {
   ElementRegistrationStatus as FirstRegistrationStatus,
@@ -24,21 +26,26 @@ import updatedDocument from "./updated-ui.json" with { type: "json" };
 
 document.documentElement.dataset["registrationEvidence"] = JSON.stringify(registrationEvidence());
 const host = requireElement<HTMLElement>("app");
-const result = await loadAndMountUnifoldApplication(JSON.stringify(initialDocument), host, {
-  trustRequirement: UnifoldDocumentTrustRequirement.AllowUnsigned
-});
+const result = await loadAndMountUnifoldApplication(
+  JSON.stringify(initialDocument),
+  host,
+  { trustRequirement: UnifoldDocumentTrustRequirement.AllowUnsigned },
+  { machineGuards: packedConsumerGuards() }
+);
 if (result.status !== UnifoldApplicationMountStatus.Mounted) {
   throw new Error(`Packed consumer mount failed: ${JSON.stringify(result.diagnostics)}`);
 }
 
 const application = result.application;
 host.dataset["mounted"] = "true";
+showMachineState();
 host.dataset["sourceIntegrity"] = result.provenance.integrity;
 if (result.provenance.integrity !== UnifoldDocumentIntegrity.Unsigned) {
   throw new Error("The local packed-consumer fixture unexpectedly required a signature.");
 }
 const subscription = application.runtime.events$.subscribe((event) => {
   requireTestElement("latest-event").textContent = event.type;
+  queueMicrotask(showMachineState);
 });
 
 requireTestElement("update-document").addEventListener("click", () => {
@@ -65,6 +72,29 @@ function requireTestElement(testId: string): HTMLElement {
   const element = document.querySelector<HTMLElement>(`[data-testid="${testId}"]`);
   if (element === null) throw new Error(`Missing packed-consumer test element: ${testId}.`);
   return element;
+}
+
+function packedConsumerGuards() {
+  const guards = createMachineGuardRegistry();
+  guards.register("name-entered", hasEnteredName);
+  return guards;
+}
+
+function hasEnteredName({ snapshot }: UiMachineGuardContext): boolean {
+  return isNonEmptyText(snapshot("name")?.control?.value);
+}
+
+function isNonEmptyText(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  return value.trim().length > 0;
+}
+
+function showMachineState(): void {
+  try {
+    host.dataset["machineState"] = String(application.machineState("packed-workflow"));
+  } catch {
+    host.dataset["machineState"] = "unavailable";
+  }
 }
 
 function registrationEvidence() {

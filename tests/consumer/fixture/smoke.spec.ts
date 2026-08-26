@@ -9,12 +9,17 @@ test("runs the documented lifecycle from packed public exports", async ({ page }
   await expectRegistrationEvidence(page);
   await expect(page.locator("#app")).toHaveAttribute("data-mounted", "true");
   await expect(page.locator("#app")).toHaveAttribute("data-source-integrity", "unsigned");
+  await expect(page.locator("#app")).toHaveAttribute("data-machine-state", "editing");
   await expect(page.locator("unifold-text-field")).toHaveCount(1);
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.locator("#app")).toHaveAttribute("data-machine-state", "editing");
   await page.getByLabel("Name").fill("Ada Lovelace");
   await expect(page.getByLabel("Name")).toHaveValue("Ada Lovelace");
   await expect(page.getByTestId("latest-event")).toHaveText(
     "org.unifold.ui.transaction.committed.v1"
   );
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.locator("#app")).toHaveAttribute("data-machine-state", "complete");
   await expect.poll(() => themeToken(page)).not.toBe("");
   await page.getByTestId("update-document").click();
   await expect(page.locator("#app")).toHaveAttribute("data-updated", "true");
