@@ -17,12 +17,13 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest implementation checkpoint: `7bc981b` (`docs: record tabs implementation checkpoint`)
+- Latest implementation checkpoint: `33fb53e` (`feat: add accessible JSON-driven menu button`)
 - Verified implementation remote state: `origin/main` independently resolved to
-  `7bc981bc00d7ef615e3247db62d990fe0e7e15c0` before the MenuButton implementation commit.
-- Working tree: the bounded catalog-authoritative MenuButton slice is implemented and validated
-  across contract, catalog, IR, custom element, static export, reference host, browser, performance,
-  and package-consumer boundaries. It is ready for its implementation commit and push. Firefox
+  `33fb53e8fb2c813d6a00dd4ae3a16d519e667a76` after the MenuButton implementation push; the
+  progress-only commit that records this evidence is pushed immediately afterward.
+- Working tree: the bounded catalog-authoritative MenuButton slice is implemented, validated,
+  committed, pushed, and independently verified across contract, catalog, IR, custom element,
+  static export, reference host, browser, performance, and package-consumer boundaries. Firefox
   evidence remains blocked before page creation by the external Windows runner defect.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
@@ -31,7 +32,7 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 
 ## Last completed implementation slice
 
-The catalog-authoritative MenuButton slice is complete and awaiting its implementation commit:
+The catalog-authoritative MenuButton slice is complete and committed as `33fb53e`:
 
 - Exact bounded action items flow through contracts, catalog metadata and sidecars, IR validation,
   generated component metadata, the registered custom element, canonical activation events, and a
@@ -55,8 +56,8 @@ record new measurements rather than treating the numbers above as proof for late
 
 ## Active slice
 
-The MenuButton interaction-family slice is ready to commit and push. After that checkpoint,
-continue with the next prioritized interaction families in
+The MenuButton interaction-family slice is committed, pushed, and independently verified. Continue
+with the next prioritized interaction families in
 [`docs/implementation-status.md`](./docs/implementation-status.md#next-architecture-slices).
 Production provisioning of slices 1 and 2 remains a separate external-environment release gate
 rather than unfinished local framework code.
@@ -333,7 +334,9 @@ The catalog-authoritative select-only Combobox slice is implemented, validated, 
 
 ### 2026-08-26 bounded MenuButton checkpoint
 
-The catalog-authoritative MenuButton slice is implemented and fully validated, but not yet committed:
+The catalog-authoritative MenuButton slice is implemented, fully validated, committed as `33fb53e`,
+pushed to `origin/main`, and independently verified at
+`33fb53e8fb2c813d6a00dd4ae3a16d519e667a76`:
 
 - `MenuButton` and its 1-to-100 exact action-item contract flow through the shared component enum,
   catalog descriptor and accessibility sidecar, catalog-derived IR validation, generated component
@@ -360,9 +363,7 @@ The catalog-authoritative MenuButton slice is implemented and fully validated, b
 - Fresh schema-2.20.0 benchmark evidence passes 43/43 gates. The exact 100-step/100-panel/100-item
   fixture renders 401 buttons; startup is 49.34/68.10/73.31 ms p50/p95/p99 against 1,000 ms p95,
   and MenuButton activation is 0.79/1.29/1.84 ms against 100 ms p95.
-- Next, commit this implementation, update this checkpoint with its feature SHA, commit the resumable
-  record, push both commits to `origin/main`, and independently verify the remote branch SHA. After
-  that, reconcile the remaining overlay/navigation inventory before selecting Tooltip, Popover, or
+- Next, reconcile the remaining overlay/navigation inventory before selecting Tooltip, Popover, or
   Dialog; retain the architecture's comparative native/Lion/Spectrum evidence gate before Dialog.
 
 ## Immediate resume procedure
@@ -495,5 +496,6 @@ silently waived.
   clean packed-consumer 3/3, schema-2.20.0 benchmark 43/43, reference Chromium/WebKit
   85-pass/3-intentional-skip, and static Chromium/WebKit 14/14 matrices pass. The 100-item action
   measured 0.79/1.29/1.84 ms p50/p95/p99, and the production reference remains under its executable
-  ceiling at 179.98 KiB gzip. The implementation and this resumable evidence record are ready to
-  commit and push; Firefox remains the known external pre-page runner limitation.
+  ceiling at 179.98 KiB gzip. The implementation is committed as `33fb53e`, pushed to
+  `https://github.com/unislang/unifold.git`, and independently verified at the full SHA above;
+  Firefox remains the known external pre-page runner limitation.
