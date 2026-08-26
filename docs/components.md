@@ -1,6 +1,6 @@
 # Core components
 
-The implemented core catalog contains forty JSON-constructible Web Components. Every component has a
+The implemented core catalog contains forty-one JSON-constructible Web Components. Every component has a
 stable node ID, participates in the same canonical event stream, and receives selective state
 projection through the application runtime. The catalog descriptor is the authority for accepted
 properties; the IR compiler rejects unknown properties and values of the wrong type before render.
@@ -35,6 +35,7 @@ properties; the IR compiler rejects unknown properties and values of the wrong t
 | `NumberField`   | `unifold-number-field`   | number or null | number input               | `control.input`, `control.blurred`     |
 | `Popover`       | `unifold-popover`        | none           | button + Popover API       | `component.activated`                  |
 | `RadioGroup`    | `unifold-radio-group`    | string         | fieldset and radio input   | `control.input`, `control.blurred`     |
+| `SearchField`   | `unifold-search-field`   | string         | search input               | `control.input`, `control.blurred`     |
 | `SearchResults` | `unifold-search-results` | object         | search input + listbox     | `control.input`, `control.blurred`     |
 | `Select`        | `unifold-select`         | string         | select                     | `control.input`, `control.blurred`     |
 | `Stack`         | `unifold-stack`          | none           | slotted flex container     | descendant scope                       |
@@ -53,7 +54,7 @@ Event names above use their readable suffixes. The wire values are versioned enu
 
 The baseline registration includes the nineteen small families. AuditLog, Breadcrumb, Card, Combobox,
 DataGrid, Dialog, ErrorSummary, Field, Fieldset, FileInput, Image, MasterDetail, MenuButton, Popover,
-NumberField, SearchResults, Stepper, Tabs, Tooltip, VirtualList, and Wizard are deferred families loaded through matching
+NumberField, SearchField, SearchResults, Stepper, Tabs, Tooltip, VirtualList, and Wizard are deferred families loaded through matching
 `@unislang/unifold/<kebab-case-name>` subpaths. Strict mounting requires those definitions before
 render. A trusted host may explicitly select `ElementDefinitionPolicy.AllowPending`; catalog-known
 hosts then mount immediately and replay their latest validated properties, event snapshot, runtime
@@ -92,6 +93,38 @@ In the Scratch-style hierarchy, place the node directly in a layout variable suc
 ```ts
 const { defineUnifoldNumberField } = await import("@unislang/unifold/number-field");
 defineUnifoldNumberField();
+```
+
+## SearchField query contract
+
+`SearchField` is loaded through `@unislang/unifold/search-field`. Its canonical value is a plain
+string, rendered by exactly one labeled native `input[type="search"]`. The authored `maxLength`
+must be a positive integer no greater than 2,048, and the initial and emitted query must fit that
+bound. The same rule protects IR compilation, live input, static export, and static-upgrade
+admission.
+
+The Scratch-style JSON shape stays declarative: a component `type`, a stable `id`, catalog-checked
+`props`, and named `events` embedded in a layout variable:
+
+```json
+{
+  "type": "SearchField",
+  "id": "profile-search",
+  "props": {
+    "autocomplete": "off",
+    "label": "Search profiles",
+    "maxLength": 256,
+    "name": "profileSearch",
+    "placeholder": "Name or email",
+    "value": ""
+  },
+  "events": { "onInput": "SEARCH_CHANGED" }
+}
+```
+
+```ts
+const { defineUnifoldSearchField } = await import("@unislang/unifold/search-field");
+defineUnifoldSearchField();
 ```
 
 `Card` and `Image` are delivered together through the deferred

@@ -135,6 +135,13 @@ export interface CatalogSearchResultsStateConstraint {
   readonly valueProperty: string;
 }
 
+export interface CatalogSearchQueryLengthConstraint {
+  readonly kind: CatalogConstraintKind.SearchQueryLength;
+  readonly maximumProperty: string;
+  readonly queryProperty: string | null;
+  readonly valueProperty: string;
+}
+
 export interface CatalogStepNavigationStateConstraint {
   readonly childMode: "match-steps" | "none";
   readonly kind: CatalogConstraintKind.StepNavigationState;
@@ -151,6 +158,7 @@ export type CatalogConstraintDescriptor =
   | CatalogFileInputDataConstraint
   | CatalogMasterDetailStateConstraint
   | CatalogNumberFieldRangeConstraint
+  | CatalogSearchQueryLengthConstraint
   | CatalogSearchResultsStateConstraint
   | CatalogSelectionInOptionsConstraint
   | CatalogStepNavigationStateConstraint

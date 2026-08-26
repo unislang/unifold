@@ -154,6 +154,15 @@
             "value": 40
           },
           {
+            "$comp": "SearchField",
+            "autocomplete": "off",
+            "id": "profile-search",
+            "label": "Search profiles",
+            "name": "profileSearch",
+            "placeholder": "Name or email",
+            "value": "Ada"
+          },
+          {
             "$comp": "Checkbox",
             "id": "newsletter",
             "label": "Receive product updates",

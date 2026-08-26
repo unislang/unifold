@@ -21,6 +21,7 @@ import {
 import { ComponentAccessibilityPattern } from "./definition-enums.js";
 import { IconName } from "./enums.js";
 import { searchResultsSidecar } from "./search-results-sidecar.js";
+import { searchFieldSidecar, textAreaSidecar, textFieldSidecar } from "./text-control-sidecars.js";
 import { menuButtonSidecar } from "./menu-sidecar.js";
 import { numberFieldSidecar } from "./number-field-sidecar.js";
 import { popoverSidecar } from "./popover-sidecar.js";
@@ -253,6 +254,7 @@ export const componentDefinitionSidecars = Object.freeze({
     semanticAttachmentPoints: [],
     sensitiveProperties: ["errorMessage", "options", "value"]
   }),
+  [CoreComponentType.SearchField]: searchFieldSidecar,
   [CoreComponentType.SearchResults]: searchResultsSidecar,
   [CoreComponentType.Select]: definition({
     behaviors: ["Uses native single selection", "Emits canonical change and blur intents"],
@@ -304,30 +306,8 @@ export const componentDefinitionSidecars = Object.freeze({
     semanticAttachmentPoints: [visibleProperty("content", "content")],
     sensitiveProperties: ["content"]
   }),
-  [CoreComponentType.TextArea]: definition({
-    behaviors: ["Uses native multiline editing", "Preserves line breaks in canonical values"],
-    browserScenarios: [
-      "commits multiline text through the unified stream and selectively projects"
-    ],
-    componentType: CoreComponentType.TextArea,
-    example: node(CoreComponentType.TextArea, "biography", { label: "Biography" }),
-    pattern: ComponentAccessibilityPattern.NativeTextInput,
-    purpose: "Capture one multiline string with labeled validation and selective projection.",
-    requirementIds: ["A11Y.TEXT_AREA.NATIVE", "EVENT.CONTROL.INPUT"],
-    semanticAttachmentPoints: [],
-    sensitiveProperties: ["errorMessage", "value"]
-  }),
-  [CoreComponentType.TextField]: definition({
-    behaviors: ["Uses native single-line editing", "Projects accessible validation state"],
-    browserScenarios: ["updates the changed control without updating its sibling"],
-    componentType: CoreComponentType.TextField,
-    example: node(CoreComponentType.TextField, "name", { label: "Name" }),
-    pattern: ComponentAccessibilityPattern.NativeTextInput,
-    purpose: "Capture one scalar text value with labeled validation and selective projection.",
-    requirementIds: ["A11Y.TEXT_FIELD.NATIVE", "EVENT.CONTROL.INPUT"],
-    semanticAttachmentPoints: [],
-    sensitiveProperties: ["errorMessage", "value"]
-  }),
+  [CoreComponentType.TextArea]: textAreaSidecar,
+  [CoreComponentType.TextField]: textFieldSidecar,
   [CoreComponentType.Tooltip]: tooltipSidecar,
   [CoreComponentType.VirtualList]: definition({
     behaviors: ["Renders at most 200 options", "Preserves selection across virtual windows"],

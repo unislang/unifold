@@ -14,6 +14,7 @@ it("renders bounded escaped public search links plus a distant selection", () =>
   expect(html.match(/<li/gu)).toHaveLength(201);
   expect(html).toContain("201 of 205 results");
   expect(html).toContain('href="/people/204"');
+  expect(html).toContain('maxlength="2048"');
   expect(html).toContain('aria-current="true"');
   expect(html).toContain("&lt;script&gt;204&lt;/script&gt;");
   expect(html).not.toContain("<script>204</script>");

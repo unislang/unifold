@@ -20,6 +20,7 @@ const deferredTags = new Set<CoreElementTag>([
   CoreElementTag.MenuButton,
   CoreElementTag.NumberField,
   CoreElementTag.Popover,
+  CoreElementTag.SearchField,
   CoreElementTag.SearchResults,
   CoreElementTag.Stepper,
   CoreElementTag.Tabs,

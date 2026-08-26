@@ -43,6 +43,7 @@ const renderers: Readonly<Record<CoreComponentType, NodeRenderer>> = {
   [CoreComponentType.NumberField]: staticComponents.renderStaticNumberField,
   [CoreComponentType.Popover]: staticComponents.renderStaticPopover,
   [CoreComponentType.RadioGroup]: renderRadioGroup,
+  [CoreComponentType.SearchField]: staticComponents.renderStaticSearchField,
   [CoreComponentType.SearchResults]: staticComponents.renderStaticSearchResults,
   [CoreComponentType.Select]: renderSelect,
   [CoreComponentType.Stack]: renderContainer,

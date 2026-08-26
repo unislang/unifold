@@ -16,6 +16,7 @@ import { defineUnifoldMasterDetail } from "./master-detail-entry.js";
 import { defineUnifoldMenuButton } from "./menu-button-entry.js";
 import { defineUnifoldNumberField } from "./number-field-entry.js";
 import { defineUnifoldPopover } from "./popover-entry.js";
+import { defineUnifoldSearchField } from "./search-field-entry.js";
 import {
   UNIFOLD_ELEMENT_DEFINITION,
   type ElementDefinitionMetadata,
@@ -102,6 +103,7 @@ export function foundationTags(): readonly CoreElementTag[] {
     CoreElementTag.MenuButton,
     CoreElementTag.NumberField,
     CoreElementTag.Popover,
+    CoreElementTag.SearchField,
     CoreElementTag.SearchResults,
     CoreElementTag.Stepper,
     CoreElementTag.Tabs,
@@ -127,6 +129,7 @@ export function defineDeferredElements(registry: ElementRegistryPort): void {
   defineUnifoldMenuButton(registry);
   defineUnifoldNumberField(registry);
   defineUnifoldPopover(registry);
+  defineUnifoldSearchField(registry);
   defineUnifoldSearchResults(registry);
   defineUnifoldStepper(registry);
   defineUnifoldTabs(registry);

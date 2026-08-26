@@ -33,6 +33,7 @@ export {
   LayoutAlignment,
   LayoutSpace,
   LinkTarget,
+  SearchFieldAutocomplete,
   StackDirection,
   StepperOrientation,
   SurfaceTone,
@@ -79,6 +80,11 @@ export {
 } from "./file-input-catalog.js";
 export { MAXIMUM_MENU_ITEMS } from "./menu-catalog.js";
 export { numberFieldDescriptor } from "./number-field-catalog.js";
+export { searchFieldDescriptor } from "./search-field-catalog.js";
+export {
+  MAXIMUM_SEARCH_QUERY_LENGTH,
+  searchQueryLengthConstraint
+} from "./search-query-catalog.js";
 export { popoverDescriptor } from "./popover-catalog.js";
 export { tooltipDescriptor } from "./tooltip-catalog.js";
 export type {
@@ -91,6 +97,7 @@ export type {
   CatalogFileInputDataConstraint,
   CatalogMasterDetailStateConstraint,
   CatalogNumberFieldRangeConstraint,
+  CatalogSearchQueryLengthConstraint,
   CatalogSearchResultsStateConstraint,
   CatalogStepNavigationStateConstraint,
   CatalogConstraintDescriptor,

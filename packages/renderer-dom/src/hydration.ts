@@ -5,6 +5,8 @@ import {
   type UnifoldIrNode
 } from "@unislang/unifold-ir";
 
+import { readStaticSearchFieldValue } from "./search-field-hydration.js";
+
 const DOCUMENT_ATTRIBUTE = "data-unifold-static-document";
 const NODE_ATTRIBUTE = "data-unifold-static-node-id";
 const COMPONENT_ATTRIBUTE = "data-unifold-static-component";
@@ -132,6 +134,10 @@ function selectedRadioValue(controls: readonly HTMLElement[]): string {
 function scalarControlValue(node: UnifoldIrNode, control: HTMLElement): JsonValue {
   if (node.componentType === CoreComponentType.NumberField)
     return numberControlValue(node, control);
+  if (node.componentType === CoreComponentType.SearchField)
+    return readStaticSearchFieldValue(node, control, () =>
+      hydrationError(`Static search control is invalid: ${node.id}.`)
+    );
   return nonNumberControlValue(control);
 }
 
@@ -225,6 +231,7 @@ const valueComponents = new Set<CoreComponentType>([
   CoreComponentType.MultiSelect,
   CoreComponentType.NumberField,
   CoreComponentType.RadioGroup,
+  CoreComponentType.SearchField,
   CoreComponentType.Select,
   CoreComponentType.Tabs,
   CoreComponentType.TextArea,

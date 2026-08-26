@@ -63,6 +63,25 @@ it("rejects non-positive TextArea rows", () => {
   );
 });
 
+it("validates SearchField autocomplete, required label, and leaf shape", () => {
+  const invalid = validateUiDocument({
+    ...choiceDocument(),
+    view: {
+      $children: [{ $comp: "Text", content: "Unexpected", id: "child" }],
+      $comp: "SearchField",
+      autocomplete: "history",
+      id: "query"
+    }
+  });
+  expect(invalid.diagnostics).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ path: "/view/autocomplete" }),
+      expect.objectContaining({ path: "/view/label" }),
+      expect.objectContaining({ path: "/view/$children" })
+    ])
+  );
+});
+
 it("accepts a bounded virtual-list contract and rejects invalid geometry", () => {
   const document = choiceDocument();
   const valid = {

@@ -126,6 +126,26 @@ test("routes bounded NumberField input through numeric canonical state", async (
   await unifold.assertAccessibility();
 });
 
+test("routes SearchField input through scalar canonical state", async ({ page, unifold }) => {
+  await page.goto("/");
+  const host = page.getByTestId("profile-search");
+  const input = page.getByLabel("Search profiles");
+  await expect(input).toHaveAttribute("type", "search");
+  await expect(input).toHaveAttribute("autocomplete", "off");
+  await expect(input).toHaveAttribute("enterkeyhint", "search");
+  await expect(input).toHaveAttribute("maxlength", "2048");
+  await input.fill("Ada");
+  await expect.poll(async () => searchFieldEventValue(await unifold.events())).toBe("Ada");
+  await expect.poll(() => host.evaluate((element) => Reflect.get(element, "value"))).toBe("Ada");
+  await page.getByLabel("Your name").fill("Ada Lovelace");
+  const submissions = eventTypeCount(await unifold.events(), "org.unifold.ui.form.submitted.v1");
+  await input.press("Enter");
+  await expect
+    .poll(async () => eventTypeCount(await unifold.events(), "org.unifold.ui.form.submitted.v1"))
+    .toBe(submissions + 1);
+  await unifold.assertAccessibility();
+});
+
 function numberFieldEventValue(events: Awaited<ReturnType<UnifoldHarness["events"]>>): unknown {
   const change = [...events]
     .reverse()
@@ -137,8 +157,26 @@ function numberFieldEventValue(events: Awaited<ReturnType<UnifoldHarness["events
   return isRecord(change) ? change["value"] : undefined;
 }
 
+function searchFieldEventValue(events: Awaited<ReturnType<UnifoldHarness["events"]>>): unknown {
+  const change = [...events]
+    .reverse()
+    .find(
+      (event) =>
+        event.type === "org.unifold.ui.control.input.v1" &&
+        event.data.sourceNode?.id === "profile-search"
+    )?.data.change;
+  return isRecord(change) ? change["value"] : undefined;
+}
+
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function eventTypeCount(
+  events: Awaited<ReturnType<UnifoldHarness["events"]>>,
+  type: string
+): number {
+  return events.filter((event) => event.type === type).length;
 }
 
 async function semanticName(page: Parameters<typeof readRenderBaseline>[0]) {

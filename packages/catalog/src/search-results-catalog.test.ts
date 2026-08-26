@@ -7,7 +7,10 @@ import { searchResultsDescriptor } from "./search-results-catalog.js";
 it("defines the controlled virtualized SearchResults contract", () => {
   expect(searchResultsDescriptor).toMatchObject({
     componentType: CoreComponentType.SearchResults,
-    constraints: [{ kind: CatalogConstraintKind.SearchResultsState }],
+    constraints: [
+      { kind: CatalogConstraintKind.SearchResultsState },
+      { kind: CatalogConstraintKind.SearchQueryLength }
+    ],
     tagName: CoreElementTag.SearchResults
   });
   expect(searchResultsDescriptor.properties).toEqual(

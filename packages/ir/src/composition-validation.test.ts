@@ -1,4 +1,5 @@
 import {
+  CoreComponentType,
   UiCompositionSelectionKind,
   type UiCompositionInstanceManifest,
   type UiCompositionManifest,
@@ -34,6 +35,15 @@ it("rejects missing targets and control selections on non-controls", () => {
 it("accepts RadioGroup control-value selection exports", () => {
   expect(compileUiDocument(withRadioGroup()).status).toBe(CompilationStatus.Valid);
 });
+
+it.each([CoreComponentType.NumberField, CoreComponentType.SearchField])(
+  "accepts %s control-value selection exports",
+  (componentType) => {
+    expect(compileUiDocument(withScalarControl(componentType)).status).toBe(
+      CompilationStatus.Valid
+    );
+  }
+);
 
 it("rejects malformed manifest identity and export kinds", () => {
   const source = composedDocument();
@@ -91,6 +101,18 @@ function withRadioGroup(): UiDocument {
           value: "email"
         }
       ]
+    }
+  };
+}
+
+function withScalarControl(componentType: CoreComponentType): UiDocument {
+  const source = composedDocument();
+  const value = componentType === CoreComponentType.NumberField ? null : "";
+  return {
+    ...source,
+    view: {
+      ...source.view,
+      $children: [{ $comp: componentType, id: "editor::name", label: "Name", value }]
     }
   };
 }

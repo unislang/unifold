@@ -1,5 +1,6 @@
 import {
   CatalogConstraintKind,
+  MAXIMUM_SEARCH_QUERY_LENGTH,
   isSafeUrl,
   type CatalogConstraintDescriptor,
   type CatalogSearchResultsStateConstraint,
@@ -14,7 +15,6 @@ import { isTableIdentifier } from "./table-data-validation.js";
 import type { CompilerDiagnostic } from "./types.js";
 
 const MAX_RESULTS = 10_000;
-const MAX_QUERY_LENGTH = 2_048;
 const MAX_TITLE_LENGTH = 512;
 const MAX_DESCRIPTION_LENGTH = 4_096;
 const resultKeys = new Set(["description", "href", "id", "title"]);
@@ -28,7 +28,7 @@ export function isSearchResultsValue(value: unknown): value is SearchResultsValu
   if (!isPlainObject(value)) return false;
   return [
     Object.keys(value).every((key) => valueKeys.has(key)),
-    boundedString(value["query"], MAX_QUERY_LENGTH),
+    boundedString(value["query"], MAXIMUM_SEARCH_QUERY_LENGTH),
     value["selectedResultId"] === "" || isTableIdentifier(value["selectedResultId"])
   ].every(Boolean);
 }

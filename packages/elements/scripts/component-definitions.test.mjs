@@ -48,6 +48,7 @@ test("derives required, enum, attribute, and public snapshot schemas", async () 
   assertIconSchema(schemas.icon);
   assertImageSchema(schemas.image);
   assertNumberFieldSchema(schemas.numberField);
+  assertSearchFieldSchema(schemas.searchField);
 });
 
 function assertImageSchema(image) {
@@ -61,6 +62,13 @@ function assertNumberFieldSchema(numberField) {
   assert.deepEqual(numberField.propertiesSchema.required, ["label"]);
   assert.deepEqual(numberField.control.valueSchema.type, ["number", "null"]);
   assert.equal(numberField.propertiesSchema.properties.step.exclusiveMinimum, 0);
+}
+
+function assertSearchFieldSchema(searchField) {
+  assert.deepEqual(searchField.propertiesSchema.required, ["label"]);
+  assert.deepEqual(searchField.control.valueSchema, { default: "", type: "string" });
+  assert.deepEqual(searchField.propertiesSchema.properties.autocomplete.enum, ["off", "on"]);
+  assert.equal(searchField.propertiesSchema.properties.maxLength.default, 2_048);
 }
 
 function assertOverlaySchemas(document) {
@@ -103,6 +111,7 @@ function schemaDefinitions(document) {
       "link",
       "numberField",
       "popover",
+      "searchField",
       "searchResults",
       "stepper",
       "table",

@@ -50,6 +50,10 @@
       "types": "./dist/number-field-entry.d.ts",
       "import": "./dist/number-field-entry.js"
     },
+    "./search-field": {
+      "types": "./dist/search-field-entry.d.ts",
+      "import": "./dist/search-field-entry.js"
+    },
     "./audit-log": {
       "types": "./dist/audit-log-entry.d.ts",
       "import": "./dist/audit-log-entry.js"

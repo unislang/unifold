@@ -21,6 +21,7 @@ const [
   menuButtonFamily,
   numberFieldFamily,
   popoverFamily,
+  searchFieldFamily,
   searchResultsFamily,
   stepperFamily,
   tabsFamily,
@@ -39,6 +40,7 @@ const [
   import("@unislang/unifold/menu-button"),
   import("@unislang/unifold/number-field"),
   import("@unislang/unifold/popover"),
+  import("@unislang/unifold/search-field"),
   import("@unislang/unifold/search-results"),
   import("@unislang/unifold/stepper"),
   import("@unislang/unifold/tabs"),
@@ -58,6 +60,7 @@ assertFamily("MasterDetail", masterDetailFamily.defineUnifoldMasterDetail());
 assertFamily("MenuButton", menuButtonFamily.defineUnifoldMenuButton());
 assertFamily("NumberField", numberFieldFamily.defineUnifoldNumberField());
 assertFamily("Popover", popoverFamily.defineUnifoldPopover());
+assertFamily("SearchField", searchFieldFamily.defineUnifoldSearchField());
 assertFamily("SearchResults", searchResultsFamily.defineUnifoldSearchResults());
 assertFamily("Stepper", stepperFamily.defineUnifoldStepper());
 assertFamily("Tabs", tabsFamily.defineUnifoldTabs());

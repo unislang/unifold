@@ -29,6 +29,7 @@ const NODE_KINDS: Readonly<Record<CoreComponentType, UiNodeKind>> = {
   [CoreComponentType.NumberField]: UiNodeKind.Control,
   [CoreComponentType.Popover]: UiNodeKind.Component,
   [CoreComponentType.RadioGroup]: UiNodeKind.Control,
+  [CoreComponentType.SearchField]: UiNodeKind.Control,
   [CoreComponentType.SearchResults]: UiNodeKind.Control,
   [CoreComponentType.Select]: UiNodeKind.Control,
   [CoreComponentType.Stack]: UiNodeKind.Component,

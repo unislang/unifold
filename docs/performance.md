@@ -76,6 +76,7 @@ results. They are evidence from a developer workstation, not ratified release th
 | 32-file metadata-only selection             |   0.10 ms |   0.23 ms |   4.24 ms |
 | 100-Card/100-Image projection               |   0.56 ms |   3.57 ms |   5.90 ms |
 | 100-NumberField projection                  |   0.60 ms |   1.85 ms |   6.78 ms |
+| 100-SearchField projection                  |   0.58 ms |   1.58 ms |   4.86 ms |
 | 10k-entry AuditLog startup                  |  60.67 ms |  68.65 ms |  72.95 ms |
 | 10k-entry AuditLog distant scroll           |   0.63 ms |   1.04 ms |   2.90 ms |
 | 1k cached data-actor resolutions            |   5.67 ms |   7.39 ms |   7.60 ms |

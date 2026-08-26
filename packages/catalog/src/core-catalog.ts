@@ -41,6 +41,8 @@ import {
 import { menuButtonDescriptor } from "./menu-catalog.js";
 import { numberFieldDescriptor } from "./number-field-catalog.js";
 import { popoverDescriptor } from "./popover-catalog.js";
+import { searchFieldDescriptor } from "./search-field-catalog.js";
+import { textControlProperties } from "./text-control-catalog.js";
 import { tooltipDescriptor } from "./tooltip-catalog.js";
 import {
   catalogEnumProperty as enumProperty,
@@ -54,26 +56,6 @@ function requiredProperty(name: string, valueType: CatalogPropertyType): Catalog
 
 function requiredEnumProperty(name: string, values: readonly string[]): CatalogPropertyDescriptor {
   return { ...requiredProperty(name, CatalogPropertyType.Enum), enumValues: values };
-}
-
-function textControlProperties(
-  specific: readonly CatalogPropertyDescriptor[]
-): readonly CatalogPropertyDescriptor[] {
-  return [
-    property("disabled", CatalogPropertyType.Boolean, false),
-    property("errorMessage", CatalogPropertyType.String, ""),
-    property("label", CatalogPropertyType.String, ""),
-    property("name", CatalogPropertyType.String, ""),
-    property("placeholder", CatalogPropertyType.String, ""),
-    property("readonly", CatalogPropertyType.Boolean, false),
-    property("required", CatalogPropertyType.Boolean, false),
-    enumProperty("updateOn", UiUpdateTrigger.Input, Object.values(UiUpdateTrigger)),
-    property("value", CatalogPropertyType.String, ""),
-    property("validators", CatalogPropertyType.StringArray, []),
-    property("asyncValidators", CatalogPropertyType.StringArray, []),
-    ...specific,
-    testId
-  ];
 }
 
 function layoutProperties(
@@ -237,6 +219,7 @@ const descriptors: Record<CoreComponentType, ComponentDescriptor> = {
     tagName: CoreElementTag.RadioGroup,
     version: "1.0.0"
   },
+  [CoreComponentType.SearchField]: searchFieldDescriptor,
   [CoreComponentType.SearchResults]: dataViews.searchResultsDescriptor,
   [CoreComponentType.Select]: {
     componentType: CoreComponentType.Select,

@@ -83,6 +83,12 @@ it("rejects out-of-range, off-step, and non-number NumberField fallback controls
   );
 });
 
+it("captures SearchField text from a native search control", () => {
+  const container = searchFieldContainer("Ada");
+  const searchDocument = documentWithNode("name", CoreComponentType.SearchField);
+  expect(captureStaticDomHydration(searchDocument, container).values["name"]).toBe("Ada");
+});
+
 it("captures and validates the native combobox fallback selection", () => {
   const container = staticContainer();
   requireNodeElement(container, "role").dataset["unifoldStaticComponent"] =
@@ -206,6 +212,14 @@ function numberFieldContainer(value: string): HTMLElement {
   const input = requireInput(container);
   input.type = "number";
   input.value = value;
+  return container;
+}
+
+function searchFieldContainer(value: string): HTMLElement {
+  const container = staticContainer();
+  requireNodeElement(container, "name").dataset["unifoldStaticComponent"] =
+    CoreComponentType.SearchField;
+  Object.assign(requireInput(container), { type: "search", value });
   return container;
 }
 

@@ -1,6 +1,10 @@
 import { CoreComponentType, UiUpdateTrigger } from "@unislang/unifold-contracts";
 
 import { CatalogConstraintKind, CatalogPropertyType, CoreElementTag } from "./enums.js";
+import {
+  MAXIMUM_SEARCH_QUERY_LENGTH,
+  searchQueryLengthConstraint
+} from "./search-query-catalog.js";
 import type { ComponentDescriptor } from "./types.js";
 import {
   catalogEnumProperty as enumProperty,
@@ -15,7 +19,8 @@ export const searchResultsDescriptor: ComponentDescriptor = {
       kind: CatalogConstraintKind.SearchResultsState,
       resultsProperty: "results",
       valueProperty: "value"
-    }
+    },
+    searchQueryLengthConstraint("value", "query")
   ],
   properties: [
     property("label", CatalogPropertyType.String, undefined, true),
@@ -32,6 +37,7 @@ export const searchResultsDescriptor: ComponentDescriptor = {
     property("disabled", CatalogPropertyType.Boolean, false),
     property("errorMessage", CatalogPropertyType.String, ""),
     property("name", CatalogPropertyType.String, ""),
+    property("maxLength", CatalogPropertyType.PositiveInteger, MAXIMUM_SEARCH_QUERY_LENGTH),
     enumProperty("updateOn", UiUpdateTrigger.Input, Object.values(UiUpdateTrigger)),
     property("validators", CatalogPropertyType.StringArray, []),
     property("asyncValidators", CatalogPropertyType.StringArray, []),

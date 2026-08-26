@@ -41,6 +41,9 @@ export default defineConfig({
       "@unislang/unifold-elements/number-field": fileURLToPath(
         new URL("./packages/elements/src/number-field-entry.ts", import.meta.url)
       ),
+      "@unislang/unifold-elements/search-field": fileURLToPath(
+        new URL("./packages/elements/src/search-field-entry.ts", import.meta.url)
+      ),
       "@unislang/unifold-elements/audit-log": fileURLToPath(
         new URL("./packages/elements/src/audit-log-entry.ts", import.meta.url)
       ),
@@ -124,6 +127,9 @@ export default defineConfig({
       ),
       "@unislang/unifold/number-field": fileURLToPath(
         new URL("./packages/unifold/src/number-field.ts", import.meta.url)
+      ),
+      "@unislang/unifold/search-field": fileURLToPath(
+        new URL("./packages/unifold/src/search-field.ts", import.meta.url)
       ),
       "@unislang/unifold-ai": packageSource("ai"),
       "@unislang/unifold-catalog": packageSource("catalog"),

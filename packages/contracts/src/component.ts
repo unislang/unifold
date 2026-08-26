@@ -27,6 +27,7 @@ export enum CoreComponentType {
   NumberField = "NumberField",
   Popover = "Popover",
   RadioGroup = "RadioGroup",
+  SearchField = "SearchField",
   SearchResults = "SearchResults",
   Select = "Select",
   Stack = "Stack",

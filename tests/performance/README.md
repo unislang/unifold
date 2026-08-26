@@ -82,6 +82,10 @@ An exact numeric-control fixture mounts 100 deferred `NumberField` elements and 
 finite controlled values across 50 samples. It requires exact host count, the final native numeric
 value, and projection p95 at or below 100 ms.
 
+An exact search-control fixture mounts 100 deferred `SearchField` elements and projects all 100
+controlled query strings across 50 samples. It requires exact host count, the final native search
+value, and projection p95 at or below 100 ms.
+
 An exact 10,000-row MasterDetail document adds twenty post-warm-up startup and selection samples.
 Its gates require startup p95 at or below 1,000 ms, selection p95 at or below 100 ms, no more than
 200 rendered master options, the expected canonical selected row, and the matching detail content.

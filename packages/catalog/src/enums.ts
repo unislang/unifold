@@ -35,6 +35,7 @@ export enum CatalogConstraintKind {
   FileInputData = "file-input-data",
   MasterDetailState = "master-detail-state",
   NumberFieldRange = "number-field-range",
+  SearchQueryLength = "search-query-length",
   SearchResultsState = "search-results-state",
   SelectionInOptions = "selection-in-options",
   StepNavigationState = "step-navigation-state",
@@ -109,6 +110,7 @@ export enum CoreElementTag {
   NumberField = "unifold-number-field",
   Popover = "unifold-popover",
   RadioGroup = "unifold-radio-group",
+  SearchField = "unifold-search-field",
   SearchResults = "unifold-search-results",
   Select = "unifold-select",
   Stack = "unifold-stack",
@@ -202,6 +204,11 @@ export enum LayoutSpace {
 export enum LinkTarget {
   Blank = "_blank",
   Self = "_self"
+}
+
+export enum SearchFieldAutocomplete {
+  Off = "off",
+  On = "on"
 }
 
 export enum StackDirection {

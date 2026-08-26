@@ -13,6 +13,7 @@ it("exports every specialized static data-view renderer", () => {
     "renderStaticMenuButton",
     "renderStaticNumberField",
     "renderStaticPopover",
+    "renderStaticSearchField",
     "renderStaticSearchResults",
     "renderStaticStepper",
     "renderStaticTable",

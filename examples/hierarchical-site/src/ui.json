@@ -46,6 +46,19 @@
         "events": { "onInput": "AGE_CHANGED" }
       },
       {
+        "id": "profile-search",
+        "type": "SearchField",
+        "props": {
+          "autocomplete": "off",
+          "label": "Search profiles",
+          "name": "profileSearch",
+          "placeholder": "Name or email",
+          "testId": "profile-search",
+          "value": ""
+        },
+        "events": { "onInput": "SEARCH_CHANGED" }
+      },
+      {
         "id": "contact-actions",
         "type": "Stack",
         "props": { "direction": "horizontal", "gap": "sm" },

@@ -1,3 +1,4 @@
+import { CoreComponentType } from "@unislang/unifold-contracts";
 import { expect, it } from "vitest";
 
 import { ValidationErrorCode } from "./enums.js";
@@ -16,4 +17,12 @@ it.each(["value", true, ["choice"], 0])("accepts present required value %#", (va
 
 it("ignores optional empty values", () => {
   expect(requiredErrors(validationNode(""))).toEqual([]);
+});
+
+it("applies shared required semantics to SearchField", () => {
+  const search = {
+    ...validationNode("", { required: true }),
+    type: CoreComponentType.SearchField
+  };
+  expect(requiredErrors(search)[0]?.code).toBe(ValidationErrorCode.Required);
 });

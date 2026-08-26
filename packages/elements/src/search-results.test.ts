@@ -68,6 +68,19 @@ it("announces loading, count, empty, and error states deterministically", async 
   expect(requireElement(search, '[part="empty"]').textContent).toBe("No people");
 });
 
+it("projects and enforces the shared native search-query bound", async () => {
+  const search = configuredSearch();
+  search.maxLength = 4;
+  document.body.append(search);
+  await search.updateComplete;
+  const input = requireInput(search);
+  expect(input.maxLength).toBe(4);
+  input.value = "longer";
+  input.dispatchEvent(new Event("input"));
+  expect(search.value.query).toBe("Ada");
+  expect(input.value).toBe("Ada");
+});
+
 function configuredSearch(): UnifoldSearchResults {
   defineUnifoldSearchResults();
   const search = document.createElement("unifold-search-results") as UnifoldSearchResults;

@@ -32,6 +32,7 @@ export type { UnifoldMasterDetail } from "./master-detail.js";
 export type { UnifoldMenuButton } from "./menu-button.js";
 export { UnifoldMultiSelect } from "./multi-select.js";
 export type { UnifoldNumberField } from "./number-field.js";
+export type { UnifoldSearchField } from "./search-field.js";
 export {
   NativeFormControlController,
   type NativeFormControlHost,

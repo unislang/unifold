@@ -1,5 +1,6 @@
 import {
   getCoreDescriptor,
+  MAXIMUM_SEARCH_QUERY_LENGTH,
   type SearchResult,
   type SearchResultsValue
 } from "@unislang/unifold-catalog";
@@ -22,7 +23,7 @@ export function renderStaticSearchResults({ document, node }: StaticSearchResult
   const visible = visibleResults(results, value.selectedResultId);
   const items = visible.map((result) => renderResult(result, value)).join("");
   const summary = renderSummary(results.length, visible.length);
-  return `<section role="search"><label><span>${escapeHtml(textProperty(node, "label"))}</span><input type="search"${attribute("name", textProperty(node, "name"))}${attribute("placeholder", textProperty(node, "placeholder"))}${attribute("value", value.query)}></label><p role="status">${summary}</p><ol${attribute("aria-label", textProperty(node, "resultsLabel"))}>${items}</ol>${renderEmpty(node, results)}</section>`;
+  return `<section role="search"><label><span>${escapeHtml(textProperty(node, "label"))}</span><input type="search"${attribute("name", textProperty(node, "name"))}${attribute("maxlength", String(numberProperty(node, "maxLength")))}${attribute("placeholder", textProperty(node, "placeholder"))}${attribute("value", value.query)}></label><p role="status">${summary}</p><ol${attribute("aria-label", textProperty(node, "resultsLabel"))}>${items}</ol>${renderEmpty(node, results)}</section>`;
 }
 
 function emptyPrivateSearch(): string {
@@ -71,6 +72,11 @@ function valueProperty(node: UnifoldIrNode): SearchResultsValue {
 function textProperty(node: UnifoldIrNode, name: string): string {
   const value = property(node, name);
   return typeof value === "string" ? value : "";
+}
+
+function numberProperty(node: UnifoldIrNode, name: string): number {
+  const value = property(node, name);
+  return typeof value === "number" ? value : MAXIMUM_SEARCH_QUERY_LENGTH;
 }
 
 function property(node: UnifoldIrNode, name: string): JsonValue | undefined {

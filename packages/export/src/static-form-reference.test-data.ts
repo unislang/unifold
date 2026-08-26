@@ -27,6 +27,7 @@ function referenceFormChildren(): readonly JsonObject[] {
     passwordField(),
     textArea(),
     numberField(),
+    searchField(),
     referenceFileInputNode(),
     checkbox(),
     radioGroup(),
@@ -130,6 +131,17 @@ function numberField(): JsonObject {
     name: "age",
     step: 1,
     value: 42
+  };
+}
+
+function searchField(): JsonObject {
+  return {
+    $comp: "SearchField",
+    autocomplete: "off",
+    id: "profile-search",
+    label: "Search profiles",
+    name: "profileSearch",
+    value: "Ada"
   };
 }
 
