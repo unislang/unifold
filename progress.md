@@ -17,13 +17,14 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest implementation checkpoint: `3e31404` (`feat: add composition version migrations`)
+- Latest implementation checkpoint: `8372fb4` (`test: prove composition migrations in browsers`)
 - Verified implementation remote state: `origin/main` independently resolved to
-  `3e3140431630cfc1aa082ee699f893c4b8b50a07` after the implementation push; the progress-only
+  `8372fb4aed72064395d5de7c2edf4454c118503e` after the implementation push; the progress-only
   commit that records this evidence is pushed immediately afterward.
-- Working tree: architecture slice 4 identity, version-migration, rollback, focus, and measured
-  composition-compilation work is implemented, fully validated, committed, and pushed as described
-  below. Dedicated cross-browser version-migration evidence and the next interaction families remain.
+- Working tree: architecture slice 4 identity, version migration, rollback, focus, measured
+  composition compilation, and the dedicated Chromium/WebKit migration journey are implemented,
+  fully validated, committed, and pushed as described below. The next interaction families remain;
+  Firefox evidence is still blocked before page creation by the external Windows runner defect.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
@@ -56,9 +57,9 @@ record new measurements rather than treating the numbers above as proof for late
 
 ## Active slice
 
-Architecture slice 4 composition identity, explicit version migration, and measured compilation
-sub-slices are implemented, fully validated, committed, and pushed. Continue with the dedicated
-cross-browser migration/accessibility/event journey and the next interaction families in
+Architecture slice 4 composition identity, explicit version migration, measured compilation, and
+the dedicated Chromium/WebKit migration/accessibility/event journey are implemented, fully
+validated, committed, and pushed. Continue with the next prioritized interaction families in
 [`docs/implementation-status.md`](./docs/implementation-status.md#next-architecture-slices).
 Production provisioning of slices 1 and 2 remains a separate external-environment release gate
 rather than unfinished local framework code.
@@ -273,15 +274,40 @@ pushed to `origin/main`:
   gate rejects either hook marker. Deterministic three-pass module/toplevel compression yields
   179,850 gzip bytes (175.63 KiB) against the unchanged 180 KiB ceiling.
 
+### 2026-08-26 composition-migration browser checkpoint
+
+The dedicated browser-proof sub-slice is implemented, validated, committed as `8372fb4`, pushed to
+`origin/main`, and independently verified at
+`8372fb4aed72064395d5de7c2edf4454c118503e`:
+
+- The real reference host registers reviewed `ProfileEditor@1.0.0 -> 2.0.0` preservation and
+  `ProfileEditor@1.0.0 -> 3.0.0` reset edges. An unreviewed `4.0.0` target provides deterministic
+  rejection and last-known-good recovery evidence.
+- The browser journey proves dirty state and focus migrate to the renamed public export, unaffected
+  sibling DOM identity remains stable, semantic JSON-LD follows both preserved and reset values,
+  and post-migration canonical events contain the successor definition, local ID, correlation, and
+  transaction identity. Axe passes after both successful policies.
+- The complete Chromium/WebKit reference matrix passes 77 tests with 3 intentional WebKit
+  scale-profile skips. Firefox produced no behavioral result: both targeted cases fail before page
+  creation in the provisioned Windows runner with `browserContext.newPage` reading `_page` from an
+  undefined object. Re-run this exact spec in Linux or a repaired/non-elevated Windows runner.
+- Full file/function/complexity, colocated-test, ESLint, source/test typecheck, dependency, Knip,
+  formatting, duplication, diff, and production-build gates pass. The unchanged production package
+  matrix remains 335 files/863 tests with 29 performance correctness tests and schema-2.17.0's
+  40/40 benchmark gates from the immediately preceding implementation checkpoint.
+- The production reference build excludes all migration test hooks and measures 179,931 gzip bytes
+  (175.71 KiB) against the executable 180 KiB ceiling.
+
 ## Immediate resume procedure
 
 1. Read this file, `docs/implementation-status.md`, and the composition sections of the architecture
    plan for slice 4.
 2. Inspect `git status --short --branch` and preserve any post-checkpoint user changes.
-3. Confirm the composition-migration checkpoint is present on `origin/main`, then add a dedicated
-   cross-browser version-migration journey covering renamed-export focus, accessibility, canonical
-   event identity, reset, rejection, and recovery. Continue into the prioritized interaction-family
-   gap without adding subtree caching unless the executable composition gates regress.
+3. Confirm the composition-migration browser checkpoint is present on `origin/main`, then continue
+   into the prioritized interaction-family gap (combobox/autocomplete, menus, overlays, tabs,
+   navigation, upload, and virtualization) without adding subtree caching unless the executable
+   composition gates regress. Re-run the dedicated Firefox journey when a working runner is
+   available; do not treat the current pre-page failure as behavioral evidence.
 4. Keep production modules and their adjacent tests within the enforced complexity, function-length,
    file-length, and one-test-per-module limits.
 5. Use `apply_patch` for edits. Run Prettier before assuming a diff is ready.
@@ -366,3 +392,10 @@ silently waived.
   coverage, production bundle, Chromium/WebKit, and clean-consumer validations pass. Committed as
   `3e31404`, pushed to `https://github.com/unislang/unifold.git`, and independently verified remote
   `main` at `3e3140431630cfc1aa082ee699f893c4b8b50a07`.
+- 2026-08-26: Added the real reference-host preservation/reset migration edges and a dedicated
+  Chromium/WebKit journey proving rejection recovery, state/focus and semantic migration, stable
+  sibling identity, canonical successor event provenance, and axe accessibility. The full reference
+  matrix passes 77 tests with 3 intentional skips; Firefox remains an external pre-page runner
+  limitation. Full final quality and production-build gates pass at 175.71 KiB gzip. Committed as
+  `8372fb4`, pushed to `https://github.com/unislang/unifold.git`, and independently verified remote
+  `main` at `8372fb4aed72064395d5de7c2edf4454c118503e`.
