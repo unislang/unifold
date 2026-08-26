@@ -17,8 +17,9 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Previous tracked checkpoint: `69db3f7a2985261f0371ec89acf73b57ba4f2443`
-  (`docs: record breadcrumb dialog checkpoint`).
+- Latest published progress checkpoint: `7584477890d707ded9e23888249c9d7f93ae84cf`
+  (`docs: record JSON UI implementation checkpoint`), verified against the local `origin/main`
+  tracking reference.
 - Latest implementation checkpoint: `2a59294b2a877eb458e391fbbee175a2481c8da3`
   (`feat: add JSON-driven file input and native forms`), independently verified at
   `origin/main` with `git ls-remote`.
@@ -73,12 +74,11 @@ The 20-cycle/500-node lifecycle retains 548,240 bytes (1.04%) after five warm-up
 KiB, with 32,840 gzip bytes requested post-mount.
 
 The local plain/React/Svelte/Vue Chromium host matrix passes 4/4 and the clean packed-consumer
-boundary passes 3/3 outside the monorepo. Before checkpointing, re-run those packaging boundaries
-after the final documentation-only reconciliation if any executable source changes. Then commit,
-push `main` to `https://github.com/unislang/unifold.git`, independently compare `git ls-remote origin
-refs/heads/main` with local `HEAD`, and record the exact SHAs here. Native form adapters for boolean,
-multi-value, and file controls remain the next implementation slice rather than an unstated part of
-the scalar text/choice evidence above.
+boundary independently passes 3/3 outside the monorepo after rebuilding all packages. The latest
+published progress checkpoint and remote `origin/main` both resolve to the SHA above; this live
+record includes the subsequent documentation-only evidence reconciliation. Native form adapters
+for boolean, multi-value, and file controls remain the next implementation slice rather than an
+unstated part of the scalar text/choice evidence above.
 
 ## Prior hierarchical and component slice detail
 

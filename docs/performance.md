@@ -215,7 +215,7 @@ evidence.
 
 The FileInput profile selects the maximum 32 accepted files 50 times through the public deferred
 Web Component. Opaque metadata normalization, canonical-event creation, exact-ID handle resolution, and Lit
-projection measured 0.11/0.24/4.72 ms p50/p95/p99 against a 100 ms p95 gate. Every sample retained
+projection measured 0.10/0.24/4.51 ms p50/p95/p99 against a 100 ms p95 gate. Every sample retained
 exactly 32 ephemeral handles while the serialized event was scanned to prove that a marker present
 only in file bytes never entered canonical JSON state. Names and modification times are excluded
 from the portable metadata contract.
