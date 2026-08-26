@@ -19,8 +19,10 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
 - Latest implementation checkpoint: `69f8e84` (`feat: harden control-plane infrastructure
 integrations`)
+- Latest progress checkpoint: `722908e` (`docs: record control-plane integration checkpoint`)
 - Remote state: `origin/main` and local `HEAD` were independently verified at
-  `69f8e84e52b156487370cf8360b9a3cc5e04315e` with `git ls-remote` and `git rev-parse`.
+  `722908e52be10e550a9f6e3c4aefaa67a4225c0d` with `git ls-remote` and `git rev-parse` before the
+  current async-store work began.
 - Working tree at implementation checkpoint: clean before this progress-record update.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
@@ -82,9 +84,9 @@ Items 1-6 above are complete. The active continuation of architecture slice 1 wa
 5. Extend performance/operational gates where these adapters introduce measurable work, update
    documentation and this record, then repeat the complete validation matrix.
 
-Items 1-5 are now implemented and scoped checks pass. The active slice is the repository-wide
-validation and documentation checkpoint, followed by architecture slice 2 (async/external store
-adapters) after this state is preserved.
+Items 1-5 are implemented, validated, committed, and pushed. The active work is architecture slice
+2: async/external store adapters. Its standalone contract and two implementations are now
+implemented; mounted-runtime/browser lifecycle integration remains before the slice is complete.
 
 ### 2026-08-26 durability checkpoint
 
@@ -140,13 +142,42 @@ The remaining control-plane integration sub-slice is implemented but not yet com
   lines/statements, 97.00% functions, and 90.08% branches. The complete build passes with the
   reference JavaScript unchanged at 175.14 KiB gzip against 180 KiB.
 
+### 2026-08-26 async-store contract checkpoint
+
+The standalone async/external store boundary is implemented but not yet committed:
+
+- `connectAsyncStore()` authorizes exact load/subscribe/commit sink operations, contains provider
+  failures and malformed results, supports cancellation, and validates every loaded, committed, and
+  subscribed snapshot against the declared store schema and quota policy.
+- Exact trusted migration edges execute defensively with missing/duplicate/cycle/exception and
+  sixteen-step budget rejection. Adapter commits receive the complete validated canonical candidate
+  and target data version, preventing a migrated path from patching an old persisted shape.
+- Opaque revisions and bounded idempotency keys provide optimistic concurrency. Local overlap,
+  stale revisions, subscription echoes, real concurrent updates, and explicit `external-wins`
+  arbitration have deterministic evidence. Listener exceptions cannot interrupt store state.
+- `createAsyncMemoryStoreAdapter()` provides bounded replay and deterministic local evidence.
+  `createAsyncKeyValueStoreAdapter()` independently targets an injected atomic compare-and-set port
+  with bounded versioned UTF-8 JSON envelopes and corrupt-notification containment.
+- One shared conformance suite runs identical load, commit, idempotent replay, stale conflict,
+  external subscription, and disposal cases against both adapters.
+- Scoped `@unislang/unifold` tests pass 25 files and 117 tests. The complete repository quality gate
+  passes file/function/complexity limits, one-to-one colocated tests, ESLint, all source and strict
+  test typechecks, dependency rules over 1,357 modules/2,995 edges, and Knip. The complete test run
+  passes 326 package files and 820 tests plus tooling/scripts and 26 performance correctness tests.
+  Coverage passes at 97.27% lines/statements, 97.13% functions, and 90.29% branches. The complete
+  build passes with the reference JavaScript unchanged at 175.14 KiB gzip against 180 KiB.
+- Remaining work for this slice: integrate sessions into the mounted application without a second
+  state authority, make async commit results re-enter canonical runtime ingress, add browser
+  lifecycle/cancellation/external-update/disposal evidence, then run the full test/coverage/build and
+  performance matrix.
+
 ## Immediate resume procedure
 
-1. Read this file, `docs/implementation-status.md`, the control-plane sections of the architecture
-   plan, and `packages/control-plane/README.md`.
+1. Read this file, `docs/implementation-status.md`, `docs/stores-and-bindings.md`, and the store/data
+   sections of the architecture plan.
 2. Inspect `git status --short --branch` and preserve any post-checkpoint user changes.
-3. Inspect the existing control-plane ports, in-memory adapter, service, schemas, and conformance
-   tests before defining the new transaction/outbox contracts.
+3. Inspect the async session, adapter command, memory/CAS implementations, and shared conformance
+   suite before designing mounted-runtime integration.
 4. Keep production modules and their adjacent tests within the enforced complexity, function-length,
    file-length, and one-test-per-module limits.
 5. Use `apply_patch` for edits. Run Prettier before assuming a diff is ready.
@@ -200,3 +231,6 @@ silently waived.
   coverage, and build matrices. Committed the complete slice as `69f8e84`, pushed it to
   `https://github.com/unislang/unifold.git`, and independently verified remote `main` at the full
   hash above.
+- 2026-08-26: Began architecture slice 2; implemented the authorized async session, trusted data
+  migrations, optimistic/external conflict policy, complete-candidate commit boundary, and two
+  adapters with one conformance suite. Full quality passes; mounted/browser integration remains.

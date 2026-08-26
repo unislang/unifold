@@ -79,10 +79,12 @@ instantiate browser storage or network clients.
 | `maxBytes`       | Bounds the UTF-8 JSON encoding of adapter-provided initial data                                    |
 | `migrations`     | Defines the inclusive adapter-version range accepted by this document                              |
 
-Despite its field name, `migrations` does not execute data migrations. The current seam compares the
-adapter's semantic version with the declared minimum and maximum. A future migration mechanism must
-define explicit trusted edges, provenance, rollback, and failure behavior before it can transform
-store data.
+The synchronous mount seam compares the adapter's semantic version with the declared minimum and
+maximum. The opt-in asynchronous seam additionally executes only host-registered exact migration
+edges. It rejects missing or duplicate edges, cycles, exceptions, invalid identities, and chains
+over sixteen steps. Every migration receives and returns defensive JSON copies. The complete
+migrated candidate and target data version cross the adapter boundary on commit, so persistence
+never applies a new-schema path to an old-schema value.
 
 Classification is metadata, not encryption or authorization. The semantic JSON-LD compiler requires
 public data, and portable document export contains store definitions rather than loaded adapter
@@ -133,16 +135,39 @@ port as a distributed transaction.
 injects `localStorage`, `sessionStorage`, or a compatible port; Unifold does not read browser globals.
 It persists a versioned JSON envelope and applies the same safe JSON Pointer writer.
 
+## Asynchronous and external adapter contract
+
+`connectAsyncStore()` is an opt-in parallel lifecycle; it does not change the synchronous mount API.
+The host supplies an adapter plus a fail-closed authorization port and may supply trusted migration
+edges, cancellation, and an explicit concurrent-external-update policy. Connection authorizes
+`load` and, only when implemented, `subscribe`. Every commit separately authorizes the exact store,
+classification, and JSON Pointer path before deriving and schema-validating a complete candidate.
+
+Snapshots carry independent `dataVersion` and opaque `revision` identities. Commits require the
+current revision and a bounded idempotency key. The adapter receives the complete validated
+candidate and target version, and must return a different revision. Provider exceptions, malformed
+statuses, invalid snapshots, cancellation, local overlap, and revision conflicts become closed,
+value-free results. Subscriptions are validated before session state changes. The default policy
+retains the current snapshot and reports a concurrent external conflict; `external-wins` queues one
+update until the local commit settles. An echoed snapshot matching the accepted local revision is
+suppressed.
+
+`createAsyncMemoryStoreAdapter()` provides bounded idempotency replay and deterministic optimistic
+concurrency for tests and prototypes. `createAsyncKeyValueStoreAdapter()` is an independent
+implementation over an injected asynchronous port. Its port owns atomic compare-and-set and
+idempotency semantics; the adapter enforces bounded versioned UTF-8 JSON envelopes and contains
+corrupt external notifications. One conformance suite runs the same load, commit, replay, stale
+revision, subscription, and disposal cases against both implementations.
+
 ## Current limitations and next evidence
 
-The initial seam intentionally does not provide:
+The remaining seam limitations are:
 
-- asynchronous `load` or `write` methods;
-- subscriptions or automatic reprojection when an external source changes;
 - query execution, caching, retry, offline orchestration, automatic connector selection, or remote
   connectors;
-- data migration execution;
-- optimistic concurrency, merge, conflict, or multi-writer arbitration;
+- merge/CRDT semantics or multi-writer arbitration beyond explicit reject/external-wins policy;
+- automatic projection of async session updates into a mounted application's normalized runtime;
+- browser lifecycle evidence for async connection, cancellation, external update, and disposal;
 - atomic rollback across the normalized transaction and an external adapter write.
 
 The replacement boundary has unit evidence for memory and injected Web Storage adapters and browser
@@ -150,8 +175,10 @@ evidence for hydration, write-through, dynamic path replacement, selective sibli
 missing/invalid adapter rejection before rendering.
 
 Avoid binding multiple writable controls to the same store path until conflict semantics are defined.
-External changes currently require a coordinated document update, remount, or an application-level
-command that enters through the normal runtime. Future adapters must retain schema validation,
+Async sessions expose validated external changes but application mount integration is still a
+release gate; external changes for a mounted application still require a coordinated document
+update, remount, or application-level command through normal runtime ingress. Future integration
+must retain schema validation,
 single-transaction UI commits, canonical event causality, and the rule that components never own a
 parallel application store.
 

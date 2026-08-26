@@ -85,10 +85,13 @@ also projects to control state. A writable bound value commits through the ordin
 only a changed committed value produces a typed post-commit `store.write` effect. Adapter failure is
 observable as an effect failure and does not roll back the UI transaction.
 
-The source and persistence enums are policy metadata, not built-in route, browser-storage, query, or
-remote implementations. The current seam has no asynchronous adapters, external subscriptions,
-executed migrations, conflict handling, or distributed atomicity. Runtime facts apply
-classification-aware disclosure without changing those storage policies. See
+The source and persistence enums are policy metadata, not automatic connector selection. A parallel
+async session contract now provides authorized loading/commit/subscription, exact trusted migration
+edges, complete-candidate optimistic commits, bounded idempotency identities, and explicit
+reject/external-wins conflict policy. Independent memory and injected atomic key/value adapters run
+one conformance suite. Automatic mounted-runtime projection, richer merge arbitration, and
+distributed atomicity remain open. Runtime facts apply classification-aware disclosure without
+changing those storage policies. See
 [stores and control bindings](./stores-and-bindings.md) for the adapter contract and
 [runtime event disclosure](./event-disclosure.md) for the stream boundary.
 

@@ -30,7 +30,11 @@ critical seam; it is not yet the full catalog or Studio product described by the
   byte quotas, schema pointers, and catalog value types into immutable IR bindings. Trusted
   synchronous adapters are preflighted before mount, validate bounded initial data, project
   classification and read-only state, and receive changed committed values through typed post-commit
-  `store.write` effects.
+  `store.write` effects. An opt-in parallel async session adds fail-closed privileged sink
+  authorization, cancellation, exact trusted migration edges, revision/idempotency-based optimistic
+  commits carrying the complete validated candidate, external subscriptions, and explicit
+  reject/external-wins arbitration. Independent bounded memory and injected atomic key/value CAS
+  adapters pass one shared load/commit/replay/conflict/subscription/disposal conformance suite.
 - Deterministic reusable JSON composition expansion with exact version pins, scalar structural
   parameters, declared slots, nested instances, namespaced IDs, typed exports, versioned manifests,
   per-node provenance, runtime composition handles, and diagnostics.
@@ -195,7 +199,9 @@ critical seam; it is not yet the full catalog or Studio product described by the
    implementing the same conformance contract.
 2. Expand store adapters with async loading, external subscriptions, explicit data-migration edges,
    concurrency/conflict policy, privileged sink authorization, a second implementation, and browser
-   lifecycle evidence without weakening normalized UI-state ownership.
+   lifecycle evidence without weakening normalized UI-state ownership. The contract, authorization,
+   migration, conflict, and two-adapter conformance portions are implemented; mounted-runtime and
+   browser lifecycle integration remain.
 3. Publish actual profile migration edges only when a successor schema exists, expand document
    provenance with issuer/revocation/audit integration, and extend parity to binding, validation, and
    canonical event semantics before any React adapter.
@@ -246,9 +252,12 @@ critical seam; it is not yet the full catalog or Studio product described by the
 - The store seam proves synchronous host adapter loading and post-commit draft writes in unit and
   mount tests. Writes are authorized against the current node binding, validated as a complete
   candidate store, bounded by schema/quota policy, and protected from prototype-sensitive pointers.
-  Source/persistence enums do not yet supply connectors; external subscriptions, async query state,
-  executed migrations, conflict handling, cross-system rollback, and privileged disclosure sinks
-  remain release gates. Memory and injected versioned Web Storage adapters exercise the replacement
+  Source/persistence enums do not automatically select connectors. The opt-in async seam now proves
+  authorized load/commit/subscription, executed trusted migrations, optimistic conflicts, bounded
+  idempotency, cancellation, external-update policy, and a second CAS adapter through one conformance
+  suite. Mounted-runtime reprojection, browser lifecycle evidence, richer merge policy, async query
+  state, and cross-system rollback remain release gates. Memory and injected versioned Web Storage
+  adapters exercise the synchronous replacement
   boundary; Chromium and WebKit cover hydration, write-through, dynamic rebinding, selective DOM
   identity, and pre-render adapter rejection. The default runtime stream applies
   classification-aware public-safe disclosure.

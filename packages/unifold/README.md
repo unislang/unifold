@@ -73,6 +73,14 @@ JSON envelope and applies the same safe JSON Pointer writes as the memory adapte
 [Stores and control bindings](../../docs/stores-and-bindings.md) for policy, classification, failure
 semantics, and current limitations.
 
+For external persistence, `connectAsyncStore()` establishes a separately authorized async session
+without changing synchronous mount behavior. It supports exact trusted migration edges,
+revision/idempotency-based commits, cancellation, validated subscriptions, and explicit
+`reject-concurrent` or `external-wins` policy. `createAsyncMemoryStoreAdapter()` and
+`createAsyncKeyValueStoreAdapter()` pass the same conformance suite; the latter uses an injected
+atomic compare-and-set port and bounded versioned JSON envelopes. Automatic projection of these
+sessions into a mounted application is still a release gate.
+
 The bubbling DOM `unifold-event` is a trusted, value-bearing ingress message. Subscribe to
 `application.runtime.events$` for classification-aware public-safe facts: non-public data and every
 derived store write retain source identity and causality without copying values or snapshots. See
