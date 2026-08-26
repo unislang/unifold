@@ -17,15 +17,16 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest published checkpoint, local `HEAD`, local `origin/main`, and remote `refs/heads/main`:
-  `224dd1553759005f420ed4bde8e448c10d0cb526` (`feat: add native JSON checkbox group`) on
+- Latest published implementation checkpoint:
+  `7ce580b11ede8846c87eedd15b98634d3475313c` (`feat: add native JSON switch`) on
   `https://github.com/unislang/unifold.git`.
 - Current local implementation: the `NumberField`, `SearchField`, and `CheckboxGroup` families are
-  committed and published. Governed AI/Studio, Studio dogfood, reference feature-module re-export,
-  and executable import-then-local-re-export prevention slices remain uncommitted and must be
-  preserved.
-- Goal status: active. Switch, DateField, Toast, and Pagination remain
-  component-family gaps, followed by broader Studio and production-integration gates.
+  committed and published, as is `Switch`. Governed AI/Studio, Studio dogfood, reference
+  feature-module re-export cleanup, executable import-then-local-re-export prevention, the
+  parallel-safe Studio Playwright port, and the emerging DateField prerequisites remain local and
+  must be preserved.
+- Goal status: active. DateField, Toast, and Pagination remain component-family gaps, followed by
+  broader Studio and production-integration gates.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
@@ -68,37 +69,60 @@ of bypassing the JSON compiler, event fabric, state authority, or export boundar
   emits complete catalog-ordered input state plus one group blur, and projects enabled selections as
   repeated same-name `FormData`. Static export preserves a no-JavaScript native fallback; hydration
   validates exact option identity/order/name/disabled state and restores the exact focused control.
+- `Switch` now spans the Scratch-style hierarchical contract, catalog/sidecar, IR/form validation,
+  deferred form-associated element, boolean FormData, facade, static fallback, strict hydration,
+  required/disabled behavior, selective projection, CEM generation, Playwright, and a 100-control
+  benchmark. Its native checkbox carries `role="switch"`; canonical state is boolean, and disabled
+  synthetic input is rolled back rather than admitted to the unified stream.
 - `pnpm quality:reexports` rejects feature modules that import a local binding and export that same
   binding. Feature modules expose owned operations; direct package export maps remain the deliberate
   public-boundary mechanism.
 
-Current local evidence: `pnpm quality`, `pnpm test`, and the reference, hierarchical, and static
-production builds pass. The committed CheckboxGroup feature snapshot's unit run passes 495
-files/1,241 tests; a fresh Vitest run against the preserved shared worktree also passes 496
-files/1,243 tests. Coverage from the preceding
-full checkpoint is 97.51% statements/lines, 96.8% functions,
-and 90% branches against unchanged 90% thresholds. Dependency-cruiser validates 1,969 modules and
-4,368 dependencies with no violations at that checkpoint; the current quality run validates 2,009
-modules and 4,446 dependencies. The focused CheckboxGroup matrix passes 4/4 hierarchical and 8/8
-static-export cases across Chromium and WebKit. CEM/definition generation covers all 42 components
-and passes 8/8 schema/evidence gates. The reference startup closure is 186,680 gzip bytes
-(182.30 KiB) against its executable 184 KiB limit, with 35,990 post-mount gzip bytes. Benchmark
-schema 2.29.0 passes 54/54 gates; the exact 100-group/600-checkbox run records
-0.85/3.10/5.11 ms p50/p95/p99 across 50 samples against a 100 ms p95 ceiling. CheckboxGroup is
-published; the separate AI/Studio, reference, tooling, and root configuration work remains
-uncommitted and unpushed.
+Current local evidence: `pnpm quality`, `pnpm test`, `pnpm test:coverage`, `pnpm build`, and
+`pnpm format:check` pass. Vitest passes 504 files/1,259 tests; tooling passes 18/18, CEM generation
+passes 8/8, and the performance-correctness suite passes 33 files/43 tests with 30 opt-in profiles
+skipped there. Coverage is 97.54% statements/lines, 96.87% functions, and 90.02% branches against
+unchanged 90% thresholds. Dependency-cruiser validates 2,041 modules and 4,518 dependencies with no
+violations. All-engine Playwright passes 27/27 hierarchical, 84/84 static-export, and 24/24 Studio
+journeys; Studio includes unsafe rejection, stale-apply preservation, real cancellation,
+supersession, export-failure recovery, keyboard, axe, Schema.org, and browser-asset isolation.
+CEM/definition generation covers all 43 components. The reference startup closure is 186,928 gzip
+bytes (182.55 KiB) against its executable 184 KiB limit, with 35,981 post-mount gzip bytes. Studio
+is 230.08 KiB gzip against its 250 KiB limit. Benchmark schema 2.30.0 passes 55/55 gates; the exact
+100-group/600-checkbox run records 0.96/3.28/4.38 ms and the exact 100-Switch run records
+0.52/1.20/6.29 ms p50/p95/p99 across 50 samples, each against a 100 ms p95 ceiling. Switch and
+CheckboxGroup are published; the separate AI/Studio, reference, tooling, test-harness,
+root-configuration, and emerging DateField work remains uncommitted and unpushed.
 
 Remaining AI/Studio gaps are explicit: provenance-bound third-party catalog manifests; complete
 component property, event, machine, and rule authoring context; durable actor identity, approval
 audit, and separation of duties; provider/model token, cost, time, retry, and signature policy;
-executable product outcome evaluators; collaboration/rebase/undo; cancellation and export-failure
-browser journeys; and the full multi-turn design surface.
+executable product outcome evaluators; collaboration/rebase/undo; and the full multi-turn design
+surface.
+
+## Switch publication checkpoint
+
+- Published commit: `7ce580b11ede8846c87eedd15b98634d3475313c`
+  (`feat: add native JSON switch`) on `unifold/main`; local `HEAD`, the successful push, and an
+  independent `git ls-remote origin refs/heads/main` resolved to the same object before this record.
+- `Switch` is complete across contract, catalog/sidecar, IR/form validation, deferred registration,
+  native boolean control, public facade, Scratch-style hierarchy, static export, strict hydration,
+  accessibility, CEM, browser, and selective-projection seams.
+- Browser evidence passes 27/27 hierarchical and 84/84 static-export journeys across Chromium,
+  Firefox, and WebKit. It proves canonical input/blur, selective updates, checked/unchecked
+  FormData, required invalid/recovery, disabled synthetic-event rejection, JavaScript-off fallback,
+  edited/focused upgrade, and tamper rejection.
+- Benchmark schema 2.30.0 passes 55/55; the exact 100-Switch/50-sample profile records
+  0.52/1.20/6.29 ms p50/p95/p99 and exact final `true` state against the 100 ms p95 gate.
+- Resume with `DateField` through the same JSON/catalog/IR/native/static/hydration/browser/performance
+  boundaries while preserving every uncommitted AI/Studio, re-export-policy, DateField-prerequisite,
+  and harness change.
 
 ## CheckboxGroup publication checkpoint
 
 - Published commit: `224dd1553759005f420ed4bde8e448c10d0cb526`
-  (`feat: add native JSON checkbox group`) on `unifold/main`; `git ls-remote`, local `HEAD`, and
-  `origin/main` independently resolved to the same object before this progress update.
+  (`feat: add native JSON checkbox group`) on `unifold/main`; the follow-up published documentation
+  checkpoint is `966154c5788b3ae5add5e794d098bf51ff8817d8`.
 - Public authoring follows `scratch/angular-ui/DYNAMIC-UI-README.md`: `layoutType` and typed
   `variables` contain nested `type`/`id`/`props`/named `events`; the hierarchical example maps
   `CheckboxGroup.events.onInput` to `TOPICS_CHANGED` before lowering to canonical JsonUI and IR.
@@ -775,6 +799,17 @@ must remain explicit and cannot be silently waived. The current slice has comple
 behavioral evidence; rerun Firefox when the managed runner can create a page reliably.
 
 ## Session log
+
+- 2026-08-26: Published the catalog-authoritative `Switch` as
+  `7ce580b11ede8846c87eedd15b98634d3475313c` (`feat: add native JSON switch`) and independently
+  verified `refs/heads/main` on `https://github.com/unislang/unifold.git`. The component lowers from
+  the Scratch-style `layoutType`/typed-`variables` document through canonical JsonUI/IR, owns boolean
+  state and native form semantics, exports a JavaScript-free fallback, rejects hydration tampering,
+  and preserves edited state and focus during guarded upgrade. Repository quality, 504-file/
+  1,259-test correctness, production build, generated definitions, and schema-2.30.0 benchmark
+  55/55 pass. Fresh bounded Chromium/WebKit reruns pass 18/18 hierarchical and 56/56 static-export
+  cases; the recorded all-engine matrices pass 27/27 and 84/84 respectively. Continue with
+  `DateField`, preserving the separate AI/Studio and shared-worktree changes.
 
 - 2026-08-26: Completed the local native-form value-shape and form-structure slice. One generic
   `ElementInternals` lifecycle controller now serves scalar, boolean, repeated-string, and file
