@@ -14,3 +14,4 @@ export { renderStaticTable } from "./static-table.js";
 export { renderStaticTooltip } from "./static-tooltip.js";
 export { renderStaticVirtualList } from "./static-virtual-list.js";
 export { renderStaticStepper, renderStaticTabs, renderStaticWizard } from "./static-workflow.js";
+export { renderStaticSwitch } from "./static-switch.js";

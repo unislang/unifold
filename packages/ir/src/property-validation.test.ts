@@ -338,6 +338,12 @@ function choiceNodes(): readonly JsonObject[] {
       label: "Skills",
       options: [{ label: "TypeScript", value: "ts" }],
       value: ["ts"]
+    },
+    {
+      $comp: "Switch",
+      id: "notifications",
+      label: "Notifications",
+      value: false
     }
   ];
 }

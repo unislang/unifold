@@ -48,6 +48,9 @@ export default defineConfig({
       "@unislang/unifold-elements/search-field": fileURLToPath(
         new URL("../../packages/elements/src/search-field-entry.ts", import.meta.url)
       ),
+      "@unislang/unifold-elements/switch": fileURLToPath(
+        new URL("../../packages/elements/src/switch-entry.ts", import.meta.url)
+      ),
       "@unislang/unifold-elements/stepper": fileURLToPath(
         new URL("../../packages/elements/src/stepper-entry.ts", import.meta.url)
       ),

@@ -16,6 +16,7 @@ it("mounts the hierarchical JSON through the public framework entry point", asyn
   expect(nodeId(container, "unifold-dialog")).toBe("account-review-dialog");
   expect(nodeId(container, "unifold-search-field")).toBe("profile-search");
   expect(nodeId(container, "unifold-checkbox-group")).toBe("contact-topics");
+  expect(nodeId(container, "unifold-switch")).toBe("contact-notifications");
   expect(controller.application.runtime.getSnapshot("show-summary").properties["disabled"]).toBe(
     true
   );

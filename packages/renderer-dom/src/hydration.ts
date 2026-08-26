@@ -9,6 +9,7 @@ import { readStaticCheckboxGroupValue } from "./checkbox-group-hydration.js";
 import { isStaticChoiceComponent, isStaticValueComponent } from "./hydration-components.js";
 import { captureStaticHydrationFocus, type StaticHydrationFocusState } from "./hydration-focus.js";
 import { readStaticSearchFieldValue } from "./search-field-hydration.js";
+import { readStaticSwitchValue } from "./switch-hydration.js";
 
 const DOCUMENT_ATTRIBUTE = "data-unifold-static-document";
 const NODE_ATTRIBUTE = "data-unifold-static-node-id";
@@ -145,9 +146,17 @@ function selectedRadioValue(controls: readonly HTMLElement[]): string {
 function scalarControlValue(node: UnifoldIrNode, control: HTMLElement): JsonValue {
   if (node.componentType === CoreComponentType.NumberField)
     return numberControlValue(node, control);
+  return nonNumberComponentValue(node, control);
+}
+
+function nonNumberComponentValue(node: UnifoldIrNode, control: HTMLElement): JsonValue {
   if (node.componentType === CoreComponentType.SearchField)
     return readStaticSearchFieldValue(node, control, () =>
       hydrationError(`Static search control is invalid: ${node.id}.`)
+    );
+  if (node.componentType === CoreComponentType.Switch)
+    return readStaticSwitchValue(node, control, () =>
+      hydrationError(`Static switch control is invalid: ${node.id}.`)
     );
   return nonNumberControlValue(control);
 }

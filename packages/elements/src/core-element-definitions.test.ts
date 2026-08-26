@@ -24,6 +24,7 @@ const deferredTags = new Set<CoreElementTag>([
   CoreElementTag.SearchField,
   CoreElementTag.SearchResults,
   CoreElementTag.Stepper,
+  CoreElementTag.Switch,
   CoreElementTag.Tabs,
   CoreElementTag.Tooltip,
   CoreElementTag.VirtualList,

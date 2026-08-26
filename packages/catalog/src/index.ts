@@ -85,6 +85,7 @@ export {
 export { MAXIMUM_MENU_ITEMS } from "./menu-catalog.js";
 export { numberFieldDescriptor } from "./number-field-catalog.js";
 export { searchFieldDescriptor } from "./search-field-catalog.js";
+export { switchDescriptor } from "./switch-catalog.js";
 export {
   MAXIMUM_SEARCH_QUERY_LENGTH,
   searchQueryLengthConstraint

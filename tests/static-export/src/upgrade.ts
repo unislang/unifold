@@ -25,6 +25,7 @@ const [
   searchFieldFamily,
   searchResultsFamily,
   stepperFamily,
+  switchFamily,
   tabsFamily,
   tooltipFamily,
   virtualListFamily,
@@ -45,6 +46,7 @@ const [
   import("@unislang/unifold/search-field"),
   import("@unislang/unifold/search-results"),
   import("@unislang/unifold/stepper"),
+  import("@unislang/unifold/switch"),
   import("@unislang/unifold/tabs"),
   import("@unislang/unifold/tooltip"),
   import("@unislang/unifold/virtual-list"),
@@ -66,6 +68,7 @@ assertFamily("Popover", popoverFamily.defineUnifoldPopover());
 assertFamily("SearchField", searchFieldFamily.defineUnifoldSearchField());
 assertFamily("SearchResults", searchResultsFamily.defineUnifoldSearchResults());
 assertFamily("Stepper", stepperFamily.defineUnifoldStepper());
+assertFamily("Switch", switchFamily.defineUnifoldSwitch());
 assertFamily("Tabs", tabsFamily.defineUnifoldTabs());
 assertFamily("Tooltip", tooltipFamily.defineUnifoldTooltip());
 assertFamily("VirtualList", virtualListFamily.defineUnifoldVirtualList());

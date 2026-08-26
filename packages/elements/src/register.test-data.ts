@@ -25,6 +25,7 @@ import {
 } from "./register.js";
 import { defineUnifoldSearchResults } from "./search-results-entry.js";
 import { defineUnifoldStepper } from "./stepper-entry.js";
+import { defineUnifoldSwitch } from "./switch-entry.js";
 import { defineUnifoldTabs } from "./tabs-entry.js";
 import { defineUnifoldTooltip } from "./tooltip-entry.js";
 import { defineUnifoldVirtualList } from "./virtual-list-entry.js";
@@ -108,6 +109,7 @@ export function foundationTags(): readonly CoreElementTag[] {
     CoreElementTag.SearchField,
     CoreElementTag.SearchResults,
     CoreElementTag.Stepper,
+    CoreElementTag.Switch,
     CoreElementTag.Tabs,
     CoreElementTag.Tooltip,
     CoreElementTag.VirtualList,
@@ -135,6 +137,7 @@ export function defineDeferredElements(registry: ElementRegistryPort): void {
   defineUnifoldSearchField(registry);
   defineUnifoldSearchResults(registry);
   defineUnifoldStepper(registry);
+  defineUnifoldSwitch(registry);
   defineUnifoldTabs(registry);
   defineUnifoldTooltip(registry);
   defineUnifoldVirtualList(registry);

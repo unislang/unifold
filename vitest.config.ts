@@ -47,6 +47,9 @@ export default defineConfig({
       "@unislang/unifold-elements/search-field": fileURLToPath(
         new URL("./packages/elements/src/search-field-entry.ts", import.meta.url)
       ),
+      "@unislang/unifold-elements/switch": fileURLToPath(
+        new URL("./packages/elements/src/switch-entry.ts", import.meta.url)
+      ),
       "@unislang/unifold-elements/audit-log": fileURLToPath(
         new URL("./packages/elements/src/audit-log-entry.ts", import.meta.url)
       ),
@@ -136,6 +139,9 @@ export default defineConfig({
       ),
       "@unislang/unifold/search-field": fileURLToPath(
         new URL("./packages/unifold/src/search-field.ts", import.meta.url)
+      ),
+      "@unislang/unifold/switch": fileURLToPath(
+        new URL("./packages/unifold/src/switch.ts", import.meta.url)
       ),
       "@unislang/unifold-ai": packageSource("ai"),
       "@unislang/unifold-catalog": packageSource("catalog"),

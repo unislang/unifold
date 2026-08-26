@@ -73,6 +73,7 @@ export type { UnifoldSearchResults } from "./search-results.js";
 export { UnifoldSelect } from "./select.js";
 export { UnifoldStack } from "./stack.js";
 export type { UnifoldStepper } from "./stepper.js";
+export type { UnifoldSwitch } from "./switch.js";
 export type { UnifoldTabs } from "./tabs.js";
 export { UnifoldTable } from "./table.js";
 export { UnifoldText } from "./text.js";

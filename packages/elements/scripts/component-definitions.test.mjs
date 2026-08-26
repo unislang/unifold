@@ -50,6 +50,7 @@ test("derives required, enum, attribute, and public snapshot schemas", async () 
   assertImageSchema(schemas.image);
   assertNumberFieldSchema(schemas.numberField);
   assertSearchFieldSchema(schemas.searchField);
+  assertSwitchSchema(schemas.switch);
 });
 
 function assertImageSchema(image) {
@@ -79,6 +80,12 @@ function assertSearchFieldSchema(searchField) {
   assert.deepEqual(searchField.control.valueSchema, { default: "", type: "string" });
   assert.deepEqual(searchField.propertiesSchema.properties.autocomplete.enum, ["off", "on"]);
   assert.equal(searchField.propertiesSchema.properties.maxLength.default, 2_048);
+}
+
+function assertSwitchSchema(switchDefinition) {
+  assert.deepEqual(switchDefinition.propertiesSchema.required, ["label"]);
+  assert.deepEqual(switchDefinition.control.valueSchema, { default: false, type: "boolean" });
+  assert.equal(switchDefinition.customElement.tagName, "unifold-switch");
 }
 
 function assertOverlaySchemas(document) {
@@ -124,6 +131,7 @@ function schemaDefinitions(document) {
       "popover",
       "searchField",
       "searchResults",
+      "switch",
       "stepper",
       "table",
       "tooltip",

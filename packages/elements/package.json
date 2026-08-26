@@ -58,6 +58,10 @@
       "types": "./dist/search-field-entry.d.ts",
       "import": "./dist/search-field-entry.js"
     },
+    "./switch": {
+      "types": "./dist/switch-entry.d.ts",
+      "import": "./dist/switch-entry.js"
+    },
     "./audit-log": {
       "types": "./dist/audit-log-entry.d.ts",
       "import": "./dist/audit-log-entry.js"

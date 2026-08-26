@@ -49,6 +49,7 @@ const renderers: Readonly<Record<CoreComponentType, NodeRenderer>> = {
   [CoreComponentType.Select]: renderSelect,
   [CoreComponentType.Stack]: renderContainer,
   [CoreComponentType.Stepper]: staticComponents.renderStaticStepper,
+  [CoreComponentType.Switch]: staticComponents.renderStaticSwitch,
   [CoreComponentType.Tabs]: staticComponents.renderStaticTabs,
   [CoreComponentType.Table]: staticComponents.renderStaticTable,
   [CoreComponentType.Text]: renderText,

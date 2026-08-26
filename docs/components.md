@@ -1,6 +1,6 @@
 # Core components
 
-The implemented core catalog contains forty-two JSON-constructible Web Components. Every component has a
+The implemented core catalog contains forty-three JSON-constructible Web Components. Every component has a
 stable node ID, participates in the same canonical event stream, and receives selective state
 projection through the application runtime. The catalog descriptor is the authority for accepted
 properties; the IR compiler rejects unknown properties and values of the wrong type before render.
@@ -41,6 +41,7 @@ properties; the IR compiler rejects unknown properties and values of the wrong t
 | `Select`        | `unifold-select`         | string         | select                     | `control.input`, `control.blurred`     |
 | `Stack`         | `unifold-stack`          | none           | slotted flex container     | descendant scope                       |
 | `Stepper`       | `unifold-stepper`        | string         | navigation + buttons       | `control.input`, `control.blurred`     |
+| `Switch`        | `unifold-switch`         | boolean        | checkbox with switch role  | `control.input`, `control.blurred`     |
 | `Tabs`          | `unifold-tabs`           | string         | ARIA tabs + stable panels  | `control.input`, `control.blurred`     |
 | `Table`         | `unifold-table`          | none           | native table               | none                                   |
 | `Text`          | `unifold-text`           | none           | paragraph                  | none                                   |
@@ -53,9 +54,9 @@ properties; the IR compiler rejects unknown properties and values of the wrong t
 Event names above use their readable suffixes. The wire values are versioned enums such as
 `org.unifold.ui.control.input.v1`, exported as `ElementEventType`.
 
-The baseline registration includes the nineteen small families. AuditLog, Breadcrumb, Card, CheckboxGroup, Combobox,
+The baseline registration includes the nineteen small components. Twenty-four components are delivered through twenty-one deferred family subpaths: AuditLog, Breadcrumb, Card, CheckboxGroup, Combobox,
 DataGrid, Dialog, ErrorSummary, Field, Fieldset, FileInput, Image, MasterDetail, MenuButton, Popover,
-NumberField, SearchField, SearchResults, Stepper, Tabs, Tooltip, VirtualList, and Wizard are deferred families loaded through matching
+NumberField, SearchField, SearchResults, Stepper, Switch, Tabs, Tooltip, VirtualList, and Wizard. They are loaded through matching
 `@unislang/unifold/<kebab-case-name>` subpaths. Strict mounting requires those definitions before
 render. A trusted host may explicitly select `ElementDefinitionPolicy.AllowPending`; catalog-known
 hosts then mount immediately and replay their latest validated properties, event snapshot, runtime
@@ -161,6 +162,40 @@ The public authoring shape follows the Scratch layout model and lowers into the 
 const { defineUnifoldCheckboxGroup } = await import("@unislang/unifold/checkbox-group");
 defineUnifoldCheckboxGroup();
 ```
+
+## Switch boolean contract
+
+`Switch` is loaded through `@unislang/unifold/switch`. It requires a non-empty label and has one
+boolean canonical value. The form-associated element uses a native checkbox with `role="switch"`,
+submits `"on"` only while enabled and checked, and shares the framework's required, disabled,
+reset, restore, validation, input, and blur lifecycle. It is a leaf: authored children are rejected
+before rendering.
+
+The high-level JSON remains the Scratch-style `type`/`id`/`props`/named `events` shape and lowers
+through the same canonical JsonUI and IR boundary:
+
+```json
+{
+  "type": "Switch",
+  "id": "contact-notifications",
+  "props": {
+    "label": "Enable notifications",
+    "name": "notifications",
+    "required": true,
+    "value": true
+  },
+  "events": { "onInput": "NOTIFICATIONS_CHANGED" }
+}
+```
+
+```ts
+const { defineUnifoldSwitch } = await import("@unislang/unifold/switch");
+defineUnifoldSwitch();
+```
+
+Static HTML preserves the labeled checkbox and switch role without JavaScript and serializes only
+public checked state. Static upgrade admits exactly one matching native checkbox and rejects role,
+type, name, disabled, required, or checked-state drift before replacing the fallback.
 
 `Card` and `Image` are delivered together through the deferred
 `@unislang/unifold/content-media` subpath. `Card` is a native article containing 1 to 100 authored
@@ -573,7 +608,7 @@ import {
 
 ## Component-definition evidence pipeline
 
-All forty core elements participate in the executable `ComponentDefinition` pipeline. The
+All forty-three core elements participate in the executable `ComponentDefinition` pipeline. The
 elements build runs the official Custom Elements Manifest analyzer with its Lit plugin, validates
 the complete result against the official manifest JSON Schema, and writes
 `dist/custom-elements.json`. The generated manifest owns facts that can be derived from source:

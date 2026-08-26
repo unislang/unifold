@@ -34,3 +34,11 @@ it("applies shared required semantics to CheckboxGroup arrays", () => {
   };
   expect(requiredErrors(group)[0]?.code).toBe(ValidationErrorCode.Required);
 });
+
+it("applies shared required semantics to Switch booleans", () => {
+  const toggle = {
+    ...validationNode(false, { required: true }),
+    type: CoreComponentType.Switch
+  };
+  expect(requiredErrors(toggle)[0]?.code).toBe(ValidationErrorCode.Required);
+});

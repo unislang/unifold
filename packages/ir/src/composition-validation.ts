@@ -238,6 +238,7 @@ const controlComponents = new Set<CoreComponentType>([
   CoreComponentType.RadioGroup,
   CoreComponentType.SearchField,
   CoreComponentType.Select,
+  CoreComponentType.Switch,
   CoreComponentType.Tabs,
   CoreComponentType.TextArea,
   CoreComponentType.TextField

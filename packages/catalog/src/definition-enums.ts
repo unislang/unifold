@@ -33,6 +33,7 @@ export enum ComponentAccessibilityPattern {
   SearchResults = "search-results",
   StaticText = "static-text",
   StepNavigation = "step-navigation",
+  Switch = "switch",
   SvgImage = "svg-image",
   Tabs = "tabs",
   Tooltip = "tooltip"

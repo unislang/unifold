@@ -17,6 +17,7 @@ it("exports every specialized static data-view renderer", () => {
     "renderStaticSearchField",
     "renderStaticSearchResults",
     "renderStaticStepper",
+    "renderStaticSwitch",
     "renderStaticTable",
     "renderStaticTabs",
     "renderStaticTooltip",

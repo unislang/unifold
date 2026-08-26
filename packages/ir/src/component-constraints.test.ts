@@ -70,7 +70,7 @@ it("rejects a disabled CheckboxGroup selection", () => {
   ]);
 });
 
-it.each([CoreComponentType.CheckboxGroup, CoreComponentType.Tooltip])(
+it.each([CoreComponentType.CheckboxGroup, CoreComponentType.Switch, CoreComponentType.Tooltip])(
   "rejects children for the exact %s leaf",
   (componentType) => {
     const descriptor = getCoreDescriptor(componentType);

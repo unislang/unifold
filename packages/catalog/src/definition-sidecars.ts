@@ -28,6 +28,7 @@ import { numberFieldSidecar } from "./number-field-sidecar.js";
 import { popoverSidecar } from "./popover-sidecar.js";
 import { tooltipSidecar } from "./tooltip-sidecar.js";
 import { stepperSidecar, tabsSidecar, wizardSidecar } from "./workflow-sidecars.js";
+import { switchSidecar } from "./switch-sidecar.js";
 import type { ComponentDefinitionSidecar } from "./types.js";
 const contentScenario = "renders semantic content and publishes Link activation";
 const layoutScenario = "renders nested token-based Box, Stack, and Grid primitives";
@@ -281,6 +282,7 @@ export const componentDefinitionSidecars = Object.freeze({
     sensitiveProperties: ["label"]
   }),
   [CoreComponentType.Stepper]: stepperSidecar,
+  [CoreComponentType.Switch]: switchSidecar,
   [CoreComponentType.Tabs]: tabsSidecar,
   [CoreComponentType.Table]: definition({
     behaviors: ["Uses native table semantics", "Renders scalar cells as escaped text"],

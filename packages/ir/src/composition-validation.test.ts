@@ -36,7 +36,7 @@ it("accepts RadioGroup control-value selection exports", () => {
   expect(compileUiDocument(withRadioGroup()).status).toBe(CompilationStatus.Valid);
 });
 
-it.each([CoreComponentType.NumberField, CoreComponentType.SearchField])(
+it.each([CoreComponentType.NumberField, CoreComponentType.SearchField, CoreComponentType.Switch])(
   "accepts %s control-value selection exports",
   (componentType) => {
     expect(compileUiDocument(withScalarControl(componentType)).status).toBe(
@@ -111,7 +111,7 @@ function withRadioGroup(): UiDocument {
 
 function withScalarControl(componentType: CoreComponentType): UiDocument {
   const source = composedDocument();
-  const value = componentType === CoreComponentType.NumberField ? null : "";
+  const value = scalarValue(componentType);
   return {
     ...source,
     view: {
@@ -119,6 +119,12 @@ function withScalarControl(componentType: CoreComponentType): UiDocument {
       $children: [{ $comp: componentType, id: "editor::name", label: "Name", value }]
     }
   };
+}
+
+function scalarValue(componentType: CoreComponentType): boolean | null | string {
+  if (componentType === CoreComponentType.NumberField) return null;
+  if (componentType === CoreComponentType.Switch) return false;
+  return "";
 }
 
 function withCheckboxGroup(): UiDocument {

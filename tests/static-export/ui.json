@@ -183,6 +183,13 @@
             "value": false
           },
           {
+            "$comp": "Switch",
+            "id": "notifications",
+            "label": "Enable notifications",
+            "name": "notifications",
+            "value": true
+          },
+          {
             "$comp": "MultiSelect",
             "id": "skills",
             "label": "Skills",

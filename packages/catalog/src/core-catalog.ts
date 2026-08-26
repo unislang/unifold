@@ -43,6 +43,7 @@ import { menuButtonDescriptor } from "./menu-catalog.js";
 import { numberFieldDescriptor } from "./number-field-catalog.js";
 import { popoverDescriptor } from "./popover-catalog.js";
 import { searchFieldDescriptor } from "./search-field-catalog.js";
+import { switchDescriptor } from "./switch-catalog.js";
 import { textControlProperties } from "./text-control-catalog.js";
 import { tooltipDescriptor } from "./tooltip-catalog.js";
 import {
@@ -241,6 +242,7 @@ const descriptors: Record<CoreComponentType, ComponentDescriptor> = {
     version: "1.0.0"
   },
   [CoreComponentType.Stepper]: workflows.stepperDescriptor,
+  [CoreComponentType.Switch]: switchDescriptor,
   [CoreComponentType.Tabs]: workflows.tabsDescriptor,
   [CoreComponentType.Table]: dataViews.tableDescriptor,
   [CoreComponentType.Text]: {

@@ -32,6 +32,30 @@
         }
       },
       {
+        "id": "contact-notifications",
+        "type": "Switch",
+        "props": {
+          "label": "Enable notifications",
+          "name": "notifications",
+          "required": true,
+          "testId": "contact-notifications",
+          "value": true
+        },
+        "events": { "onInput": "NOTIFICATIONS_CHANGED" }
+      },
+      {
+        "id": "locked-notifications",
+        "type": "Switch",
+        "props": {
+          "disabled": true,
+          "label": "Locked notifications",
+          "name": "lockedNotifications",
+          "testId": "locked-notifications",
+          "value": false
+        },
+        "events": { "onInput": "LOCKED_NOTIFICATIONS_CHANGED" }
+      },
+      {
         "id": "contact-age",
         "type": "NumberField",
         "props": {

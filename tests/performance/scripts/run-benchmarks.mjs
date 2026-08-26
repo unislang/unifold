@@ -39,6 +39,7 @@ const contentMediaPath = resolve(resultDirectory, "content-media-performance.raw
 const numberFieldPath = resolve(resultDirectory, "number-field-performance.raw.json");
 const searchFieldPath = resolve(resultDirectory, "search-field-performance.raw.json");
 const checkboxGroupPath = resolve(resultDirectory, "checkbox-group-performance.raw.json");
+const switchPath = resolve(resultDirectory, "switch-performance.raw.json");
 const finalPath = resolve(resultDirectory, "selective-rendering.json");
 const profileRuns = [
   ["performance-profile.test.ts", "UNIFOLD_PERFORMANCE_PROFILE_OUTPUT", profilePath],
@@ -76,7 +77,8 @@ const profileRuns = [
   ["content-media-profile.test.ts", "UNIFOLD_CONTENT_MEDIA_OUTPUT", contentMediaPath],
   ["number-field-profile.test.ts", "UNIFOLD_NUMBER_FIELD_OUTPUT", numberFieldPath],
   ["search-field-profile.test.ts", "UNIFOLD_SEARCH_FIELD_OUTPUT", searchFieldPath],
-  ["checkbox-group-profile.test.ts", "UNIFOLD_CHECKBOX_GROUP_OUTPUT", checkboxGroupPath]
+  ["checkbox-group-profile.test.ts", "UNIFOLD_CHECKBOX_GROUP_OUTPUT", checkboxGroupPath],
+  ["switch-profile.test.ts", "UNIFOLD_SWITCH_OUTPUT", switchPath]
 ];
 
 await mkdir(resultDirectory, { recursive: true });
@@ -111,6 +113,7 @@ const contentMediaPerformance = JSON.parse(await readFile(contentMediaPath, "utf
 const numberFieldPerformance = JSON.parse(await readFile(numberFieldPath, "utf8"));
 const searchFieldPerformance = JSON.parse(await readFile(searchFieldPath, "utf8"));
 const checkboxGroupPerformance = JSON.parse(await readFile(checkboxGroupPath, "utf8"));
+const switchPerformance = JSON.parse(await readFile(switchPath, "utf8"));
 const profile = {
   ...measuredProfile,
   gates: [
@@ -137,7 +140,8 @@ const profile = {
     contentMediaPerformance.gate,
     numberFieldPerformance.gate,
     searchFieldPerformance.gate,
-    checkboxGroupPerformance.gate
+    checkboxGroupPerformance.gate,
+    switchPerformance.gate
   ],
   asyncStorePerformance,
   comboboxFilter,
@@ -154,6 +158,7 @@ const profile = {
   numberFieldPerformance,
   searchFieldPerformance,
   checkboxGroupPerformance,
+  switchPerformance,
   dataActorPerformance,
   lifecycleMemory,
   dataGridPerformance,
@@ -168,7 +173,7 @@ const report = {
   environment: environmentMetadata(),
   generatedAt: new Date().toISOString(),
   profile,
-  schemaVersion: "2.29.0"
+  schemaVersion: "2.30.0"
 };
 await writeFile(finalPath, `${JSON.stringify(report, null, 2)}\n`);
 process.stdout.write(`Benchmark report: ${finalPath}\n`);

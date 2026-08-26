@@ -116,6 +116,7 @@ export enum CoreElementTag {
   Select = "unifold-select",
   Stack = "unifold-stack",
   Stepper = "unifold-stepper",
+  Switch = "unifold-switch",
   Tabs = "unifold-tabs",
   Table = "unifold-table",
   Text = "unifold-text",

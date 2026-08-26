@@ -48,6 +48,7 @@ const EVENTS: Readonly<Record<CoreComponentType, readonly UiComponentEventBindin
   [CoreComponentType.Select]: INPUT_AND_BLUR,
   [CoreComponentType.Stack]: NONE,
   [CoreComponentType.Stepper]: INPUT_AND_BLUR,
+  [CoreComponentType.Switch]: INPUT_AND_BLUR,
   [CoreComponentType.Tabs]: INPUT_AND_BLUR,
   [CoreComponentType.Table]: NONE,
   [CoreComponentType.Text]: NONE,
