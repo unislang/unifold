@@ -17,20 +17,13 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Previous published progress checkpoint: `5735ec81b0d1b83ee1d688e6e42b5b75e55f74c3`
-  (`docs: record native form checkpoint`).
-- Latest verified implementation checkpoint: `5e15efd478c2249be198aa93e7c5f93d526e71f6`
-  (`feat: add JSON content media primitives`), pushed to `https://github.com/unislang/unifold.git` and
-  independently verified at `refs/heads/main` with `git ls-remote`.
-- Current completed slice: catalog-authoritative `Card` and `Image` primitives are implemented across
-  contracts, catalog sidecars, IR validation, deferred Lit definitions, package subpaths, static
-  rendering/upgrade, the Scratch-style hierarchical JSON example, browser evidence, and an exact
-  100-pair performance gate. The implementation is committed and independently verified on the
-  `unifold` remote at the exact SHA above.
-- Goal status: active. This checkpoint does not complete the architecture plan; the authoritative
-  inventory still lists NumberField, SearchField, CheckboxGroup, Switch, DateField, Toast, and
-  Pagination as component-family gaps, followed by the
-  broader Studio and production-integration gates.
+- Latest local implementation checkpoint: `d4a3067` (`feat: add JSON number field primitive`). The
+  local `origin/main` tracking reference remains at `4f60993` until the requested push is verified.
+- Current local implementation: the `NumberField` family is committed. A separate governed AI/Studio
+  vertical slice, native string-enum work, the Studio dogfood example, and executable prevention of
+  import-then-local-re-export feature modules remain uncommitted and must be preserved separately.
+- Goal status: active. SearchField, CheckboxGroup, Switch, DateField, Toast, and Pagination remain
+  component-family gaps, followed by broader Studio and production-integration gates.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
@@ -38,41 +31,120 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 
 ## Active slice
 
-The current slice closes the remaining Phase 2 content/media pair:
+The current slice proves that the AI SDK and Studio operate through governed framework seams instead
+of bypassing the JSON compiler, event fabric, state authority, or export boundary:
 
-- `Image` requires deliberate `alt` authorship (empty remains an explicit decorative choice), a
-  relative or HTTP(S) `SafeResourceUrl`, positive intrinsic width/height, and bounded `fit` and
-  `loading` enums. It rejects executable/data URL schemes and authored children before render.
-- `Card` uses a native article, optional accessible label, token-backed padding/surface, and an exact
-  1-to-100 authored-child boundary. Both components have complete catalog sidecars, generated CEM
-  evidence, canonical snapshot coverage, and deterministic static HTML.
-- `@unislang/unifold/content-media` and the matching elements subpath defer the pair. The
-  hierarchical example now authors a nested Card/Image directly with
-  `layoutType/variables/type/props/children`, matching
-  `scratch/angular-ui/DYNAMIC-UI-README.md`, and asynchronously registers the family so the initial
-  closure stays bounded.
-- Static export emits native article/image semantics without JavaScript and upgrades to the exact
-  custom-element tree without duplicate content or canonical events.
+- AI context is catalog-derived, bounded, and recursively redacted. Proposal values enforce byte,
+  depth, value-count, string-length, finite-number, plain-object, cycle, shared-reference, and
+  prototype-key boundaries before patching.
+- Framework-derived risk cannot be downgraded by model output. Stable IDs survive ancestor patches;
+  approved proposals may create initial Schema.org markup; compiler, accessibility, and static
+  export requested checks execute before acceptance. Model `expectedOutcomes` remain descriptive
+  until product-level outcome evaluators are added.
+- Proposal commit and Studio apply compare the exact canonical base immediately before mutation,
+  closing same-thread asynchronous overwrite races. Multi-process compare-and-set belongs in the
+  collaboration/control-plane boundary.
+- `@unislang/unifold-studio` owns an XState session, bounded request lifecycle, isolated preview,
+  structural diff, explicit review/apply, and truthful portable/static export. Preview receives only
+  allowlisted layout/composition inputs and cannot inherit host commands, guards, validators,
+  renderer callbacks, or stores.
+- The JSON-authored Studio example routes chat actions through the canonical event stream, reports
+  asynchronous state through an accessible live region, preserves validated `WebPage` Schema.org
+  output, and excludes provider generation and credential markers from browser assets.
+- `NumberField` spans contract, catalog, IR, forms, Lit/native FormData, facade, hierarchical JSON,
+  static export/hydration, performance, and Playwright paths. Range/step logic shares the finite
+  JSON-number constraint helper instead of duplicating validation.
+- `pnpm quality:reexports` rejects feature modules that import a local binding and export that same
+  binding. Feature modules expose owned operations; direct package export maps remain the deliberate
+  public-boundary mechanism.
 
-Current local evidence: catalog/IR/export pass 95 files/220 tests, elements pass 81/172 plus 8/8
-generated-definition tests, Unifold passes 49/177, and performance correctness passes 29 files/39
-tests with 23 opt-in profiles skipped. Benchmark schema 2.26.0 passes 51/51 gates. The exact
-100-Card/100-Image fixture records 0.56/3.57/5.90 ms p50/p95/p99 across 50 samples against its 100
-ms p95 ceiling. Chromium and WebKit pass all 8 rebuilt hierarchical journeys and all 31 applicable
-static-export journeys, including both new no-JavaScript/upgrade cases and axe. Firefox fails every
-attempt before page creation in Playwright's managed Windows `_page` path, including unrelated
-existing cases; it supplies no application evidence in this session. The reference bundle passes at
-184,204 gzip bytes (179.89 KiB), 116 bytes below the unchanged 180 KiB gate, with 35,966 bytes
-deferred post-mount. File-size, colocated-test, full ESLint, this slice's source/test typechecks, and
-the 1,870-module/4,149-edge dependency audit pass. Repository-wide quality currently stops only in
-the concurrent uncommitted Studio example (`vite/client` resolution and dependency declaration),
-which is outside this slice and must not be staged here.
+Current local evidence: `pnpm quality`, `pnpm test`, `pnpm build`, and `pnpm test:coverage` pass.
+Coverage is 97.48% statements/lines, 96.77% functions, and 90.01% branches against unchanged 90%
+thresholds. Dependency-cruiser validates 1,921 modules and 4,264 dependencies with no violations.
+The Studio asset boundary and complete Chromium/Firefox/WebKit matrix pass 9/9. Studio production
+JavaScript is 226.99 KiB gzip against its 250 KiB ceiling. The reference startup closure is 181.20
+KiB gzip against a narrowly rebased executable 184 KiB limit, with 35,906 post-mount gzip bytes. The
+NumberField portion is committed as `d4a3067`; no commit or push has been performed for the separate
+AI/Studio portion.
 
-The benchmark's 20-cycle/500-node lifecycle heap growth is 1.45% against the strict 2% ceiling.
-The clean packed-consumer boundary independently passes 3/3 outside the monorepo after rebuilding
-all packages. Checkbox, MultiSelect, and FileInput native form adapters and the Field, Fieldset, and
-ErrorSummary family are therefore closed for this bounded slice; Switch and CheckboxGroup remain
-separate component-family gaps.
+Remaining AI/Studio gaps are explicit: provenance-bound third-party catalog manifests; complete
+component property, event, machine, and rule authoring context; durable actor identity, approval
+audit, and separation of duties; provider/model token, cost, time, retry, and signature policy;
+executable product outcome evaluators; collaboration/rebase/undo; negative browser journeys for
+cancellation, stale apply, rejection, and export failure; and the full multi-turn design surface.
+
+## Prior NumberField checkpoint
+
+- Date: 2026-08-26
+- Branch: `main`
+- Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
+- Previous published progress checkpoint: `5735ec81b0d1b83ee1d688e6e42b5b75e55f74c3`
+  (`docs: record native form checkpoint`).
+- Latest verified implementation checkpoint: `5e15efd478c2249be198aa93e7c5f93d526e71f6`
+  (`feat: add JSON content media primitives`), pushed to `https://github.com/unislang/unifold.git` and
+  independently verified at `refs/heads/main` with `git ls-remote`.
+- Completed implementation slice: catalog-authoritative `NumberField` is implemented across contracts,
+  catalog sidecars, IR and form validation, deferred Lit definitions, package subpaths, static
+  rendering/hydration, the Scratch-style hierarchical JSON example, browser evidence, and an exact
+  100-control performance gate. It is committed locally as
+  `d4a3067` (`feat: add JSON number field primitive`) and awaits remote verification.
+- Goal status: active. This checkpoint does not complete the architecture plan; the authoritative
+  inventory still lists SearchField, CheckboxGroup, Switch, DateField, Toast, and Pagination as
+  component-family gaps, followed by the broader production-integration gates.
+- Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
+- Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
+- Verification commands: [`docs/testing.md`](./docs/testing.md)
+- Performance evidence: [`docs/performance.md`](./docs/performance.md)
+
+## Prior NumberField slice
+
+The current slice closes the catalog-authoritative numeric-control gap while preserving the public
+authoring model requested by the user:
+
+- [`scratch/angular-ui/DYNAMIC-UI-README.md`](./scratch/angular-ui/DYNAMIC-UI-README.md) remains the
+  authoring source of truth: exact `layoutType`/version selects a trusted layout, typed `variables`
+  populate it, and nested `type`/`props`/`children`/named `events` lower into canonical
+  `$comp`/`$children` JsonUI, normalized IR, one state authority, and trusted XState commands.
+- `NumberField` carries finite `number | null` canonical state. Its catalog requires `label`, supports
+  `name`, `min`, `max`, positive `step`, disabled/required state and `onInput`, and rejects invalid
+  ranges, non-finite numbers, off-step values, unknown properties, and authored children before
+  rendering.
+- The deferred Lit element uses a native `input[type=number]`, shared single-line styles, and the
+  reusable form controller. Native validity, form ownership, `FormData`, disabled-fieldset behavior,
+  reset/state restoration, and canonical numeric events remain synchronized without admitting the
+  native input as a second state authority.
+- Static export emits a usable native fallback. Hydration migrates an edited `valueAsNumber`, keeps
+  focus and form behavior, and rejects wrong-type, non-finite, out-of-range, or off-step tampering
+  without replacing the fallback.
+- The real hierarchical example authors `contact-age` under `variables.fields` and maps
+  `onInput: AGE_CHANGED`; browser evidence proves the resulting canonical event contains numeric
+  `42`, updates the controlled host, and remains axe-clean.
+
+Current verification evidence on 2026-08-26:
+
+- Repository-wide `pnpm quality` passes file limits, colocated tests, re-export policy, ESLint, all
+  workspace and test typechecks, Knip, and the dependency audit (1,921 modules and 4,264 edges).
+- Repository-wide `pnpm test` passes 474 Vitest files/1,190 tests, 18/18 tooling tests, 8/8 generated
+  component-definition tests, the theme/reference script gates, and 40 performance-correctness tests
+  with 27 opt-in profiles skipped.
+- Full benchmark schema 2.27.0 passes all 52/52 executable gates. The exact 100-NumberField fixture
+  records 0.60/1.85/6.78 ms p50/p95/p99 across 50 samples against a 100 ms p95 ceiling, with exact
+  final native numeric value `123.5`.
+- The production reference build passes its current executable 184 KiB initial-closure budget at
+  185,453/188,416 gzip bytes with 35,883 post-mount gzip bytes. The feature checkpoint records the
+  cumulative budget recalibration from 180 KiB to 184 KiB explicitly in executable code and testing
+  documentation.
+- Focused Chromium evidence passes 1/1 hierarchical and 3/3 static-export NumberField journeys.
+  Focused WebKit evidence independently passes the same 1/1 and 3/3 journeys. The static cases prove
+  no-JavaScript fallback, edited numeric migration, and off-step rejection.
+
+Resume boundary: commit this progress checkpoint, then push and independently compare
+`git ls-remote origin refs/heads/main` with the local checkpoint commit. Preserve and do not
+accidentally stage the concurrent AI/Studio work, reference feature-module re-export work,
+`ARCHITECTURE_IMPLEMENTATION_PLAN.md`, `CONTRIBUTING.md`, root dependency/config edits, or the
+separate Studio changeset. After the remote checkpoint, continue with the next ordered catalog gap
+(`SearchField`) through the same Scratch-style JSON, IR, native/static, browser, accessibility, and
+performance boundaries.
 
 ## Prior hierarchical and component slice detail
 
