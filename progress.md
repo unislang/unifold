@@ -17,11 +17,11 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest implementation checkpoint: `c437e21` (`feat: mount async stores in runtime`)
-- Verified pre-slice remote state: `origin/main` and local `HEAD` matched at
-  `9156049fc856e3d6432ca13a9894acc3460e6dbd` before the work below.
-- Working tree: architecture slice 3 is implemented and fully validated locally as described below;
-  only the checkpoint commit/push and its remote verification remain pending.
+- Latest implementation checkpoint: `6dfc3d9` (`feat: govern document provenance and JsonUI parity`)
+- Verified implementation remote state: `origin/main` resolved to
+  `6dfc3d936fc92a46cb4edffb20714e5a73a6793d` after the implementation push.
+- Working tree: architecture slice 3 is implemented, fully validated, committed, and pushed as
+  described below. This documentation-only update records that verified state.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
@@ -54,8 +54,8 @@ record new measurements rather than treating the numbers above as proof for late
 
 ## Active slice
 
-Architecture slice 3 is implemented and fully validated locally. After the pending checkpoint push,
-continue with slice 4 in
+Architecture slice 3 is implemented, fully validated, committed, and pushed. Continue with slice 4
+in
 [`docs/implementation-status.md`](./docs/implementation-status.md#next-architecture-slices):
 reversible composition identity encoding, explicit successor migrations, incremental compilation,
 and the next interaction families. Production provisioning of slices 1 and 2 remains a separate
@@ -176,7 +176,7 @@ pushed to `origin/main`:
 
 ### 2026-08-26 document-provenance and behavioral-parity checkpoint
 
-Architecture slice 3 is implemented, fully validated locally, and awaiting its checkpoint commit:
+Architecture slice 3 is implemented, fully validated, committed as `6dfc3d9`, and pushed:
 
 - Every accepted document now carries the SHA-256 of its exact pre-parse payload bytes. An optional
   governed provenance policy resolves a host-trusted issuer plus active/revoked Ed25519 key state,
@@ -288,4 +288,6 @@ silently waived.
   semantics. Added exact accepted/revoked provenance workload gates, regenerated the schema-2.16.0
   38/38 report, and passed complete quality, 331-file/843-test package coverage, performance,
   coverage, build, packed-consumer, formatting, duplication, and Chromium/WebKit parity matrices.
-  The checkpoint commit and push are the only remaining actions for this slice.
+  Committed the implementation as `6dfc3d9`, pushed it to
+  `https://github.com/unislang/unifold.git`, and independently verified remote `main` at
+  `6dfc3d936fc92a46cb4edffb20714e5a73a6793d`.
