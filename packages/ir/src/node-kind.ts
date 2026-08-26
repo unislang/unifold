@@ -7,6 +7,7 @@ const NODE_KINDS: Readonly<Record<CoreComponentType, UiNodeKind>> = {
   [CoreComponentType.Box]: UiNodeKind.Component,
   [CoreComponentType.Button]: UiNodeKind.Component,
   [CoreComponentType.Checkbox]: UiNodeKind.Control,
+  [CoreComponentType.Combobox]: UiNodeKind.Control,
   [CoreComponentType.Composition]: UiNodeKind.Composition,
   [CoreComponentType.DataGrid]: UiNodeKind.Control,
   [CoreComponentType.Form]: UiNodeKind.Form,

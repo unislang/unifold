@@ -153,10 +153,12 @@ function choiceValues(value: JsonValue): readonly JsonValue[] {
 
 function isInvalidChoice(value: JsonValue, allowed: ReadonlySet<string>): boolean {
   if (typeof value !== "string") return true;
+  if (value === "") return false;
   return !allowed.has(value);
 }
 
 const choiceComponents = new Set<CoreComponentType>([
+  CoreComponentType.Combobox,
   CoreComponentType.MultiSelect,
   CoreComponentType.RadioGroup,
   CoreComponentType.Select
@@ -164,6 +166,7 @@ const choiceComponents = new Set<CoreComponentType>([
 
 const valueComponents = new Set<CoreComponentType>([
   CoreComponentType.Checkbox,
+  CoreComponentType.Combobox,
   CoreComponentType.MultiSelect,
   CoreComponentType.RadioGroup,
   CoreComponentType.Select,

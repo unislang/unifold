@@ -127,6 +127,7 @@ describe("Form catalog descriptor", () => {
 describe("choice catalog descriptors", () => {
   it("declare reusable option uniqueness and membership constraints", () => {
     [
+      CoreComponentType.Combobox,
       CoreComponentType.Select,
       CoreComponentType.MultiSelect,
       CoreComponentType.RadioGroup,

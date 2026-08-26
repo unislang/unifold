@@ -16,7 +16,7 @@ if (result.status === CompilationStatus.Valid && result.document !== undefined) 
 
 ## First supported profile
 
-The vertical slice recognizes `Accordion`, `Alert`, `Box`, `Button`, `Checkbox`, `Composition`,
+The vertical slice recognizes `Accordion`, `Alert`, `Box`, `Button`, `Checkbox`, `Combobox`, `Composition`,
 `Form`, `Grid`, `Heading`, `Icon`, `Link`, `MultiSelect`, `RadioGroup`, `Select`, `Stack`, `Text`, `TextArea`,
 and `TextField`. It validates JSON safety, the contract/profile version,
 required metadata, node structure, stable unique IDs, component support, and catalog-declared

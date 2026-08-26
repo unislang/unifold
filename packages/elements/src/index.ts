@@ -4,6 +4,7 @@ export { UnifoldAuditLog } from "./audit-log.js";
 export { UnifoldBox } from "./box.js";
 export { UnifoldButton } from "./button.js";
 export { UnifoldCheckbox } from "./checkbox.js";
+export { UnifoldCombobox } from "./combobox.js";
 export { UnifoldComposition } from "./composition.js";
 export { UnifoldDataGrid } from "./data-grid.js";
 export {

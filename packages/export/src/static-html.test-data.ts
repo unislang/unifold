@@ -65,6 +65,7 @@ function referenceForm(): JsonObject {
       textArea(),
       checkbox(),
       radioGroup(),
+      selectNode("Combobox", "assignee", "Assignee", "email"),
       selectNode("Select", "country", "Country", "us"),
       selectNode("MultiSelect", "skills", "Skills", ["ts"]),
       virtualList(),
@@ -221,7 +222,7 @@ function radioGroup(): JsonObject {
 }
 
 function selectNode(
-  component: "MultiSelect" | "Select",
+  component: "Combobox" | "MultiSelect" | "Select",
   id: string,
   label: string,
   value: string | readonly string[]

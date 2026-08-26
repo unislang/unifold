@@ -14,6 +14,7 @@ export const compositionNodeIds = {
   accordion: "profile-editor::help",
   biography: "profile-editor::biography",
   checkbox: "profile-editor::newsletter",
+  combobox: "profile-editor::assignee",
   confirmName: "profile-editor::confirm-name",
   country: "profile-editor::country",
   dynamicHelp: "profile-editor::dynamic-help",

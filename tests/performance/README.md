@@ -42,6 +42,11 @@ projects 500 normalized nodes with alternating public and restricted classificat
 samples require timeline capture/filtering at or below 1,000 ms p95 and node picking at or below
 100 ms p95, with exact drop/sequence evidence and zero restricted snapshots in the projection.
 
+An exact schema-valid 10,000-option Combobox document alternates twenty broad post-warm-up filters.
+Its combined gate requires filter p95 at or below 100 ms and no more than 200 rendered options.
+Correctness coverage requires the full 10,000-option accessibility set size, distant-result filtering
+and keyboard selection, canonical selection state, and query text that remains interaction-local.
+
 An exact 10,000-option JSON document exercises public VirtualList compilation and application
 startup for twenty post-warm-up samples. Its combined gate requires p95 at or below 1,000 ms and at
 most 200 rendered option rows; correctness coverage also verifies distant-window scrolling,

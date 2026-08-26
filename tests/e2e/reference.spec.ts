@@ -106,6 +106,7 @@ test("submits the runtime-owned form aggregate", async ({ page, unifold }) => {
   const submitted = await requireSubmittedEvent(unifold);
   expect(submitted.data.sourceNode).toMatchObject({ id: compositionNodeIds.form });
   const values = {
+    assignee: "ada",
     biography: "",
     confirmName: "",
     contactPreference: "email",

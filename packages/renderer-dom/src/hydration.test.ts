@@ -47,6 +47,33 @@ it("captures checkbox, multi-select, radio, and text-area values", () => {
   expect(captureTextArea()).toEqual({ name: "Notes", role: "admin" });
 });
 
+it("captures and validates the native combobox fallback selection", () => {
+  const container = staticContainer();
+  requireNodeElement(container, "role").dataset["unifoldStaticComponent"] =
+    CoreComponentType.Combobox;
+  const select = requireSelect(container);
+  select.value = "admin";
+  expect(
+    captureStaticDomHydration(
+      documentWithNode("role", CoreComponentType.Combobox, choiceProperties()),
+      container
+    ).values
+  ).toEqual({ name: "Ada", role: "admin" });
+});
+
+it("captures an explicit empty native combobox fallback selection", () => {
+  const container = staticContainer();
+  requireNodeElement(container, "role").dataset["unifoldStaticComponent"] =
+    CoreComponentType.Combobox;
+  requireSelect(container).innerHTML = '<option value="" selected></option>';
+  expect(
+    captureStaticDomHydration(
+      documentWithNode("role", CoreComponentType.Combobox, choiceProperties()),
+      container
+    ).values
+  ).toEqual({ name: "Ada", role: "" });
+});
+
 it("rejects missing, duplicated, reordered, and reparented static nodes", () => {
   expectHydrationFailure(document.createElement("div"), "missing or duplicated");
   const duplicated = staticContainer();

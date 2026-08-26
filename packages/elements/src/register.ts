@@ -6,6 +6,7 @@ import { UnifoldAuditLog } from "./audit-log.js";
 import { UnifoldBox } from "./box.js";
 import { UnifoldButton } from "./button.js";
 import { UnifoldCheckbox } from "./checkbox.js";
+import { UnifoldCombobox } from "./combobox.js";
 import { UnifoldComposition } from "./composition.js";
 import { UnifoldDataGrid } from "./data-grid.js";
 import { UnifoldForm } from "./form.js";
@@ -82,6 +83,7 @@ const definitions: readonly [CoreElementTag, CustomElementConstructor][] = [
   [CoreElementTag.Box, UnifoldBox],
   [CoreElementTag.Button, UnifoldButton],
   [CoreElementTag.Checkbox, UnifoldCheckbox],
+  [CoreElementTag.Combobox, UnifoldCombobox],
   [CoreElementTag.Composition, UnifoldComposition],
   [CoreElementTag.DataGrid, UnifoldDataGrid],
   [CoreElementTag.Form, UnifoldForm],
@@ -142,7 +144,6 @@ export function registerCoreElements(
 ): ElementRegistrationResult {
   return defineUnifoldElements(registry);
 }
-
 export function readElementDefinition(
   constructor: CustomElementConstructor
 ): ElementDefinitionMetadata | undefined {

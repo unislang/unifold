@@ -15,6 +15,14 @@ reset-by-default behavior; an unreviewed `4.0.0` candidate proves rejection and 
 journey also requires renamed-node focus, semantic and canonical-event continuity, stable unaffected
 DOM identity, and axe results.
 
+The reference form also contains a select-only editable Combobox. Its dedicated journey proves
+active-descendant keyboard navigation, disabled-option skipping, canonical selection and clearing,
+local unmatched queries, Escape restoration, no-results status, selective projection, runtime event
+identity, bounded option DOM, and axe results. The complete Chromium/WebKit matrix currently passes
+81 cases with 3 intentional scale skips. On the managed Windows runner, focused Firefox cases fail
+before page creation with Playwright's `_page` error; that is not behavioral evidence and remains an
+external-runner release gate.
+
 From the repository root, after installing dependencies and browser binaries:
 
 ```sh

@@ -5,6 +5,7 @@ import { nodeKindForComponent } from "./node-kind.js";
 
 it("owns the single component-to-node-kind mapping", () => {
   expect(nodeKindForComponent("TextField")).toBe(UiNodeKind.Control);
+  expect(nodeKindForComponent("Combobox")).toBe(UiNodeKind.Control);
   expect(nodeKindForComponent("DataGrid")).toBe(UiNodeKind.Control);
   expect(nodeKindForComponent("MasterDetail")).toBe(UiNodeKind.Control);
   expect(nodeKindForComponent("Stepper")).toBe(UiNodeKind.Control);

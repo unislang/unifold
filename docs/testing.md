@@ -141,6 +141,13 @@ unaffected DOM identity, missing-edge last-known-good rejection and recovery, se
 continuity, canonical successor event provenance, and axe checks. All four Chromium/WebKit cases
 pass. Both Firefox cases currently fail before page creation with the existing managed-Windows
 Playwright `_page` error and therefore remain an external-runner release gate.
+The select-only Combobox suite verifies catalog and sidecar agreement, option constraints, keyboard
+active-descendant navigation, disabled-option skipping, pointer selection, no-results status,
+interaction-local unmatched queries, Escape restoration, canonical clearing, external projection,
+static native-select fallback, and hydration capture. Its 10,000-option fixture caps the live DOM at
+200 options and commits a distant filtered result. The complete Chromium/WebKit reference matrix
+passes 81 cases with 3 intentional scale skips; focused Firefox cases currently fail before page
+creation with the same managed-runner `_page` error and provide no component behavioral result.
 The lifecycle-memory profile first runs five public application cycles to establish bounded
 element-registration and renderer caches. It then runs twenty schema-valid 500-node
 mount/revision/dispose cycles, forcing garbage collection after each cycle and at the final

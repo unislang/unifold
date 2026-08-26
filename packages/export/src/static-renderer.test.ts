@@ -53,6 +53,21 @@ it("omits non-public boolean and multiple-choice state", () => {
   expect(nodeMarkup(html, "skills")).not.toMatch(/ selected/u);
 });
 
+it("renders an explicit empty option for an unselected Combobox fallback", () => {
+  const source = prepareTestDocument(completeStaticDocument()).document;
+  const node = requireNode(source, "assignee");
+  const document = {
+    ...source,
+    nodesById: {
+      ...source.nodesById,
+      assignee: { ...node, properties: { ...node.properties, value: "" } }
+    }
+  };
+  expect(nodeMarkup(renderStaticTree(document), "assignee")).toContain(
+    '<option value="" selected></option>'
+  );
+});
+
 function staticNodeIds(html: string): readonly string[] {
   return [...html.matchAll(/data-unifold-static-node-id="([^"]+)"/gu)].map(
     (match) => match[1] ?? ""

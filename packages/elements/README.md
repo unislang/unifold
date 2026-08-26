@@ -14,8 +14,8 @@ if (result.status === ElementRegistrationStatus.Rejected) {
 
 `defineUnifoldElements()` preflights the entire native registry before defining accordion, alert,
 box, button, checkbox, composition, data-grid, form, grid, heading, icon, link, master-detail,
-multi-select, radio-group, search-results, select, stack, stepper, table, text, text-area, text-field,
-virtual-list, and wizard. Repeated calls and duplicate copies of the exact core
+combobox, multi-select, radio-group, search-results, select, stack, stepper, table, text, text-area,
+text-field, virtual-list, and wizard. Repeated calls and duplicate copies of the exact core
 catalog release are idempotent. Foreign, differently versioned, malformed, or incorrectly tagged
 definitions return enum-backed diagnostics without defining any missing tags. An unexpected native
 definition failure reports the tags already defined because the platform registry cannot roll back.
@@ -49,7 +49,7 @@ for JSON examples, value types, and the current accessibility boundary.
 
 ## Component manifests
 
-`pnpm generate:cem` analyzes all twenty-six core elements with the official Custom Elements Manifest
+`pnpm generate:cem` analyzes all twenty-seven core elements with the official Custom Elements Manifest
 analyzer and Lit plugin. It validates the output against the official manifest schema and writes
 `dist/custom-elements.json`. The package exposes that file through its standard `customElements`
 metadata and `./custom-elements.json` export.

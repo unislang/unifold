@@ -231,6 +231,7 @@ function isControlComponent(value: string | undefined): boolean {
 const controlComponents = new Set<CoreComponentType>([
   CoreComponentType.Accordion,
   CoreComponentType.Checkbox,
+  CoreComponentType.Combobox,
   CoreComponentType.MultiSelect,
   CoreComponentType.RadioGroup,
   CoreComponentType.Select,

@@ -12,6 +12,7 @@ const rawPath = resolve(resultDirectory, "selective-rendering.raw.json");
 const profilePath = resolve(resultDirectory, "performance-profile.raw.json");
 const lifecycleMemoryPath = resolve(resultDirectory, "lifecycle-memory.raw.json");
 const virtualListPath = resolve(resultDirectory, "virtual-list-startup.raw.json");
+const comboboxFilterPath = resolve(resultDirectory, "combobox-filter.raw.json");
 const tablePath = resolve(resultDirectory, "table-startup.raw.json");
 const dataGridPath = resolve(resultDirectory, "data-grid-performance.raw.json");
 const masterDetailPath = resolve(resultDirectory, "master-detail-performance.raw.json");
@@ -36,6 +37,7 @@ const profileRuns = [
   ["performance-profile.test.ts", "UNIFOLD_PERFORMANCE_PROFILE_OUTPUT", profilePath],
   ["lifecycle-memory-profile.test.ts", "UNIFOLD_LIFECYCLE_MEMORY_OUTPUT", lifecycleMemoryPath],
   ["virtual-list-profile.test.ts", "UNIFOLD_VIRTUAL_LIST_OUTPUT", virtualListPath],
+  ["combobox-filter-profile.test.ts", "UNIFOLD_COMBOBOX_FILTER_OUTPUT", comboboxFilterPath],
   ["table-profile.test.ts", "UNIFOLD_TABLE_OUTPUT", tablePath],
   ["data-grid-profile.test.ts", "UNIFOLD_DATA_GRID_OUTPUT", dataGridPath],
   ["master-detail-profile.test.ts", "UNIFOLD_MASTER_DETAIL_OUTPUT", masterDetailPath],
@@ -70,6 +72,7 @@ const benchmark = JSON.parse(await readFile(rawPath, "utf8"));
 const measuredProfile = JSON.parse(await readFile(profilePath, "utf8"));
 const lifecycleMemory = JSON.parse(await readFile(lifecycleMemoryPath, "utf8"));
 const virtualListStartup = JSON.parse(await readFile(virtualListPath, "utf8"));
+const comboboxFilter = JSON.parse(await readFile(comboboxFilterPath, "utf8"));
 const tableStartup = JSON.parse(await readFile(tablePath, "utf8"));
 const dataGridPerformance = JSON.parse(await readFile(dataGridPath, "utf8"));
 const masterDetailPerformance = JSON.parse(await readFile(masterDetailPath, "utf8"));
@@ -93,6 +96,7 @@ const profile = {
     ...measuredProfile.gates,
     lifecycleMemory.gate,
     virtualListStartup.gate,
+    comboboxFilter.gate,
     tableStartup.gate,
     ...dataGridPerformance.gates,
     ...masterDetailPerformance.gates,
@@ -108,6 +112,7 @@ const profile = {
     ...documentProvenancePerformance.gates
   ],
   asyncStorePerformance,
+  comboboxFilter,
   auditLogPerformance,
   collaborationPerformance,
   controlPlaneDurabilityPerformance,
@@ -128,7 +133,7 @@ const report = {
   environment: environmentMetadata(),
   generatedAt: new Date().toISOString(),
   profile,
-  schemaVersion: "2.17.0"
+  schemaVersion: "2.18.0"
 };
 await writeFile(finalPath, `${JSON.stringify(report, null, 2)}\n`);
 process.stdout.write(`Benchmark report: ${finalPath}\n`);

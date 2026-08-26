@@ -1,6 +1,6 @@
 # Core components
 
-The implemented core catalog contains twenty-six JSON-constructible Web Components. Every component has a
+The implemented core catalog contains twenty-seven JSON-constructible Web Components. Every component has a
 stable node ID, participates in the same canonical event stream, and receives selective state
 projection through the application runtime. The catalog descriptor is the authority for accepted
 properties; the IR compiler rejects unknown properties and values of the wrong type before render.
@@ -13,6 +13,7 @@ properties; the IR compiler rejects unknown properties and values of the wrong t
 | `Box`           | `unifold-box`            | none           | slotted container        | descendant scope                       |
 | `Button`        | `unifold-button`         | none           | `button`                 | `component.activated`                  |
 | `Checkbox`      | `unifold-checkbox`       | boolean        | checkbox input           | `control.input`, `control.blurred`     |
+| `Combobox`      | `unifold-combobox`       | string         | input + ARIA listbox     | `control.input`, `control.blurred`     |
 | `Composition`   | `unifold-composition`    | none           | grouping host            | descendant scope                       |
 | `DataGrid`      | `unifold-data-grid`      | object         | table and native inputs  | `control.input`, `control.blurred`     |
 | `Form`          | `unifold-form`           | derived object | `form`                   | `form.submit-requested`                |
@@ -83,13 +84,19 @@ native controls and emits an empty shell for classified data.
 }
 ```
 
-`Select` and `RadioGroup` accept string values. `MultiSelect` uses the same option shape and accepts
-an array of strings. Every option value must be unique, and every non-empty selection must match a
-declared option value. The compiler reports duplicate and unknown selections at their exact JSON
-Pointer and does not produce partial IR. An empty scalar value represents no selection. RadioGroup
-uses native fieldset, legend, and same-name radio semantics. `Checkbox` and `Accordion` accept
-booleans. A user interaction emits an intent; the runtime commits the authoritative value and
-projects it back to the element. Components do not maintain a competing application store.
+`Select`, `RadioGroup`, and `Combobox` accept string values. `MultiSelect` uses the same option shape
+and accepts an array of strings. Every option value must be unique, and every non-empty selection
+must match a declared option value. The compiler reports duplicate and unknown selections at their
+exact JSON Pointer and does not produce partial IR. An empty scalar value represents no selection.
+The select-only `Combobox` filters its bounded options without committing the query: Arrow keys move
+its active descendant, Enter or pointer selection commits a registered value, Escape restores the
+committed label, and deleting all text emits an explicit clear intent. Its popup query, visibility,
+and active descendant remain interaction-local rather than forming a second application store. A
+broad query renders at most 200 results while exposing the complete match count with ARIA set-size
+metadata; users filter to reach later registered options without creating an unbounded DOM.
+RadioGroup uses native fieldset, legend, and same-name radio semantics. `Checkbox` and `Accordion`
+accept booleans. A user interaction emits an intent; the runtime commits the authoritative value and
+projects it back to the element.
 
 `VirtualList` accepts the same unique `{ "label", "value", "disabled" }` option contract as
 `Select`, plus positive integer `itemHeight`, `overscan`, and `viewportHeight` properties. It keeps
@@ -269,7 +276,7 @@ import { ButtonVariant, CoreComponentType, type ChoiceOption } from "@unislang/u
 
 ## Component-definition evidence pipeline
 
-All twenty-six core elements participate in the executable `ComponentDefinition` pipeline. The
+All twenty-seven core elements participate in the executable `ComponentDefinition` pipeline. The
 elements build runs the official Custom Elements Manifest analyzer with its Lit plugin, validates
 the complete result against the official manifest JSON Schema, and writes
 `dist/custom-elements.json`. The generated manifest owns facts that can be derived from source:
@@ -296,8 +303,8 @@ accessibility certification.
 
 These controls intentionally prefer native browser semantics. They have automated unit and browser
 coverage, including keyboard and axe checks, but that is not a complete accessibility certification.
-Combobox/autocomplete, validation projection for every future control, field grouping, overlays,
-menus, tabs, form-associated custom-element behavior,
+Free-form autocomplete variants, validation projection for every future control, field grouping,
+overlays, menus, tabs, form-associated custom-element behavior,
 localization, and the full browser/assistive-technology evidence matrix remain planned work. Do not
 infer support for an unregistered component or property from the long-term architecture catalog.
 

@@ -8,6 +8,7 @@ import type { CompilerDiagnostic } from "./types.js";
 
 it("accepts declared scalar, array, and empty selections", () => {
   expect(validateChoice(CoreComponentType.Select, "ca")).toEqual([]);
+  expect(validateChoice(CoreComponentType.Combobox, "ca")).toEqual([]);
   expect(validateChoice(CoreComponentType.MultiSelect, ["us", "ca"])).toEqual([]);
   expect(validateChoice(CoreComponentType.RadioGroup, "us")).toEqual([]);
   expect(validateChoice(CoreComponentType.Select, "")).toEqual([]);
@@ -44,7 +45,11 @@ it("has a validator for every enum-backed constraint kind", () => {
 });
 
 function validateChoice(
-  type: CoreComponentType.Select | CoreComponentType.MultiSelect | CoreComponentType.RadioGroup,
+  type:
+    | CoreComponentType.Combobox
+    | CoreComponentType.Select
+    | CoreComponentType.MultiSelect
+    | CoreComponentType.RadioGroup,
   value: unknown,
   options: unknown = validOptions()
 ): CompilerDiagnostic[] {

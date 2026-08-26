@@ -39,59 +39,61 @@ results. They are evidence from a developer workstation, not ratified release th
 
 | Workload                                    |       p50 |       p95 |       p99 |
 | ------------------------------------------- | --------: | --------: | --------: |
-| 1k one-node edit, 200 indexed selections    |   0.57 ms |   0.88 ms |   1.15 ms |
-| 100-control aggregate leaf edit             |   0.50 ms |   0.70 ms |   1.77 ms |
-| 100 controls, validation, and 20 rules      |   0.84 ms |   1.15 ms |   2.29 ms |
-| 500-node cold document compilation          |   1.23 ms |   1.81 ms |   2.17 ms |
-| 500-node cached document compilation        |   1.04 ms |   1.43 ms |   1.68 ms |
-| 2k document validation and normalization    |   6.18 ms |   7.35 ms |   7.66 ms |
-| 500-instance composition compilation        |   8.78 ms |   9.89 ms |  10.16 ms |
-| 500-instance composition revision           |   8.62 ms |   9.70 ms |  10.18 ms |
-| 10k one-node edit, no selections            |   9.68 ms |  13.74 ms |  13.86 ms |
-| 10k one-node edit, 2,000 indexed selections |   9.31 ms |  11.17 ms |  11.65 ms |
-| 10k one-percent bulk edit                   |  11.11 ms |  13.82 ms |  14.15 ms |
-| 10k 100-sibling full-document reconcile     | 314.37 ms | 326.96 ms | 333.19 ms |
-| 10k replay of 100 transactions              |    0.98 s |    1.03 s |    1.04 s |
-| 10k aggregate-heavy leaf edit               |  44.18 ms |  47.39 ms |  52.50 ms |
-| 1k rule graph, 25 affected rules            |   0.04 ms |   0.04 ms |   0.06 ms |
-| 10k-option VirtualList startup              |  20.19 ms |  24.20 ms |  32.36 ms |
-| 1k-row native Table startup                 |  65.21 ms |  92.86 ms |  92.95 ms |
-| 1k-row native DataGrid startup              | 112.61 ms | 138.51 ms | 157.14 ms |
-| 1k-row DataGrid sort update                 |  20.23 ms |  25.39 ms |  33.32 ms |
-| 1k-row DataGrid selection update            |  17.51 ms |  19.68 ms |  20.79 ms |
-| 10k-row MasterDetail startup                |  38.29 ms |  51.46 ms |  54.56 ms |
-| 10k-row MasterDetail selection update       |   4.22 ms |   5.57 ms |   7.90 ms |
-| 10k-result SearchResults startup            |  41.16 ms |  47.36 ms |  52.26 ms |
-| 10k-result SearchResults query update       |   4.37 ms |   5.23 ms |  10.13 ms |
-| 10k-result SearchResults selection update   |   3.82 ms |   4.66 ms |   4.91 ms |
-| 100-step workflow startup                   |  28.56 ms |  36.76 ms |  36.89 ms |
-| 100-step Stepper selection                  |   1.50 ms |   4.09 ms |   4.73 ms |
-| 100-panel Wizard selection                  |   2.12 ms |   3.70 ms |   4.69 ms |
-| 10k-entry AuditLog startup                  |  59.76 ms |  66.64 ms |  67.32 ms |
-| 10k-entry AuditLog distant scroll           |   0.68 ms |   1.20 ms |   2.78 ms |
-| 1k cached data-actor resolutions            |   5.35 ms |   6.90 ms |   9.97 ms |
-| 1k-tag data cache invalidation              |   0.29 ms |   1.00 ms |   2.48 ms |
-| 1k server-sequenced collaboration commits   |  39.70 ms |  60.40 ms |  63.38 ms |
-| 1k-revision disjoint collaboration rebase   |   1.63 ms |   4.20 ms |   5.57 ms |
-| 10k-event bounded devtools timeline         |  40.78 ms |  44.26 ms |  50.14 ms |
-| 500-node privacy-aware picker               |   0.16 ms |   0.30 ms |   0.43 ms |
-| 1k bounded Fetch control-plane reads        |  25.55 ms |  95.78 ms |  95.78 ms |
-| 1k-message Fetch realtime resume            |   4.14 ms |   6.01 ms |   6.01 ms |
-| 1k SQLite atomic control-plane commits      |  86.91 ms |  97.81 ms |  97.81 ms |
-| 1k SQLite outbox lease and acknowledgement  |  14.48 ms |  30.66 ms |  30.66 ms |
-| 1k authorized async store commits           |  58.10 ms |  75.43 ms |  75.43 ms |
-| 1k mounted external store projections       |  75.03 ms | 104.28 ms | 104.28 ms |
-| 1k governed signed document loads           | 187.39 ms | 236.73 ms | 236.73 ms |
-| 1k revoked document denials                 |  40.20 ms |  42.58 ms |  42.58 ms |
+| 1k one-node edit, 200 indexed selections    |   0.67 ms |   1.10 ms |   1.40 ms |
+| 100-control aggregate leaf edit             |   0.51 ms |   0.73 ms |   2.16 ms |
+| 100 controls, validation, and 20 rules      |   0.82 ms |   1.35 ms |   2.44 ms |
+| 500-node cold document compilation          |   1.25 ms |   1.60 ms |   1.97 ms |
+| 500-node cached document compilation        |   1.08 ms |   1.48 ms |   1.71 ms |
+| 2k document validation and normalization    |   5.88 ms |   6.30 ms |   6.68 ms |
+| 500-instance composition compilation        |   8.20 ms |   9.32 ms |   9.46 ms |
+| 500-instance composition revision           |   8.28 ms |   9.02 ms |   9.30 ms |
+| 10k one-node edit, no selections            |   9.14 ms |  10.84 ms |  11.04 ms |
+| 10k one-node edit, 2,000 indexed selections |   9.80 ms |  12.78 ms |  12.91 ms |
+| 10k one-percent bulk edit                   |  11.12 ms |  13.54 ms |  14.55 ms |
+| 10k 100-sibling full-document reconcile     | 327.83 ms | 348.72 ms | 353.43 ms |
+| 10k replay of 100 transactions              |    0.99 s |    1.04 s |    1.04 s |
+| 10k aggregate-heavy leaf edit               |  44.87 ms |  49.31 ms |  64.87 ms |
+| 1k rule graph, 25 affected rules            |   0.04 ms |   0.04 ms |   0.05 ms |
+| 10k-option Combobox filter                  |   1.42 ms |   2.18 ms |   3.50 ms |
+| 10k-option VirtualList startup              |  20.64 ms |  22.68 ms |  29.79 ms |
+| 1k-row native Table startup                 |  69.39 ms |  96.47 ms |  96.88 ms |
+| 1k-row native DataGrid startup              | 110.97 ms | 138.41 ms | 160.17 ms |
+| 1k-row DataGrid sort update                 |  21.50 ms |  24.45 ms |  31.54 ms |
+| 1k-row DataGrid selection update            |  18.28 ms |  20.90 ms |  21.32 ms |
+| 10k-row MasterDetail startup                |  38.35 ms |  50.81 ms |  60.94 ms |
+| 10k-row MasterDetail selection update       |   4.14 ms |   6.22 ms |   7.67 ms |
+| 10k-result SearchResults startup            |  41.59 ms |  50.17 ms |  52.28 ms |
+| 10k-result SearchResults query update       |   4.48 ms |   5.50 ms |   8.32 ms |
+| 10k-result SearchResults selection update   |   4.01 ms |   4.89 ms |   5.16 ms |
+| 100-step workflow startup                   |  28.61 ms |  37.20 ms |  40.52 ms |
+| 100-step Stepper selection                  |   1.55 ms |   4.89 ms |   5.14 ms |
+| 100-panel Wizard selection                  |   2.15 ms |   3.76 ms |   7.27 ms |
+| 10k-entry AuditLog startup                  |  60.67 ms |  68.65 ms |  72.95 ms |
+| 10k-entry AuditLog distant scroll           |   0.63 ms |   1.04 ms |   2.90 ms |
+| 1k cached data-actor resolutions            |   5.67 ms |   7.39 ms |   7.60 ms |
+| 1k-tag data cache invalidation              |   0.28 ms |   0.81 ms |   1.11 ms |
+| 1k server-sequenced collaboration commits   |  22.91 ms |  31.61 ms |  39.40 ms |
+| 1k-revision disjoint collaboration rebase   |   0.87 ms |   1.28 ms |   1.69 ms |
+| 10k-event bounded devtools timeline         |  44.29 ms |  47.33 ms |  55.21 ms |
+| 500-node privacy-aware picker               |   0.18 ms |   0.36 ms |   0.46 ms |
+| 1k bounded Fetch control-plane reads        |  23.45 ms |  87.75 ms |  87.75 ms |
+| 1k-message Fetch realtime resume            |   3.74 ms |   4.53 ms |   4.53 ms |
+| 1k SQLite atomic control-plane commits      |  82.16 ms |  94.50 ms |  94.50 ms |
+| 1k SQLite outbox lease and acknowledgement  |  14.38 ms |  29.70 ms |  29.70 ms |
+| 1k authorized async store commits           |  58.48 ms |  77.20 ms |  77.20 ms |
+| 1k mounted external store projections       |  76.00 ms | 107.39 ms | 107.39 ms |
+| 1k governed signed document loads           | 194.89 ms | 261.05 ms | 261.05 ms |
+| 1k revoked document denials                 |  40.86 ms |  55.18 ms |  55.18 ms |
 
 Five create/edit/dispose cycles of a selection-free 10,000-node store retained 7.41 MiB after forced
 garbage collection, below the provisional 64 MiB leak-sentinel ceiling; peak observed heap was
-228.29 MiB. A separate public-application lifecycle profile warms bounded registrations and caches
+230.14 MiB. A separate public-application lifecycle profile warms bounded registrations and caches
 for five cycles, then mounts, revises, and disposes the same schema-valid 500-node application twenty
-times. It retained 0.61 MiB, or 1.26% over its forced-GC baseline, below the architecture's strict 2%
-limit; peak lifecycle heap was 83.69 MiB. The 10,000-option VirtualList startup fixture rendered at
-most 23 option rows, below its hard 200-row DOM ceiling. The 1,000-row native Table fixture rendered
-exactly 1,000 body rows in every sample. A dedicated single-worker Chromium run measured
+times. It retained 0.74 MiB, or 1.49% over its forced-GC baseline, below the architecture's strict 2%
+limit; peak lifecycle heap was 85.09 MiB. The 10,000-option Combobox filter rendered exactly 200
+matching options at its broadest query, meeting its hard DOM ceiling. The 10,000-option VirtualList
+startup fixture rendered at most 23 option rows, below its hard 200-row DOM ceiling. The 1,000-row
+native Table fixture rendered exactly 1,000 body rows in every sample. A dedicated single-worker Chromium run measured
 input-to-next-frame latency at
 19.8/28.6/29.6 ms p50/p95/p99 for 1,000 nodes and 50.9/57.6/73.1 ms for 10,000 nodes. These remain
 workstation observations, not portable budgets.
@@ -112,80 +114,86 @@ emits exactly 25 typed commands, and leaves every unrelated chain unchanged. Its
 p95 is below the provisional 4 ms target on the current workstation. The combined public-runtime
 fixture proves one commit spans the leaf edit, three synchronous validations (leaf, group, form),
 two ancestor aggregates, 20 transitive rule commands, and committed-revision selector delivery.
-Its 1.15 ms p95 is below the provisional 8 ms target. All thirty-nine timing limits and the lifecycle
+Its 1.35 ms p95 is below the provisional 8 ms target. All forty timing limits and the lifecycle
 limit are executable benchmark gates and are included with actual/limit/pass fields in the
-schema-2.17.0 machine-readable report; the current run passes all 40/40.
+schema-2.18.0 machine-readable report; the current run passes all 41/41.
 The report also contains a 50-sample paired selection-overhead profile. It alternates measurement
 order between identical 10,000-node stores with zero and 2,000 indexed selections and subtracts
 their five-edit batch medians. This removes shared transaction work without assigning an unrelated
 scheduler pause to selection dispatch before enforcing the provisional 2 ms p95 gate.
-The paired profile measured 0.03/0.89/2.05 ms p50/p95/p99, so the unchanged subscription gate
+The paired profile measured 0.02/0.86/1.27 ms p50/p95/p99, so the unchanged subscription gate
 passes on this workstation.
 
 A separate 500-sample canonical path profile measures validated intent ingress through publication
-and owning-actor delivery. It recorded 0.0019/0.0022/0.0036 ms p50/p95/p99 against the provisional
+and owning-actor delivery. It recorded 0.0019/0.0021/0.0046 ms p50/p95/p99 against the provisional
 8 ms p95 gate. Its deterministic fixture covers commit, submit, approval, navigation, and error
 categories with canonical sequencing, identical public/actor event identities, and duplicate
 rejection without redelivery.
 
 Exact schema-valid document fixtures exercise the public composition-expansion and IR compiler
-boundary. Cold 500-node preparation measured 1.23/1.81/2.17 ms against the 50 ms p95 limit; a
-prewarmed bounded, defensively cloned `UnifoldDocumentCompiler` cache measured 1.04/1.43/1.68 ms
-against 16 ms. Full 2,000-node validation and normalization measured 6.18/7.35/7.66 ms against the
+boundary. Cold 500-node preparation measured 1.25/1.60/1.97 ms against the 50 ms p95 limit; a
+prewarmed bounded, defensively cloned `UnifoldDocumentCompiler` cache measured 1.08/1.48/1.71 ms
+against 16 ms. Full 2,000-node validation and normalization measured 5.88/6.30/6.68 ms against the
 200 ms off-interaction-path limit. A schema-valid document with 500 composition instances expands to
-exactly 1,001 IR nodes and measured 8.78/9.89/10.16 ms; recompiling a revision that changes exactly
-one instance measured 8.62/9.70/10.18 ms. Both enforce 100 ms p95 limits. Because complete revision
+exactly 1,001 IR nodes and measured 8.20/9.32/9.46 ms; recompiling a revision that changes exactly
+one instance measured 8.28/9.02/9.30 ms. Both enforce 100 ms p95 limits. Because complete revision
 compilation remains comfortably within budget, an incremental subtree cache is deliberately deferred
 until these gates or representative product traces justify its invalidation complexity. Cache
 correctness tests cover isolation, bounded LRU retention, clear, invalid capacity, and non-JSON
 collision resistance.
 
+The select-only Combobox fixture compiles and mounts one exact schema-valid 10,000-option document,
+then alternates broad post-warm-up filters for twenty samples. It measured 1.42/2.18/3.50 ms
+p50/p95/p99 against the 100 ms p95 budget and rendered exactly 200 options against the hard
+200-option ceiling. Correctness coverage filters to a distant option, commits it by keyboard through
+the canonical runtime, and proves query text does not become canonical state before selection.
+
 The public application startup fixture compiles and mounts one exact schema-valid 10,000-option
-`VirtualList` twenty times after warm-up. It measured 20.19/24.20/32.36 ms p50/p95/p99 against the
+`VirtualList` twenty times after warm-up. It measured 20.64/22.68/29.79 ms p50/p95/p99 against the
 1,000 ms p95 budget and observed at most 23 rendered option elements against the 200-row ceiling.
 Correctness and Chromium journeys also scroll between distant windows, retain viewport focus and
 the committed selection, and commit a keyboard selection through the canonical runtime path.
 
 The companion native-collection fixture compiles and mounts one exact schema-valid 1,000-row
-`Table` twenty times after warm-up. It measured 65.21/92.86/92.95 ms p50/p95/p99 against the
+`Table` twenty times after warm-up. It measured 69.39/96.47/96.88 ms p50/p95/p99 against the
 1,000 ms p95 budget and rendered exactly 1,000 body rows in every sample. Unit plus Chromium/WebKit
 journeys verify native caption, column-header, and row-header semantics; escaped hostile content;
 last-known-good rejection; retained host identity; and valid-update recovery.
 
 The controlled native-DataGrid fixture mounts, sorts, and selects an exact schema-valid 1,000-row
-document twenty times after warm-up. Startup measured 112.61/138.51/157.14 ms against a 1,000 ms
-p95 gate, sort updates measured 20.23/25.39/33.32 ms against 250 ms, and selection updates measured
-17.51/19.68/20.79 ms against 100 ms. Every sample rendered exactly 1,000 rows, sorted `person-0`
+document twenty times after warm-up. Startup measured 110.97/138.41/160.17 ms against a 1,000 ms
+p95 gate, sort updates measured 21.50/24.45/31.54 ms against 250 ms, and selection updates measured
+18.28/20.90/21.32 ms against 100 ms. Every sample rendered exactly 1,000 rows, sorted `person-0`
 first, and committed that row through the canonical composite value. Chromium/WebKit additionally
 prove keyboard focus continuity, native semantics, axe checks, hostile-text escaping, rollback,
 recovery, and stable host identity.
 
 The virtualized MasterDetail fixture compiles and mounts an exact schema-valid 10,000-row document
-twenty times after warm-up. Startup measured 38.29/51.46/54.56 ms against a 1,000 ms p95 gate, and
-selection/detail projection measured 4.22/5.57/7.90 ms against 100 ms. Every sample rendered at
+twenty times after warm-up. Startup measured 38.35/50.81/60.94 ms against a 1,000 ms p95 gate, and
+selection/detail projection measured 4.14/6.22/7.67 ms against 100 ms. Every sample rendered at
 most 23 master options against the hard 200-option ceiling, selected `account-00001`, and projected
 its matching detail. Chromium/WebKit additionally prove responsive collapse, keyboard focus,
 canonical state, axe checks, hostile-text escaping, rollback, recovery, and stable host identity.
 
 The controlled SearchResults fixture compiles and mounts an exact schema-valid 10,000-result
-document twenty times after warm-up. Startup measured 41.16/47.36/52.26 ms against a 1,000 ms p95
-gate, query updates measured 4.37/5.23/10.13 ms against 100 ms, and selection updates measured
-3.82/4.66/4.91 ms against 100 ms. Every sample rendered at most 15 options against the hard
+document twenty times after warm-up. Startup measured 41.59/50.17/52.28 ms against a 1,000 ms p95
+gate, query updates measured 4.48/5.50/8.32 ms against 100 ms, and selection updates measured
+4.01/4.89/5.16 ms against 100 ms. Every sample rendered at most 15 options against the hard
 200-option ceiling, retained query `Grace`, and selected `result-00001`. Chromium/WebKit additionally
 prove native search semantics, listbox keyboard focus, polite result-count status, canonical object
 state, axe checks, hostile-text escaping, rollback, recovery, and stable host identity.
 
 The exact shared workflow fixture compiles and mounts a 100-step Stepper beside a 100-panel Wizard
-twenty times after warm-up. Startup measured 28.56/36.76/36.89 ms against a 1,000 ms p95 gate,
-distant Stepper selection measured 1.50/4.09/4.73 ms, and distant Wizard panel selection measured
-2.12/3.70/4.69 ms against 100 ms gates. Every sample rendered exactly 200 step buttons, selected
+twenty times after warm-up. Startup measured 28.61/37.20/40.52 ms against a 1,000 ms p95 gate,
+distant Stepper selection measured 1.55/4.89/5.14 ms, and distant Wizard panel selection measured
+2.15/3.76/7.27 ms against 100 ms gates. Every sample rendered exactly 200 step buttons, selected
 `step-099` in both controls, and left exactly one Wizard child panel visible. Chromium and WebKit
 add roving keyboard focus, linear disabled-step skipping, completion, axe, hostile-text escaping,
 last-known-good rollback, recovery, host identity, and child-panel identity evidence.
 
 The read-only AuditLog fixture compiles and mounts an exact schema-valid 10,000-entry authorized
-history twenty times after warm-up. Startup measured 59.76/66.64/67.32 ms against a 1,000 ms p95
-gate, and a deterministic distant scroll measured 0.68/1.20/2.78 ms against 100 ms. Every sample
+history twenty times after warm-up. Startup measured 60.67/68.65/72.95 ms against a 1,000 ms p95
+gate, and a deterministic distant scroll measured 0.63/1.04/2.90 ms against 100 ms. Every sample
 rendered at most 15 entries against the hard 200-entry ceiling and began the distant window at
 `event-9896`. Chromium/WebKit additionally prove native list/time semantics, keyboard-scroll focus,
 axe checks, hostile-text escaping, precise duplicate-ID rejection, last-known-good rollback,
@@ -193,57 +201,57 @@ recovery, and stable host identity.
 
 The framework-neutral data-actor fixture registers one trusted query operation, warms an exact
 1,000-key bounded Query Core cache, and resolves the entire set twenty times without another adapter
-call. Cached batches measured 5.35/6.90/9.97 ms against a 250 ms p95 gate. Exact tag invalidation
-removed all 1,000 entries in 0.29/1.00/2.48 ms against a 100 ms p95 gate. Contract tests separately
+call. Cached batches measured 5.67/7.39/7.60 ms against a 250 ms p95 gate. Exact tag invalidation
+removed all 1,000 entries in 0.28/0.81/1.11 ms against a 100 ms p95 gate. Contract tests separately
 cover cursor-key isolation, LRU and retention limits, offline last-known-good reads, cross-context
 notification, bounded retry, optimistic rollback, conflicts, cancellation, timeout abort, and stale
 completion rejection.
 
 The collaboration fixture creates exactly 1,000 server-sequenced immutable revisions and submits a
 disjoint proposal from the original base across the complete history. Twenty samples measured the
-commit batch at 39.70/60.40/63.38 ms p50/p95/p99 against a 1,000 ms p95 gate and the stale rebase at
-1.63/4.20/5.57 ms against 100 ms. Every sample also proves accepted status, exact final sequence and
+commit batch at 22.91/31.61/39.40 ms p50/p95/p99 against a 1,000 ms p95 gate and the stale rebase at
+0.87/1.28/1.69 ms against 100 ms. Every sample also proves accepted status, exact final sequence and
 document values, and an explicit rebased proposal.
 
 The devtools fixture captures exactly 10,000 canonical facts into a 1,000-entry retained window.
-Twenty samples measured capture plus correlation filtering at 40.78/44.26/50.14 ms p50/p95/p99
+Twenty samples measured capture plus correlation filtering at 44.29/47.33/55.21 ms p50/p95/p99
 against a 1,000 ms gate while proving exactly 9,000 drops and retained sequences 9,001 through
 10,000. A 500-node picker with alternating public and restricted classifications measured
-0.16/0.30/0.43 ms against 100 ms and proved every restricted projection omitted its snapshot.
+0.18/0.36/0.46 ms against 100 ms and proved every restricted projection omitted its snapshot.
 
 The wire-level control-plane fixture performs exactly 1,000 authorized document reads through the
 standard Fetch client and handler, including bounded request/response JSON processing, trusted
 identity lookup, exact-resource authorization, audit append, status agreement, and typed response
-decode. Ten samples measured 25.55/95.78/95.78 ms p50/p95/p99 against a 2,000 ms gate and proved all
+decode. Ten samples measured 23.45/87.75/87.75 ms p50/p95/p99 against a 2,000 ms gate and proved all
 1,000 results and 1,001 mutation/read audit entries. A separate service instance creates exactly
 1,000 tenant-sequenced facts, then resumes the entire contiguous batch through Fetch and the
-stateful cursor in 4.14/6.01/6.01 ms against a 500 ms gate, proving sequences 1 through 1,000 and an
+stateful cursor in 3.74/4.53/4.53 ms against a 500 ms gate, proving sequences 1 through 1,000 and an
 exact final cursor with no duplicate advancement.
 
 The database durability fixture creates a fresh in-memory SQLite database per sample and commits
 exactly 1,000 distinct tenant documents. Each commit must create the assigned revision, redacted
 audit entry, retained realtime fact, and pending outbox row through one database transaction. Five
-samples measured 83.93/94.60/94.60 ms p50/p95/p99 against a 2,000 ms gate. It then drains all 1,000
+samples measured 82.16/94.50/94.50 ms p50/p95/p99 against a 2,000 ms gate. It then drains all 1,000
 rows in ten bounded lease/acknowledgement batches, proving ordered unique sequences and zero
-survivors in 14.18/16.72/16.72 ms against 500 ms. It next exports the same exact 1,000-document
+survivors in 14.38/29.70/29.70 ms against 500 ms. It next exports the same exact 1,000-document
 tenant, encrypts it with AES-256-GCM, reads and decrypts the external envelope, and round-trips it
 through a disposable SQLite restore. Five samples measured that complete recovery drill at
-38.85/40.70/40.70 ms against 2,000 ms while requiring exact integrity and last-known-good evidence.
+40.79/44.53/44.53 ms against 2,000 ms while requiring exact integrity and last-known-good evidence.
 Separate trigger-injection tests prove failures roll back document and effect state together with
 audit, realtime, and outbox rows.
 
 The async store fixture performs 1,000 separately authorized, schema-validated optimistic commits
-through one session and measured 58.10/75.43/75.43 ms p50/p95/p99 against a 2,000 ms gate. A mounted
-Happy DOM application then accepted 1,000 validated external snapshots in 75.03/104.28/104.28 ms
+through one session and measured 58.48/77.20/77.20 ms p50/p95/p99 against a 2,000 ms gate. A mounted
+Happy DOM application then accepted 1,000 validated external snapshots in 76.00/107.39/107.39 ms
 against 5,000 ms, requiring exactly 1,000 normalized transactions, the exact final value, and zero
 provider commit echoes. Unit and Chromium/WebKit journeys additionally cover pre-render atomic
 connection, delayed effect settlement, optional first revision, rollback, subscription conflicts,
 external projection, and disposal.
 
 The governed document fixture loads the same signed two-node document 1,000 times through the
-public provenance policy and measured 187.39/236.73/236.73 ms p50/p95/p99 against a 5,000 ms gate.
+public provenance policy and measured 194.89/261.05/261.05 ms p50/p95/p99 against a 5,000 ms gate.
 It then rejects the same envelope 1,000 times with a revoked trusted key in
-40.20/42.58/42.58 ms against a 1,000 ms gate. Five samples require exact prepared node counts,
+40.86/55.18/55.18 ms against a 1,000 ms gate. Five samples require exact prepared node counts,
 issuer/key/hash/receipt evidence, stable revocation diagnostics, and exactly one metadata-only audit
 receipt per operation; those correctness conditions are part of each executable gate.
 

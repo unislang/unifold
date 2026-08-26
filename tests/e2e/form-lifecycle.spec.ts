@@ -14,6 +14,7 @@ import { compositionNodeIds } from "./reference.scenarios.js";
 type ScenarioPage = Parameters<typeof readRenderBaseline>[0];
 
 const editedValues = {
+  assignee: "grace",
   biography: "Computing pioneer",
   confirmName: "Ada Lovelace",
   contactPreference: "phone",
@@ -24,6 +25,7 @@ const editedValues = {
 };
 
 const initialValues = {
+  assignee: "ada",
   biography: "",
   confirmName: "",
   contactPreference: "email",
@@ -67,6 +69,8 @@ async function editForm(page: ScenarioPage): Promise<void> {
   await page.getByLabel("Receive product updates").check();
   await page.getByLabel("Phone").check();
   await page.getByLabel("Country").selectOption(editedValues.country);
+  await page.getByRole("combobox", { name: "Assignee" }).fill("Grace");
+  await page.getByRole("combobox", { name: "Assignee" }).press("Enter");
   await page.getByLabel("Skills").selectOption(editedValues.skills);
 }
 
@@ -77,6 +81,7 @@ async function assertResetState(page: ScenarioPage): Promise<void> {
   await expect(page.getByLabel("Receive product updates")).not.toBeChecked();
   await expect(page.getByLabel("Email")).toBeChecked();
   await expect(page.getByLabel("Country")).toHaveValue(initialValues.country);
+  await expect(page.getByRole("combobox", { name: "Assignee" })).toHaveValue("Ada Lovelace");
   await expect(page.getByLabel("Skills")).toHaveValues(initialValues.skills);
   await expect(page.getByLabel("Internal note")).toBeDisabled();
   await expect(page.getByTestId("submitted-value")).toHaveText("");
@@ -91,6 +96,7 @@ function resetUpdateExpectation() {
       compositionNodeIds.checkbox,
       compositionNodeIds.radioGroup,
       compositionNodeIds.country,
+      compositionNodeIds.combobox,
       compositionNodeIds.multiSelect,
       compositionNodeIds.submit
     ],
@@ -107,6 +113,7 @@ function lifecycleNodeIds(): readonly string[] {
     compositionNodeIds.checkbox,
     compositionNodeIds.radioGroup,
     compositionNodeIds.country,
+    compositionNodeIds.combobox,
     compositionNodeIds.multiSelect,
     compositionNodeIds.internalNote,
     compositionNodeIds.submit

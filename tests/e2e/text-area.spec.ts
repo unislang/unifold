@@ -21,6 +21,8 @@ test("supports the complete native-control keyboard journey", async ({ page }) =
   await pressTabTo(page, "Receive product updates");
   await pressTabTo(page, "Email");
   await pressTabTo(page, "Country");
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("combobox", { name: "Assignee" })).toBeFocused();
   await pressTabTo(page, "Skills");
   await page.keyboard.press("Tab");
   await expect(page.getByRole("button", { name: "Create greeting" })).toBeFocused();

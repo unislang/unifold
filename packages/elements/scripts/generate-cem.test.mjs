@@ -15,8 +15,8 @@ test("writes complete manifest and component-definition artifacts", async (conte
   await generateComponentArtifacts(sourceRoot, outputRoot);
   const manifest = await readJson(join(outputRoot, "custom-elements.json"));
   const definitions = await readJson(join(outputRoot, "component-definitions.json"));
-  assert.equal(manifest.modules.flatMap((module) => module.declarations ?? []).length, 26);
-  assert.equal(definitions.definitions.length, 26);
+  assert.equal(manifest.modules.flatMap((module) => module.declarations ?? []).length, 27);
+  assert.equal(definitions.definitions.length, 27);
 });
 
 async function readJson(path) {

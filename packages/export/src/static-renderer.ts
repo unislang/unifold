@@ -3,7 +3,6 @@ import { CoreComponentType, DataClassification, type JsonValue } from "@unislang
 import type { UnifoldIrDocument, UnifoldIrNode } from "@unislang/unifold-ir";
 import { escapeHtml } from "./html-escape.js";
 import * as staticComponents from "./static-components.js";
-
 type NodeRenderer = (context: RenderContext) => string;
 interface RenderContext {
   readonly childContent: readonly string[];
@@ -18,6 +17,7 @@ const renderers: Readonly<Record<CoreComponentType, NodeRenderer>> = {
   [CoreComponentType.Box]: renderContainer,
   [CoreComponentType.Button]: renderButton,
   [CoreComponentType.Checkbox]: renderCheckbox,
+  [CoreComponentType.Combobox]: renderSelect,
   [CoreComponentType.Composition]: renderSection,
   [CoreComponentType.DataGrid]: staticComponents.renderStaticDataGrid,
   [CoreComponentType.Form]: renderForm,
@@ -146,7 +146,6 @@ function renderMultiSelect({ document, node }: RenderContext): string {
   const selected = publicStringArray(document, node, "value");
   return renderSelectControl(node, renderOptions(node, selected), " multiple");
 }
-
 function renderRadioGroup({ document, node }: RenderContext): string {
   const selected = publicString(document, node, "value");
   const options = optionList(node).map((option, index) =>
@@ -159,8 +158,9 @@ function renderRadioGroup({ document, node }: RenderContext): string {
 }
 
 function renderSelect({ document, node }: RenderContext): string {
-  const selected = [publicString(document, node, "value")];
-  return renderSelectControl(node, renderOptions(node, selected), "");
+  const value = publicString(document, node, "value");
+  const empty = value === "" ? '<option value="" selected></option>' : "";
+  return renderSelectControl(node, `${empty}${renderOptions(node, [value])}`, "");
 }
 
 function renderSelectControl(node: UnifoldIrNode, options: string, multiple: string): string {

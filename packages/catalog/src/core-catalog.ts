@@ -10,7 +10,6 @@ import {
   ButtonAction,
   ButtonVariant,
   CatalogBindingKind,
-  CatalogConstraintKind,
   CatalogPropertyType,
   CoreElementTag,
   HeadingLevel,
@@ -28,26 +27,10 @@ import {
   TextAreaWrap,
   TextFieldInputType
 } from "./enums.js";
-import type {
-  CatalogConstraintDescriptor,
-  CatalogPropertyDescriptor,
-  ComponentCatalog,
-  ComponentDescriptor
-} from "./types.js";
+import type { CatalogPropertyDescriptor, ComponentCatalog, ComponentDescriptor } from "./types.js";
 import * as dataViews from "./data-view-catalog.js";
 import * as workflows from "./workflow-catalog.js";
-const choiceConstraints: readonly CatalogConstraintDescriptor[] = [
-  {
-    kind: CatalogConstraintKind.UniqueOptionValues,
-    optionsProperty: "options"
-  },
-  {
-    allowEmptySelection: true,
-    kind: CatalogConstraintKind.SelectionInOptions,
-    optionsProperty: "options",
-    selectionProperty: "value"
-  }
-];
+import { choiceConstraints, choiceProperties, comboboxDescriptor } from "./choice-catalog.js";
 const property = (
   name: string,
   valueType: CatalogPropertyType,
@@ -85,25 +68,6 @@ function enumProperty(
   values: readonly string[]
 ): CatalogPropertyDescriptor {
   return { ...property(name, CatalogPropertyType.Enum, defaultValue), enumValues: values };
-}
-
-function choiceProperties(
-  valueType: CatalogPropertyType.String | CatalogPropertyType.StringArray,
-  defaultValue: JsonValue
-): readonly CatalogPropertyDescriptor[] {
-  return [
-    property("disabled", CatalogPropertyType.Boolean, false),
-    property("errorMessage", CatalogPropertyType.String, ""),
-    property("label", CatalogPropertyType.String, ""),
-    property("name", CatalogPropertyType.String, ""),
-    property("options", CatalogPropertyType.OptionList, []),
-    property("required", CatalogPropertyType.Boolean, false),
-    enumProperty("updateOn", UiUpdateTrigger.Input, Object.values(UiUpdateTrigger)),
-    property("value", valueType, defaultValue),
-    property("validators", CatalogPropertyType.StringArray, []),
-    property("asyncValidators", CatalogPropertyType.StringArray, []),
-    testId
-  ];
 }
 
 function textControlProperties(
@@ -198,6 +162,7 @@ const descriptors: Record<CoreComponentType, ComponentDescriptor> = {
     tagName: CoreElementTag.Checkbox,
     version: "1.0.0"
   },
+  [CoreComponentType.Combobox]: comboboxDescriptor,
   [CoreComponentType.Composition]: {
     componentType: CoreComponentType.Composition,
     properties: [property("label", CatalogPropertyType.String, ""), testId],

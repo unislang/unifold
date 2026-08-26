@@ -8,6 +8,7 @@ import {
   visibleSubject
 } from "./definition-sidecar-helpers.js";
 import { auditLogSidecar } from "./audit-log-sidecar.js";
+import { comboboxSidecar } from "./combobox-sidecar.js";
 import { ComponentAccessibilityPattern, IconName } from "./enums.js";
 import { searchResultsSidecar } from "./search-results-sidecar.js";
 import { stepperSidecar, wizardSidecar } from "./workflow-sidecars.js";
@@ -79,6 +80,7 @@ const sidecars: Readonly<Record<CoreComponentType, ComponentDefinitionSidecar>> 
     semanticAttachmentPoints: [],
     sensitiveProperties: ["errorMessage", "value"]
   }),
+  [CoreComponentType.Combobox]: comboboxSidecar,
   [CoreComponentType.Composition]: definition({
     behaviors: ["Preserves expanded child identities", "Provides one accessible grouping boundary"],
     browserScenarios: ["expands the authored composition to deterministic executable node ids"],

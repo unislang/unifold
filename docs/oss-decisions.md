@@ -154,7 +154,7 @@ reused as the existing JSON Schema validator.
 The analyzer is exactly pinned because its Lit plugin is not a separately exported public entry
 point. An executable test protects that integration and keeps replacement local to the generator.
 Generated source facts are joined to reviewed sidecars rather than hand-maintained twice. The
-package publishes the complete twenty-six-element CEM plus joined component definitions; executable
+package publishes the complete twenty-seven-element CEM plus joined component definitions; executable
 drift tests protect the replaceable generator boundary.
 
 ## Framework host compatibility

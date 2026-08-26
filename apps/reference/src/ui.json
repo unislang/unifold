@@ -125,6 +125,22 @@
                 "value": "us"
               },
               {
+                "$comp": "Combobox",
+                "id": "assignee",
+                "label": "Assignee",
+                "name": "assignee",
+                "noResultsMessage": "No matching people",
+                "options": [
+                  { "label": "Ada Lovelace", "value": "ada" },
+                  { "disabled": true, "label": "Unavailable person", "value": "unavailable" },
+                  { "label": "Grace Hopper", "value": "grace" },
+                  { "label": "Katherine Johnson", "value": "katherine" }
+                ],
+                "placeholder": "Choose a person",
+                "testId": "assignee",
+                "value": "ada"
+              },
+              {
                 "$comp": "MultiSelect",
                 "id": "skills",
                 "label": "Skills",
