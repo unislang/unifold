@@ -26,6 +26,14 @@
       "types": "./dist/popover.d.ts",
       "import": "./dist/popover.js"
     },
+    "./breadcrumb": {
+      "types": "./dist/breadcrumb.d.ts",
+      "import": "./dist/breadcrumb.js"
+    },
+    "./dialog": {
+      "types": "./dist/dialog.d.ts",
+      "import": "./dist/dialog.js"
+    },
     "./audit-log": {
       "types": "./dist/audit-log.d.ts",
       "import": "./dist/audit-log.js"

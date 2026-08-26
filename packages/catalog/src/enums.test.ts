@@ -10,7 +10,8 @@ import {
   ComponentSemanticHiddenContentPolicy,
   ComponentSemanticNormalization,
   ComponentSemanticValueSource,
-  ComponentStatus
+  ComponentStatus,
+  DialogActivationReason
 } from "./enums.js";
 
 it("exports enum-backed component-definition vocabulary", () => {
@@ -26,4 +27,5 @@ it("exports enum-backed component-definition vocabulary", () => {
   expect(ComponentSemanticNormalization.ImageUrl).toBe("image-url");
   expect(ComponentSemanticValueSource.VisibleText).toBe("visible-text");
   expect(ComponentStatus.Experimental).toBe("experimental");
+  expect(DialogActivationReason.Escape).toBe("escape");
 });

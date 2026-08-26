@@ -11,8 +11,10 @@ import uiDefinition from "../ui.json";
 
 const [
   auditLogFamily,
+  breadcrumbFamily,
   comboboxFamily,
   dataGridFamily,
+  dialogFamily,
   masterDetailFamily,
   menuButtonFamily,
   popoverFamily,
@@ -24,8 +26,10 @@ const [
   wizardFamily
 ] = await Promise.all([
   import("@unislang/unifold/audit-log"),
+  import("@unislang/unifold/breadcrumb"),
   import("@unislang/unifold/combobox"),
   import("@unislang/unifold/data-grid"),
+  import("@unislang/unifold/dialog"),
   import("@unislang/unifold/master-detail"),
   import("@unislang/unifold/menu-button"),
   import("@unislang/unifold/popover"),
@@ -37,8 +41,10 @@ const [
   import("@unislang/unifold/wizard")
 ]);
 assertFamily("AuditLog", auditLogFamily.defineUnifoldAuditLog());
+assertFamily("Breadcrumb", breadcrumbFamily.defineUnifoldBreadcrumb());
 assertFamily("Combobox", comboboxFamily.defineUnifoldCombobox());
 assertFamily("DataGrid", dataGridFamily.defineUnifoldDataGrid());
+assertFamily("Dialog", dialogFamily.defineUnifoldDialog());
 assertFamily("MasterDetail", masterDetailFamily.defineUnifoldMasterDetail());
 assertFamily("MenuButton", menuButtonFamily.defineUnifoldMenuButton());
 assertFamily("Popover", popoverFamily.defineUnifoldPopover());

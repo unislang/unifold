@@ -4,7 +4,7 @@ import { expect, it } from "vitest";
 import { getCoreComponentEvents } from "./component-events.js";
 
 it("declares supported workflow signals for every component", () => {
-  expect(Object.values(CoreComponentType).map(getCoreComponentEvents)).toHaveLength(31);
+  expect(Object.values(CoreComponentType).map(getCoreComponentEvents)).toHaveLength(33);
   expect(getCoreComponentEvents(CoreComponentType.Button)).toEqual([
     UiComponentEventBinding.Activated
   ]);
@@ -13,6 +13,12 @@ it("declares supported workflow signals for every component", () => {
     UiComponentEventBinding.Blurred
   ]);
   expect(getCoreComponentEvents(CoreComponentType.Popover)).toEqual([
+    UiComponentEventBinding.Activated
+  ]);
+  expect(getCoreComponentEvents(CoreComponentType.Breadcrumb)).toEqual([
+    UiComponentEventBinding.Activated
+  ]);
+  expect(getCoreComponentEvents(CoreComponentType.Dialog)).toEqual([
     UiComponentEventBinding.Activated
   ]);
   expect(getCoreComponentEvents("Unknown")).toEqual([]);

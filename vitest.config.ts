@@ -23,6 +23,12 @@ export default defineConfig({
       "@unislang/unifold-elements/popover": fileURLToPath(
         new URL("./packages/elements/src/popover-entry.ts", import.meta.url)
       ),
+      "@unislang/unifold-elements/breadcrumb": fileURLToPath(
+        new URL("./packages/elements/src/breadcrumb-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/dialog": fileURLToPath(
+        new URL("./packages/elements/src/dialog-entry.ts", import.meta.url)
+      ),
       "@unislang/unifold-elements/audit-log": fileURLToPath(
         new URL("./packages/elements/src/audit-log-entry.ts", import.meta.url)
       ),
@@ -88,6 +94,12 @@ export default defineConfig({
       ),
       "@unislang/unifold/popover": fileURLToPath(
         new URL("./packages/unifold/src/popover.ts", import.meta.url)
+      ),
+      "@unislang/unifold/breadcrumb": fileURLToPath(
+        new URL("./packages/unifold/src/breadcrumb.ts", import.meta.url)
+      ),
+      "@unislang/unifold/dialog": fileURLToPath(
+        new URL("./packages/unifold/src/dialog.ts", import.meta.url)
       ),
       "@unislang/unifold-ai": packageSource("ai"),
       "@unislang/unifold-catalog": packageSource("catalog"),

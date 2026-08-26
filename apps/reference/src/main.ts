@@ -11,19 +11,7 @@ import {
   type UnifoldApplicationUpdateResult
 } from "@unislang/unifold";
 import type { JsonValue } from "@unislang/unifold-contracts";
-import {
-  UiCommandType,
-  UiEventType,
-  UiValidationSeverity,
-  type UiEvent
-} from "@unislang/unifold-events";
-import {
-  createAsyncValidatorRegistry,
-  createStandardSchemaValidator,
-  createValidatorRegistry,
-  type UiValidationContext
-} from "@unislang/unifold-forms";
-import { check, forward, looseObject, pipe, string } from "valibot";
+import { UiCommandType, UiEventType, type UiEvent } from "@unislang/unifold-events";
 
 import type {
   ProfileDefinition,
@@ -34,10 +22,14 @@ import type {
   RealmCopyResult
 } from "./main.types.js";
 import "./reference.css";
+import { registerReferenceInteractiveFamilies } from "./reference-interactive-families.js";
 import uiDefinition from "./ui.json" with { type: "json" };
 import { installStoreFixtureHooks } from "./store-fixture.js";
 
-await defineReferenceComponentFamilies();
+const [profileValidation] = await Promise.all([
+  import("./profile-validation.js"),
+  defineReferenceComponentFamilies()
+]);
 const host = requireElement<HTMLElement>("app");
 const application = requireApplication(mountReference(host));
 const testHooksEnabled = import.meta.env.MODE === "e2e";
@@ -56,9 +48,11 @@ function loadReferenceComponentFamilies() {
     import("@unislang/unifold/audit-log"),
     import("@unislang/unifold/combobox"),
     import("@unislang/unifold/data-grid"),
+    import("./dialog-reference.js"),
     import("@unislang/unifold/master-detail"),
     import("@unislang/unifold/menu-button"),
     import("./popover-reference.js"),
+    import("./breadcrumb-reference.js"),
     import("@unislang/unifold/search-results"),
     import("@unislang/unifold/stepper"),
     import("@unislang/unifold/tabs"),
@@ -75,9 +69,11 @@ function registerReferenceComponentFamilies(
     auditLog,
     combobox,
     dataGrid,
+    dialog,
     masterDetail,
     menuButton,
     popover,
+    breadcrumb,
     searchResults,
     stepper,
     tabs,
@@ -85,23 +81,29 @@ function registerReferenceComponentFamilies(
     virtualList,
     wizard
   ] = families;
-  assertFamilyRegistration("AuditLog", auditLog.defineUnifoldAuditLog());
-  assertFamilyRegistration("Combobox", combobox.defineUnifoldCombobox());
-  assertFamilyRegistration("DataGrid", dataGrid.defineUnifoldDataGrid());
-  assertFamilyRegistration("MasterDetail", masterDetail.defineUnifoldMasterDetail());
-  assertFamilyRegistration("MenuButton", menuButton.defineUnifoldMenuButton());
-  registerReferencePopover(popover);
-  assertFamilyRegistration("SearchResults", searchResults.defineUnifoldSearchResults());
+  registerReferenceDataFamilies(auditLog, combobox, dataGrid, masterDetail, searchResults);
+  registerReferenceInteractiveFamilies(
+    { breadcrumb, dialog, menuButton, popover, tooltip },
+    uiDefinition
+  );
   assertFamilyRegistration("Stepper", stepper.defineUnifoldStepper());
   assertFamilyRegistration("Tabs", tabs.defineUnifoldTabs());
-  assertFamilyRegistration("Tooltip", tooltip.defineUnifoldTooltip());
   assertFamilyRegistration("VirtualList", virtualList.defineUnifoldVirtualList());
   assertFamilyRegistration("Wizard", wizard.defineUnifoldWizard());
 }
 
-function registerReferencePopover(popover: typeof import("./popover-reference.js")): void {
-  assertFamilyRegistration("Popover", popover.defineUnifoldPopover());
-  popover.appendReferencePopover(uiDefinition);
+function registerReferenceDataFamilies(
+  auditLog: typeof import("@unislang/unifold/audit-log"),
+  combobox: typeof import("@unislang/unifold/combobox"),
+  dataGrid: typeof import("@unislang/unifold/data-grid"),
+  masterDetail: typeof import("@unislang/unifold/master-detail"),
+  searchResults: typeof import("@unislang/unifold/search-results")
+): void {
+  assertFamilyRegistration("AuditLog", auditLog.defineUnifoldAuditLog());
+  assertFamilyRegistration("Combobox", combobox.defineUnifoldCombobox());
+  assertFamilyRegistration("DataGrid", dataGrid.defineUnifoldDataGrid());
+  assertFamilyRegistration("MasterDetail", masterDetail.defineUnifoldMasterDetail());
+  assertFamilyRegistration("SearchResults", searchResults.defineUnifoldSearchResults());
 }
 
 function assertFamilyRegistration(
@@ -120,8 +122,8 @@ function mountReference(
     compositionMigrations: profileCompositionMigrations(),
     machineCommands: profileMachineCommands(),
     runtime: {
-      asyncValidatorRegistry: profileAsyncValidators(),
-      validatorRegistry: profileValidators()
+      asyncValidatorRegistry: profileValidation.profileAsyncValidators(),
+      validatorRegistry: profileValidation.profileValidators()
     },
     semanticPublication
   });
@@ -161,68 +163,6 @@ function submitLabelCommand(label: string) {
     properties: { label },
     type: UiCommandType.NodePatchProperties
   } as const;
-}
-
-function profileValidators() {
-  const registry = createValidatorRegistry();
-  registry.register(
-    "names-match",
-    createStandardSchemaValidator(namesMatchSchema(), {
-      affectedIdsByPath: { confirmName: ["profile-editor::confirm-name"] },
-      code: "names-match",
-      messageKey: "validation.names-match",
-      validatorId: "names-match"
-    })
-  );
-  return registry;
-}
-
-function profileAsyncValidators() {
-  const registry = createAsyncValidatorRegistry();
-  registry.register("name-available", { validate: validateNameAvailability });
-  return registry;
-}
-
-async function validateNameAvailability(context: UiValidationContext, signal: AbortSignal) {
-  const unavailable = String(context.value).toLowerCase() === "taken";
-  await abortableDelay(unavailable ? 1_000 : 10, signal);
-  return unavailable ? [nameUnavailableError(context.node.id)] : [];
-}
-
-function nameUnavailableError(id: string) {
-  return {
-    affectedIds: [id],
-    code: "name-unavailable",
-    messageKey: "validation.name-unavailable",
-    ownerId: id,
-    parameters: { message: "This name is unavailable." },
-    severity: UiValidationSeverity.Error,
-    validatorId: "name-available"
-  } as const;
-}
-
-function abortableDelay(milliseconds: number, signal: AbortSignal): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const timer = window.setTimeout(resolve, milliseconds);
-    signal.addEventListener("abort", () => abortDelay(timer, reject), { once: true });
-  });
-}
-
-function abortDelay(timer: number, reject: (reason: DOMException) => void): void {
-  window.clearTimeout(timer);
-  reject(new DOMException("Validation was superseded.", "AbortError"));
-}
-
-function namesMatchSchema() {
-  return pipe(
-    looseObject({ confirmName: string(), name: string() }),
-    forward(check(matchesOptionalConfirmation, "Names must match."), ["confirmName"])
-  );
-}
-
-function matchesOptionalConfirmation(value: { confirmName: string; name: string }): boolean {
-  if (value.confirmName.length === 0) return true;
-  return value.confirmName === value.name;
 }
 
 application.runtime.events$.subscribe(handleRuntimeEvent);
@@ -313,7 +253,6 @@ function readSubmittedValue(change: JsonValue | undefined): string {
 function stringifyValue(value: JsonValue | undefined): string {
   return value === undefined ? "" : String(value);
 }
-
 function requireApplication(
   result: ReturnType<typeof mountUnifoldApplication>
 ): UnifoldApplicationPort {
@@ -322,13 +261,11 @@ function requireApplication(
   }
   return result.application;
 }
-
 function requireElement<T extends HTMLElement>(id: string): T {
   const element = document.getElementById(id);
   if (element === null) throw new Error(`Missing reference element: ${id}.`);
   return element as T;
 }
-
 function requireTestElement(id: string): HTMLElement {
   const element = document.querySelector<HTMLElement>(`[data-testid="${id}"]`);
   if (element === null) throw new Error(`Missing test element: ${id}.`);

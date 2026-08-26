@@ -8,6 +8,7 @@ import {
 
 import { errorDiagnostic } from "./diagnostics.js";
 import { isAuditLogEntryList } from "./audit-log-validation.js";
+import { isBreadcrumbItemList } from "./breadcrumb-validation.js";
 import { isDataGridValue } from "./data-grid-validation.js";
 import { validateComponentConstraints } from "./component-constraints.js";
 import { DiagnosticCode } from "./enums.js";
@@ -23,6 +24,7 @@ const reservedProperties = new Set(["$children", "$comp", "events", "id", "path"
 const optionKeys = new Set(["disabled", "label", "value"]);
 const validators: Readonly<Record<CatalogPropertyType, PropertyValidator>> = {
   [CatalogPropertyType.AuditLogEntryList]: isAuditLogEntryList,
+  [CatalogPropertyType.BreadcrumbItemList]: isBreadcrumbItemList,
   [CatalogPropertyType.Boolean]: (value) => typeof value === "boolean",
   [CatalogPropertyType.DataGridValue]: isDataGridValue,
   [CatalogPropertyType.Enum]: isEnumValue,

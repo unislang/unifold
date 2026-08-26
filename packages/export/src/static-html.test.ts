@@ -25,6 +25,9 @@ it("exports deterministic standalone HTML with an exact integrity manifest", asy
   if (first.status !== UnifoldExportStatus.Exported) throw new Error("Expected static HTML.");
   expect(first.output.content.startsWith("<!doctype html>")).toBe(true);
   expect(first.output.content.match(/type="application\/ld\+json"/gu)).toHaveLength(1);
+  expect(first.output.content).toContain(
+    '<summary>Review account change</summary><section role="dialog" aria-label="Confirm account change">'
+  );
   expect(first.output.manifest).toMatchObject({
     fileName: UnifoldExportFileName.StaticHtml,
     format: UnifoldExportFormat.StaticHtml,

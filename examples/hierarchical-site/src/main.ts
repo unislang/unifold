@@ -8,12 +8,14 @@ import {
   type UnifoldApplicationPort
 } from "@unislang/unifold";
 import { UiCommandType, type UiEvent } from "@unislang/unifold-events";
+import { defineUnifoldDialog } from "@unislang/unifold/dialog";
 
 import definition from "./ui.json" with { type: "json" };
 import layoutDefinitions from "./layouts.json" with { type: "json" };
 import "./example.css";
 
 const layoutRegistry = createTrustedLayoutDefinitionRegistry(layoutDefinitions);
+defineUnifoldDialog();
 
 export interface ExampleController {
   readonly application: UnifoldApplicationPort;

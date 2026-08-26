@@ -1,0 +1,13 @@
+{
+  "$comp": "Breadcrumb",
+  "id": "account-breadcrumb",
+  "compact": false,
+  "items": [
+    { "href": "#account-home", "id": "home", "label": "Home" },
+    { "href": "#accounts", "id": "accounts", "label": "Accounts" },
+    { "id": "current", "label": "Current account" }
+  ],
+  "label": "Account breadcrumb",
+  "separator": "chevron",
+  "testId": "account-breadcrumb"
+}

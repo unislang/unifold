@@ -6,14 +6,15 @@
   "scripts": {
     "benchmark": "node scripts/run-benchmarks.mjs",
     "benchmark:data-grid-foundation": "node scripts/run-data-grid-foundation.mjs",
+    "benchmark:dialog-foundation": "node scripts/run-dialog-foundation.mjs",
     "test": "vitest run --config vitest.config.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@unislang/unifold": "workspace:*",
     "@unislang/unifold-collaboration": "workspace:*",
-    "@unislang/unifold-control-plane": "workspace:*",
     "@unislang/unifold-contracts": "workspace:*",
+    "@unislang/unifold-control-plane": "workspace:*",
     "@unislang/unifold-devtools": "workspace:*",
     "@unislang/unifold-elements": "workspace:*",
     "@unislang/unifold-events": "workspace:*",
@@ -23,6 +24,9 @@
     "@unislang/unifold-runtime": "workspace:*"
   },
   "devDependencies": {
+    "@lion/ui": "0.21.0",
+    "@spectrum-web-components/dialog": "1.12.2",
+    "@spectrum-web-components/overlay": "1.12.2",
     "@spectrum-web-components/table": "1.12.2",
     "@types/node": "24.3.0",
     "happy-dom": "20.0.10",

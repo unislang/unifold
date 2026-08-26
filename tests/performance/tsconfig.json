@@ -5,5 +5,5 @@
     "skipLibCheck": true,
     "types": ["node", "vitest/globals"]
   },
-  "include": ["*.ts", "data-grid-foundation/*.ts"]
+  "include": ["*.ts", "data-grid-foundation/*.ts", "dialog-foundation/*.ts"]
 }

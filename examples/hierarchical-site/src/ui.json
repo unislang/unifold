@@ -48,6 +48,34 @@
             "props": { "content": "Summary not created", "testId": "summary-status" }
           }
         ]
+      },
+      {
+        "id": "account-review-dialog",
+        "type": "Dialog",
+        "props": {
+          "dialogLabel": "Review generated account summary",
+          "dismissLabel": "Cancel summary review",
+          "label": "Review generated summary",
+          "testId": "account-review-dialog"
+        },
+        "children": [
+          {
+            "id": "account-review-copy",
+            "type": "Text",
+            "props": {
+              "content": "This modal is authored through layoutType variables and nested JSON."
+            }
+          },
+          {
+            "id": "account-review-link",
+            "type": "Link",
+            "props": {
+              "href": "#hierarchical-dialog-details",
+              "label": "Inspect generated summary details",
+              "target": "_self"
+            }
+          }
+        ]
       }
     ]
   },

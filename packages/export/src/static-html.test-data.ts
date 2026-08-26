@@ -16,6 +16,8 @@ import {
 } from "@unislang/unifold";
 
 import { referenceAuditLogNode } from "./static-audit-log-reference.test-data.js";
+import { referenceBreadcrumbNode } from "./static-breadcrumb-reference.test-data.js";
+import { referenceDialogNode } from "./static-dialog-reference.test-data.js";
 import { referenceSearchResultsNode } from "./static-search-results-reference.test-data.js";
 import { referenceMenuButton } from "./static-menu-reference.test-data.js";
 import { referenceTooltipNode } from "./static-tooltip-reference.test-data.js";
@@ -48,8 +50,10 @@ function referenceRoot(): JsonObject {
     $children: [
       referenceForm(),
       referenceDisclosure(),
+      referenceBreadcrumbNode(),
       referenceMenuButton(),
       referencePopover(),
+      referenceDialogNode(),
       referenceTabsNode(),
       referenceTooltipNode()
     ]

@@ -219,6 +219,48 @@ The shipped component therefore uses native `table`, `button`, radio, and checkb
 Unifold-owned validation, sorting, canonical state, privacy export, and browser evidence. Spectrum
 code is not imported by a published runtime package or the reference application.
 
+## Breadcrumb foundation
+
+| Field                | Decision                                                                                   |
+| -------------------- | ------------------------------------------------------------------------------------------ |
+| Status               | Native HTML baseline selected                                                              |
+| Compared candidates  | Native HTML/WAI pattern; Spectrum Web Components Breadcrumbs 1.12.2; Lion inventory        |
+| Purpose              | Preserve hierarchy, native navigation, canonical events, and Schema.org positions          |
+| Runtime dependency   | None                                                                                       |
+| Spectrum observation | Strong semantics and overflow reference; overflow pulls in menu, icon, link, and base code |
+| Lion observation     | No Breadcrumb component in the current public inventory                                    |
+| Owner                | Catalog, accessibility, semantics, elements, export, and performance maintainers           |
+| Review date          | 2026-08-26                                                                                 |
+| Fallback             | Keep native baseline; benchmark overflow separately before adding a MenuButton composition |
+
+The full evidence and contract are recorded in the
+[Breadcrumb OSS evaluation](./research/breadcrumb/report-source.md). The baseline follows WAI's
+labelled navigation and current-page semantics with native `nav`, `ol`, `li`, and `a`. Spectrum is
+retained as an upstream behavioral reference; Lion has no equivalent component to adapt. Unifold
+does not import either library for this slice and does not infer structured data from view content.
+
+## Dialog foundation
+
+| Field                | Decision                                                                                     |
+| -------------------- | -------------------------------------------------------------------------------------------- |
+| Status               | Native HTML top-layer foundation selected                                                    |
+| Compared candidates  | Native `dialog`; `@lion/ui@0.21.0`; Spectrum Dialog/Overlay 1.12.2                           |
+| Purpose              | Preserve modal semantics, nested focus, canonical events, tokens, and static fallback        |
+| Runtime dependency   | None; Lion and Spectrum are exact-pinned development-only benchmark dependencies             |
+| Native measurement   | 0.19 ms p95 over 20 local samples; 347-byte gzip candidate                                   |
+| Lion observation     | 1.09 ms p95; 26,994-byte gzip candidate; native-dialog Overlay System and useful regressions |
+| Spectrum observation | 1.10 ms p95; 61,330-byte gzip candidate; mature overlay stack and broader design surface     |
+| Owner                | Catalog, accessibility, elements, export, and performance maintainers                        |
+| Review date          | 2026-08-26                                                                                   |
+| Fallback             | Keep native baseline and rerun the exact comparison before replacing the adapter             |
+
+The executable `pnpm benchmark:dialog-foundation` comparison and full decision are recorded in the
+[Dialog OSS evaluation](./research/dialog/report-source.md). Both OSS candidates now build on broad
+overlay controllers and native top-layer behavior. Their regression histories inform Unifold's
+nested Escape, focus containment, and teardown tests, but neither replaces the normalized runtime or
+canonical event fabric. They remain development-only measurements and are absent from published
+runtime packages.
+
 ## Derived JSON rules: candidate evaluation
 
 | Field                 | Decision                                                                                |

@@ -12,6 +12,7 @@ export {
 } from "@unislang/unifold-contracts";
 export {
   AlertTone,
+  BreadcrumbSeparator,
   ButtonAction,
   ButtonVariant,
   CatalogBindingKind,
@@ -30,6 +31,7 @@ export {
   CoreElementTag,
   DataGridSelectionMode,
   DataGridSortDirection,
+  DialogActivationReason,
   HeadingLevel,
   IconName,
   IconSize,
@@ -49,12 +51,16 @@ export {
   TooltipPlacement
 } from "./enums.js";
 export { isSafeUrl } from "./url.js";
+export { breadcrumbDescriptor, MAXIMUM_BREADCRUMB_ITEMS } from "./breadcrumb-catalog.js";
+export { dialogDescriptor, MAXIMUM_DIALOG_CHILDREN } from "./dialog-catalog.js";
 export { MAXIMUM_MENU_ITEMS } from "./menu-catalog.js";
 export { popoverDescriptor } from "./popover-catalog.js";
 export { tooltipDescriptor } from "./tooltip-catalog.js";
 export type {
   AuditLogEntry,
+  BreadcrumbItem,
   CatalogAuditLogDataConstraint,
+  CatalogBreadcrumbDataConstraint,
   CatalogChildCountConstraint,
   CatalogDataGridStateConstraint,
   CatalogMasterDetailStateConstraint,

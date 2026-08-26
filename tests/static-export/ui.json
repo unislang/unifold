@@ -37,6 +37,16 @@
         "level": "1"
       },
       {
+        "$comp": "Breadcrumb",
+        "id": "profile-breadcrumb",
+        "items": [
+          { "href": "#static-home", "id": "home", "label": "Home" },
+          { "href": "#static-accounts", "id": "accounts", "label": "Accounts" },
+          { "id": "profile", "label": "Static profile" }
+        ],
+        "label": "Static profile breadcrumb"
+      },
+      {
         "$comp": "MenuButton",
         "id": "account-actions",
         "items": [
@@ -70,6 +80,27 @@
             "href": "#static-account-details",
             "id": "account-summary-link",
             "label": "Open static account documentation",
+            "target": "_self"
+          }
+        ]
+      },
+      {
+        "$comp": "Dialog",
+        "id": "account-review-dialog",
+        "dialogLabel": "Static account review",
+        "dismissLabel": "Cancel static review",
+        "label": "Review static account change",
+        "$children": [
+          {
+            "$comp": "Text",
+            "content": "Confirm the static account details before continuing.",
+            "id": "account-review-copy"
+          },
+          {
+            "$comp": "Link",
+            "href": "#static-dialog-details",
+            "id": "account-review-link",
+            "label": "Inspect static account documentation",
             "target": "_self"
           }
         ]

@@ -15,11 +15,17 @@ export default defineConfig({
       "@unislang/unifold-elements/audit-log": fileURLToPath(
         new URL("../../packages/elements/src/audit-log-entry.ts", import.meta.url)
       ),
+      "@unislang/unifold-elements/breadcrumb": fileURLToPath(
+        new URL("../../packages/elements/src/breadcrumb-entry.ts", import.meta.url)
+      ),
       "@unislang/unifold-elements/combobox": fileURLToPath(
         new URL("../../packages/elements/src/combobox-entry.ts", import.meta.url)
       ),
       "@unislang/unifold-elements/data-grid": fileURLToPath(
         new URL("../../packages/elements/src/data-grid-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/dialog": fileURLToPath(
+        new URL("../../packages/elements/src/dialog-entry.ts", import.meta.url)
       ),
       "@unislang/unifold-elements/search-results": fileURLToPath(
         new URL("../../packages/elements/src/search-results-entry.ts", import.meta.url)

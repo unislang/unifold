@@ -18,10 +18,19 @@ import {
 
 describe("compileSemanticGraph", () => {
   it("resolves a visible public committed value deterministically", compilesPublicGraph);
+  it("compiles an authored positional BreadcrumbList graph", compilesBreadcrumbGraph);
   it("rejects unknown vocabulary terms and unsafe bindings", rejectsUnsafeGraph);
   it("reports identity, reference, and binding failures", reportsGraphFailures);
   it("rejects an unsupported release", rejectsUnsupportedRelease);
 });
+
+function compilesBreadcrumbGraph(): void {
+  const result = compileSemanticGraph(breadcrumbGraph(), compilationSource({}));
+  expect(result.status).toBe(SemanticCompilationStatus.Valid);
+  expect(result.serialized).toContain('"@type":"BreadcrumbList"');
+  expect(result.serialized).toContain('"position":1');
+  expect(result.serialized).toContain('"itemListElement":[{"@id":"urn:crumb:home"}]');
+}
 
 function compilesPublicGraph(): void {
   const source = richGraph();
@@ -130,6 +139,43 @@ function graph(type = "Person", property = "name"): SemanticGraph {
     },
     vocabulary: { release: SchemaOrgRelease.Version30, uri: SchemaOrgVocabularyUri.Canonical }
   };
+}
+
+function breadcrumbGraph(): SemanticGraph {
+  return {
+    contractVersion: SemanticContractVersion.Version1,
+    entities: breadcrumbEntities(),
+    primaryEntity: "urn:breadcrumbs:account",
+    publication: {
+      mode: SemanticPublicationMode.PublicPage,
+      profile: SemanticPublicationProfile.SchemaOrg
+    },
+    vocabulary: { release: SchemaOrgRelease.Version30, uri: SchemaOrgVocabularyUri.Canonical }
+  };
+}
+
+function breadcrumbEntities(): SemanticGraph["entities"] {
+  return [
+    {
+      id: "urn:breadcrumbs:account",
+      properties: {
+        itemListElement: {
+          items: [{ entityId: "urn:crumb:home", kind: SemanticValueKind.EntityReference }],
+          kind: SemanticValueKind.List
+        }
+      },
+      type: "BreadcrumbList"
+    },
+    {
+      id: "urn:crumb:home",
+      properties: {
+        item: { kind: SemanticValueKind.Constant, value: "https://example.com/" },
+        name: { kind: SemanticValueKind.Constant, value: "Home" },
+        position: { kind: SemanticValueKind.Constant, value: 1 }
+      },
+      type: "ListItem"
+    }
+  ];
 }
 
 function snapshots(

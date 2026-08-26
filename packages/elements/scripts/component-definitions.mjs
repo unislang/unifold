@@ -3,6 +3,7 @@ import {
   CatalogPropertyType,
   ComponentCapability,
   ComponentDefinitionSchemaVersion,
+  MAXIMUM_BREADCRUMB_ITEMS,
   MAXIMUM_MENU_ITEMS,
   componentDefinitionSidecars,
   coreCatalog,
@@ -39,6 +40,21 @@ const scalarSchemas = Object.freeze({
     uniqueItems: true
   },
   [CatalogPropertyType.Boolean]: { type: "boolean" },
+  [CatalogPropertyType.BreadcrumbItemList]: {
+    items: {
+      additionalProperties: false,
+      properties: {
+        href: { type: "string" },
+        id: identifierSchema,
+        label: { maxLength: 512, minLength: 1, type: "string" }
+      },
+      required: ["id", "label"],
+      type: "object"
+    },
+    maxItems: MAXIMUM_BREADCRUMB_ITEMS,
+    minItems: 1,
+    type: "array"
+  },
   [CatalogPropertyType.DataGridValue]: {
     additionalProperties: false,
     properties: {

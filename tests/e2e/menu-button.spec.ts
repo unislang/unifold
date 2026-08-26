@@ -10,6 +10,7 @@ test("invokes a bounded menu action with restored trigger focus", async ({ page,
   await page.goto("/");
   const host = page.getByTestId("account-actions");
   const trigger = host.getByRole("button", { name: "Account actions" });
+  await expect(host.getByRole("menu", { includeHidden: true })).toBeHidden();
   await rememberIdentity(host);
 
   await trigger.press("ArrowDown");

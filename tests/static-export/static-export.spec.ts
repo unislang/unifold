@@ -27,6 +27,7 @@ test.describe("without JavaScript", () => {
     await expect(page.getByRole("heading", { name: "Static profile" })).toBeVisible();
     await expect(page.getByLabel("Name")).toHaveValue("Ada Lovelace");
     await expect(page.getByRole("button", { name: "Save profile" })).toBeVisible();
+    await assertStaticBreadcrumb(page);
     await expect(page.getByText("Account actions", { exact: true })).toBeVisible();
     await page.getByText("Account actions", { exact: true }).click();
     await expect(page.getByRole("button", { name: "Archive account" })).toBeVisible();
@@ -39,11 +40,25 @@ test.describe("without JavaScript", () => {
     await expect(page.getByRole("dialog", { name: "Static account summary" })).toContainText(
       "The static account is active."
     );
+    await assertStaticDialogDisclosure(page);
     await expect(page.locator(`[data-unifold-static-document="${documentId}"]`)).toHaveCount(1);
     await expect(page.locator("[data-unifold-node-id]")).toHaveCount(0);
     await expect(page.locator(semanticsSelector)).toHaveCount(1);
   });
 });
+
+async function assertStaticBreadcrumb(page: import("@playwright/test").Page): Promise<void> {
+  const breadcrumb = page.getByRole("navigation", { name: "Static profile breadcrumb" });
+  await expect(breadcrumb.getByRole("listitem")).toHaveCount(3);
+  await expect(breadcrumb.locator('[aria-current="page"]')).toHaveText("Static profile");
+}
+
+async function assertStaticDialogDisclosure(page: import("@playwright/test").Page): Promise<void> {
+  await page.getByText("Review static account change", { exact: true }).click();
+  await expect(page.getByRole("dialog", { name: "Static account review" })).toContainText(
+    "Confirm the static account details before continuing."
+  );
+}
 
 test("migrates edited state, focus, and JSON-LD in one safe upgrade", async ({ page }) => {
   const errors = captureBrowserErrors(page);
@@ -103,6 +118,39 @@ test("upgrades static Popover content into one focus-restoring interaction", asy
   await expect(panel).toBeFocused();
   await panel.press("Escape");
   await expect(panel).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
+
+test("upgrades the static Breadcrumb into one canonical navigation intent", async ({ page }) => {
+  await page.goto("/?upgrade=manual");
+  await loadUpgrade(page);
+  await invokeUpgrade(page);
+  await clearEvents(page);
+  const breadcrumb = page.getByRole("navigation", { name: "Static profile breadcrumb" });
+  await breadcrumb.getByRole("link", { name: "Home" }).click();
+  expect(await eventTypes(page)).toEqual(["org.unifold.ui.component.activated.v1"]);
+  await expect(breadcrumb.locator('[aria-current="page"]')).toHaveText("Static profile");
+});
+
+test("upgrades static Dialog content into one modal focus-contained interaction", async ({
+  page
+}) => {
+  await page.goto("/?upgrade=manual");
+  await loadUpgrade(page);
+  await invokeUpgrade(page);
+  const trigger = page.getByRole("button", { name: "Review static account change" });
+  const dialog = page.getByRole("dialog", { name: "Static account review" });
+  const dismiss = page.getByRole("button", { name: "Cancel static review" });
+  await trigger.click();
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toHaveAttribute("open", "");
+  await expect(dismiss).toBeFocused();
+  await dismiss.press("Tab");
+  await expect(
+    page.getByRole("link", { name: "Inspect static account documentation" })
+  ).toBeFocused();
+  await dialog.press("Escape");
+  await expect(dialog).toBeHidden();
   await expect(trigger).toBeFocused();
 });
 

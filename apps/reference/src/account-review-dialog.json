@@ -1,0 +1,22 @@
+{
+  "$comp": "Dialog",
+  "id": "account-review-dialog",
+  "dialogLabel": "Review account change",
+  "dismissLabel": "Cancel review",
+  "label": "Review account change",
+  "testId": "account-review-dialog",
+  "$children": [
+    {
+      "$comp": "Text",
+      "content": "Confirm the selected account details before continuing.",
+      "id": "account-review-dialog-copy"
+    },
+    {
+      "$comp": "Link",
+      "href": "#account-dialog-details",
+      "id": "account-review-dialog-link",
+      "label": "Inspect account documentation",
+      "target": "_self"
+    }
+  ]
+}

@@ -33,6 +33,12 @@ export interface ChoiceOption extends JsonObject {
   readonly value: string;
 }
 
+export interface BreadcrumbItem extends JsonObject {
+  readonly href?: string;
+  readonly id: string;
+  readonly label: string;
+}
+
 export type MenuItem = ChoiceOption;
 
 export interface AuditLogEntry extends JsonObject {
@@ -58,6 +64,11 @@ export interface CatalogChildCountConstraint {
 export interface CatalogAuditLogDataConstraint {
   readonly entriesProperty: string;
   readonly kind: CatalogConstraintKind.AuditLogData;
+}
+
+export interface CatalogBreadcrumbDataConstraint {
+  readonly itemsProperty: string;
+  readonly kind: CatalogConstraintKind.BreadcrumbData;
 }
 
 export interface CatalogSelectionInOptionsConstraint {
@@ -106,6 +117,7 @@ export interface CatalogStepNavigationStateConstraint {
 
 export type CatalogConstraintDescriptor =
   | CatalogAuditLogDataConstraint
+  | CatalogBreadcrumbDataConstraint
   | CatalogChildCountConstraint
   | CatalogDataGridStateConstraint
   | CatalogMasterDetailStateConstraint

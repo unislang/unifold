@@ -27,13 +27,15 @@ test("joins all sidecars, catalog schemas, and CEM declarations", async () => {
 
 test("derives required, enum, attribute, and public snapshot schemas", async () => {
   const document = await definitions();
-  const { auditLog, dataGrid, icon, link, searchResults, stepper, table, wizard } =
+  const { auditLog, breadcrumb, dataGrid, icon, link, searchResults, stepper, table, wizard } =
     schemaDefinitions(document);
   assert.deepEqual(icon.propertiesSchema.required, ["name"]);
   assert.deepEqual(link.propertiesSchema.required, ["href"]);
   assert.deepEqual(link.attributesSchema.properties.href, { type: "string" });
   assert.deepEqual(table.propertiesSchema.required, ["caption", "columns", "rows"]);
   assertMenuButtonSchemas(document);
+  assert.deepEqual(breadcrumb.propertiesSchema.required, ["label", "items"]);
+  assert.equal(breadcrumb.propertiesSchema.properties.items.maxItems, 32);
   assertOverlaySchemas(document);
   assertAuditLogSchemas(auditLog);
   assert.equal(table.propertiesSchema.properties.columns.maxItems, 64);
@@ -46,6 +48,7 @@ test("derives required, enum, attribute, and public snapshot schemas", async () 
 });
 
 function assertOverlaySchemas(document) {
+  const dialog = requireDefinition(document, CoreComponentType.Dialog);
   const tooltip = requireDefinition(document, CoreComponentType.Tooltip);
   const popover = requireDefinition(document, CoreComponentType.Popover);
   assert.deepEqual(tooltip.propertiesSchema.required, ["label", "content"]);
@@ -56,6 +59,7 @@ function assertOverlaySchemas(document) {
     "top"
   ]);
   assert.deepEqual(popover.propertiesSchema.required, ["label", "panelLabel"]);
+  assert.deepEqual(dialog.propertiesSchema.required, ["dialogLabel", "label"]);
   assert.deepEqual(popover.propertiesSchema.properties.placement.enum, [
     "bottom",
     "end",
@@ -68,7 +72,9 @@ function schemaDefinitions(document) {
   return Object.fromEntries(
     [
       "auditLog",
+      "breadcrumb",
       "dataGrid",
+      "dialog",
       "icon",
       "link",
       "popover",

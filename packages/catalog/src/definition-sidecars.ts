@@ -1,5 +1,4 @@
 import { CoreComponentType } from "@unislang/unifold-contracts";
-
 import {
   definition,
   exampleNode as node,
@@ -8,7 +7,9 @@ import {
   visibleSubject
 } from "./definition-sidecar-helpers.js";
 import { auditLogSidecar } from "./audit-log-sidecar.js";
+import { breadcrumbSidecar } from "./breadcrumb-sidecar.js";
 import { comboboxSidecar } from "./combobox-sidecar.js";
+import { dialogSidecar } from "./dialog-sidecar.js";
 import { ComponentAccessibilityPattern, IconName } from "./enums.js";
 import { searchResultsSidecar } from "./search-results-sidecar.js";
 import { menuButtonSidecar } from "./menu-sidecar.js";
@@ -16,11 +17,9 @@ import { popoverSidecar } from "./popover-sidecar.js";
 import { tooltipSidecar } from "./tooltip-sidecar.js";
 import { stepperSidecar, tabsSidecar, wizardSidecar } from "./workflow-sidecars.js";
 import type { ComponentDefinitionSidecar } from "./types.js";
-
 const contentScenario = "renders semantic content and publishes Link activation";
 const layoutScenario = "renders nested token-based Box, Stack, and Grid primitives";
 const nativeChoiceScenario = "routes native choice and disclosure controls through one stream";
-
 const sidecars: Readonly<Record<CoreComponentType, ComponentDefinitionSidecar>> = Object.freeze({
   [CoreComponentType.Accordion]: definition({
     behaviors: ["Uses native details disclosure state", "Emits a controlled disclosure intent"],
@@ -59,6 +58,7 @@ const sidecars: Readonly<Record<CoreComponentType, ComponentDefinitionSidecar>> 
     semanticAttachmentPoints: [],
     sensitiveProperties: ["label"]
   }),
+  [CoreComponentType.Breadcrumb]: breadcrumbSidecar,
   [CoreComponentType.Button]: definition({
     behaviors: ["Uses native button activation", "Emits a canonical activation intent"],
     browserScenarios: ["orders component intent and committed facts in one stream"],
@@ -121,6 +121,7 @@ const sidecars: Readonly<Record<CoreComponentType, ComponentDefinitionSidecar>> 
     semanticAttachmentPoints: [],
     sensitiveProperties: ["caption", "columns", "emptyMessage", "errorMessage", "rows", "value"]
   }),
+  [CoreComponentType.Dialog]: dialogSidecar,
   [CoreComponentType.Form]: definition({
     behaviors: [
       "Uses native form submission",
@@ -343,7 +344,6 @@ const sidecars: Readonly<Record<CoreComponentType, ComponentDefinitionSidecar>> 
   }),
   [CoreComponentType.Wizard]: wizardSidecar
 });
-
 export const componentDefinitionSidecars = sidecars;
 export function getComponentDefinitionSidecar(type: CoreComponentType): ComponentDefinitionSidecar {
   return sidecars[type];

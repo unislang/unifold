@@ -72,6 +72,29 @@ test("has no serious or critical detectable accessibility violations", async ({
   await unifold.assertAccessibility();
 });
 
+test("renders nested Dialog JSON through the layoutType authoring pipeline", async ({
+  page,
+  unifold
+}) => {
+  await page.goto("/");
+  const host = page.getByTestId("account-review-dialog");
+  const trigger = host.getByRole("button", { name: "Review generated summary" });
+  const dialog = host.getByRole("dialog", { name: "Review generated account summary" });
+  await trigger.click();
+  await expect(dialog).toBeVisible();
+  await expect(page.getByRole("button", { name: "Cancel summary review" })).toBeFocused();
+  await expect(
+    host.getByText("This modal is authored through layoutType variables and nested JSON.")
+  ).toBeVisible();
+  await expect(
+    host.getByRole("link", { name: "Inspect generated summary details" })
+  ).toHaveAttribute("href", "#hierarchical-dialog-details");
+  await unifold.assertAccessibility();
+  await dialog.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
+
 async function semanticName(page: Parameters<typeof readRenderBaseline>[0]) {
   return page.locator("script[data-unifold-semantics]").evaluate((element) => {
     const graph = JSON.parse(element.textContent ?? "{}") as { "@graph": [{ name: string }] };

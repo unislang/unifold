@@ -1,0 +1,63 @@
+[
+  {
+    "id": "https://unifold.org/accounts/current",
+    "type": "WebPage",
+    "properties": {
+      "breadcrumb": {
+        "entityId": "urn:unifold:breadcrumbs:account",
+        "kind": "entity-reference"
+      },
+      "mainEntity": {
+        "entityId": "urn:unifold:person:current",
+        "kind": "entity-reference"
+      },
+      "name": { "kind": "constant", "value": "Current account" }
+    }
+  },
+  {
+    "id": "urn:unifold:breadcrumbs:account",
+    "type": "BreadcrumbList",
+    "properties": {
+      "itemListElement": {
+        "kind": "list",
+        "items": [
+          { "entityId": "urn:unifold:breadcrumb:home", "kind": "entity-reference" },
+          { "entityId": "urn:unifold:breadcrumb:accounts", "kind": "entity-reference" },
+          { "entityId": "urn:unifold:breadcrumb:current", "kind": "entity-reference" }
+        ]
+      },
+      "itemListOrder": {
+        "kind": "constant",
+        "value": "https://schema.org/ItemListOrderAscending"
+      },
+      "numberOfItems": { "kind": "constant", "value": 3 }
+    }
+  },
+  {
+    "id": "urn:unifold:breadcrumb:home",
+    "type": "ListItem",
+    "properties": {
+      "item": { "kind": "constant", "value": "https://unifold.org/" },
+      "name": { "kind": "constant", "value": "Home" },
+      "position": { "kind": "constant", "value": 1 }
+    }
+  },
+  {
+    "id": "urn:unifold:breadcrumb:accounts",
+    "type": "ListItem",
+    "properties": {
+      "item": { "kind": "constant", "value": "https://unifold.org/accounts" },
+      "name": { "kind": "constant", "value": "Accounts" },
+      "position": { "kind": "constant", "value": 2 }
+    }
+  },
+  {
+    "id": "urn:unifold:breadcrumb:current",
+    "type": "ListItem",
+    "properties": {
+      "item": { "kind": "constant", "value": "https://unifold.org/accounts/current" },
+      "name": { "kind": "constant", "value": "Current account" },
+      "position": { "kind": "constant", "value": 3 }
+    }
+  }
+]

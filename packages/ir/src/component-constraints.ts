@@ -10,6 +10,7 @@ import {
 
 import { errorDiagnostic } from "./diagnostics.js";
 import { validateAuditLogDataConstraint } from "./audit-log-validation.js";
+import { validateBreadcrumbDataConstraint } from "./breadcrumb-validation.js";
 import { validateDataGridStateConstraint } from "./data-grid-validation.js";
 import { DiagnosticCode } from "./enums.js";
 import { isPlainObject } from "./json-safety.js";
@@ -33,6 +34,7 @@ interface SelectionEntry {
 
 const validators: Readonly<Record<CatalogConstraintKind, ConstraintValidator>> = {
   [CatalogConstraintKind.AuditLogData]: validateAuditLogDataConstraint,
+  [CatalogConstraintKind.BreadcrumbData]: validateBreadcrumbDataConstraint,
   [CatalogConstraintKind.ChildCount]: validateChildCount,
   [CatalogConstraintKind.DataGridState]: validateDataGridStateConstraint,
   [CatalogConstraintKind.MasterDetailState]: validateMasterDetailStateConstraint,

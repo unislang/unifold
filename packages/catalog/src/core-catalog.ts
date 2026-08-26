@@ -28,7 +28,9 @@ import {
 import type { CatalogPropertyDescriptor, ComponentCatalog, ComponentDescriptor } from "./types.js";
 import * as dataViews from "./data-view-catalog.js";
 import * as workflows from "./workflow-catalog.js";
+import { breadcrumbDescriptor } from "./breadcrumb-catalog.js";
 import { choiceConstraints, choiceProperties, comboboxDescriptor } from "./choice-catalog.js";
+import { dialogDescriptor } from "./dialog-catalog.js";
 import { menuButtonDescriptor } from "./menu-catalog.js";
 import { popoverDescriptor } from "./popover-catalog.js";
 import { tooltipDescriptor } from "./tooltip-catalog.js";
@@ -109,6 +111,7 @@ const descriptors: Record<CoreComponentType, ComponentDescriptor> = {
     tagName: CoreElementTag.Box,
     version: "1.0.0"
   },
+  [CoreComponentType.Breadcrumb]: breadcrumbDescriptor,
   [CoreComponentType.Button]: {
     componentType: CoreComponentType.Button,
     properties: [
@@ -146,6 +149,7 @@ const descriptors: Record<CoreComponentType, ComponentDescriptor> = {
     version: "1.0.0"
   },
   [CoreComponentType.DataGrid]: dataViews.dataGridDescriptor,
+  [CoreComponentType.Dialog]: dialogDescriptor,
   [CoreComponentType.Form]: {
     componentType: CoreComponentType.Form,
     properties: [

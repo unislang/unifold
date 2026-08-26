@@ -17,26 +17,18 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Independently verified pre-status-update remote checkpoint: `a7a2f778a3d3fe1720f7dcc646a2406f30828943`
-  (`docs: record popover checkpoint`). The implementation is
-  `d9ed981508ed0f28e1f536084f8d92837161c941` (`feat: add catalog-authoritative popover`), preceded by
-  packed-consumer guard checkpoint `e69e9ff48f3e74239d86622185434cec815f7967`. `git ls-remote`
-  confirmed `origin/main` at the same `a7a2f77` checkpoint before this final status-only update.
-- Working tree: the broad post-`96f37a6` implementation is committed and release-verified. It includes the
-  derived-rule engine and 1,000-rule selective benchmark, Tooltip optional family work, a strict
-  hierarchy-oriented layout authoring layer, enum-backed source-specific workflow event bindings,
-  an immutable trusted external-layout registry, trusted named XState guards over normalized state,
-  and a standalone hierarchical example site that consumes those boundaries. Preserve all unrelated
-  changes. Repository quality, unit/tooling/script, performance, production build/bundle, and focused
-  Chromium/WebKit browser gates pass. The prior packed-consumer, formatting, duplication, upstream
-  parity, and broad release evidence remains recorded below. The pushed checkpoints include a
-  release-verified packed-consumer workflow-guard journey and a complete catalog-authoritative
-  Popover slice spanning catalog, IR, elements, static export, deferred facade registration,
-  reference/static browser integrations, and performance evidence. Both and the final status
-  documentation are committed and pushed. Current quality, correctness, coverage,
-  build/bundle, benchmark, packed-consumer, duplication, formatting, and focused Chromium/WebKit
-  browser gates pass. The focused Firefox rerun fails in Playwright before page creation with the
-  managed Windows `_page` defect and yields no Popover behavior result.
+- Latest committed checkpoint: `8ea58e1cfc63395a157aba9b738fb15be1f0423b`
+  (`docs: finalize pushed checkpoint status`). The current Breadcrumb/Dialog slice is verified
+  locally but remains uncommitted; preserve every listed working-tree change until it is checkpointed.
+- Working tree: catalog-authoritative Breadcrumb and Dialog families now span contracts, catalog
+  descriptors and sidecars, IR diagnostics, deferred Lit elements, canonical events, static
+  fallbacks, public package subpaths, reference JSON, generated manifests, browser journeys, and
+  exact performance gates. Breadcrumb also extends the single semantic compiler with authored
+  Schema.org `BreadcrumbList`/`ListItem` support. The final local matrix passes quality, correctness,
+  coverage, build/bundle, clean packed-consumer, duplication, formatting, benchmark, and focused
+  browser gates. Breadcrumb/Dialog reference journeys pass in Chromium and WebKit; the managed
+  Firefox runner fails before page creation with its existing `_page` error and therefore provides
+  no application evidence. The static no-JavaScript and upgrade matrix passes in Chromium and WebKit.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
@@ -44,29 +36,53 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 
 ## Last completed implementation slice
 
-The catalog-authoritative MenuButton slice is complete and committed as `33fb53e`:
+The catalog-authoritative Breadcrumb and Dialog slice is release-verified locally and is the next
+checkpoint to commit:
 
-- Exact bounded action items flow through contracts, catalog metadata and sidecars, IR validation,
-  generated component metadata, the registered custom element, canonical activation events, and a
-  native `details`/`summary` static fallback with upgrade evidence.
-- Keyboard, pointer, outside-dismissal, disabled-item, roving-focus, Escape, Tab, hostile-text,
-  rejection/recovery, stable-identity, and axe journeys pass in Chromium and WebKit.
-- The complete package matrix passes 346 files and 892 tests. Coverage passes at 97.37%
-  lines/statements, 97.18% functions, and 90.15% branches; MenuButton itself has 100% line,
-  statement, and function coverage and 95.58% branch coverage.
-- The complete reference matrix passes 85 Chromium/WebKit cases with 3 intentional scale skips;
-  the static-export matrix passes 14/14. Firefox still fails before page creation with the known
-  managed Windows `_page` runner defect and therefore provides no component behavioral result.
-- Build, formatting, duplication, and the clean packed-consumer 3/3 lifecycle pass. The production
-  reference is 184,298 gzip bytes (179.98 KiB) against the executable 180 KiB ceiling.
-- Benchmark schema 2.20.0 passes 43/43 gates. Twenty exact samples measured the 401-button shared
-  navigation startup at 49.34/68.10/73.31 ms p50/p95/p99 and final MenuButton activation at
-  0.79/1.29/1.84 ms against its 100 ms p95 limit.
+- Breadcrumb accepts 1 to 32 exact, uniquely identified items, requires safe linked ancestors, uses
+  native `nav`/`ol`/`li`/`a` structure, marks the final item with `aria-current="page"`, and emits a
+  canonical activation payload containing the item ID and destination. Its separator is an
+  enum-backed property. The semantic graph remains the sole publication authority for authored
+  Schema.org `BreadcrumbList`, `ListItem`, and linked `WebPage` entities.
+- Dialog accepts 1 to 64 authored children, uses native modal-dialog behavior when available and a
+  static disclosure fallback otherwise, restores focus, handles dismissal, and deterministically
+  cycles focus across light DOM and nested shadow roots. It emits canonical open/dismiss actions and
+  retains prior UI state and identity when an invalid update is rejected.
+- The complete correctness command passes 417 Vitest files/1,045 tests, 16 tooling tests, 8 CEM
+  script tests, the theme/reference script tests, and 26 passing performance files with 19
+  intentionally skipped profile files (22 skipped profile tests). Coverage passes at 97.43%
+  lines/statements, 97.08% functions, and 90.09% branches.
+- Repository quality passes the 350-line file ceiling, exact one-source/one-colocated-test policy,
+  cyclomatic complexity below 4, 30-line function ceiling, lint, strict source/test typechecks,
+  package dependency boundaries, and unused-code analysis. Formatting and the duplication budget
+  also pass.
+- The production build and clean packed-consumer lifecycle pass 3/3. The reference initial closure
+  is 183,700 gzip bytes (179.39 KiB) against the 180 KiB ceiling, with 31,854 deferred gzip bytes.
+- The full Chromium/WebKit reference matrix passes 95 cases with 3 intentional WebKit scale skips
+  after isolated confirmation of two load-sensitive cases. The hierarchical example passes 6/6,
+  static export passes 22/22, and the real-upstream JsonUI oracle passes 18/18 in Chromium/WebKit.
+  Firefox attempts fail before page creation with the managed runner's `_page` defect.
+  These cover accessibility, semantics, canonical events, rollback, and stable identity.
+- Benchmark schema 2.22.0 passes 47/47 gates on an idle rerun. The 100-step/468-button startup is
+  127.78 ms p95 against 1,000 ms; 32-position Breadcrumb activation is 0.77 ms p95 and 32-action
+  Dialog opening is 0.45 ms p95, each against 100 ms.
+- The separate 20-sample native/Lion/Spectrum Dialog foundation comparison passes its native gate:
+  native is 0.19 ms p95 and 347 gzip bytes against 100 ms/4,096-byte limits, versus Lion at 1.09 ms
+  and 26,994 bytes and Spectrum at 1.10 ms and 61,330 bytes.
 
-These results describe the committed checkpoint. Re-run affected gates after every new slice and
-record new measurements rather than treating the numbers above as proof for later changes.
+These results describe the current verified local snapshot. Re-run affected gates after every new
+slice and record new measurements rather than treating the numbers above as proof for later changes.
 
 ## Active slice
+
+Checkpoint the locally verified Breadcrumb/Dialog work without losing shared working-tree changes,
+then reconcile the component inventory and select the next catalog-authoritative family. Current
+documented candidates are free-form autocomplete, richer menu/overlay/navigation variants, file
+upload, and variable-height or two-dimensional virtualization. Each next slice must retain the same
+contract-to-browser path, authored/static accessibility, unified canonical events, exact rollback
+and identity behavior, three-engine release intent, and executable scale gate.
+
+## Prior hierarchical and component slice detail
 
 The public authoring contract and executable example are implemented, committed, and present on the
 local `origin/main` tracking reference. Post-checkpoint implementation continues. On 2026-08-26 the
@@ -594,8 +610,10 @@ pushed to `origin/main`, and independently verified at
    `docs/architecture.md`; preserve the hierarchy distinction between authored trees and normalized
    execution IR.
 2. Inspect `git status --short --branch` and preserve any post-checkpoint user changes.
-3. Preserve the now-green quality and unit/performance correctness baseline. Run the complete
-   coverage/build/E2E/consumer/release matrix for the finished hierarchical authoring boundary.
+3. If this slice is still uncommitted, rerun `pnpm.CMD quality`, `pnpm.CMD test`, and
+   `pnpm.CMD test:coverage` after any code change, inspect `git diff --check`, then commit all
+   Breadcrumb/Dialog changes without dropping shared work. Update this file with the resulting SHA,
+   commit that checkpoint record, push `main`, and verify `refs/heads/main` with `git ls-remote`.
    Re-run dedicated Firefox journeys only on a working runner; do not treat the current pre-page
    failure as behavioral evidence.
 4. Keep production modules and their adjacent tests within the enforced complexity, function-length,
@@ -631,11 +649,27 @@ named gate in the architecture plan, with direct source/test/runtime/benchmark e
 - clean build, lint, typecheck, coverage, package-consumer, and release evidence.
 
 The project is not complete while any authoritative evidence is missing, indirect, stale, or
-contradicted. Known external release gates (Firefox runner, license/scope selection, production
-infrastructure and manual accessibility/security evidence) must remain explicit and cannot be
-silently waived.
+contradicted. Known external release gates (intermittent managed Firefox-runner reliability,
+license/scope selection, production infrastructure, and manual accessibility/security evidence)
+must remain explicit and cannot be silently waived. The current Breadcrumb/Dialog Firefox attempts
+fail before page creation and provide no behavioral evidence for this slice.
 
 ## Session log
+
+- 2026-08-26: Implemented and locally release-verified the catalog-authoritative Breadcrumb and
+  Dialog slice across contracts, catalog/sidecars, IR, deferred Lit elements, canonical events,
+  static fallbacks, package subpaths, reference and hierarchical examples, manifests, browser
+  journeys, and performance fixtures. Added authored Schema.org BreadcrumbList/ListItem/WebPage
+  publication support and documented the OSS/native-semantics decision with primary-source research.
+  Full quality, 417-file/1,045-test correctness, 97.43% line/90.09% branch coverage, production
+  build at 179.39 KiB initial gzip, packed-consumer 3/3, duplication, and formatting gates pass.
+  The full Chromium/WebKit reference matrix passes 95 cases with 3 intentional WebKit scale skips,
+  hierarchical example 6/6, static export 22/22, and real-upstream JsonUI parity 18/18. Firefox
+  remains blocked before page creation by the managed runner's `_page` defect. The latest benchmark
+  report passes schema 2.22.0 at 47/47 gates: Breadcrumb activation is 0.77 ms p95 and Dialog opening
+  is 0.45 ms p95. The separate native/Lion/Spectrum Dialog foundation comparison also passes its
+  100 ms/4,096-byte native gate at 0.19 ms p95 and 347 gzip bytes.
+  This slice is not yet committed; the latest committed checkpoint remains `8ea58e1`.
 
 - 2026-08-26: Completed and release-verified the catalog-authoritative Popover slice across the
   component contract, shared catalog-property descriptors, IR, deferred Web Component, canonical

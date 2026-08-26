@@ -17,6 +17,11 @@ export enum ButtonVariant {
   Quiet = "quiet"
 }
 
+export enum BreadcrumbSeparator {
+  Chevron = "chevron",
+  Slash = "slash"
+}
+
 export enum CatalogBindingKind {
   Attribute = "attribute",
   Property = "property"
@@ -24,6 +29,7 @@ export enum CatalogBindingKind {
 
 export enum CatalogConstraintKind {
   AuditLogData = "audit-log-data",
+  BreadcrumbData = "breadcrumb-data",
   ChildCount = "child-count",
   DataGridState = "data-grid-state",
   MasterDetailState = "master-detail-state",
@@ -36,6 +42,7 @@ export enum CatalogConstraintKind {
 
 export enum CatalogPropertyType {
   AuditLogEntryList = "audit-log-entry-list",
+  BreadcrumbItemList = "breadcrumb-item-list",
   Boolean = "boolean",
   DataGridValue = "data-grid-value",
   Enum = "enum",
@@ -55,6 +62,7 @@ export enum CatalogPropertyType {
 
 export enum ComponentAccessibilityPattern {
   AuditTimeline = "audit-timeline",
+  Breadcrumb = "breadcrumb",
   Disclosure = "disclosure",
   Group = "group",
   GridLayout = "grid-layout",
@@ -65,6 +73,7 @@ export enum ComponentAccessibilityPattern {
   NativeCheckbox = "native-checkbox",
   Combobox = "combobox",
   NativeDataGrid = "native-data-grid",
+  ModalDialog = "modal-dialog",
   NativeForm = "native-form",
   NativeHeading = "native-heading",
   NativeLink = "native-link",
@@ -139,11 +148,13 @@ export enum CoreElementTag {
   Alert = "unifold-alert",
   AuditLog = "unifold-audit-log",
   Box = "unifold-box",
+  Breadcrumb = "unifold-breadcrumb",
   Button = "unifold-button",
   Checkbox = "unifold-checkbox",
   Combobox = "unifold-combobox",
   Composition = "unifold-composition",
   DataGrid = "unifold-data-grid",
+  Dialog = "unifold-dialog",
   Form = "unifold-form",
   Grid = "unifold-grid",
   Heading = "unifold-heading",
@@ -177,6 +188,13 @@ export enum DataGridSelectionMode {
 export enum DataGridSortDirection {
   Ascending = "ascending",
   Descending = "descending"
+}
+
+export enum DialogActivationReason {
+  Dismiss = "dismiss",
+  Escape = "escape",
+  Native = "native",
+  Trigger = "trigger"
 }
 
 export enum HeadingLevel {

@@ -65,12 +65,14 @@ results. They are evidence from a developer workstation, not ratified release th
 | 10k-result SearchResults startup            |  41.59 ms |  50.17 ms |  52.28 ms |
 | 10k-result SearchResults query update       |   4.48 ms |   5.50 ms |   8.32 ms |
 | 10k-result SearchResults selection update   |   4.01 ms |   4.89 ms |   5.16 ms |
-| 100-item navigation startup                 |  77.19 ms | 100.41 ms | 104.22 ms |
-| 100-step Stepper selection                  |   1.93 ms |   6.02 ms |   6.22 ms |
-| 100-panel Wizard selection                  |   2.62 ms |   6.09 ms |   8.45 ms |
-| 100-panel Tabs selection                    |   1.57 ms |   3.02 ms |   4.39 ms |
-| 100-item MenuButton activation              |   1.25 ms |   4.54 ms |   8.43 ms |
-| 32-action Popover opening                   |   0.70 ms |   1.15 ms |   5.03 ms |
+| 100-item navigation startup                 |  80.74 ms | 127.78 ms | 128.91 ms |
+| 32-position Breadcrumb activation           |   0.39 ms |   0.77 ms |   1.78 ms |
+| 100-step Stepper selection                  |   1.97 ms |   4.37 ms |   9.75 ms |
+| 100-panel Wizard selection                  |   2.66 ms |   5.33 ms |  15.09 ms |
+| 100-panel Tabs selection                    |   1.57 ms |   4.78 ms |   4.89 ms |
+| 100-item MenuButton activation              |   1.52 ms |   5.23 ms |   5.32 ms |
+| 32-action Popover opening                   |   0.82 ms |   4.43 ms |   5.36 ms |
+| 32-action Dialog opening                    |   0.29 ms |   0.45 ms |   0.86 ms |
 | 10k-entry AuditLog startup                  |  60.67 ms |  68.65 ms |  72.95 ms |
 | 10k-entry AuditLog distant scroll           |   0.63 ms |   1.04 ms |   2.90 ms |
 | 1k cached data-actor resolutions            |   5.67 ms |   7.39 ms |   7.60 ms |
@@ -117,15 +119,22 @@ emits exactly 25 typed commands, and leaves every unrelated chain unchanged. Its
 p95 is below the provisional 4 ms target on the current workstation. The combined public-runtime
 fixture proves one commit spans the leaf edit, three synchronous validations (leaf, group, form),
 two ancestor aggregates, 20 transitive rule commands, and committed-revision selector delivery.
-Its 1.35 ms p95 is below the provisional 8 ms target. All forty-five timing and lifecycle limits
+Its 1.35 ms p95 is below the provisional 8 ms target. All forty-seven timing and lifecycle limits
 are executable benchmark gates and are included with actual/limit/pass fields in the
-schema-2.21.0 machine-readable report; the current run passes all 45/45.
+schema-2.22.0 machine-readable report; the current run passes all 47/47.
 The report also contains a 50-sample paired selection-overhead profile. It alternates measurement
-order between identical 10,000-node stores with zero and 2,000 indexed selections and subtracts
-their five-edit batch medians. This removes shared transaction work without assigning an unrelated
-scheduler pause to selection dispatch before enforcing the provisional 2 ms p95 gate.
-The paired profile measured 0.02/0.86/1.27 ms p50/p95/p99, so the unchanged subscription gate
+order for each update between identical 10,000-node stores with zero and 2,000 indexed selections,
+subtracts the paired timings, and takes each sample's five-edit median. This removes shared
+transaction work without assigning an unrelated scheduler pause to selection dispatch before
+enforcing the provisional 2 ms p95 gate. The paired profile measured -0.23/1.54/7.08 ms
+p50/p95/p99, so the unchanged subscription gate
 passes on this workstation.
+
+Dialog foundation selection is recorded separately in
+`benchmark-results/dialog-foundation.json`. Its 20-sample native/Lion/Spectrum comparison selected
+the native platform baseline: native measured 0.19 ms p95 and 347 gzip bytes against executable
+100 ms and 4,096-byte limits. Lion measured 1.09 ms p95/26,994 gzip bytes and Spectrum measured
+1.10 ms p95/61,330 gzip bytes as descriptive comparison evidence; neither is shipped at runtime.
 
 A separate 500-sample canonical path profile measures validated intent ingress through publication
 and owning-actor delivery. It recorded 0.0019/0.0021/0.0046 ms p50/p95/p99 against the provisional
@@ -186,17 +195,19 @@ gate, query updates measured 4.48/5.50/8.32 ms against 100 ms, and selection upd
 prove native search semantics, listbox keyboard focus, polite result-count status, canonical object
 state, axe checks, hostile-text escaping, rollback, recovery, and stable host identity.
 
-The exact shared navigation fixture compiles and mounts a 100-step Stepper, 100-panel Wizard,
-100-panel Tabs control, 100-item MenuButton, and 32-action Popover twenty times after warm-up.
-Startup measured 77.19/100.41/104.22 ms against a 1,000 ms p95 gate. Distant Stepper, Wizard, and
-Tabs selection measured 1.93/6.02/6.22 ms, 2.62/6.09/8.45 ms, and 1.57/3.02/4.39 ms respectively;
-opening the menu, invoking `item-099`, closing it, and restoring trigger focus measured
-1.25/4.54/8.43 ms. Opening the Popover, focusing its labeled interactive surface, and retaining all
-32 authored child hosts measured 0.70/1.15/5.03 ms. Every interaction remains below its 100 ms gate.
-Every sample rendered exactly 434 buttons, selected
+The exact shared navigation fixture compiles and mounts a 32-position Breadcrumb, 100-step Stepper,
+100-panel Wizard, 100-panel Tabs control, 100-item MenuButton, 32-action Popover, and 32-action Dialog
+twenty times after warm-up. Startup measured 80.74/127.78/128.91 ms against a 1,000 ms p95 gate.
+Breadcrumb, Stepper, Wizard, and Tabs selection measured 0.39/0.77/1.78 ms,
+1.97/4.37/9.75 ms, 2.66/5.33/15.09 ms, and 1.57/4.78/4.89 ms respectively. Opening the menu,
+invoking `item-099`, closing it, and restoring trigger focus measured 1.52/5.23/5.32 ms. Opening the
+Popover, focusing its labeled interactive surface, and retaining all 32 authored child hosts
+measured 0.82/4.43/5.36 ms. Opening the Dialog and focusing its dismiss action measured
+0.29/0.45/0.86 ms. Every interaction remains below its 100 ms gate. Every sample rendered exactly
+468 buttons, selected
 `step-099` in the workflow controls and `tab-099` in Tabs, invoked exactly one declared menu item,
-restored menu-trigger focus, left the Popover open with surface focus, and left exactly one Wizard
-panel and one tabpanel visible. Chromium, Firefox, and WebKit add keyboard focus and dismissal,
+restored menu-trigger focus, left the Popover and Dialog open with their required focus, and left
+exactly one Wizard panel and one tabpanel visible. Chromium, Firefox, and WebKit add keyboard focus and dismissal,
 disabled-item skipping, automatic/manual activation coverage,
 canonical state and events, axe, hostile-text escaping, rejection/recovery, and stable identity
 evidence.

@@ -12,6 +12,9 @@ it("mounts the hierarchical JSON through the public framework entry point", () =
   const controller = mountHierarchicalExample(container, eventLog, machineState);
 
   expect(container.querySelector("[data-unifold-node-id='contact-page']")).not.toBeNull();
+  expect(container.querySelector("unifold-dialog")?.getAttribute("data-unifold-node-id")).toBe(
+    "account-review-dialog"
+  );
   expect(controller.application.runtime.getSnapshot("show-summary").properties["disabled"]).toBe(
     true
   );

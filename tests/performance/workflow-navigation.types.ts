@@ -1,4 +1,6 @@
 import type {
+  UnifoldBreadcrumb,
+  UnifoldDialog,
   UnifoldMenuButton,
   UnifoldPopover,
   UnifoldStepper,
@@ -9,7 +11,9 @@ import type { UnifoldApplicationPort } from "@unislang/unifold";
 
 export interface MountedWorkflow {
   readonly application: UnifoldApplicationPort;
+  readonly breadcrumb: UnifoldBreadcrumb;
   readonly container: HTMLElement;
+  readonly dialog: UnifoldDialog;
   readonly menu: UnifoldMenuButton;
   readonly popover: UnifoldPopover;
   readonly stepper: UnifoldStepper;
@@ -18,6 +22,12 @@ export interface MountedWorkflow {
 }
 
 export interface WorkflowInteraction {
+  readonly breadcrumbItemId: string;
+  readonly breadcrumbMilliseconds: number;
+  readonly breadcrumbRenderedItems: number;
+  readonly dialogFocused: boolean;
+  readonly dialogMilliseconds: number;
+  readonly dialogOpen: boolean;
   readonly menuItemId: string;
   readonly menuMilliseconds: number;
   readonly menuTriggerFocused: boolean;

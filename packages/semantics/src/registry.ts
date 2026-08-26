@@ -9,6 +9,8 @@ export interface SchemaOrgTypeDefinition {
 const commonProperties = ["description", "identifier", "image", "name", "sameAs", "url"];
 
 export const schemaOrgVersion30 = Object.freeze({
+  BreadcrumbList: definition("itemListElement", "itemListOrder", "numberOfItems"),
+  ListItem: definition("item", "position"),
   Organization: definition("address", "email", "logo", "telephone"),
   Person: definition("affiliation", "email", "familyName", "givenName", "jobTitle", "telephone"),
   WebPage: definition("about", "breadcrumb", "dateModified", "datePublished", "mainEntity"),

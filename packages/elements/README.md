@@ -22,9 +22,9 @@ definition failure reports the tags already defined because the platform registr
 Use an iframe or another document realm for incompatible catalog releases. The shared constructor
 marker coordinates trusted same-realm packages; it is not a security boundary.
 
-The twelve larger interaction families are explicit, side-effect-free subpath imports so an
-application pays for only the families its JSON can reference: `audit-log`, `combobox`, `data-grid`,
-`master-detail`, `menu-button`, `popover`, `search-results`, `stepper`, `tabs`, `tooltip`,
+The fourteen larger interaction families are explicit, side-effect-free subpath imports so an
+application pays for only the families its JSON can reference: `audit-log`, `breadcrumb`, `combobox`, `data-grid`,
+`dialog`, `master-detail`, `menu-button`, `popover`, `search-results`, `stepper`, `tabs`, `tooltip`,
 `virtual-list`, and `wizard`. Each entry exports its element class and a `defineUnifold*()` function with the same
 preflight diagnostics. For example:
 
@@ -60,7 +60,7 @@ for JSON examples, value types, and the current accessibility boundary.
 
 ## Component manifests
 
-`pnpm generate:cem` analyzes all thirty-one catalog elements with the official Custom Elements Manifest
+`pnpm generate:cem` analyzes all thirty-three catalog elements with the official Custom Elements Manifest
 analyzer and Lit plugin. It validates the output against the official manifest schema and writes
 `dist/custom-elements.json`. The package exposes that file through its standard `customElements`
 metadata and `./custom-elements.json` export.

@@ -31,6 +31,7 @@
     "test:scripts": "pnpm test:cem && pnpm --filter @unislang/unifold-theme exec node --test scripts/*.test.mjs && pnpm --filter @unislang/unifold-reference exec node --test scripts/*.test.mjs",
     "benchmark:selective": "pnpm --filter @unislang/unifold-performance benchmark",
     "benchmark:data-grid-foundation": "pnpm --filter @unislang/unifold-performance benchmark:data-grid-foundation",
+    "benchmark:dialog-foundation": "pnpm --filter @unislang/unifold-performance benchmark:dialog-foundation",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "pnpm test:e2e:reference && pnpm test:e2e:hierarchical-site && pnpm test:e2e:static-export && pnpm test:e2e:host-parity",
     "test:e2e:hierarchical-site": "pnpm --filter @unislang/unifold-hierarchical-example-e2e test",

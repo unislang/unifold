@@ -22,6 +22,16 @@ import { defineUnifoldWizard } from "@unislang/unifold-elements/wizard";
 import { mountUnifoldApplication, UnifoldApplicationMountStatus } from "@unislang/unifold";
 
 import type { MountedWorkflow, WorkflowInteraction } from "./workflow-navigation.types.js";
+import {
+  defineWorkflowBreadcrumb,
+  measureBreadcrumbActivation,
+  workflowBreadcrumbNode
+} from "./workflow-breadcrumb-fixture.js";
+import {
+  defineWorkflowDialog,
+  measureDialogOpening,
+  workflowDialogNode
+} from "./workflow-dialog-fixture.js";
 import { workflowPerformanceEvidence } from "./workflow-navigation-evidence.js";
 import { measureMenuActivation, workflowMenuNode } from "./workflow-menu-fixture.js";
 import {
@@ -31,7 +41,7 @@ import {
 } from "./workflow-popover-fixture.js";
 
 const WORKFLOW_STEP_COUNT = 100;
-export const WORKFLOW_BUTTON_LIMIT = 434;
+export const WORKFLOW_BUTTON_LIMIT = 468;
 const PROFILE_SAMPLES = 20;
 export async function measureWorkflowNavigationPerformance() {
   disposeWorkflow(await mountWorkflow());
@@ -51,7 +61,9 @@ export async function measureWorkflowNavigationPerformance() {
   });
 }
 export async function mountWorkflow(): Promise<MountedWorkflow> {
+  defineWorkflowBreadcrumb();
   defineUnifoldMenuButton(customElements);
+  defineWorkflowDialog();
   defineWorkflowPopover();
   defineUnifoldStepper(customElements);
   defineUnifoldTabs(customElements);
@@ -63,54 +75,105 @@ export async function mountWorkflow(): Promise<MountedWorkflow> {
     container.remove();
     throw new Error(`Workflow mount failed: ${JSON.stringify(mounted.diagnostics)}`);
   }
+  return settleMountedWorkflow(mounted.application, container);
+}
+
+async function settleMountedWorkflow(
+  application: MountedWorkflow["application"],
+  container: HTMLElement
+): Promise<MountedWorkflow> {
+  const elements = workflowElements(container);
+  await Promise.all(Object.values(elements).map(({ updateComplete }) => updateComplete));
+  return { application, container, ...elements };
+}
+
+function workflowElements(container: HTMLElement) {
   const stepper = requireElement<UnifoldStepper>(container, "unifold-stepper");
+  const breadcrumb = requireElement<import("@unislang/unifold-elements").UnifoldBreadcrumb>(
+    container,
+    "unifold-breadcrumb"
+  );
+  const dialog = requireElement<import("@unislang/unifold-elements").UnifoldDialog>(
+    container,
+    "unifold-dialog"
+  );
   const menu = requireElement<UnifoldMenuButton>(container, "unifold-menu-button");
   const popover = requireElement<UnifoldPopover>(container, "unifold-popover");
   const tabs = requireElement<UnifoldTabs>(container, "unifold-tabs");
   const wizard = requireElement<UnifoldWizard>(container, "unifold-wizard");
-  await Promise.all([
-    menu.updateComplete,
-    popover.updateComplete,
-    stepper.updateComplete,
-    tabs.updateComplete,
-    wizard.updateComplete
-  ]);
-  return { application: mounted.application, container, menu, popover, stepper, tabs, wizard };
+  return { breadcrumb, dialog, menu, popover, stepper, tabs, wizard };
 }
 export async function exerciseWorkflow(mounted: MountedWorkflow): Promise<WorkflowInteraction> {
-  const { menu, popover, stepper, tabs, wizard } = mounted;
+  const { breadcrumb, dialog, menu, popover, stepper, tabs, wizard } = mounted;
   const target = WORKFLOW_STEP_COUNT - 1;
   const stepperMilliseconds = await clickAndMeasure(stepper, button(stepper, target));
   const wizardMilliseconds = await clickAndMeasure(wizard, button(wizard, target));
   const tabMilliseconds = await clickAndMeasure(tabs, tabButton(tabs, target));
   const menuEvidence = await measureMenuActivation(menu, target);
+  const breadcrumbEvidence = await measureBreadcrumbActivation(breadcrumb);
   const popoverEvidence = await measurePopoverOpening(popover);
+  const dialogEvidence = await measureDialogOpening(dialog);
+  return interactionResult(mounted, {
+    breadcrumbEvidence,
+    dialogEvidence,
+    menuEvidence,
+    popoverEvidence,
+    stepperMilliseconds,
+    tabMilliseconds,
+    wizardMilliseconds
+  });
+}
+
+interface WorkflowMeasurements {
+  readonly breadcrumbEvidence: Awaited<ReturnType<typeof measureBreadcrumbActivation>>;
+  readonly dialogEvidence: Awaited<ReturnType<typeof measureDialogOpening>>;
+  readonly menuEvidence: Awaited<ReturnType<typeof measureMenuActivation>>;
+  readonly popoverEvidence: Awaited<ReturnType<typeof measurePopoverOpening>>;
+  readonly stepperMilliseconds: number;
+  readonly tabMilliseconds: number;
+  readonly wizardMilliseconds: number;
+}
+
+function interactionResult(
+  mounted: MountedWorkflow,
+  measurements: WorkflowMeasurements
+): WorkflowInteraction {
+  const { stepper, tabs, wizard } = mounted;
+  const { breadcrumbEvidence, dialogEvidence, menuEvidence, popoverEvidence } = measurements;
   return {
+    breadcrumbItemId: breadcrumbEvidence.itemId,
+    breadcrumbMilliseconds: breadcrumbEvidence.milliseconds,
+    breadcrumbRenderedItems: breadcrumbEvidence.renderedItems,
+    dialogFocused: dialogEvidence.focused,
+    dialogMilliseconds: dialogEvidence.milliseconds,
+    dialogOpen: dialogEvidence.open,
     menuItemId: menuEvidence.itemId,
     menuMilliseconds: menuEvidence.milliseconds,
     menuTriggerFocused: menuEvidence.triggerFocused,
     renderedButtons: renderedButtonCount(mounted, menuEvidence.renderedButtons),
     popoverFocused: popoverEvidence.focused,
     popoverMilliseconds: popoverEvidence.milliseconds,
-    popoverOpen: popover.open,
-    stepperMilliseconds,
+    popoverOpen: popoverEvidence.open,
+    stepperMilliseconds: measurements.stepperMilliseconds,
     stepperValue: stepper.value,
-    tabMilliseconds,
+    tabMilliseconds: measurements.tabMilliseconds,
     tabValue: tabs.value,
     visibleTabPanels: visibleTabPanelCount(tabs),
     visiblePanels: [...wizard.children].filter((child) => !child.hasAttribute("hidden")).length,
-    wizardMilliseconds,
+    wizardMilliseconds: measurements.wizardMilliseconds,
     wizardValue: wizard.value
   };
 }
 
 function renderedButtonCount(mounted: MountedWorkflow, menuButtons: number): number {
-  const { popover, stepper, tabs, wizard } = mounted;
+  const { dialog, popover, stepper, tabs, wizard } = mounted;
   return (
     (stepper.shadowRoot as ShadowRoot).querySelectorAll("[data-step-index]").length +
     (wizard.shadowRoot as ShadowRoot).querySelectorAll("[data-step-index]").length +
     (tabs.shadowRoot as ShadowRoot).querySelectorAll("[data-tab-index]").length +
     menuButtons +
+    dialog.children.length +
+    2 +
     popover.children.length +
     1
   );
@@ -153,8 +216,10 @@ function workflowView(): JsonObject {
       stepperNode(),
       wizardNode(),
       tabsNode(),
+      workflowBreadcrumbNode(),
       workflowMenuNode(WORKFLOW_STEP_COUNT),
-      workflowPopoverNode()
+      workflowPopoverNode(),
+      workflowDialogNode()
     ],
     id: "workflow-root",
     label: "Workflow navigation"

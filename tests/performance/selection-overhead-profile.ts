@@ -38,30 +38,32 @@ function measurePair(
   sampleIndex: number,
   firstSequence: number
 ): number {
-  if (sampleIndex % 2 === 0) return selectedFirst(baseline, selected, firstSequence);
-  const baselineMilliseconds = batchMedian(baseline, firstSequence);
-  const selectedMilliseconds = batchMedian(selected, firstSequence);
-  return selectedMilliseconds - baselineMilliseconds;
+  const differences = Array.from({ length: BATCH_SIZE }, (_, offset) =>
+    updatePairDifference(baseline, selected, sampleIndex + offset, firstSequence + offset)
+  );
+  return percentile(differences, 0.5);
 }
 
-function selectedFirst(
+function updatePairDifference(
   baseline: ReturnType<typeof createScaleHarness>,
   selected: ReturnType<typeof createScaleHarness>,
-  firstSequence: number
+  order: number,
+  sequence: number
 ): number {
-  const selectedMilliseconds = batchMedian(selected, firstSequence);
-  const baselineMilliseconds = batchMedian(baseline, firstSequence);
+  if (order % 2 === 0) return selectedFirstDifference(baseline, selected, sequence);
+  const baselineMilliseconds = elapsed(() => updateOne(baseline, sequence));
+  const selectedMilliseconds = elapsed(() => updateOne(selected, sequence));
   return selectedMilliseconds - baselineMilliseconds;
 }
 
-function batchMedian(
-  harness: ReturnType<typeof createScaleHarness>,
-  firstSequence: number
+function selectedFirstDifference(
+  baseline: ReturnType<typeof createScaleHarness>,
+  selected: ReturnType<typeof createScaleHarness>,
+  sequence: number
 ): number {
-  const samples = Array.from({ length: BATCH_SIZE }, (_, offset) =>
-    elapsed(() => updateOne(harness, firstSequence + offset))
-  );
-  return percentile(samples, 0.5);
+  const selectedMilliseconds = elapsed(() => updateOne(selected, sequence));
+  const baselineMilliseconds = elapsed(() => updateOne(baseline, sequence));
+  return selectedMilliseconds - baselineMilliseconds;
 }
 
 function elapsed(update: () => void): number {

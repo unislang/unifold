@@ -12,8 +12,12 @@ it("selects distant workflow state and invokes the final menu item within exact 
   const mounted = await mountWorkflow();
   try {
     const evidence = await exerciseWorkflow(mounted);
+    expect(evidence.breadcrumbItemId).toBe("breadcrumb-30");
+    expect(evidence.breadcrumbRenderedItems).toBe(32);
     expect(evidence.renderedButtons).toBeLessThanOrEqual(WORKFLOW_BUTTON_LIMIT);
     expect(evidence.menuItemId).toBe("item-099");
+    expect(evidence.dialogFocused).toBe(true);
+    expect(evidence.dialogOpen).toBe(true);
     expect(evidence.menuTriggerFocused).toBe(true);
     expect(evidence.popoverFocused).toBe(true);
     expect(evidence.popoverOpen).toBe(true);

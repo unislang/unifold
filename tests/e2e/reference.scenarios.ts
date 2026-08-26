@@ -16,6 +16,8 @@ export const compositionNodeIds = {
   accountActions: "profile-editor::account-actions",
   accountActionsHelp: "profile-editor::account-actions-help",
   accountSummaryPopover: "profile-editor::account-summary-popover",
+  accountBreadcrumb: "profile-editor::account-breadcrumb",
+  accountReviewDialog: "profile-editor::account-review-dialog",
   activityPanel: "profile-editor::activity-panel",
   biography: "profile-editor::biography",
   checkbox: "profile-editor::newsletter",

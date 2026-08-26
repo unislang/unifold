@@ -26,9 +26,11 @@ import {
   type ElementRegistryPort
 } from "./register.js";
 import { componentNode } from "./elements.test-data.js";
+import { defineUnifoldBreadcrumb } from "./breadcrumb-entry.js";
 import { defineUnifoldAuditLog } from "./audit-log-entry.js";
 import { defineUnifoldCombobox } from "./combobox-entry.js";
 import { defineUnifoldDataGrid } from "./data-grid-entry.js";
+import { defineUnifoldDialog } from "./dialog-entry.js";
 import { defineUnifoldMasterDetail } from "./master-detail-entry.js";
 import { defineUnifoldMenuButton } from "./menu-button-entry.js";
 import { defineUnifoldPopover } from "./popover-entry.js";
@@ -287,8 +289,10 @@ function requireDefinition(
 function foundationTags(): readonly CoreElementTag[] {
   const deferred = new Set([
     CoreElementTag.AuditLog,
+    CoreElementTag.Breadcrumb,
     CoreElementTag.Combobox,
     CoreElementTag.DataGrid,
+    CoreElementTag.Dialog,
     CoreElementTag.MasterDetail,
     CoreElementTag.MenuButton,
     CoreElementTag.Popover,
@@ -304,8 +308,10 @@ function foundationTags(): readonly CoreElementTag[] {
 
 function defineDeferredElements(registry: ElementRegistryPort): void {
   defineUnifoldAuditLog(registry);
+  defineUnifoldBreadcrumb(registry);
   defineUnifoldCombobox(registry);
   defineUnifoldDataGrid(registry);
+  defineUnifoldDialog(registry);
   defineUnifoldMasterDetail(registry);
   defineUnifoldMenuButton(registry);
   defineUnifoldPopover(registry);

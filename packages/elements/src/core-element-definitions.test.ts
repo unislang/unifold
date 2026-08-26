@@ -6,8 +6,10 @@ import { coreElementDefinitions } from "./core-element-definitions.js";
 
 const deferredTags = new Set([
   CoreElementTag.AuditLog,
+  CoreElementTag.Breadcrumb,
   CoreElementTag.Combobox,
   CoreElementTag.DataGrid,
+  CoreElementTag.Dialog,
   CoreElementTag.MasterDetail,
   CoreElementTag.MenuButton,
   CoreElementTag.Popover,

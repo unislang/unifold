@@ -67,7 +67,7 @@ it("rejects children for an exact leaf component", () => {
 });
 
 it("has a validator for every enum-backed constraint kind", () => {
-  expect(Object.values(CatalogConstraintKind)).toHaveLength(9);
+  expect(Object.values(CatalogConstraintKind)).toHaveLength(10);
 });
 
 function validateChoice(

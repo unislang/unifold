@@ -49,6 +49,9 @@ export class UnifoldMenuButton extends UnifoldElement {
         inset-inline-start: 0;
         position: absolute;
       }
+      [part="menu"][hidden] {
+        display: none;
+      }
       [part="item"] {
         background: transparent;
         border: 0;

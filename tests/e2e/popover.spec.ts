@@ -62,11 +62,14 @@ function updatePopover(page: import("@playwright/test").Page, invalid: boolean) 
   return page.evaluate((reject) => {
     const target = window as unknown as PopoverWindow;
     const source = structuredClone(target.__unifoldAuthoredDocument) as PopoverDocument;
-    source.revision = reject ? "popover-invalid" : "popover-recovered";
-    const popover = source.compositions[0].template.$children[5] as PopoverNode;
+    source.revision = ["popover-recovered", "popover-invalid"][Number(reject)] as string;
+    const popover = source.compositions[0].template.$children.find(
+      (node) => node.id === "account-summary-popover"
+    );
+    if (popover === undefined) throw new Error("Reference Popover is missing.");
     popover.label = "Updated account summary";
     popover.panelLabel = "Updated account panel";
-    popover.placement = reject ? "center" : "end";
+    popover.placement = ["end", "center"][Number(reject)] as string;
     return target.__unifoldUpdateDocument(source);
   }, invalid);
 }
@@ -90,11 +93,12 @@ interface PopoverWindow {
 }
 
 interface PopoverDocument {
-  readonly compositions: readonly [{ readonly template: { readonly $children: unknown[] } }];
+  readonly compositions: readonly [{ readonly template: { readonly $children: PopoverNode[] } }];
   revision: string;
 }
 
 interface PopoverNode {
+  id: string;
   label: string;
   panelLabel: string;
   placement: string;

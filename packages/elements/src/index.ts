@@ -2,11 +2,13 @@ export { UnifoldAccordion } from "./accordion.js";
 export { UnifoldAlert } from "./alert.js";
 export type { UnifoldAuditLog } from "./audit-log.js";
 export { UnifoldBox } from "./box.js";
+export type { UnifoldBreadcrumb } from "./breadcrumb.js";
 export { UnifoldButton } from "./button.js";
 export { UnifoldCheckbox } from "./checkbox.js";
 export type { UnifoldCombobox } from "./combobox.js";
 export { UnifoldComposition } from "./composition.js";
 export type { UnifoldDataGrid } from "./data-grid.js";
+export type { UnifoldDialog } from "./dialog.js";
 export {
   ElementEventName,
   ElementEventType,

@@ -28,10 +28,16 @@ export async function measurePopoverOpening(popover: UnifoldPopover) {
   const started = performance.now();
   trigger.click();
   await popover.updateComplete;
-  return {
+  const evidence = {
     focused: popover.shadowRoot?.activeElement?.getAttribute("part") === "surface",
-    milliseconds: performance.now() - started
+    milliseconds: performance.now() - started,
+    open: popover.open
   };
+  requireSurface(popover).dispatchEvent(
+    new KeyboardEvent("keydown", { bubbles: true, composed: true, key: "Escape" })
+  );
+  await popover.updateComplete;
+  return evidence;
 }
 
 function requireTrigger(popover: UnifoldPopover): HTMLButtonElement {
@@ -40,4 +46,12 @@ function requireTrigger(popover: UnifoldPopover): HTMLButtonElement {
   const trigger = root.querySelector<HTMLButtonElement>("[part=trigger]");
   if (trigger === null) throw new Error("Popover trigger is missing.");
   return trigger;
+}
+
+function requireSurface(popover: UnifoldPopover): HTMLElement {
+  const root = popover.shadowRoot;
+  if (root === null) throw new Error("Popover shadow root is missing.");
+  const surface = root.querySelector<HTMLElement>("[part=surface]");
+  if (surface === null) throw new Error("Popover surface is missing.");
+  return surface;
 }

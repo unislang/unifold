@@ -5,6 +5,7 @@ const referenceRoot = fileURLToPath(new URL("../../../apps/reference", import.me
 
 export function previewConfiguration(root, port) {
   return {
+    configFile: false,
     logLevel: "silent",
     preview: { host: "127.0.0.1", port, strictPort: true },
     root
