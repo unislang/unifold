@@ -1,0 +1,20 @@
+{
+  "absolute": true,
+  "formats": ["javascript", "typescript", "tsx", "json", "yaml"],
+  "ignore": [
+    "**/.git/**",
+    "**/.tools/**",
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/coverage/**",
+    "**/benchmark-results/**",
+    "**/test-results/**",
+    "**/playwright-report/**",
+    "**/package.json",
+    "**/*.md"
+  ],
+  "minLines": 10,
+  "minTokens": 50,
+  "reporters": ["console", "json"],
+  "threshold": 5
+}

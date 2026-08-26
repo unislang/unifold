@@ -1,0 +1,68 @@
+{
+  "name": "@unislang/unifold-workspace",
+  "version": "0.0.0",
+  "private": true,
+  "description": "JSON-defined, event-driven UI framework workspace",
+  "type": "module",
+  "packageManager": "pnpm@10.15.1",
+  "engines": {
+    "node": ">=22.14.0",
+    "pnpm": ">=10.15.1"
+  },
+  "scripts": {
+    "build": "pnpm -r --if-present build",
+    "changeset": "changeset",
+    "clean": "pnpm -r --if-present clean",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint \"packages/*/{src,scripts}/**/*.{ts,mts,tsx,mjs}\" \"packages/tooling/{bin,config}/**/*.mjs\" \"apps/*/src/**/*.{ts,tsx}\" \"examples/*/src/**/*.{ts,tsx}\" \"tests/**/*.{ts,tsx,mjs}\" \"*.{ts,mjs}\"",
+    "quality": "pnpm quality:files && pnpm quality:tests && pnpm lint && pnpm typecheck && pnpm quality:deps && pnpm quality:unused",
+    "quality:deps": "depcruise --config .dependency-cruiser.mjs packages",
+    "quality:duplication": "jscpd .",
+    "quality:files": "node packages/tooling/bin/check-file-lines.mjs",
+    "quality:tests": "node packages/tooling/bin/check-colocated-tests.mjs",
+    "quality:unused": "knip",
+    "release": "pnpm release:check && changeset publish",
+    "release:check": "pnpm quality && pnpm test && pnpm test:coverage && pnpm benchmark:selective && pnpm test:jsonui-parity && pnpm test:e2e && pnpm test:consumer && pnpm quality:duplication && pnpm format:check",
+    "test": "vitest run && pnpm --filter @unislang/unifold-tooling test && pnpm test:scripts && pnpm test:performance",
+    "test:cem": "pnpm --filter @unislang/unifold-elements exec node --test scripts/*.test.mjs",
+    "test:consumer": "pnpm build && pnpm --filter @unislang/unifold-consumer-test test",
+    "test:performance": "pnpm --filter @unislang/unifold-performance test",
+    "test:scripts": "pnpm test:cem && pnpm --filter @unislang/unifold-theme exec node --test scripts/*.test.mjs && pnpm --filter @unislang/unifold-reference exec node --test scripts/*.test.mjs",
+    "benchmark:selective": "pnpm --filter @unislang/unifold-performance benchmark",
+    "benchmark:data-grid-foundation": "pnpm --filter @unislang/unifold-performance benchmark:data-grid-foundation",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "pnpm test:e2e:reference && pnpm test:e2e:static-export && pnpm test:e2e:host-parity",
+    "test:e2e:host-parity": "pnpm --filter @unislang/unifold-host-parity test",
+    "test:e2e:reference": "pnpm --filter @unislang/unifold-e2e test",
+    "test:e2e:static-export": "pnpm --filter @unislang/unifold-static-export-e2e test",
+    "test:jsonui-parity": "pnpm --filter @unislang/unifold-jsonui-parity test",
+    "test:watch": "vitest",
+    "typecheck": "pnpm -r --if-present typecheck && pnpm typecheck:tests",
+    "typecheck:tests": "pnpm --filter \"./packages/**\" --filter \"!@unislang/unifold-tooling\" exec tsc -p test/tsconfig.json --pretty false",
+    "version-packages": "changeset version"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unislang/unifold.git"
+  },
+  "homepage": "https://github.com/unislang/unifold#readme",
+  "bugs": {
+    "url": "https://github.com/unislang/unifold/issues"
+  },
+  "devDependencies": {
+    "@changesets/cli": "2.29.6",
+    "@eslint/js": "9.33.0",
+    "@types/node": "24.3.0",
+    "@vitest/coverage-v8": "3.2.4",
+    "dependency-cruiser": "17.1.0",
+    "eslint": "9.33.0",
+    "globals": "16.3.0",
+    "jscpd": "4.0.7",
+    "knip": "5.62.0",
+    "prettier": "3.6.2",
+    "typescript": "5.9.2",
+    "typescript-eslint": "8.39.1",
+    "vitest": "3.2.4"
+  }
+}

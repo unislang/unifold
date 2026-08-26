@@ -1,0 +1,34 @@
+{
+  "name": "@unislang/unifold-performance",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "benchmark": "node scripts/run-benchmarks.mjs",
+    "benchmark:data-grid-foundation": "node scripts/run-data-grid-foundation.mjs",
+    "test": "vitest run --config vitest.config.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@unislang/unifold": "workspace:*",
+    "@unislang/unifold-collaboration": "workspace:*",
+    "@unislang/unifold-control-plane": "workspace:*",
+    "@unislang/unifold-contracts": "workspace:*",
+    "@unislang/unifold-devtools": "workspace:*",
+    "@unislang/unifold-elements": "workspace:*",
+    "@unislang/unifold-events": "workspace:*",
+    "@unislang/unifold-forms": "workspace:*",
+    "@unislang/unifold-reactivity": "workspace:*",
+    "@unislang/unifold-rules": "workspace:*",
+    "@unislang/unifold-runtime": "workspace:*"
+  },
+  "devDependencies": {
+    "@spectrum-web-components/table": "1.12.2",
+    "@types/node": "24.3.0",
+    "happy-dom": "20.0.10",
+    "tinybench": "2.9.0",
+    "typescript": "5.9.2",
+    "vite": "7.3.6",
+    "vitest": "3.2.4"
+  }
+}

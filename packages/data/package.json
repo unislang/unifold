@@ -1,0 +1,51 @@
+{
+  "name": "@unislang/unifold-data",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Framework-neutral remote data envelopes, cache, invalidation, and actor coordination for Unifold.",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "schemas",
+    "README.md",
+    "src/**/*.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.test-data.ts"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schemas/data-protocol.schema.json": "./schemas/data-protocol.schema.json"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run --root ../.. --config vitest.config.ts packages/data"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unislang/unifold.git",
+    "directory": "packages/data"
+  },
+  "homepage": "https://unifold.org",
+  "bugs": "https://github.com/unislang/unifold/issues",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@tanstack/query-core": "5.102.3",
+    "@unislang/unifold-contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "ajv": "8.20.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

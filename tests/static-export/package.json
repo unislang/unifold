@@ -1,0 +1,27 @@
+{
+  "name": "@unislang/unifold-static-export-e2e",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm generate && tsc -p tsconfig.json --noEmit && vite build",
+    "generate": "node scripts/generate-static-html.mjs",
+    "test": "pnpm --filter @unislang/unifold-export... build && pnpm build && pnpm test:unit && playwright test --config playwright.config.ts",
+    "test:unit": "node --test scripts/*.test.mjs && vitest run src/upgrade.test.ts --environment happy-dom",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@unislang/unifold": "workspace:*",
+    "@unislang/unifold-events": "workspace:*",
+    "@unislang/unifold-export": "workspace:*",
+    "@unislang/unifold-playwright": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "@types/node": "24.3.0",
+    "happy-dom": "^20.0.10",
+    "typescript": "5.9.2",
+    "vite": "7.3.6",
+    "vitest": "3.2.4"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "name": "@unislang/unifold-contracts",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Versioned JSON-safe public contracts for Unifold.",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unislang/unifold.git",
+    "directory": "packages/contracts"
+  },
+  "homepage": "https://unifold.org",
+  "bugs": {
+    "url": "https://github.com/unislang/unifold/issues"
+  },
+  "files": [
+    "dist",
+    "schemas",
+    "src/**/*.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.test-data.ts",
+    "!src/**/test-helpers.ts"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schemas/derived-rule.schema.json": "./schemas/derived-rule.schema.json",
+    "./schemas/semantic-graph.schema.json": "./schemas/semantic-graph.schema.json",
+    "./schemas/signed-ui-document-envelope.schema.json": "./schemas/signed-ui-document-envelope.schema.json",
+    "./schemas/ui-document.schema.json": "./schemas/ui-document.schema.json"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run --config ../../vitest.config.ts --root ../.. packages/contracts"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1"
+  }
+}

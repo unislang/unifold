@@ -1,0 +1,55 @@
+{
+  "name": "@unislang/unifold-devtools",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Bounded privacy-aware event, state, diff, and deterministic replay inspection for Unifold.",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "schemas",
+    "README.md",
+    "src/**/*.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.test-data.ts"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schemas/replay-plan.schema.json": "./schemas/replay-plan.schema.json"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run --root ../.. --config vitest.config.ts packages/devtools"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unislang/unifold.git",
+    "directory": "packages/devtools"
+  },
+  "homepage": "https://unifold.org",
+  "bugs": "https://github.com/unislang/unifold/issues",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@unislang/unifold-contracts": "workspace:*",
+    "@unislang/unifold-events": "workspace:*",
+    "@unislang/unifold-runtime": "workspace:*",
+    "canonicalize": "4.0.0",
+    "rfc6902": "5.3.0",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "ajv": "8.20.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

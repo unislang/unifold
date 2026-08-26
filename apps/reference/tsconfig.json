@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true,
+    "tsBuildInfoFile": "node_modules/.cache/reference.tsbuildinfo"
+  },
+  "include": ["src/**/*.ts", "src/**/*.json"],
+  "references": [
+    { "path": "../../packages/unifold" },
+    { "path": "../../packages/contracts" },
+    { "path": "../../packages/elements" },
+    { "path": "../../packages/events" },
+    { "path": "../../packages/semantics" },
+    { "path": "../../packages/theme" }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "include": ["**/*.ts"],
+  "references": [
+    { "path": "../../packages/playwright" },
+    { "path": "../../packages/testkit" },
+    { "path": "../../packages/unifold" }
+  ]
+}

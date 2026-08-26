@@ -1,0 +1,49 @@
+{
+  "name": "@unislang/unifold-semantics",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Versioned Schema.org graph validation, compilation, and safe JSON-LD publication.",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "src/**/*.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.test-data.ts",
+    "!src/**/test-helpers.ts"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./validation": {
+      "types": "./dist/validation.d.ts",
+      "import": "./dist/validation.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run --root ../.. --config vitest.config.ts packages/semantics"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unislang/unifold.git",
+    "directory": "packages/semantics"
+  },
+  "homepage": "https://unifold.org",
+  "bugs": "https://github.com/unislang/unifold/issues",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@unislang/unifold-contracts": "workspace:*",
+    "@unislang/unifold-events": "workspace:*",
+    "ajv": "8.20.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

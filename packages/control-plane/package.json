@@ -1,0 +1,49 @@
+{
+  "name": "@unislang/unifold-control-plane",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Replaceable server control-plane contracts and reference conformance adapter for Unifold.",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "schemas",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schemas/control-plane.schema.json": "./schemas/control-plane.schema.json"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run --root ../.. --config vitest.config.ts packages/control-plane"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unislang/unifold.git",
+    "directory": "packages/control-plane"
+  },
+  "homepage": "https://unifold.org",
+  "bugs": "https://github.com/unislang/unifold/issues",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@unislang/unifold-collaboration": "workspace:*",
+    "@unislang/unifold-contracts": "workspace:*",
+    "canonicalize": "4.0.0"
+  },
+  "devDependencies": {
+    "ajv": "8.20.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "name": "@unislang/unifold-rules",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Safe, dependency-visible derived JSON rules for Unifold.",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unislang/unifold.git",
+    "directory": "packages/rules"
+  },
+  "homepage": "https://unifold.org",
+  "bugs": {
+    "url": "https://github.com/unislang/unifold/issues"
+  },
+  "files": [
+    "dist",
+    "src/**/*.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.test-data.ts",
+    "!src/**/test-helpers.ts"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run --config ../../vitest.config.ts --root ../.. packages/rules"
+  },
+  "dependencies": {
+    "@unislang/unifold-contracts": "workspace:*",
+    "@unislang/unifold-events": "workspace:*",
+    "json-logic-engine": "5.0.7"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "name": "@unislang/unifold-theme",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Accessible design tokens and Tailwind CSS bridge for Unifold.",
+  "type": "module",
+  "sideEffects": [
+    "./dist/*.css"
+  ],
+  "files": [
+    "dist",
+    "src/**/*.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.test-data.ts",
+    "!src/**/test-helpers.ts"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./tokens.css": "./dist/tokens.css",
+    "./tailwind.css": "./dist/tailwind.css"
+  },
+  "scripts": {
+    "build": "tsc -b && node ./scripts/copy-css.mjs",
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run --config ../../vitest.config.ts --root ../.. packages/theme"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unislang/unifold.git",
+    "directory": "packages/theme"
+  },
+  "homepage": "https://unifold.org",
+  "bugs": "https://github.com/unislang/unifold/issues",
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  }
+}

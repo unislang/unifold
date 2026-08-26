@@ -1,0 +1,50 @@
+{
+  "name": "@unislang/unifold-ir",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pure validation and compilation to the normalized Unifold IR.",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unislang/unifold.git",
+    "directory": "packages/ir"
+  },
+  "homepage": "https://unifold.org",
+  "bugs": {
+    "url": "https://github.com/unislang/unifold/issues"
+  },
+  "files": [
+    "dist",
+    "src/**/*.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.test-data.ts",
+    "!src/**/test-helpers.ts"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run --config ../../vitest.config.ts --root ../.. packages/ir"
+  },
+  "dependencies": {
+    "@sagold/json-pointer": "7.2.1",
+    "@unislang/unifold-catalog": "workspace:*",
+    "@unislang/unifold-contracts": "workspace:*",
+    "@unislang/unifold-jsonui": "workspace:*",
+    "@unislang/unifold-rules": "workspace:*",
+    "json-schema-library": "11.6.2",
+    "semver": "7.8.5"
+  },
+  "devDependencies": {
+    "@types/semver": "7.8.0"
+  }
+}

@@ -1,0 +1,299 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.unifold.org/ui-document/1.0/schema.json",
+  "title": "Unifold UI Document",
+  "type": "object",
+  "required": ["$schema", "schemaVersion", "id", "revision", "jsonUiProfile", "catalog", "view"],
+  "properties": {
+    "$schema": {
+      "enum": ["https://schemas.unifold.org/ui-document/1.0/schema.json"]
+    },
+    "schemaVersion": {
+      "enum": ["1.0.0"]
+    },
+    "id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "revision": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "jsonUiProfile": {
+      "$ref": "#/$defs/jsonUiProfile"
+    },
+    "catalog": {
+      "$ref": "#/$defs/catalogReference"
+    },
+    "compositionManifest": {
+      "type": "object"
+    },
+    "machines": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/machineDefinition"
+      }
+    },
+    "rules": {
+      "type": "array",
+      "maxItems": 10000,
+      "items": {
+        "$ref": "https://schemas.unifold.org/derived-rule/1.0/schema.json"
+      }
+    },
+    "semantics": {
+      "$ref": "https://schemas.unifold.org/semantic-graph/1.0/schema.json"
+    },
+    "stores": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "$ref": "#/$defs/storeDefinition"
+      }
+    },
+    "view": {
+      "$ref": "#/$defs/jsonUiNode"
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "jsonUiProfile": {
+      "type": "object",
+      "required": ["name", "version", "upstream"],
+      "properties": {
+        "name": {
+          "enum": ["unifold-jsonui"]
+        },
+        "version": {
+          "enum": ["1.0.0"]
+        },
+        "upstream": {
+          "enum": ["5401b3d4900ca3032c108d6db00e8a819f4b28e9"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "catalogReference": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": {
+        "name": {
+          "enum": ["unifold-core"]
+        },
+        "version": {
+          "enum": ["1.0.0"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "machineDefinition": {
+      "type": "object",
+      "required": ["schemaVersion", "id", "version", "ownerId", "initial", "states"],
+      "properties": {
+        "schemaVersion": {
+          "enum": ["1.0.0"]
+        },
+        "id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "version": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "ownerId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "initial": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "states": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/machineState"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "machineState": {
+      "type": "object",
+      "properties": {
+        "on": {
+          "type": "object",
+          "propertyNames": {
+            "minLength": 1
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/machineTransition"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "machineTransition": {
+      "type": "object",
+      "required": ["target"],
+      "properties": {
+        "target": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "storeDefinition": {
+      "type": "object",
+      "required": [
+        "schemaVersion",
+        "id",
+        "schema",
+        "source",
+        "access",
+        "ownership",
+        "persistence",
+        "classification",
+        "initialData",
+        "maxBytes",
+        "migrations"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "enum": ["1.0.0"]
+        },
+        "id": {
+          "$ref": "#/$defs/storeId"
+        },
+        "schema": {
+          "type": "object",
+          "required": ["$schema"],
+          "properties": {
+            "$schema": {
+              "enum": ["https://json-schema.org/draft/2020-12/schema"]
+            }
+          }
+        },
+        "source": {
+          "type": "object",
+          "required": ["kind"],
+          "properties": {
+            "kind": {
+              "enum": ["host", "local", "query", "route"]
+            }
+          },
+          "additionalProperties": false
+        },
+        "access": {
+          "enum": ["read-only", "read-write-draft"]
+        },
+        "ownership": {
+          "enum": ["host", "remote-query", "runtime"]
+        },
+        "persistence": {
+          "enum": ["memory", "session", "local", "remote"]
+        },
+        "classification": {
+          "enum": ["public", "internal", "confidential", "restricted", "never-export"]
+        },
+        "initialData": {
+          "enum": ["required", "optional", "forbidden"]
+        },
+        "maxBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10485760
+        },
+        "migrations": {
+          "type": "object",
+          "required": ["minimum", "maximum"],
+          "properties": {
+            "minimum": {
+              "$ref": "#/$defs/semanticVersion"
+            },
+            "maximum": {
+              "$ref": "#/$defs/semanticVersion"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "query"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "access": {
+                "const": "read-only"
+              },
+              "ownership": {
+                "const": "remote-query"
+              },
+              "persistence": {
+                "const": "remote"
+              }
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "semanticVersion": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "storeId": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,127}$"
+    },
+    "jsonUiNode": {
+      "type": "object",
+      "required": ["$comp", "id"],
+      "properties": {
+        "$comp": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "store": {
+          "$ref": "#/$defs/storeId"
+        },
+        "path": {
+          "type": "string",
+          "maxLength": 2048,
+          "pattern": "^(?:/(?:[^~/]|~[01])*)*$"
+        },
+        "$children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/jsonUiNode"
+          }
+        }
+      },
+      "dependentRequired": {
+        "store": ["path"],
+        "path": ["store"]
+      },
+      "additionalProperties": true
+    }
+  }
+}

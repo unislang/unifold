@@ -1,0 +1,45 @@
+{
+  "name": "@unislang/unifold-compositions",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Versioned JSON composition definitions and deterministic static expansion for Unifold.",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "src/**/*.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.test-data.ts",
+    "!src/**/test-helpers.ts"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schemas/composed-ui-document.schema.json": "./dist/composed-ui-document.schema.json"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run --root ../.. --config vitest.config.ts packages/compositions"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unislang/unifold.git",
+    "directory": "packages/compositions"
+  },
+  "homepage": "https://unifold.org",
+  "bugs": "https://github.com/unislang/unifold/issues",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@unislang/unifold-contracts": "workspace:*",
+    "ajv": "8.20.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

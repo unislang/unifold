@@ -1,0 +1,35 @@
+:root {
+  color-scheme: light dark;
+  --unifold-color-surface: light-dark(#ffffff, #111827);
+  --unifold-color-surface-subtle: light-dark(#f3f4f6, #1f2937);
+  --unifold-color-text: light-dark(#111827, #f9fafb);
+  --unifold-color-muted: light-dark(#4b5563, #d1d5db);
+  --unifold-color-border: light-dark(#6b7280, #9ca3af);
+  --unifold-color-primary: light-dark(#1d4ed8, #60a5fa);
+  --unifold-color-success: light-dark(#047857, #6ee7b7);
+  --unifold-color-on-primary: light-dark(#ffffff, #111827);
+  --unifold-color-focus: light-dark(#7c3aed, #c4b5fd);
+  --unifold-color-danger: light-dark(#b91c1c, #fca5a5);
+  --unifold-color-warning: light-dark(#a16207, #fde047);
+  --unifold-font-sans: ui-sans-serif, system-ui, sans-serif;
+  --unifold-radius-sm: 0.375rem;
+  --unifold-radius-md: 0.5rem;
+  --unifold-space-1: 0.25rem;
+  --unifold-space-2: 0.5rem;
+  --unifold-space-3: 0.75rem;
+  --unifold-space-4: 1rem;
+  --unifold-control-min-height: 2.75rem;
+  --unifold-focus-width: 0.1875rem;
+}
+
+[data-unifold-density="compact"] {
+  --unifold-control-min-height: 2.25rem;
+  --unifold-space-3: 0.5rem;
+  --unifold-space-4: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --unifold-motion-duration: 0ms;
+  }
+}

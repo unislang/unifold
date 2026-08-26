@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.unifold.org/data/1.0/schema.json",
+  "title": "Unifold Data Protocol Envelope",
+  "oneOf": [
+    { "$ref": "#/$defs/queryRequest" },
+    { "$ref": "#/$defs/mutationRequest" },
+    { "$ref": "#/$defs/successResult" },
+    { "$ref": "#/$defs/emptyResult" },
+    { "$ref": "#/$defs/failureResult" }
+  ],
+  "$defs": {
+    "safeId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^(?!__proto__$|constructor$|prototype$)[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "operationId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+    },
+    "baseRequest": {
+      "type": "object",
+      "required": [
+        "correlationId",
+        "kind",
+        "operationId",
+        "protocolVersion",
+        "requestId",
+        "variables"
+      ],
+      "properties": {
+        "correlationId": { "$ref": "#/$defs/safeId" },
+        "filter": { "type": "object" },
+        "kind": { "enum": ["mutation", "query"] },
+        "operationId": { "$ref": "#/$defs/operationId" },
+        "protocolVersion": { "const": "1.0.0" },
+        "requestId": { "$ref": "#/$defs/safeId" },
+        "sort": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["direction", "field"],
+            "properties": {
+              "direction": { "enum": ["ascending", "descending"] },
+              "field": { "$ref": "#/$defs/safeId" }
+            }
+          }
+        },
+        "timeoutMs": { "type": "integer", "minimum": 1, "maximum": 120000 },
+        "variables": { "type": "object" }
+      }
+    },
+    "queryRequest": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/baseRequest" },
+        {
+          "type": "object",
+          "required": ["cache"],
+          "properties": {
+            "kind": { "const": "query" },
+            "cache": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["freshForMs", "offline", "retainForMs"],
+              "properties": {
+                "freshForMs": { "type": "integer", "minimum": 0, "maximum": 3600000 },
+                "offline": { "enum": ["fail", "last-known-good"] },
+                "retainForMs": { "type": "integer", "minimum": 0, "maximum": 86400000 }
+              }
+            },
+            "page": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["limit"],
+              "properties": {
+                "after": { "type": "string", "minLength": 1, "maxLength": 512 },
+                "before": { "type": "string", "minLength": 1, "maxLength": 512 },
+                "limit": { "type": "integer", "minimum": 1, "maximum": 1000 }
+              },
+              "not": {
+                "required": ["after", "before"],
+                "properties": { "after": {}, "before": {} }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "mutationRequest": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/baseRequest" },
+        {
+          "type": "object",
+          "required": ["idempotencyKey", "invalidateTags"],
+          "properties": {
+            "kind": { "const": "mutation" },
+            "expectedRevision": { "type": "string", "minLength": 1, "maxLength": 256 },
+            "idempotencyKey": { "$ref": "#/$defs/safeId" },
+            "invalidateTags": {
+              "type": "array",
+              "maxItems": 64,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/safeId" }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "cacheableResult": {
+      "type": "object",
+      "required": ["classification", "invalidationTags", "receivedAt", "status"],
+      "properties": {
+        "classification": {
+          "enum": ["public", "internal", "confidential", "restricted", "never-export"]
+        },
+        "invalidationTags": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/safeId" }
+        },
+        "receivedAt": { "type": "string", "minLength": 20, "maxLength": 64 },
+        "revision": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "status": { "enum": ["empty", "success"] }
+      }
+    },
+    "successResult": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/cacheableResult" },
+        {
+          "type": "object",
+          "required": ["data"],
+          "properties": {
+            "status": { "const": "success" },
+            "data": {},
+            "nextCursor": { "type": "string", "minLength": 1, "maxLength": 512 },
+            "previousCursor": { "type": "string", "minLength": 1, "maxLength": 512 }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "emptyResult": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/cacheableResult" },
+        { "type": "object", "properties": { "status": { "const": "empty" } } }
+      ],
+      "unevaluatedProperties": false
+    },
+    "failureResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["error", "status"],
+      "properties": {
+        "status": {
+          "enum": [
+            "canceled",
+            "conflict",
+            "denied",
+            "not-found",
+            "rate-limited",
+            "timeout",
+            "unavailable",
+            "validation-error"
+          ]
+        },
+        "error": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["code", "messageKey"],
+          "properties": {
+            "code": { "type": "string", "minLength": 1, "maxLength": 128 },
+            "details": { "type": "object" },
+            "messageKey": { "type": "string", "minLength": 1, "maxLength": 256 },
+            "retryAfterMs": { "type": "integer", "minimum": 0, "maximum": 300000 }
+          }
+        }
+      }
+    }
+  }
+}

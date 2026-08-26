@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unifold reference</title>
+  </head>
+  <body>
+    <main>
+      <h1>Unifold reference</h1>
+      <div id="app"></div>
+      <section aria-labelledby="result-title">
+        <h2 id="result-title">Submitted value</h2>
+        <output data-testid="submitted-value"></output>
+      </section>
+      <section aria-labelledby="event-title">
+        <h2 id="event-title">Latest unified event</h2>
+        <pre data-testid="event-log" aria-live="polite" tabindex="0"></pre>
+      </section>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

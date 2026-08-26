@@ -1,0 +1,48 @@
+{
+  "name": "@unislang/unifold-reactivity",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Indexed RxJS event fabric and transactional normalized node store for Unifold.",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "src/**/*.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.test-data.ts",
+    "!src/**/test-helpers.ts"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run --config ../../vitest.config.ts --root ../.. packages/reactivity"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unislang/unifold.git",
+    "directory": "packages/reactivity"
+  },
+  "homepage": "https://github.com/unislang/unifold#readme",
+  "bugs": "https://github.com/unislang/unifold/issues",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@unislang/unifold-contracts": "workspace:*",
+    "@unislang/unifold-events": "workspace:*",
+    "immer": "^10.1.1",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

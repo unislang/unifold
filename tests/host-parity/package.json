@@ -1,0 +1,36 @@
+{
+  "name": "@unislang/unifold-host-parity",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.15.1",
+  "scripts": {
+    "build": "pnpm typecheck && vite build",
+    "test": "pnpm build && pnpm test:unit && playwright test --config playwright.config.ts",
+    "test:unit": "node --test scripts/*.test.mjs && vitest run src/host-runtime.test.ts --environment happy-dom",
+    "typecheck": "tsc -p tsconfig.json --noEmit && svelte-check --tsconfig ./tsconfig.json"
+  },
+  "dependencies": {
+    "@unislang/unifold": "workspace:*",
+    "@unislang/unifold-contracts": "workspace:*",
+    "@unislang/unifold-events": "workspace:*",
+    "@unislang/unifold-playwright": "workspace:*",
+    "@unislang/unifold-theme": "workspace:*",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "svelte": "5.56.10",
+    "vue": "3.5.41"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "@sveltejs/vite-plugin-svelte": "6.2.4",
+    "@types/node": "24.3.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "happy-dom": "20.0.10",
+    "svelte-check": "4.7.6",
+    "typescript": "5.9.2",
+    "vite": "7.3.6",
+    "vitest": "3.2.4"
+  }
+}

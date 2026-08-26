@@ -1,0 +1,23 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/ai" },
+    { "path": "./packages/collaboration" },
+    { "path": "./packages/compositions" },
+    { "path": "./packages/control-plane" },
+    { "path": "./packages/contracts" },
+    { "path": "./packages/data" },
+    { "path": "./packages/devtools" },
+    { "path": "./packages/events" },
+    { "path": "./packages/export" },
+    { "path": "./packages/forms" },
+    { "path": "./packages/ir" },
+    { "path": "./packages/jsonui" },
+    { "path": "./packages/reactivity" },
+    { "path": "./packages/runtime" },
+    { "path": "./packages/rules" },
+    { "path": "./packages/semantics" },
+    { "path": "./packages/unifold" },
+    { "path": "./packages/xstate" }
+  ]
+}

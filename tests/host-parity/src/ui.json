@@ -1,0 +1,34 @@
+{
+  "$schema": "https://schemas.unifold.org/ui-document/1.0/schema.json",
+  "schemaVersion": "1.0.0",
+  "id": "host-parity-reference",
+  "revision": "revision-1",
+  "jsonUiProfile": {
+    "name": "unifold-jsonui",
+    "version": "1.0.0",
+    "upstream": "5401b3d4900ca3032c108d6db00e8a819f4b28e9"
+  },
+  "catalog": { "name": "unifold-core", "version": "1.0.0" },
+  "compositions": [],
+  "view": {
+    "$comp": "Form",
+    "id": "profile",
+    "label": "Profile",
+    "$children": [
+      {
+        "$comp": "TextField",
+        "id": "name",
+        "inputType": "text",
+        "label": "Name",
+        "name": "name",
+        "value": "Ada Lovelace"
+      },
+      {
+        "$comp": "Button",
+        "id": "save",
+        "action": "submit",
+        "label": "Save profile"
+      }
+    ]
+  }
+}

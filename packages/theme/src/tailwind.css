@@ -1,0 +1,15 @@
+@import "./tokens.css";
+
+@theme inline {
+  --color-unifold-surface: var(--unifold-color-surface);
+  --color-unifold-surface-subtle: var(--unifold-color-surface-subtle);
+  --color-unifold-text: var(--unifold-color-text);
+  --color-unifold-muted: var(--unifold-color-muted);
+  --color-unifold-border: var(--unifold-color-border);
+  --color-unifold-primary: var(--unifold-color-primary);
+  --color-unifold-success: var(--unifold-color-success);
+  --color-unifold-warning: var(--unifold-color-warning);
+  --color-unifold-focus: var(--unifold-color-focus);
+  --font-unifold-sans: var(--unifold-font-sans);
+  --radius-unifold: var(--unifold-radius-md);
+}

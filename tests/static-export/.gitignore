@@ -1,0 +1,6 @@
+dist/
+index.html
+unifold-manifest.json
+playwright-report/
+test-results/
+*.tsbuildinfo

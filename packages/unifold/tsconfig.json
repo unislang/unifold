@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "skipLibCheck": true,
+    "tsBuildInfoFile": ".tsbuildinfo"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test-data.ts", "src/**/test-helpers.ts"],
+  "references": [
+    { "path": "../compositions" },
+    { "path": "../contracts" },
+    { "path": "../data" },
+    { "path": "../elements" },
+    { "path": "../events" },
+    { "path": "../ir" },
+    { "path": "../renderer-dom" },
+    { "path": "../runtime" },
+    { "path": "../semantics" },
+    { "path": "../xstate" }
+  ]
+}

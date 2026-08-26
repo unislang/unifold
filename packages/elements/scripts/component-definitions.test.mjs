@@ -1,0 +1,114 @@
+import assert from "node:assert/strict";
+import { dirname, resolve } from "node:path";
+import { test } from "node:test";
+import { fileURLToPath } from "node:url";
+import {
+  ComponentCapability,
+  ComponentDefinitionSchemaVersion,
+  CoreComponentType
+} from "@unislang/unifold-catalog";
+
+import { createPackageManifest } from "./cem-manifest.mjs";
+import { createComponentDefinitions } from "./component-definitions.mjs";
+
+const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+
+test("joins all sidecars, catalog schemas, and CEM declarations", async () => {
+  const document = await definitions();
+  assert.equal(document.schemaVersion, ComponentDefinitionSchemaVersion.Version1);
+  assert.deepEqual(
+    document.definitions.map(({ componentType }) => componentType).toSorted(),
+    Object.values(CoreComponentType).toSorted()
+  );
+  assert(
+    document.definitions.every(({ customElement, tagName }) => customElement.tagName === tagName)
+  );
+});
+
+test("derives required, enum, attribute, and public snapshot schemas", async () => {
+  const document = await definitions();
+  const icon = requireDefinition(document, CoreComponentType.Icon);
+  const auditLog = requireDefinition(document, CoreComponentType.AuditLog);
+  const link = requireDefinition(document, CoreComponentType.Link);
+  const dataGrid = requireDefinition(document, CoreComponentType.DataGrid);
+  const searchResults = requireDefinition(document, CoreComponentType.SearchResults);
+  const stepper = requireDefinition(document, CoreComponentType.Stepper);
+  const table = requireDefinition(document, CoreComponentType.Table);
+  const wizard = requireDefinition(document, CoreComponentType.Wizard);
+  assert.deepEqual(icon.propertiesSchema.required, ["name"]);
+  assert.deepEqual(link.propertiesSchema.required, ["href"]);
+  assert.deepEqual(link.attributesSchema.properties.href, { type: "string" });
+  assert.deepEqual(table.propertiesSchema.required, ["caption", "columns", "rows"]);
+  assertAuditLogSchemas(auditLog);
+  assert.equal(table.propertiesSchema.properties.columns.maxItems, 64);
+  assert.equal(table.propertiesSchema.properties.rows.maxItems, 10_000);
+  assertDataGridSchemas(dataGrid);
+  assertSearchResultsSchemas(searchResults);
+  assertWorkflowSchemas(stepper, wizard);
+  assert(link.publicSnapshotSchema.properties.testId === undefined);
+  assert.deepEqual(icon.propertiesSchema.properties.name.enum, [
+    "check",
+    "external-link",
+    "help",
+    "info",
+    "search",
+    "warning"
+  ]);
+});
+
+test("derives control adapters and enum-backed common capabilities", async () => {
+  const document = await definitions();
+  const textField = requireDefinition(document, CoreComponentType.TextField);
+  const text = requireDefinition(document, CoreComponentType.Text);
+  assert.deepEqual(textField.control, {
+    updateTriggerProperty: "updateOn",
+    validatorProperties: ["validators", "asyncValidators"],
+    valueProperty: "value",
+    valueSchema: { default: "", type: "string" }
+  });
+  assert(text.control === undefined);
+  assert.deepEqual(text.commonCapabilities, Object.values(ComponentCapability));
+});
+
+async function definitions() {
+  const manifest = await createPackageManifest(resolve(packageRoot, "src"));
+  return createComponentDefinitions(manifest);
+}
+
+function requireDefinition(document, componentType) {
+  const definition = document.definitions.find((item) => item.componentType === componentType);
+  assert(definition, `Missing definition: ${componentType}.`);
+  return definition;
+}
+
+function assertSearchResultsSchemas(searchResults) {
+  assert.equal(searchResults.propertiesSchema.properties.results.maxItems, 10_000);
+  assert.equal(searchResults.propertiesSchema.properties.results.items.additionalProperties, false);
+  assert.equal(searchResults.control.valueSchema.properties.query.maxLength, 2_048);
+  assert.deepEqual(searchResults.control.valueSchema.required, ["query", "selectedResultId"]);
+}
+
+function assertAuditLogSchemas(auditLog) {
+  const entries = auditLog.propertiesSchema.properties.entries;
+  assert.deepEqual(auditLog.propertiesSchema.required, ["label", "entries"]);
+  assert.equal(entries.maxItems, 10_000);
+  assert.equal(entries.items.additionalProperties, false);
+  assert.equal(entries.items.properties.timestamp.format, "date-time");
+}
+
+function assertDataGridSchemas(dataGrid) {
+  assert.deepEqual(dataGrid.propertiesSchema.required, ["caption", "columns", "rows"]);
+  assert.equal(dataGrid.control.valueSchema.properties.selectedRowIds.maxItems, 10_000);
+  assert.deepEqual(dataGrid.control.valueSchema.properties.sort.properties.direction.enum, [
+    "ascending",
+    "descending"
+  ]);
+}
+
+function assertWorkflowSchemas(stepper, wizard) {
+  assert.deepEqual(stepper.propertiesSchema.required, ["label", "steps", "value"]);
+  assert.equal(stepper.propertiesSchema.properties.steps.maxItems, 100);
+  assert.equal(stepper.propertiesSchema.properties.steps.items.additionalProperties, false);
+  assert.equal(stepper.control.valueSchema.maxLength, 128);
+  assert.deepEqual(wizard.control.valueSchema, stepper.control.valueSchema);
+}

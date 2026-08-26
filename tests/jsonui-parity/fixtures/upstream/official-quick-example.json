@@ -1,0 +1,12 @@
+{
+  "$comp": "View",
+  "$children": [
+    { "$comp": "Text", "$children": "Hello JSONUI" },
+    {
+      "$comp": "Edit",
+      "store": "data",
+      "path": "/profile/firstName",
+      "label": "First name"
+    }
+  ]
+}

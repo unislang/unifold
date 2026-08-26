@@ -1,0 +1,52 @@
+{
+  "name": "@unislang/unifold-runtime",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Framework-neutral composition root for Unifold state, events, commands, and actors.",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "src/**/*.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.test-data.ts",
+    "!src/**/test-helpers.ts"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run --config ../../vitest.config.ts --root ../.. packages/runtime"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unislang/unifold.git",
+    "directory": "packages/runtime"
+  },
+  "homepage": "https://github.com/unislang/unifold#readme",
+  "bugs": "https://github.com/unislang/unifold/issues",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@sagold/json-pointer": "7.2.1",
+    "@unislang/unifold-contracts": "workspace:*",
+    "@unislang/unifold-events": "workspace:*",
+    "@unislang/unifold-forms": "workspace:*",
+    "@unislang/unifold-reactivity": "workspace:*",
+    "@unislang/unifold-rules": "workspace:*",
+    "@unislang/unifold-xstate": "workspace:*",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

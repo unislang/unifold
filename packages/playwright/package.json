@@ -1,0 +1,51 @@
+{
+  "name": "@unislang/unifold-playwright",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Playwright fixtures and scenario execution for Unifold applications.",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "src/**/*.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.test-data.ts",
+    "!src/**/test-helpers.ts",
+    "README.md"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unislang/unifold.git",
+    "directory": "packages/playwright"
+  },
+  "homepage": "https://github.com/unislang/unifold#readme",
+  "bugs": "https://github.com/unislang/unifold/issues",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@unislang/unifold-events": "workspace:*",
+    "@unislang/unifold-testkit": "workspace:*"
+  },
+  "peerDependencies": {
+    "@playwright/test": ">=1.55.0 <2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "happy-dom": "^20.0.10",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

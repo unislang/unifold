@@ -1,0 +1,29 @@
+body {
+  background: var(--unifold-color-surface);
+  color: var(--unifold-color-text);
+  font-family: var(--unifold-font-sans);
+  margin: 0;
+}
+
+main {
+  display: grid;
+  gap: 1.5rem;
+  margin-inline: auto;
+  max-width: 42rem;
+  padding: 2rem 1rem;
+}
+
+pre {
+  border: 1px solid var(--unifold-color-border);
+  border-radius: var(--unifold-radius-md);
+  max-height: 20rem;
+  min-height: 3rem;
+  overflow: auto;
+  padding: 1rem;
+  white-space: pre-wrap;
+}
+
+output {
+  font-size: 1.25rem;
+  font-weight: 700;
+}

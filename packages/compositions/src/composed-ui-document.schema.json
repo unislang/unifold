@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.unifold.org/composed-ui-document/1.0/schema.json",
+  "title": "Unifold Composed UI Document",
+  "type": "object",
+  "propertyNames": { "$ref": "#/$defs/safePropertyName" },
+  "required": ["compositions", "view"],
+  "properties": {
+    "compositions": {
+      "type": "array",
+      "maxItems": 100,
+      "items": { "$ref": "#/$defs/definition" }
+    },
+    "view": { "$ref": "#/$defs/node" }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "definition": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/safePropertyName" },
+      "additionalProperties": false,
+      "required": [
+        "contractVersion",
+        "name",
+        "version",
+        "parameters",
+        "slots",
+        "template",
+        "exports"
+      ],
+      "properties": {
+        "contractVersion": { "const": "1.0.0" },
+        "name": { "$ref": "#/$defs/nonEmptyString" },
+        "version": { "$ref": "#/$defs/nonEmptyString" },
+        "parameters": {
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/safePropertyName" },
+          "additionalProperties": { "$ref": "#/$defs/parameter" }
+        },
+        "slots": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/slotDefinition" }
+        },
+        "template": { "$ref": "#/$defs/plainNode" },
+        "exports": {
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/safePropertyName" },
+          "additionalProperties": { "$ref": "#/$defs/export" }
+        }
+      }
+    },
+    "export": {
+      "oneOf": [
+        { "$ref": "#/$defs/selectionExport" },
+        { "$ref": "#/$defs/eventExport" },
+        { "$ref": "#/$defs/commandExport" }
+      ]
+    },
+    "selectionExport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "localId", "selection"],
+      "properties": {
+        "kind": { "const": "selection" },
+        "localId": { "$ref": "#/$defs/nodeId" },
+        "selection": { "enum": ["control-value", "properties", "snapshot"] }
+      }
+    },
+    "eventExport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "localId"],
+      "properties": {
+        "kind": { "const": "event" },
+        "localId": { "$ref": "#/$defs/nodeId" },
+        "eventType": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "commandExport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "localId", "commandType"],
+      "properties": {
+        "kind": { "const": "command" },
+        "localId": { "$ref": "#/$defs/nodeId" },
+        "commandType": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "parameter": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/safePropertyName" },
+      "additionalProperties": false,
+      "required": ["type", "required"],
+      "properties": {
+        "type": { "enum": ["boolean", "number", "string"] },
+        "required": { "type": "boolean" },
+        "default": { "type": ["boolean", "number", "string"] }
+      }
+    },
+    "slotDefinition": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/safePropertyName" },
+      "additionalProperties": false,
+      "required": ["name", "required", "multiple"],
+      "properties": {
+        "name": { "$ref": "#/$defs/nodeId" },
+        "required": { "type": "boolean" },
+        "multiple": { "type": "boolean" }
+      }
+    },
+    "node": {
+      "oneOf": [{ "$ref": "#/$defs/plainNode" }, { "$ref": "#/$defs/instance" }]
+    },
+    "plainNode": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/safePropertyName" },
+      "required": ["$comp", "id"],
+      "properties": {
+        "$comp": { "$ref": "#/$defs/nonEmptyString" },
+        "id": { "$ref": "#/$defs/nodeId" },
+        "$children": {
+          "type": "array",
+          "items": {
+            "oneOf": [{ "$ref": "#/$defs/node" }, { "$ref": "#/$defs/slotPlaceholder" }]
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "instance": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/safePropertyName" },
+      "additionalProperties": false,
+      "required": ["$compose", "$version", "id"],
+      "properties": {
+        "$compose": { "$ref": "#/$defs/nonEmptyString" },
+        "$version": { "$ref": "#/$defs/nonEmptyString" },
+        "id": { "$ref": "#/$defs/nodeId" },
+        "parameters": {
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/safePropertyName" }
+        },
+        "slots": {
+          "type": "object",
+          "propertyNames": {
+            "allOf": [{ "$ref": "#/$defs/safePropertyName" }, { "$ref": "#/$defs/nodeId" }]
+          },
+          "additionalProperties": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/node" }
+          }
+        }
+      }
+    },
+    "slotPlaceholder": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/safePropertyName" },
+      "additionalProperties": false,
+      "required": ["$slot"],
+      "properties": { "$slot": { "$ref": "#/$defs/nodeId" } }
+    },
+    "nonEmptyString": { "type": "string", "minLength": 1 },
+    "nodeId": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!.*::).+$"
+    },
+    "safePropertyName": {
+      "type": "string",
+      "pattern": "^(?!(?:__proto__|prototype|constructor)$).+$"
+    }
+  }
+}

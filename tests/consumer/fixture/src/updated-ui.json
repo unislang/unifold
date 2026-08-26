@@ -1,0 +1,32 @@
+{
+  "$schema": "https://schemas.unifold.org/ui-document/1.0/schema.json",
+  "catalog": {
+    "name": "unifold-core",
+    "version": "1.0.0"
+  },
+  "compositions": [],
+  "id": "packed-consumer",
+  "jsonUiProfile": {
+    "name": "unifold-jsonui",
+    "upstream": "5401b3d4900ca3032c108d6db00e8a819f4b28e9",
+    "version": "1.0.0"
+  },
+  "revision": "revision-2",
+  "schemaVersion": "1.0.0",
+  "view": {
+    "$children": [
+      {
+        "$comp": "TextField",
+        "id": "name",
+        "label": "Full name"
+      },
+      {
+        "$comp": "Text",
+        "content": "Updated from a packed dependency",
+        "id": "update-status"
+      }
+    ],
+    "$comp": "Box",
+    "id": "root"
+  }
+}

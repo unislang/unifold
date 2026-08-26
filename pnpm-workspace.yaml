@@ -1,0 +1,11 @@
+packages:
+  - "packages/*"
+  - "apps/*"
+  - "examples/*"
+  - "tests/*"
+
+linkWorkspacePackages: false
+preferWorkspacePackages: false
+sharedWorkspaceLockfile: true
+saveWorkspaceProtocol: rolling
+strictPeerDependencies: true

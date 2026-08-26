@@ -1,0 +1,61 @@
+{
+  "name": "@unislang/unifold",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Supported Unifold application bootstrap and document coordinator.",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "src/**/*.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.test-data.ts",
+    "!src/**/test-helpers.ts",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run --root ../.. --config vitest.config.ts packages/unifold"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unislang/unifold.git",
+    "directory": "packages/unifold"
+  },
+  "homepage": "https://unifold.org",
+  "bugs": "https://github.com/unislang/unifold/issues",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@sagold/json-pointer": "7.2.1",
+    "@unislang/unifold-compositions": "workspace:*",
+    "@unislang/unifold-contracts": "workspace:*",
+    "@unislang/unifold-data": "workspace:*",
+    "@unislang/unifold-elements": "workspace:*",
+    "@unislang/unifold-events": "workspace:*",
+    "@unislang/unifold-ir": "workspace:*",
+    "@unislang/unifold-renderer-dom": "workspace:*",
+    "@unislang/unifold-runtime": "workspace:*",
+    "@unislang/unifold-semantics": "workspace:*",
+    "@unislang/unifold-xstate": "workspace:*",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@unislang/unifold-catalog": "workspace:*",
+    "happy-dom": "^20.0.10",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "name": "@unislang/unifold-tooling",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared quality and build policies for Unifold packages",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "bin",
+    "config",
+    "src",
+    "README.md"
+  ],
+  "bin": {
+    "unifold-check-colocated-tests": "./bin/check-colocated-tests.mjs",
+    "unifold-check-file-lines": "./bin/check-file-lines.mjs"
+  },
+  "exports": {
+    "./dependency-cruiser": "./config/dependency-cruiser.mjs",
+    "./eslint": "./config/eslint.mjs",
+    "./prettier": "./config/prettier.mjs",
+    "./typescript": "./config/tsconfig.base.json",
+    "./colocated-tests": "./src/colocated-tests.mjs",
+    "./file-lines": "./src/file-lines.mjs"
+  },
+  "scripts": {
+    "test": "node --test src/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22.14.0"
+  },
+  "peerDependencies": {
+    "@eslint/js": ">=9.33.0 <10",
+    "dependency-cruiser": ">=17.1.0 <18",
+    "eslint": ">=9.33.0 <10",
+    "globals": ">=16.3.0 <17",
+    "prettier": ">=3.6.2 <4",
+    "typescript": ">=5.9.2 <6",
+    "typescript-eslint": ">=8.39.1 <9"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unislang/unifold.git",
+    "directory": "packages/tooling"
+  },
+  "homepage": "https://github.com/unislang/unifold#readme",
+  "bugs": {
+    "url": "https://github.com/unislang/unifold/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

@@ -1,0 +1,24 @@
+# Unifold documentation
+
+- [Getting started](getting-started.md)
+- [Architecture](architecture.md)
+- [Runtime event disclosure](event-disclosure.md)
+- [Core components](components.md)
+- [Reusable JSON compositions](compositions.md)
+- [Pinned JsonUI profile](jsonui-profile.md)
+- [Stores and control bindings](stores-and-bindings.md)
+- [Document trust, signatures, and migrations](document-trust.md)
+- [Version compatibility and migration support](compatibility.md)
+- [Control-plane trust, effects, sequencing, and recovery](control-plane.md)
+- [Server-sequenced collaboration, governance, and presence](collaboration.md)
+- [Runtime inspection, privacy projection, diff, and replay](devtools.md)
+- [Remote data-source actors, cache, and recovery](data-sources.md)
+- [JSON workflows with XState](workflows.md)
+- [Testing](testing.md)
+- [Packaging and clean-consumer verification](packaging.md)
+- [Performance evidence](performance.md)
+- [AI proposals and prototype export](ai-and-export.md)
+- [OSS decision register](oss-decisions.md)
+- [Implementation status](implementation-status.md)
+
+Documentation is part of the public API. New public events, JSON fields, component behavior, commands, or packages require version-matched conceptual guidance, API reference updates, and executable examples.

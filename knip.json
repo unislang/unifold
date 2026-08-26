@@ -1,0 +1,73 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "ignore": ["**/dist/**", "**/coverage/**", "tests/consumer/fixture/**"],
+  "ignoreDependencies": ["@eslint/js", "globals", "typescript-eslint"],
+  "workspaces": {
+    "packages/*": {
+      "entry": ["src/**/*.test.ts"],
+      "project": ["src/**/*.{ts,tsx,mts}"]
+    },
+    "packages/contracts": {
+      "entry": ["src/**/*.test.ts"],
+      "project": ["src/**/*.ts"]
+    },
+    "packages/playwright": {
+      "entry": ["src/**/*.test.ts"],
+      "project": ["src/**/*.ts"]
+    },
+    "packages/elements": {
+      "entry": ["src/**/*.test.ts", "scripts/*.mjs"],
+      "project": ["src/**/*.ts", "scripts/**/*.mjs"]
+    },
+    "packages/theme": {
+      "entry": ["src/**/*.test.ts", "scripts/*.mjs"],
+      "project": ["src/**/*.ts", "scripts/**/*.mjs"]
+    },
+    "packages/tooling": {
+      "entry": ["bin/*.mjs", "config/*.mjs", "src/*.test.mjs"],
+      "project": ["src/**/*.mjs"]
+    },
+    "apps/*": {
+      "entry": ["src/main.{ts,tsx}!"],
+      "project": ["src/**/*.{ts,tsx}"]
+    },
+    "examples/*": {
+      "entry": ["src/**/*.ts"],
+      "project": ["src/**/*.{ts,tsx}"]
+    },
+    "tests/*": {
+      "entry": ["*.config.ts", "*.spec.ts"],
+      "project": ["**/*.ts"]
+    },
+    "tests/consumer": {},
+    "tests/e2e": {
+      "entry": ["*.config.ts", "*.spec.ts", "scripts/*.mjs"],
+      "project": ["**/*.{ts,mjs}"]
+    },
+    "tests/host-parity": {
+      "entry": [
+        "*.config.ts",
+        "*.spec.ts",
+        "scripts/*.mjs",
+        "src/plain.ts",
+        "src/react.tsx",
+        "src/svelte.ts",
+        "src/vue.ts"
+      ],
+      "project": ["**/*.{ts,tsx,mjs,svelte}"]
+    },
+    "tests/jsonui-parity": {
+      "entry": ["src/main.tsx", "scripts/*.mjs"],
+      "project": ["**/*.{ts,tsx,mjs}"],
+      "ignoreDependencies": ["@jsonui/core"]
+    },
+    "tests/performance": {
+      "entry": ["*.bench.ts", "*.config.ts", "*.test.ts", "scripts/*.mjs"],
+      "project": ["**/*.{ts,mjs}"]
+    },
+    "tests/static-export": {
+      "entry": ["*.config.ts", "*.spec.ts", "scripts/*.mjs", "src/upgrade.ts"],
+      "project": ["**/*.{ts,mjs}"]
+    }
+  }
+}

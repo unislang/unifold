@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.unifold.org/devtools/replay-plan/1.0/schema.json",
+  "title": "Unifold Devtools Replay Plan",
+  "type": "object",
+  "required": ["protocolVersion", "initialDocument", "frames"],
+  "properties": {
+    "protocolVersion": { "const": "1.0.0" },
+    "initialDocument": { "type": "object" },
+    "frames": {
+      "type": "array",
+      "maxItems": 10000,
+      "items": { "$ref": "#/$defs/frame" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "pointer": { "type": "string", "minLength": 1, "maxLength": 1024, "pattern": "^/" },
+    "frame": {
+      "type": "object",
+      "required": ["sequence", "baseFingerprint", "expectedFingerprint", "operations"],
+      "properties": {
+        "sequence": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "baseFingerprint": { "$ref": "#/$defs/fingerprint" },
+        "expectedFingerprint": { "$ref": "#/$defs/fingerprint" },
+        "operations": {
+          "type": "array",
+          "maxItems": 256,
+          "items": { "$ref": "#/$defs/operation" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "operation": {
+      "oneOf": [
+        { "$ref": "#/$defs/add" },
+        { "$ref": "#/$defs/copy" },
+        { "$ref": "#/$defs/move" },
+        { "$ref": "#/$defs/remove" },
+        { "$ref": "#/$defs/replace" },
+        { "$ref": "#/$defs/test" }
+      ]
+    },
+    "add": {
+      "type": "object",
+      "required": ["op", "path", "value"],
+      "properties": {
+        "op": { "const": "add" },
+        "path": { "$ref": "#/$defs/pointer" },
+        "value": {}
+      },
+      "additionalProperties": false
+    },
+    "copy": {
+      "type": "object",
+      "required": ["op", "path", "from"],
+      "properties": {
+        "op": { "const": "copy" },
+        "path": { "$ref": "#/$defs/pointer" },
+        "from": { "$ref": "#/$defs/pointer" }
+      },
+      "additionalProperties": false
+    },
+    "move": {
+      "type": "object",
+      "required": ["op", "path", "from"],
+      "properties": {
+        "op": { "const": "move" },
+        "path": { "$ref": "#/$defs/pointer" },
+        "from": { "$ref": "#/$defs/pointer" }
+      },
+      "additionalProperties": false
+    },
+    "remove": {
+      "type": "object",
+      "required": ["op", "path"],
+      "properties": {
+        "op": { "const": "remove" },
+        "path": { "$ref": "#/$defs/pointer" }
+      },
+      "additionalProperties": false
+    },
+    "replace": {
+      "type": "object",
+      "required": ["op", "path", "value"],
+      "properties": {
+        "op": { "const": "replace" },
+        "path": { "$ref": "#/$defs/pointer" },
+        "value": {}
+      },
+      "additionalProperties": false
+    },
+    "test": {
+      "type": "object",
+      "required": ["op", "path", "value"],
+      "properties": {
+        "op": { "const": "test" },
+        "path": { "$ref": "#/$defs/pointer" },
+        "value": {}
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.unifold.org/control-plane/1.0/schema.json",
+  "title": "Unifold Control Plane Request",
+  "oneOf": [
+    { "$ref": "#/$defs/commitDocument" },
+    { "$ref": "#/$defs/readDocument" },
+    { "$ref": "#/$defs/invokeEffect" },
+    { "$ref": "#/$defs/resumeRealtime" },
+    { "$ref": "#/$defs/createBackup" },
+    { "$ref": "#/$defs/restoreBackup" }
+  ],
+  "$defs": {
+    "base": {
+      "type": "object",
+      "required": ["protocolVersion", "operation", "requestId", "correlationId", "sessionToken"],
+      "properties": {
+        "protocolVersion": { "enum": ["1.0.0"] },
+        "operation": {
+          "enum": [
+            "backup.create",
+            "backup.restore",
+            "document.commit",
+            "document.read",
+            "effect.invoke",
+            "realtime.resume"
+          ]
+        },
+        "requestId": { "$ref": "#/$defs/requestId" },
+        "correlationId": { "$ref": "#/$defs/requestId" },
+        "sessionToken": { "type": "string", "minLength": 1, "maxLength": 4096 },
+        "traceparent": { "type": "string", "minLength": 1, "maxLength": 256 }
+      }
+    },
+    "commitDocument": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "type": "object",
+          "required": ["document", "objectId"],
+          "properties": {
+            "operation": { "const": "document.commit" },
+            "document": { "type": "object" },
+            "expectedRevision": { "$ref": "#/$defs/resourceId" },
+            "objectId": { "$ref": "#/$defs/resourceId" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "readDocument": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "type": "object",
+          "required": ["objectId"],
+          "properties": {
+            "operation": { "const": "document.read" },
+            "objectId": { "$ref": "#/$defs/resourceId" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "invokeEffect": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "type": "object",
+          "required": ["effectId", "idempotencyKey", "input", "objectId"],
+          "properties": {
+            "operation": { "const": "effect.invoke" },
+            "effectId": { "$ref": "#/$defs/resourceId" },
+            "idempotencyKey": { "$ref": "#/$defs/resourceId" },
+            "input": {},
+            "objectId": { "$ref": "#/$defs/resourceId" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "resumeRealtime": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "type": "object",
+          "required": ["afterSequence"],
+          "properties": {
+            "operation": { "const": "realtime.resume" },
+            "afterSequence": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "createBackup": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "type": "object",
+          "properties": { "operation": { "const": "backup.create" } }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "restoreBackup": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "type": "object",
+          "required": ["backupId"],
+          "properties": {
+            "operation": { "const": "backup.restore" },
+            "backupId": { "$ref": "#/$defs/resourceId" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "requestId": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "resourceId": { "type": "string", "minLength": 1, "maxLength": 256 }
+  }
+}

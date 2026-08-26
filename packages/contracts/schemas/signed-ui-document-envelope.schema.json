@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.unifold.org/signed-ui-document-envelope/1.0/schema.json",
+  "title": "Signed Unifold UI Document Envelope",
+  "type": "object",
+  "required": ["$schema", "envelopeVersion", "payload", "signature"],
+  "properties": {
+    "$schema": {
+      "enum": ["https://schemas.unifold.org/signed-ui-document-envelope/1.0/schema.json"]
+    },
+    "envelopeVersion": {
+      "enum": ["1.0.0"]
+    },
+    "payload": {
+      "type": "string"
+    },
+    "signature": {
+      "type": "object",
+      "required": ["algorithm", "keyId", "value"],
+      "properties": {
+        "algorithm": {
+          "enum": ["Ed25519"]
+        },
+        "keyId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{86}$"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

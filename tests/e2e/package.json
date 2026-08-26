@@ -1,0 +1,23 @@
+{
+  "name": "@unislang/unifold-e2e",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "pnpm --filter @unislang/unifold-reference build && pnpm test:unit && playwright test --config playwright.config.ts",
+    "test:unit": "node --test scripts/*.test.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@unislang/unifold": "workspace:*",
+    "@unislang/unifold-elements": "workspace:*",
+    "@unislang/unifold-events": "workspace:*",
+    "@unislang/unifold-playwright": "workspace:*",
+    "@unislang/unifold-testkit": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "typescript": "^5.9.2",
+    "vite": "7.3.6"
+  }
+}

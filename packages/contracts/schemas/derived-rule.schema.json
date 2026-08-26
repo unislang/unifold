@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.unifold.org/derived-rule/1.0/schema.json",
+  "title": "Unifold Derived Rule",
+  "type": "object",
+  "required": ["schemaVersion", "id", "version", "inputs", "expression", "output"],
+  "properties": {
+    "schemaVersion": { "enum": ["1.0.0"] },
+    "id": { "$ref": "#/$defs/identifier" },
+    "version": { "$ref": "#/$defs/semanticVersion" },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/input" }
+    },
+    "expression": true,
+    "output": { "$ref": "#/$defs/output" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,127}$"
+    },
+    "semanticVersion": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "statePointer": {
+      "type": "string",
+      "maxLength": 2048,
+      "pattern": "^/(?:base|control|properties|attributes)(?:/(?:[^~/]|~[01])*)*$"
+    },
+    "input": {
+      "type": "object",
+      "required": ["name", "nodeId", "pointer"],
+      "properties": {
+        "name": { "$ref": "#/$defs/identifier" },
+        "nodeId": { "type": "string", "minLength": 1 },
+        "pointer": { "$ref": "#/$defs/statePointer" }
+      },
+      "additionalProperties": false
+    },
+    "output": {
+      "oneOf": [
+        { "$ref": "#/$defs/controlSetDisabled" },
+        { "$ref": "#/$defs/controlSetValue" },
+        { "$ref": "#/$defs/nodePatchProperty" }
+      ]
+    },
+    "controlSetDisabled": {
+      "type": "object",
+      "required": ["kind", "nodeId"],
+      "properties": {
+        "kind": { "enum": ["control-set-disabled"] },
+        "nodeId": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "controlSetValue": {
+      "type": "object",
+      "required": ["kind", "nodeId"],
+      "properties": {
+        "kind": { "enum": ["control-set-value"] },
+        "nodeId": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "nodePatchProperty": {
+      "type": "object",
+      "required": ["kind", "nodeId", "property"],
+      "properties": {
+        "kind": { "enum": ["node-patch-property"] },
+        "nodeId": { "type": "string", "minLength": 1 },
+        "property": { "$ref": "#/$defs/identifier" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "@unislang/unifold-reference",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b && vite build --minify terser && node scripts/check-bundle-size.mjs",
+    "dev": "vite --host 127.0.0.1",
+    "preview": "vite preview --host 127.0.0.1 --port 4173",
+    "typecheck": "tsc -b --pretty false"
+  },
+  "dependencies": {
+    "@unislang/unifold": "workspace:*",
+    "@unislang/unifold-contracts": "workspace:*",
+    "@unislang/unifold-events": "workspace:*",
+    "@unislang/unifold-forms": "workspace:*",
+    "@unislang/unifold-theme": "workspace:*",
+    "valibot": "1.3.0"
+  },
+  "devDependencies": {
+    "terser": "5.16.0",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.3"
+  }
+}

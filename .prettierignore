@@ -1,0 +1,15 @@
+.git
+.changeset/pre.json
+node_modules
+dist
+coverage
+benchmark-results
+blob-report
+playwright-report
+report
+test-results*
+tests/static-export/index.html
+tests/static-export/unifold-manifest.json
+pnpm-lock.yaml
+ARCHITECTURE_IMPLEMENTATION_PLAN.md
+report-source.md

@@ -1,0 +1,63 @@
+{
+  "$schema": "https://schemas.unifold.org/ui-document/1.0/schema.json",
+  "schemaVersion": "1.0.0",
+  "id": "static-export-reference",
+  "revision": "revision-1",
+  "jsonUiProfile": {
+    "name": "unifold-jsonui",
+    "version": "1.0.0",
+    "upstream": "5401b3d4900ca3032c108d6db00e8a819f4b28e9"
+  },
+  "catalog": { "name": "unifold-core", "version": "1.0.0" },
+  "compositions": [],
+  "semantics": {
+    "contractVersion": "1.0.0",
+    "vocabulary": { "uri": "https://schema.org", "release": "30.0" },
+    "primaryEntity": "urn:unifold:person:current",
+    "entities": [
+      {
+        "id": "urn:unifold:person:current",
+        "type": "Person",
+        "properties": {
+          "name": { "kind": "node-control-value", "nodeId": "name" }
+        }
+      }
+    ],
+    "publication": { "mode": "public-page", "profile": "schema.org" }
+  },
+  "view": {
+    "$comp": "Composition",
+    "id": "root",
+    "label": "Static export reference",
+    "$children": [
+      {
+        "$comp": "Heading",
+        "id": "heading",
+        "content": "Static profile",
+        "level": "1"
+      },
+      {
+        "$comp": "Form",
+        "id": "form",
+        "label": "Profile",
+        "$children": [
+          {
+            "$comp": "TextField",
+            "id": "name",
+            "inputType": "text",
+            "label": "Name",
+            "name": "name",
+            "required": true,
+            "value": "Ada Lovelace"
+          },
+          {
+            "$comp": "Button",
+            "id": "save",
+            "action": "submit",
+            "label": "Save profile"
+          }
+        ]
+      }
+    ]
+  }
+}

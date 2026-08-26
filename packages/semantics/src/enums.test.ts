@@ -1,0 +1,10 @@
+import { describe, expect, it } from "vitest";
+import { SemanticValueKind as ContractSemanticValueKind } from "@unislang/unifold-contracts";
+import * as subject from "./enums.js";
+
+describe("enums module", () => {
+  it("loads through its colocated contract", () => {
+    expect(subject).toBeDefined();
+    expect(subject.SemanticValueKind).toBe(ContractSemanticValueKind);
+  });
+});

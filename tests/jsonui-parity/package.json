@@ -1,0 +1,27 @@
+{
+  "name": "@unislang/unifold-jsonui-parity",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "test": "pnpm verify:upstream && pnpm build && playwright test --config playwright.config.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "verify:upstream": "node scripts/verify-upstream-pin.mjs"
+  },
+  "devDependencies": {
+    "@jsonui/core": "0.10.25",
+    "@jsonui/react": "0.10.25",
+    "@unislang/unifold": "workspace:*",
+    "@unislang/unifold-contracts": "workspace:*",
+    "@unislang/unifold-jsonui": "workspace:*",
+    "@unislang/unifold-playwright": "workspace:*",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "@playwright/test": "1.62.1",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "typescript": "5.9.2",
+    "vite": "7.3.6"
+  }
+}

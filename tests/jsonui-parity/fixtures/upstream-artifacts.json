@@ -1,0 +1,21 @@
+{
+  "profileRevision": "5401b3d4900ca3032c108d6db00e8a819f4b28e9",
+  "packages": [
+    {
+      "name": "@jsonui/core",
+      "version": "0.10.25",
+      "license": "MIT",
+      "gitHead": "5401b3d4900ca3032c108d6db00e8a819f4b28e9",
+      "integrity": "sha512-DZTyrvWWQWso1Bf3gqMEDrBIySHS6qLXw1od7rjcUdPqoAHQO11/z2jZwg15L7QWdvfN8Fk9jQS8S4pGIlmQsQ==",
+      "source": "https://www.npmjs.com/package/@jsonui/core/v/0.10.25"
+    },
+    {
+      "name": "@jsonui/react",
+      "version": "0.10.25",
+      "license": "MIT",
+      "gitHead": "5401b3d4900ca3032c108d6db00e8a819f4b28e9",
+      "integrity": "sha512-Whw1dACqNGFV578XU40NQGv2P5YQ12MnJU0gVNg7QJOL6VI+h3i2pa/n4fIrKig+y2gtIUSj14h9efqIOuUrww==",
+      "source": "https://www.npmjs.com/package/@jsonui/react/v/0.10.25"
+    }
+  ]
+}

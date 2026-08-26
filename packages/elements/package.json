@@ -1,0 +1,54 @@
+{
+  "name": "@unislang/unifold-elements",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Accessible, explicitly registered Unifold Web Components.",
+  "type": "module",
+  "sideEffects": false,
+  "customElements": "./dist/custom-elements.json",
+  "files": [
+    "dist",
+    "src/**/*.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.test-data.ts",
+    "!src/**/test-helpers.ts"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./component-definitions.json": "./dist/component-definitions.json",
+    "./custom-elements.json": "./dist/custom-elements.json"
+  },
+  "scripts": {
+    "build": "tsc -b && pnpm generate:cem",
+    "generate:cem": "node scripts/generate-cem.mjs",
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run --root ../.. --config vitest.config.ts packages/elements && node --test scripts/*.test.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unislang/unifold.git",
+    "directory": "packages/elements"
+  },
+  "homepage": "https://unifold.org",
+  "bugs": "https://github.com/unislang/unifold/issues",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@lucide/icons": "1.34.0",
+    "@unislang/unifold-catalog": "workspace:*",
+    "@unislang/unifold-contracts": "workspace:*",
+    "@unislang/unifold-events": "workspace:*",
+    "lit": "^3.3.1"
+  },
+  "devDependencies": {
+    "@custom-elements-manifest/analyzer": "0.11.0",
+    "ajv": "8.20.0",
+    "custom-elements-manifest": "2.1.0",
+    "happy-dom": "^20.0.10",
+    "vitest": "^3.2.4"
+  }
+}
