@@ -33,7 +33,7 @@
   "scripts": {
     "build": "tsc -b",
     "typecheck": "tsc -b --pretty false",
-    "test": "vitest run --config ../../vitest.config.ts --root ../.. packages/ir"
+    "test": "vitest run --root ../.. --config vitest.config.ts packages/ir"
   },
   "dependencies": {
     "@sagold/json-pointer": "7.2.1",

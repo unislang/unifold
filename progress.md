@@ -20,8 +20,8 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Latest implementation checkpoint: `6dfc3d9` (`feat: govern document provenance and JsonUI parity`)
 - Verified implementation remote state: `origin/main` resolved to
   `6dfc3d936fc92a46cb4edffb20714e5a73a6793d` after the implementation push.
-- Working tree: architecture slice 3 is implemented, fully validated, committed, and pushed as
-  described below. This documentation-only update records that verified state.
+- Working tree: architecture slice 4 composition-identity hardening is implemented and validated
+  locally as described below; the remaining slice-4 migration and compilation work stays open.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
@@ -211,14 +211,46 @@ Architecture slice 3 is implemented, fully validated, committed as `6dfc3d9`, an
   first real successor must ship its reviewed exact edge, golden fixtures, failure/recovery cases,
   compatibility range, and rollback guidance together.
 
+### 2026-08-26 reversible composition-identity checkpoint
+
+The first architecture slice-4 hardening sub-slice is implemented and ready for checkpointing:
+
+- Composition instance, template, nested, slot, and supplied-node identity segments now use
+  canonical URI-component encoding before the readable `::` namespace is assembled. The codec
+  round-trips delimiter, percent, slash, and Unicode input; malformed and noncanonical encoded
+  identities fail closed. Previously safe URI-unreserved IDs retain their exact shape.
+- The composition manifest declares identity contract `1.0.0` and emits exact new-to-legacy aliases
+  only for IDs that the pre-codec grammar could have produced. Authored `::` is now accepted, while
+  exports and node provenance retain authored local IDs.
+- IR validates alias shape, known compiled targets, inactive sources, distinct identities, and
+  one-to-one source ownership. Runtime structure reconciliation repeats state-relative validation,
+  atomically migrates compatible dirty control state and focus, and leaves the prior revision intact
+  for malformed, stale, active, occupied, or reused aliases.
+- All affected package-scoped Vitest wrappers now resolve the root configuration correctly on
+  Windows. Runtime command-handler evidence proves aliases cross the event/runtime boundary rather
+  than stopping at the lower-level store.
+- Full repository quality passes: file/function/complexity rules, colocated tests, ESLint, all source
+  and strict test typechecks, Knip, and dependency rules over 1,385 modules/3,104 edges. The package
+  matrix passes 333 files/853 tests, and the complete test command passes tooling, script, and 28
+  performance correctness tests.
+- The complete build passes after enabling deterministic two-pass Terser compression for the
+  reference application. Reference JavaScript is 183,660 gzip bytes (179.36 KiB) against the
+  unchanged executable 180 KiB limit. The clean packed-consumer lifecycle passes all 3 tests after
+  its pinned external dependencies are installed with network access.
+- Coverage passes at 97.22% lines/statements, 97.04% functions, and 90.10% branches.
+- Slice 4 remains open: next implement reviewed cross-version composition migration edges and
+  rollback evidence, then measure representative complete composition compilation and add subtree
+  invalidation only if the measurements justify its cache complexity.
+
 ## Immediate resume procedure
 
 1. Read this file, `docs/implementation-status.md`, and the composition sections of the architecture
    plan for slice 4.
 2. Inspect `git status --short --branch` and preserve any post-checkpoint user changes.
-3. Confirm the slice-3 checkpoint is present on `origin/main`, then implement reversible composition
-   identity encoding, real successor migrations only where versions exist, and incremental
-   compilation evidence. Preserve the Firefox runner limitation as external release evidence.
+3. Confirm the composition-identity checkpoint is present on `origin/main`, then implement real
+   successor composition migrations only where versions exist and measure complete versus
+   incremental composition compilation. Preserve the Firefox runner limitation as external release
+   evidence.
 4. Keep production modules and their adjacent tests within the enforced complexity, function-length,
    file-length, and one-test-per-module limits.
 5. Use `apply_patch` for edits. Run Prettier before assuming a diff is ready.
@@ -291,3 +323,8 @@ silently waived.
   Committed the implementation as `6dfc3d9`, pushed it to
   `https://github.com/unislang/unifold.git`, and independently verified remote `main` at
   `6dfc3d936fc92a46cb4edffb20714e5a73a6793d`.
+- 2026-08-26: Implemented reversible composition identities, manifest-versioned one-to-one legacy
+  aliases, IR/runtime validation, and atomic compatible dirty/focus migration. Full quality,
+  333-file/853-test package coverage, complete tests, coverage, build, bundle, and clean-consumer
+  gates pass. The checkpoint is ready to commit and push; cross-version definition migrations and
+  measured composition compilation remain next.

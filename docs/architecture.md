@@ -45,7 +45,9 @@ event, and command exports. Expansion is deterministic and happens before IR com
 composed and directly authored controls share one renderer, state authority, event fabric, semantic
 binding model, and test contract. A versioned manifest preserves instance and per-node authored
 provenance through IR and snapshots. Expanded IDs namespace template and slot nodes beneath the
-instance ID; consumers integrate through `runtime.composition(instanceId)` export aliases.
+instance ID using a versioned, reversible segment codec. Exact one-to-one manifest aliases migrate
+compatible state from pre-codec identities atomically; consumers integrate through
+`runtime.composition(instanceId)` export aliases.
 
 The authored document remains the editable and exportable source; expanded JSON is a derived compiler input. See [Reusable JSON compositions](./compositions.md) for the current contract and its P0 hardening gates.
 

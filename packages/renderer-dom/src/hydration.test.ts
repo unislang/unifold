@@ -126,6 +126,7 @@ function irDocument(): UnifoldIrDocument {
     documentRevision: "1",
     irVersion: UnifoldIrVersion.Version1,
     machines: [],
+    nodeIdentityAliases: {},
     nodesById: {
       form: node("form", CoreComponentType.Form, UiNodeKind.Form, ["name", "role"]),
       name: node("name", CoreComponentType.TextField, UiNodeKind.Control, [], "form"),

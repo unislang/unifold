@@ -259,7 +259,10 @@ function reconcileStructure(
   validators: UiValidatorRegistryPort
 ): void {
   if (command.type !== UiCommandType.StructureReconcile) return;
-  draft.reconcile(command.nodes.map((node) => withValidatedControl(node, validators)));
+  draft.reconcile(
+    command.nodes.map((node) => withValidatedControl(node, validators)),
+    command.nodeIdentityAliases
+  );
   command.nodes.forEach(({ id }) =>
     draft.update(id, (node) => touchlessValidation(node, validators))
   );

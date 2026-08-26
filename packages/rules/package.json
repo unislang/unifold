@@ -33,7 +33,7 @@
   "scripts": {
     "build": "tsc -b",
     "typecheck": "tsc -b --pretty false",
-    "test": "vitest run --config ../../vitest.config.ts --root ../.. packages/rules"
+    "test": "vitest run --root ../.. --config vitest.config.ts packages/rules"
   },
   "dependencies": {
     "@unislang/unifold-contracts": "workspace:*",

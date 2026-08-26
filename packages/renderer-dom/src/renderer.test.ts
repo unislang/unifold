@@ -140,6 +140,7 @@ function createDocument(
   return {
     compositionsByInstanceId: {},
     machines: [],
+    nodeIdentityAliases: {},
     documentId: "test",
     documentRevision: label,
     irVersion: UnifoldIrVersion.Version1,

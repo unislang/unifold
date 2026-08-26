@@ -90,6 +90,37 @@ it("uses new defaults for pristine controls and incompatible lifetimes", () => {
   expect(store.getSnapshot("field")).toMatchObject({ type: "Select", control: { value: "Reset" } });
 });
 
+it("migrates dirty compatible control state through one-to-one identity aliases", () => {
+  const current = dirtyControl(controlNode("profile:editor::name%field", "User"));
+  const store = new NormalizedNodeStore([current]);
+  const target = "profile%3Aeditor::name%25field";
+  store.transact(metadata("identity-migration"), (draft) => {
+    draft.reconcile([controlNode(target, "Default")], {
+      [target]: "profile:editor::name%field"
+    });
+  });
+  expect(store.getSnapshot(target)).toMatchObject({
+    base: { focused: true },
+    control: { dirty: true, value: "User" }
+  });
+  expect(() => store.getSnapshot("profile:editor::name%field")).toThrow("Unknown node");
+});
+
+it("rejects ambiguous or stale identity aliases without committing", () => {
+  expectIdentityAliasError({ missing: "legacy" });
+  expectIdentityAliasError({ target: "missing" });
+  const store = new NormalizedNodeStore([controlNode("current", "User")]);
+  expectChangeError(
+    store,
+    (draft) =>
+      draft.reconcile([controlNode("current", "User"), controlNode("target", "Default")], {
+        target: "current"
+      }),
+    "Invalid alias"
+  );
+  expect(store.revision).toBe(0);
+});
+
 it("keeps the maximum classification while retaining dirty control state", () => {
   const current = classified(
     dirtyControl(controlNode("field", "User")),
@@ -146,6 +177,16 @@ function orphanNodes() {
 
 function cyclicNodes() {
   return [controlNode("first", "A", "second"), controlNode("second", "B", "first")];
+}
+
+function expectIdentityAliasError(aliases: Readonly<Record<string, string>>): void {
+  const store = new NormalizedNodeStore([controlNode("current", "User")]);
+  expectChangeError(
+    store,
+    (draft) => draft.reconcile([controlNode("target", "Default")], aliases),
+    "Invalid alias"
+  );
+  expect(store.revision).toBe(0);
 }
 
 type TransactionDraft = Parameters<Parameters<NormalizedNodeStore["transact"]>[1]>[0];

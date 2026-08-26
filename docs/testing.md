@@ -125,6 +125,10 @@ the exact render-order count, validation rejection, cache-result equality with r
 and bounded retention. The benchmark enforces 50 ms p95 for cold 500-node preparation, 16 ms p95
 for a prewarmed `UnifoldDocumentCompiler`, and 200 ms p95 for full 2,000-node validation and
 normalization.
+Composition identity tests round-trip delimiter, percent, and Unicode segments; verify canonical
+instance, template, slot, export, and provenance IDs; reject malformed or ambiguous manifest
+aliases; and prove runtime reconciliation moves compatible dirty/focused state exactly once while
+invalid alias transactions preserve the prior revision.
 The lifecycle-memory profile first runs five public application cycles to establish bounded
 element-registration and renderer caches. It then runs twenty schema-valid 500-node
 mount/revision/dispose cycles, forcing garbage collection after each cycle and at the final

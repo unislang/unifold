@@ -49,6 +49,16 @@ it("rejects malformed manifest identity and export kinds", () => {
   expect(codes(invalid)).toContain(DiagnosticCode.InvalidCompositionManifest);
 });
 
+it("accepts legacy omitted identity versions and rejects unknown identity codecs", () => {
+  const source = composedDocument();
+  expect(compileUiDocument(source).status).toBe(CompilationStatus.Valid);
+  const invalid = {
+    ...source,
+    compositionManifest: { ...source.compositionManifest, identityVersion: "2.0.0" }
+  };
+  expect(codes(invalid)).toContain(DiagnosticCode.InvalidCompositionManifest);
+});
+
 function withExportTarget(nodeId: string) {
   const source = composedDocument();
   const instance = requireInstance(source);

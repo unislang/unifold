@@ -23,7 +23,7 @@
   "scripts": {
     "build": "tsc -b",
     "typecheck": "tsc -b --pretty false",
-    "test": "vitest run --config ../../vitest.config.ts --root ../.. packages/runtime"
+    "test": "vitest run --root ../.. --config vitest.config.ts packages/runtime"
   },
   "repository": {
     "type": "git",

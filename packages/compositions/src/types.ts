@@ -10,6 +10,7 @@ import type {
   CompositionContractVersion,
   CompositionDiagnosticCode,
   CompositionExpansionStatus,
+  CompositionIdentitySegmentKind,
   CompositionParameterType
 } from "./enums.js";
 
@@ -64,4 +65,9 @@ export interface CompositionExpansionResult {
 
 export interface CompositionExpansionOptions {
   readonly maxDepth?: number;
+}
+
+export interface DecodedCompositionIdentitySegment {
+  readonly kind: CompositionIdentitySegmentKind;
+  readonly value: string;
 }

@@ -18,12 +18,12 @@ describe("composed document validation", () => {
     ).toBe(true);
   });
 
-  it("rejects ids containing the reserved namespace delimiter", () => {
+  it("accepts ids containing the namespace delimiter for reversible expansion", () => {
     const source = composedDocument(undefined, profileInstance({ id: "unsafe::id" }));
     const result = expandComposedUiDocument(source);
 
-    expect(result.status).toBe(CompositionExpansionStatus.Invalid);
-    expect(result.diagnostics[0]?.code).toBe(CompositionDiagnosticCode.InvalidDocument);
+    expect(result.status).toBe(CompositionExpansionStatus.Valid);
+    expect(result.document?.view.id).toBe("unsafe%3A%3Aid");
   });
 
   it("rejects prototype-sensitive property names", () => {

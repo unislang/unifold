@@ -1,4 +1,5 @@
 import {
+  UI_COMPOSITION_IDENTITY_VERSION,
   UiCompositionManifestVersion,
   type JsonObject,
   type UiCompositionManifest
@@ -34,16 +35,7 @@ function expandValidatedDocument(
 ): CompositionExpansionResult {
   const diagnostics: CompositionDiagnostic[] = [];
   const registry = createCompositionRegistry(source.compositions, diagnostics);
-  const context: ExpansionContext = {
-    definitionSourcePointers: definitionSourcePointers(source),
-    diagnostics,
-    emittedNodeIds: new Set(),
-    exportsByInstanceId: {},
-    instances: [],
-    maxDepth: normalizedMaxDepth(options),
-    nodeProvenanceById: {},
-    registry
-  };
+  const context = createExpansionContext(source, options, diagnostics, registry);
   validateCompositionDefinitions(source.compositions, context.registry, diagnostics);
   if (diagnostics.length > 0) return invalidExpansionResult(context);
   const view = expandNode(source.view, "/view", context, {}, []);
@@ -55,6 +47,25 @@ function expandValidatedDocument(
     exportsByInstanceId: context.exportsByInstanceId,
     manifest,
     status: CompositionExpansionStatus.Valid
+  };
+}
+
+function createExpansionContext(
+  source: ComposedUiDocument,
+  options: CompositionExpansionOptions,
+  diagnostics: CompositionDiagnostic[],
+  registry: ExpansionContext["registry"]
+): ExpansionContext {
+  return {
+    definitionSourcePointers: definitionSourcePointers(source),
+    diagnostics,
+    emittedNodeIds: new Set(),
+    exportsByInstanceId: {},
+    identityAliases: {},
+    instances: [],
+    maxDepth: normalizedMaxDepth(options),
+    nodeProvenanceById: {},
+    registry
   };
 }
 
@@ -99,6 +110,8 @@ function definitionSourcePointers(source: ComposedUiDocument): ReadonlyMap<strin
 function createManifest(context: ExpansionContext): UiCompositionManifest {
   return {
     contractVersion: UiCompositionManifestVersion.Version1,
+    identityAliases: sortedRecord(context.identityAliases),
+    identityVersion: UI_COMPOSITION_IDENTITY_VERSION,
     instances: [...context.instances].sort((left, right) =>
       left.instanceId.localeCompare(right.instanceId)
     ),

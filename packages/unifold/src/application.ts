@@ -289,6 +289,7 @@ function reconcileCommand(
 ): StructureReconcileCommand {
   return {
     compositionInstances: document.compositionsByInstanceId,
+    nodeIdentityAliases: document.nodeIdentityAliases,
     nodes,
     type: UiCommandType.StructureReconcile
   };

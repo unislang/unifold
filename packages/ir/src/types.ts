@@ -51,6 +51,7 @@ export interface UnifoldIrDocument {
   readonly documentRevision: string;
   readonly irVersion: UnifoldIrVersion;
   readonly machines: readonly UiMachineDefinition[];
+  readonly nodeIdentityAliases: Readonly<Record<string, string>>;
   readonly nodesById: Readonly<Record<string, UnifoldIrNode>>;
   readonly renderOrder: readonly string[];
   readonly rules: readonly UiDerivedRuleDefinition[];

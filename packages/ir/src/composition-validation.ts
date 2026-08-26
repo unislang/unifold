@@ -1,10 +1,12 @@
 import {
   UiCompositionExportKind,
+  UI_COMPOSITION_IDENTITY_VERSION,
   UiCompositionManifestVersion,
   UiCompositionSelectionKind
 } from "@unislang/unifold-contracts";
 
 import { errorDiagnostic } from "./diagnostics.js";
+import { validateCompositionIdentityAliases } from "./composition-identity-validation.js";
 import { validateCompositionProvenance } from "./composition-provenance-validation.js";
 import { CoreComponentType, DiagnosticCode } from "./enums.js";
 import { isPlainObject } from "./json-safety.js";
@@ -43,8 +45,20 @@ export function validateCompositionManifest(
     "/compositionManifest/contractVersion",
     state
   );
+  validateIdentityVersion(value["identityVersion"], state);
+  validateCompositionIdentityAliases(value["identityAliases"], nodeComponents, diagnostics);
   validateInstances(value["instances"], state);
   validateCompositionProvenance(value["nodeProvenanceById"], state);
+}
+
+function validateIdentityVersion(value: unknown, state: ManifestValidationState): void {
+  if (value === undefined) return;
+  expectValue(
+    value,
+    UI_COMPOSITION_IDENTITY_VERSION,
+    "/compositionManifest/identityVersion",
+    state
+  );
 }
 
 function createState(

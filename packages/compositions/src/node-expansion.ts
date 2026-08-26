@@ -2,7 +2,17 @@ import type { JsonObject, JsonUiNode, JsonValue } from "@unislang/unifold-contra
 
 import { CompositionDiagnosticCode } from "./enums.js";
 import { compositionError } from "./diagnostics.js";
-import type { ExpansionContext, ExpansionScope } from "./expansion-context.js";
+import type {
+  CompositionOwnerContext,
+  ExpansionContext,
+  ExpansionScope
+} from "./expansion-context.js";
+import {
+  compositionSlotNamespace,
+  legacyCompositionNodeIdentity,
+  namespacedCompositionId,
+  recordCompositionIdentityAlias
+} from "./identity.js";
 import {
   createCompositionOwner,
   createSlotOwner,
@@ -40,7 +50,8 @@ function expandComposition(
   scope: ExpansionScope,
   stack: readonly string[]
 ): JsonUiNode | undefined {
-  const instanceId = expandedNodeId(source.id, scope, false);
+  const instanceId = namespacedCompositionId(scope.prefix, source.id);
+  const legacyCompatible = isLegacyCompatible(source.id, scope);
   recordLocalId(source.id, instanceId, scope);
   const key = compositionKey(source.$compose, source.$version);
   const definition = context.registry.get(key);
@@ -52,6 +63,7 @@ function expandComposition(
     definition,
     source,
     instanceId,
+    legacyCompatible,
     path,
     definitionPath,
     context,
@@ -76,6 +88,7 @@ function materializeComposition(
   definition: CompositionDefinition,
   instance: CompositionInstance,
   instanceId: string,
+  legacyCompatible: boolean,
   path: string,
   definitionPath: string,
   context: ExpansionContext,
@@ -94,11 +107,28 @@ function materializeComposition(
     definitionPath,
     parentScope.owner
   );
-  const scope = { localIds, owner, prefix: instanceId, rootId: instanceId, slots };
+  const scope = compositionScope(instanceId, legacyCompatible, localIds, owner, slots);
   const node = expandNode(template, templatePath, context, scope, stack, true);
   reportMissingSlotPlaceholders(slots, path, context.diagnostics);
   publishCompositionInstance(definition, instanceId, localIds, owner, context);
   return node;
+}
+
+function compositionScope(
+  instanceId: string,
+  legacyCompatible: boolean,
+  localIds: Map<string, string>,
+  owner: NonNullable<ExpansionScope["owner"]>,
+  slots: NonNullable<ExpansionScope["slots"]>
+): ExpansionScope {
+  return {
+    localIds,
+    legacyCompatible,
+    owner,
+    prefix: instanceId,
+    rootId: instanceId,
+    slots
+  };
 }
 
 function materializeTemplate(
@@ -125,8 +155,10 @@ function expandPlainNode(
 ): JsonUiNode {
   const sourceId = source["id"] as string;
   const id = expandedNodeId(sourceId, scope, isRoot);
+  const legacyId = legacyExpandedNodeId(id, sourceId, scope, isRoot);
   recordLocalId(sourceId, id, scope);
   registerNodeId(id, path, context);
+  recordCompositionIdentityAlias(context.identityAliases, id, legacyId);
   recordNodeProvenance(sourceId, id, path, scope, context);
   const node = { ...withoutChildrenAndId(source), id } as JsonObject & {
     id: string;
@@ -179,12 +211,47 @@ function expandSlotNode(
     childPath(childPath(owner.instanceSourcePointer, "slots"), name),
     index
   );
-  const slotScope = {
-    owner: createSlotOwner(owner, name, nodePath),
-    prefix: `${scopePrefix(scope)}::slot:${name}`
-  };
+  const slotScope = createSlotScope(scope, owner, name, nodePath);
   const expanded = expandNode(node, nodePath, context, slotScope, stack);
   return expanded === undefined ? [] : [expanded];
+}
+
+function createSlotScope(
+  scope: ExpansionScope,
+  owner: CompositionOwnerContext,
+  name: string,
+  nodePath: string
+): ExpansionScope {
+  return {
+    legacyCompatible: isLegacyCompatible(name, scope),
+    owner: createSlotOwner(owner, name, nodePath),
+    prefix: compositionSlotNamespace(scopePrefix(scope), name)
+  };
+}
+
+function isLegacyCompatible(sourceId: string, scope: ExpansionScope): boolean {
+  if (sourceId.includes("::")) return false;
+  return scope.owner === undefined ? true : scope.legacyCompatible === true;
+}
+
+function legacyExpandedNodeId(
+  id: string,
+  sourceId: string,
+  scope: ExpansionScope,
+  isRoot: boolean
+): string | undefined {
+  if (scope.owner === undefined) return sourceId;
+  return legacyComposedNodeId(id, sourceId, scope, isRoot);
+}
+
+function legacyComposedNodeId(
+  id: string,
+  sourceId: string,
+  scope: ExpansionScope,
+  isRoot: boolean
+): string | undefined {
+  if (scope.legacyCompatible !== true) return undefined;
+  return legacyCompositionNodeIdentity(id, sourceId, isRoot);
 }
 
 function requireOwner(scope: ExpansionScope): NonNullable<ExpansionScope["owner"]> {
@@ -209,7 +276,7 @@ function expandedRootId(scope: ExpansionScope, isRoot: boolean): string | undefi
 }
 
 function namespacedId(sourceId: string, prefix: string | undefined): string {
-  return prefix === undefined ? sourceId : `${prefix}::${sourceId}`;
+  return prefix === undefined ? sourceId : namespacedCompositionId(prefix, sourceId);
 }
 
 function recordLocalId(sourceId: string, id: string, scope: ExpansionScope): void {

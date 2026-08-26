@@ -53,6 +53,17 @@ function verifyReconcile(runtime: UnifoldRuntime): void {
     parentId: "form",
     properties: { label: "Full" }
   });
+  const encodedId = "profile%3Aeditor::name%25field";
+  runtime.execute([
+    {
+      type: UiCommandType.StructureReconcile,
+      compositionInstances: {},
+      nodeIdentityAliases: { [encodedId]: "field" },
+      nodes: [compositionNode("form"), { ...reconciled, id: encodedId }]
+    }
+  ]);
+  expect(runtime.getSnapshot(encodedId).control).toMatchObject({ dirty: true, value: "Edited" });
+  expect(() => runtime.getSnapshot("field")).toThrow("Unknown node: field");
 }
 
 function verifyRejectedTransaction(): void {

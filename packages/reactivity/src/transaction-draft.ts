@@ -23,11 +23,15 @@ export class NodeTransactionDraft implements UiNodeTransactionDraft {
     return requireNode(this.state, id) as unknown as UiNodeSnapshot;
   }
 
-  reconcile(nodes: readonly UiNodeSnapshot[]): void {
+  reconcile(
+    nodes: readonly UiNodeSnapshot[],
+    identityAliases: Readonly<Record<UiNodeId, UiNodeId>> = {}
+  ): void {
     validateDesiredNodes(nodes);
     const desiredIds = new Set(nodes.map(({ id }) => id));
+    validateIdentityAliases(this.state, desiredIds, identityAliases);
+    nodes.forEach((node) => reconcileNode(this.state, node, identityAliases[node.id]));
     removeMissingNodes(this.state, desiredIds);
-    nodes.forEach((node) => reconcileNode(this.state, node));
     reconcileChildren(this.state, nodes);
   }
 
@@ -111,8 +115,12 @@ function removeMissingNodes(
   });
 }
 
-function reconcileNode(state: Draft<NormalizedNodeState>, desired: UiNodeSnapshot): void {
-  const current = state.nodes[desired.id];
+function reconcileNode(
+  state: Draft<NormalizedNodeState>,
+  desired: UiNodeSnapshot,
+  migratedFrom: UiNodeId | undefined
+): void {
+  const current = state.nodes[reconciliationSourceId(desired.id, migratedFrom)];
   if (current === undefined) {
     state.nodes[desired.id] = castDraft(desired);
     return;
@@ -120,6 +128,40 @@ function reconcileNode(state: Draft<NormalizedNodeState>, desired: UiNodeSnapsho
   const reconciled = migrateSnapshot(current as unknown as UiNodeSnapshot, desired);
   if (sameValue(current, reconciled)) return;
   state.nodes[desired.id] = castDraft(reconciled);
+}
+
+function reconciliationSourceId(id: UiNodeId, migratedFrom: UiNodeId | undefined): UiNodeId {
+  return migratedFrom === undefined ? id : migratedFrom;
+}
+
+function validateIdentityAliases(
+  state: Draft<NormalizedNodeState>,
+  desiredIds: ReadonlySet<UiNodeId>,
+  aliases: Readonly<Record<UiNodeId, UiNodeId>>
+): void {
+  const claimed = new Set<UiNodeId>();
+  Object.entries(aliases).forEach(([targetId, sourceId]) => {
+    assertIdentityMigration(targetId, sourceId, desiredIds, claimed, state);
+    claimed.add(sourceId);
+  });
+}
+
+function assertIdentityMigration(
+  targetId: UiNodeId,
+  sourceId: UiNodeId,
+  desiredIds: ReadonlySet<UiNodeId>,
+  claimed: ReadonlySet<UiNodeId>,
+  state: Draft<NormalizedNodeState>
+): void {
+  assertIdentityAlias(desiredIds.has(targetId));
+  assertIdentityAlias(!desiredIds.has(sourceId));
+  assertIdentityAlias(state.nodes[targetId] === undefined);
+  assertIdentityAlias(state.nodes[sourceId] !== undefined);
+  assertIdentityAlias(!claimed.has(sourceId));
+}
+
+function assertIdentityAlias(valid: boolean): void {
+  if (!valid) throw new Error("Invalid alias.");
 }
 
 function migrateSnapshot(current: UiNodeSnapshot, desired: UiNodeSnapshot): UiNodeSnapshot {

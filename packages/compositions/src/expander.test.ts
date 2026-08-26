@@ -1,5 +1,6 @@
 import {
   UiCompositionExportKind,
+  UI_COMPOSITION_IDENTITY_VERSION,
   UiCompositionSelectionKind,
   type JsonUiNode,
   type UiCompositionManifest
@@ -77,6 +78,73 @@ it("expands nested compositions with hierarchical identities and exports", () =>
   expect(result.exportsByInstanceId["outer"]).toEqual({ inner: "outer::inner" });
   expect(result.exportsByInstanceId["outer::inner"]).toEqual({ leaf: "outer::inner::leaf" });
 });
+
+it("encodes delimiter, slot-marker, and percent identities without collisions", () => {
+  const result = expandComposedUiDocument(
+    composedDocument([delimiterDefinition()], applicationView(delimiterInstance()))
+  );
+  const composition = requireChild(requireDocument(result).view, 0);
+
+  expect(composition.id).toBe("profile%3A%3Aeditor");
+  expect(requireChild(composition, 0).id).toBe("profile%3A%3Aeditor::name%3A%3Aprimary");
+  expect(requireChild(composition, 1).id).toBe(
+    "profile%3A%3Aeditor::slot:actions%3A%3Aprimary::slot%3Asave%25now"
+  );
+  expect(result.exportsByInstanceId["profile%3A%3Aeditor"]).toEqual({
+    field: "profile%3A%3Aeditor::name%3A%3Aprimary"
+  });
+  expect(requireManifest(result).identityVersion).toBe(UI_COMPOSITION_IDENTITY_VERSION);
+  expect(
+    requireManifest(result).nodeProvenanceById["profile%3A%3Aeditor::name%3A%3Aprimary"]?.localId
+  ).toBe("name::primary");
+});
+
+it("publishes one-to-one legacy aliases for previously accepted identities", () => {
+  const definition = profileDefinition({
+    exports: {},
+    slots: [],
+    template: {
+      $children: [{ $comp: "TextField", id: "name%field" }],
+      $comp: "Composition",
+      id: "root"
+    }
+  });
+  const instance = profileInstance({ id: "profile:editor", slots: {} });
+  const result = expandComposedUiDocument(
+    composedDocument([definition], applicationView(instance))
+  );
+  expect(requireManifest(result).identityAliases).toEqual({
+    "profile%3Aeditor": "profile:editor",
+    "profile%3Aeditor::name%25field": "profile:editor::name%field"
+  });
+});
+
+function delimiterDefinition(): CompositionDefinition {
+  return profileDefinition({
+    exports: {
+      field: {
+        kind: UiCompositionExportKind.Selection,
+        localId: "name::primary",
+        selection: UiCompositionSelectionKind.ControlValue
+      }
+    },
+    slots: [{ multiple: false, name: "actions::primary", required: true }],
+    template: {
+      $children: [{ $comp: "TextField", id: "name::primary" }, { $slot: "actions::primary" }],
+      $comp: "Composition",
+      id: "root::value"
+    }
+  });
+}
+
+function delimiterInstance() {
+  return profileInstance({
+    id: "profile::editor",
+    slots: {
+      "actions::primary": [{ $comp: "Button", id: "slot:save%now", label: "Save" }]
+    }
+  });
+}
 
 function requireDocument(result: CompositionExpansionResult) {
   if (result.document === undefined) throw new Error("Expected an expanded document.");

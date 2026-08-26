@@ -64,7 +64,10 @@ Call `expandComposedUiDocument(authored)` before `compileUiDocument`. Successful
 These IDs are executable identities used by IR, state, events, selectors, and diagnostics. They are
 not the public integration boundary. Successful expansion adds a versioned `compositionManifest`
 to the ordinary UI document. It records each instance, resolved typed export, and the authored
-provenance of every expanded node. The IR validates and preserves that manifest.
+provenance of every expanded node. The IR validates and preserves that manifest. Authored identity
+segments use canonical URI-component encoding (`%` becomes `%25` and `:` becomes `%3A`) before
+segments are joined by `::`. URI-unreserved IDs retain their prior readable shape, while IDs such as
+`profile:editor` and `name%field` expand without collision and decode exactly.
 
 Use `runtime.composition("customer-editor")` to integrate through stable aliases. `selection` reads a
 typed selection export, `exportedEvents` filters an event export, and `command` resolves a command
@@ -91,9 +94,11 @@ The composition contract is a Phase 0 feasibility slice and packages remain priv
 local to one authored document, versions are selected exactly, and parameters are scalar. The
 application coordinator recompiles the complete candidate document before atomically reconciling
 the changed graph; incremental subtree compilation and an authored structural-diff wire format are
-not implemented. The readable `::` namespace is deterministic and collision-safe because authored
-ID segments containing the reserved delimiter are rejected; reversible encoding and versioned
-migration rules are not yet defined.
+not implemented. The readable `::` namespace is deterministic and collision-safe through the
+manifest-declared `1.0.0` identity codec. A one-to-one alias map migrates compatible dirty control
+state and focus from IDs produced by the pre-codec implementation; ambiguous aliases are omitted by
+the legacy grammar, while IR and runtime still reject malformed or reused aliases rather than
+guessing.
 
 Do not treat the expanded document as the editable source. Store and export authored JSON, then
 regenerate expanded JSON deterministically. Provenance supports diagnostics and stable public
@@ -110,14 +115,16 @@ exports; it does not make generated node IDs a supported external API.
 - Revised authored JSON is re-expanded, preflighted, and applied through one atomic graph command.
   Compatible dirty control state, unaffected DOM identity, focus, live selections, composition
   handles, and actor lifetimes are preserved; rejected revisions retain the last-known-good state.
+- Authored IDs no longer reserve `::`, `:`, or `%`. Canonical reversible segment encoding is
+  versioned in the composition manifest, exports and provenance retain authored local IDs, and
+  exact legacy aliases preserve compatible dirty/focused state during the one-time identity move.
 
 ## P0 hardening follow-ups
 
 Before compositions become a stable authoring or AI-editing boundary, complete these P0 items:
 
-1. Replace reserved-delimiter rejection with reversible ID segment encoding and migration rules; keep duplicate detection as defense in depth.
-2. Define explicit cross-version migration policies for incompatible component or composition changes and verify rollback when compensation itself cannot complete.
-3. Route AI-authored changes through schema-validated typed operations with policy checks, preview transactions, approval boundaries, undo, audit provenance, deterministic replay, and export from committed authored state.
-4. Benchmark complete-document compilation and add incremental subtree compilation only where measurements justify the additional cache and invalidation complexity.
+1. Define explicit cross-version migration policies for incompatible component or composition changes and verify rollback when compensation itself cannot complete.
+2. Route AI-authored changes through schema-validated typed operations with policy checks, preview transactions, approval boundaries, undo, audit provenance, deterministic replay, and export from committed authored state.
+3. Benchmark complete-document compilation and add incremental subtree compilation only where measurements justify the additional cache and invalidation complexity.
 
 Each item needs positive, negative, lifecycle, accessibility, event-identity, and browser coverage before the composition contract is declared stable.

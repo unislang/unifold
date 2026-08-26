@@ -9,6 +9,7 @@ export type {
   UiNodePatchPropertyRuleOutput
 } from "./derived-rule.js";
 export {
+  UI_COMPOSITION_IDENTITY_VERSION,
   UiCompositionExportKind,
   UiCompositionManifestVersion,
   UiCompositionSelectionKind
@@ -18,6 +19,7 @@ export type {
   UiCompositionEventExport,
   UiCompositionExportDefinition,
   UiCompositionInstanceManifest,
+  UiCompositionIdentityVersion,
   UiCompositionManifest,
   UiCompositionNodeProvenance,
   UiCompositionSelectionExport,

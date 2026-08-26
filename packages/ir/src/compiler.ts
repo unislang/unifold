@@ -46,6 +46,7 @@ function buildDocument(document: UiDocument): UnifoldIrDocument {
     documentRevision: document.revision,
     irVersion: UnifoldIrVersion.Version1,
     machines: canonicalMachines(document.machines),
+    nodeIdentityAliases: document.compositionManifest?.identityAliases ?? {},
     nodesById: sortedRecord(context.nodes),
     renderOrder: context.renderOrder,
     rules: canonicalRules(document.rules),

@@ -81,6 +81,7 @@ export interface StructureReconcileCommand {
   readonly type: UiCommandType.StructureReconcile;
   readonly compositionInstances: Readonly<Record<string, UiCompositionInstanceManifest>>;
   readonly nodes: readonly UiNodeSnapshot[];
+  readonly nodeIdentityAliases?: Readonly<Record<UiNodeId, UiNodeId>>;
 }
 
 export interface FocusRequestCommand {

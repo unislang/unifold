@@ -18,6 +18,7 @@ export interface ExpansionContext {
   readonly diagnostics: CompositionDiagnostic[];
   readonly emittedNodeIds: Set<string>;
   readonly exportsByInstanceId: Record<string, Readonly<Record<string, string>>>;
+  readonly identityAliases: Record<string, string>;
   readonly instances: UiCompositionInstanceManifest[];
   readonly maxDepth: number;
   readonly nodeProvenanceById: Record<string, UiCompositionNodeProvenance>;
@@ -37,6 +38,7 @@ export interface CompositionOwnerContext {
 
 export interface ExpansionScope {
   readonly localIds?: Map<string, string>;
+  readonly legacyCompatible?: boolean;
   readonly owner?: CompositionOwnerContext;
   readonly prefix?: string;
   readonly rootId?: string;

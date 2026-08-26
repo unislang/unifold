@@ -10,6 +10,9 @@ export enum UiCompositionManifestVersion {
   Version1 = "1.0.0"
 }
 
+export const UI_COMPOSITION_IDENTITY_VERSION = "1.0.0";
+export type UiCompositionIdentityVersion = typeof UI_COMPOSITION_IDENTITY_VERSION;
+
 export enum UiCompositionSelectionKind {
   ControlValue = "control-value",
   Properties = "properties",
@@ -68,6 +71,8 @@ export interface UiCompositionInstanceManifest extends JsonObject {
 
 export interface UiCompositionManifest extends JsonObject {
   readonly contractVersion: UiCompositionManifestVersion;
+  readonly identityAliases?: Readonly<Record<string, string>>;
+  readonly identityVersion?: UiCompositionIdentityVersion;
   readonly instances: readonly UiCompositionInstanceManifest[];
   readonly nodeProvenanceById: Readonly<Record<string, UiCompositionNodeProvenance>>;
 }

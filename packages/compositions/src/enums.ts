@@ -7,6 +7,11 @@ export enum CompositionExpansionStatus {
   Valid = "valid"
 }
 
+export enum CompositionIdentitySegmentKind {
+  Node = "node",
+  Slot = "slot"
+}
+
 export enum CompositionParameterType {
   Boolean = "boolean",
   Number = "number",
