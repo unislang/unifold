@@ -21,6 +21,7 @@ import { UnifoldSearchResults } from "./search-results.js";
 import { UnifoldSelect } from "./select.js";
 import { UnifoldStack } from "./stack.js";
 import { UnifoldStepper } from "./stepper.js";
+import { UnifoldTabs } from "./tabs.js";
 import { UnifoldTable } from "./table.js";
 import { UnifoldText } from "./text.js";
 import { UnifoldTextArea } from "./text-area.js";
@@ -98,6 +99,7 @@ const definitions: readonly [CoreElementTag, CustomElementConstructor][] = [
   [CoreElementTag.Select, UnifoldSelect],
   [CoreElementTag.Stack, UnifoldStack],
   [CoreElementTag.Stepper, UnifoldStepper],
+  [CoreElementTag.Tabs, UnifoldTabs],
   [CoreElementTag.Table, UnifoldTable],
   [CoreElementTag.Text, UnifoldText],
   [CoreElementTag.TextArea, UnifoldTextArea],
@@ -336,7 +338,6 @@ function isCoreElementTag(value: unknown): value is CoreElementTag {
     typeof value === "string" && Object.values(CoreElementTag).includes(value as CoreElementTag)
   );
 }
-
 function hasCatalogFields(candidate: Readonly<Record<string, unknown>>): boolean {
   return (
     isNonEmptyString(candidate["catalogMajor"]) &&
@@ -344,7 +345,6 @@ function hasCatalogFields(candidate: Readonly<Record<string, unknown>>): boolean
     isNonEmptyString(candidate["catalogVersion"])
   );
 }
-
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.length > 0;
 }

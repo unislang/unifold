@@ -74,6 +74,23 @@ it("captures an explicit empty native combobox fallback selection", () => {
   ).toEqual({ name: "Ada", role: "" });
 });
 
+it("captures a declared Tabs selection and rejects a tampered tab id", () => {
+  const container = staticContainer();
+  const role = requireNodeElement(container, "role");
+  role.dataset["unifoldStaticComponent"] = CoreComponentType.Tabs;
+  role.innerHTML = '<input type="hidden" data-unifold-static-control="role" value="summary">';
+  const tabs = documentWithNode("role", CoreComponentType.Tabs, tabProperties());
+
+  expect(captureStaticDomHydration(tabs, container).values).toEqual({
+    name: "Ada",
+    role: "summary"
+  });
+  requireInputById(container, "role").value = "admin";
+  expect(() => captureStaticDomHydration(tabs, container)).toThrow(
+    "Static choice value is invalid"
+  );
+});
+
 it("rejects missing, duplicated, reordered, and reparented static nodes", () => {
   expectHydrationFailure(document.createElement("div"), "missing or duplicated");
   const duplicated = staticContainer();
@@ -200,6 +217,15 @@ function choiceProperties(): JsonObject {
   };
 }
 
+function tabProperties(): JsonObject {
+  return {
+    tabs: [
+      { id: "summary", label: "Summary" },
+      { id: "activity", label: "Activity" }
+    ]
+  };
+}
+
 function node(
   id: string,
   componentType: CoreComponentType,
@@ -235,6 +261,12 @@ function requireNodeElement(container: HTMLElement, id: string): HTMLElement {
 function requireInput(container: HTMLElement): HTMLInputElement {
   const input = container.querySelector("input[data-unifold-static-control='name']");
   if (!(input instanceof HTMLInputElement)) throw new Error("Fixture input is missing.");
+  return input;
+}
+
+function requireInputById(container: HTMLElement, id: string): HTMLInputElement {
+  const input = container.querySelector(`input[data-unifold-static-control='${id}']`);
+  if (!(input instanceof HTMLInputElement)) throw new Error(`Fixture input is missing: ${id}.`);
   return input;
 }
 

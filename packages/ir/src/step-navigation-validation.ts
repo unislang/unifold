@@ -16,6 +16,28 @@ const MAX_LABEL = 512;
 const MAX_DESCRIPTION = 4_096;
 const stepKeys = new Set(["description", "disabled", "id", "label"]);
 
+interface NavigationTerms {
+  readonly childMismatch: (count: number) => string;
+  readonly disabledCode: DiagnosticCode;
+  readonly duplicateCode: DiagnosticCode;
+  readonly itemName: string;
+  readonly unknownCode: DiagnosticCode;
+}
+
+const termsByOwner: Readonly<
+  Record<CatalogStepNavigationStateConstraint["owner"], NavigationTerms>
+> = {
+  stepper: stepTerms("Stepper"),
+  tabs: {
+    childMismatch: (count) => `Tabs requires one child panel for each of its ${count} tabs.`,
+    disabledCode: DiagnosticCode.DisabledTabSelection,
+    duplicateCode: DiagnosticCode.DuplicateTabId,
+    itemName: "tab",
+    unknownCode: DiagnosticCode.UnknownTabSelection
+  },
+  wizard: stepTerms("Wizard")
+};
+
 export function isWorkflowStepList(value: unknown): value is readonly WorkflowStep[] {
   if (!Array.isArray(value)) return false;
   return validStepCount(value.length) && value.every(isWorkflowStep);
@@ -72,13 +94,14 @@ function reportDuplicateSteps(
   path: string,
   diagnostics: CompilerDiagnostic[]
 ): void {
+  const terms = termsByOwner[constraint.owner];
   const seen = new Set<string>();
   steps.forEach((step, index) => {
     if (seen.has(step.id)) {
       diagnostics.push(
         errorDiagnostic(
-          DiagnosticCode.DuplicateStepId,
-          `Workflow step id "${step.id}" is already defined.`,
+          terms.duplicateCode,
+          `${capitalized(terms.itemName)} id "${step.id}" is already defined.`,
           `${path}/${constraint.stepsProperty}/${index}/id`,
           id
         )
@@ -112,11 +135,11 @@ function reportStringSelection(
   const step = steps.find(({ id: stepId }) => stepId === value);
   const selectionPath = `${path}/${constraint.valueProperty}`;
   if (step === undefined) {
-    reportUnknownSelection(value, selectionPath, id, diagnostics);
+    reportUnknownSelection(value, selectionPath, id, diagnostics, constraint);
     return;
   }
   if (step.disabled === true) {
-    reportDisabledSelection(value, selectionPath, id, diagnostics);
+    reportDisabledSelection(value, selectionPath, id, diagnostics, constraint);
   }
 }
 
@@ -124,12 +147,14 @@ function reportUnknownSelection(
   value: string,
   path: string,
   id: string | undefined,
-  diagnostics: CompilerDiagnostic[]
+  diagnostics: CompilerDiagnostic[],
+  constraint: CatalogStepNavigationStateConstraint
 ): void {
+  const terms = termsByOwner[constraint.owner];
   diagnostics.push(
     errorDiagnostic(
-      DiagnosticCode.UnknownStepSelection,
-      `Selected workflow step "${value}" is not declared.`,
+      terms.unknownCode,
+      `Selected ${terms.itemName} "${value}" is not declared.`,
       path,
       id
     )
@@ -140,12 +165,14 @@ function reportDisabledSelection(
   value: string,
   path: string,
   id: string | undefined,
-  diagnostics: CompilerDiagnostic[]
+  diagnostics: CompilerDiagnostic[],
+  constraint: CatalogStepNavigationStateConstraint
 ): void {
+  const terms = termsByOwner[constraint.owner];
   diagnostics.push(
     errorDiagnostic(
-      DiagnosticCode.DisabledStepSelection,
-      `Selected workflow step "${value}" is disabled.`,
+      terms.disabledCode,
+      `Selected ${terms.itemName} "${value}" is disabled.`,
       path,
       id
     )
@@ -165,7 +192,7 @@ function reportChildren(
     reportUnexpectedChildren(childCount, id, path, diagnostics);
     return;
   }
-  reportChildCountMismatch(childCount, stepCount, id, path, diagnostics);
+  reportChildCountMismatch(childCount, stepCount, constraint, id, path, diagnostics);
 }
 
 function reportUnexpectedChildren(
@@ -188,6 +215,7 @@ function reportUnexpectedChildren(
 function reportChildCountMismatch(
   childCount: number,
   stepCount: number,
+  constraint: CatalogStepNavigationStateConstraint,
   id: string | undefined,
   path: string,
   diagnostics: CompilerDiagnostic[]
@@ -195,12 +223,32 @@ function reportChildCountMismatch(
   if (childCount === stepCount) return;
   diagnostics.push(
     errorDiagnostic(
-      DiagnosticCode.StepChildCountMismatch,
-      `Wizard requires one child panel for each of its ${stepCount} steps.`,
+      childMismatchCode(constraint),
+      termsByOwner[constraint.owner].childMismatch(stepCount),
       `${path}/$children`,
       id
     )
   );
+}
+
+function stepTerms(owner: "Stepper" | "Wizard"): NavigationTerms {
+  return {
+    childMismatch: (count) => `${owner} requires one child panel for each of its ${count} steps.`,
+    disabledCode: DiagnosticCode.DisabledStepSelection,
+    duplicateCode: DiagnosticCode.DuplicateStepId,
+    itemName: "workflow step",
+    unknownCode: DiagnosticCode.UnknownStepSelection
+  };
+}
+
+function childMismatchCode(constraint: CatalogStepNavigationStateConstraint): DiagnosticCode {
+  return constraint.owner === "tabs"
+    ? DiagnosticCode.TabChildCountMismatch
+    : DiagnosticCode.StepChildCountMismatch;
+}
+
+function capitalized(value: string): string {
+  return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
 }
 
 function arrayLength(value: unknown): number {

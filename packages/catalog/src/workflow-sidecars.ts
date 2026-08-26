@@ -32,6 +32,38 @@ export const stepperSidecar: ComponentDefinitionSidecar = definition({
   sensitiveProperties: ["errorMessage", "label", "steps", "value"]
 });
 
+export const tabsSidecar: ComponentDefinitionSidecar = definition({
+  behaviors: [
+    "Maps every bounded tab to one stable authored child panel",
+    "Supports automatic or manual roving-focus activation",
+    "Emits complete controlled tab-selection snapshots"
+  ],
+  browserScenarios: ["switches stable tab panels through canonical controlled state"],
+  componentType: CoreComponentType.Tabs,
+  example: node(CoreComponentType.Tabs, "account-tabs", {
+    $children: [
+      node(CoreComponentType.Text, "summary-panel", { content: "Account summary" }),
+      node(CoreComponentType.Text, "activity-panel", { content: "Recent activity" })
+    ],
+    label: "Account sections",
+    tabs: [
+      { id: "summary", label: "Summary" },
+      { id: "activity", label: "Activity" }
+    ],
+    value: "summary"
+  }),
+  pattern: ComponentAccessibilityPattern.Tabs,
+  purpose: "Switch among bounded authored panels while retaining each panel's DOM identity.",
+  requirementIds: [
+    "A11Y.TABS.ACTIVE_PANEL",
+    "A11Y.TABS.ROVING_FOCUS",
+    "EVENT.CONTROL.INPUT",
+    "SECURITY.TABS.ESCAPED_TEXT"
+  ],
+  semanticAttachmentPoints: [],
+  sensitiveProperties: ["errorMessage", "label", "tabs", "value"]
+});
+
 export const wizardSidecar: ComponentDefinitionSidecar = definition({
   behaviors: [
     "Maps each ordered step to one stable authored child panel",

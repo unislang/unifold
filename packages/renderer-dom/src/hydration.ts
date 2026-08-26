@@ -142,7 +142,7 @@ function requiredScalarValue(control: HTMLElement): string {
 
 function validateChoiceValue(node: UnifoldIrNode, value: JsonValue): void {
   if (!choiceComponents.has(node.componentType as CoreComponentType)) return;
-  const allowed = optionValues(node);
+  const allowed = declaredChoiceValues(node);
   if (choiceValues(value).some((item) => isInvalidChoice(item, allowed)))
     throw hydrationError(`Static choice value is invalid: ${node.id}.`);
 }
@@ -161,7 +161,8 @@ const choiceComponents = new Set<CoreComponentType>([
   CoreComponentType.Combobox,
   CoreComponentType.MultiSelect,
   CoreComponentType.RadioGroup,
-  CoreComponentType.Select
+  CoreComponentType.Select,
+  CoreComponentType.Tabs
 ]);
 
 const valueComponents = new Set<CoreComponentType>([
@@ -170,20 +171,39 @@ const valueComponents = new Set<CoreComponentType>([
   CoreComponentType.MultiSelect,
   CoreComponentType.RadioGroup,
   CoreComponentType.Select,
+  CoreComponentType.Tabs,
   CoreComponentType.TextArea,
   CoreComponentType.TextField
 ]);
 
-function optionValues(node: UnifoldIrNode): ReadonlySet<string> {
-  const options = node.properties["options"];
-  if (!Array.isArray(options)) return new Set();
-  return new Set(options.flatMap((option) => optionValue(option)));
+function declaredChoiceValues(node: UnifoldIrNode): ReadonlySet<string> {
+  const component = node.componentType as CoreComponentType;
+  const choices = node.properties[propertyName(choiceProperty, component, "options")];
+  if (!Array.isArray(choices)) return new Set();
+  const valueProperty = propertyName(choiceValueProperty, component, "value");
+  return new Set(choices.flatMap((choice) => objectStringValue(choice, valueProperty)));
 }
 
-function optionValue(option: JsonValue): readonly string[] {
-  if (!isNonNullObject(option)) return [];
-  if (Array.isArray(option)) return [];
-  return stringList(option["value"]);
+function objectStringValue(value: JsonValue, property: string): readonly string[] {
+  if (!isNonNullObject(value)) return [];
+  if (Array.isArray(value)) return [];
+  return stringList(value[property]);
+}
+
+const choiceProperty: Partial<Record<CoreComponentType, string>> = {
+  [CoreComponentType.Tabs]: "tabs"
+};
+
+const choiceValueProperty: Partial<Record<CoreComponentType, string>> = {
+  [CoreComponentType.Tabs]: "id"
+};
+
+function propertyName(
+  names: Partial<Record<CoreComponentType, string>>,
+  component: CoreComponentType,
+  fallback: string
+): string {
+  return names[component] ?? fallback;
 }
 
 function stringList(value: JsonValue | undefined): readonly string[] {

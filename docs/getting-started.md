@@ -70,4 +70,4 @@ The E2E configuration builds and serves the reference application automatically.
 
 ## Current vertical slice
 
-Phase 0 deliberately proves the narrow end-to-end seam first: an authored JSON document expands reusable compositions, compiles to normalized IR, renders accessible Web Components, emits canonical events, updates normalized state atomically, reconciles revised JSON, and selectively refreshes only subscribed nodes. The initial composition contract and twenty-seven-component catalog are not presented as the complete framework vocabulary.
+Phase 0 deliberately proves the narrow end-to-end seam first: an authored JSON document expands reusable compositions, compiles to normalized IR, renders accessible Web Components, emits canonical events, updates normalized state atomically, reconciles revised JSON, and selectively refreshes only subscribed nodes. The initial composition contract and twenty-eight-component catalog are not presented as the complete framework vocabulary.

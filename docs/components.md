@@ -1,39 +1,40 @@
 # Core components
 
-The implemented core catalog contains twenty-seven JSON-constructible Web Components. Every component has a
+The implemented core catalog contains twenty-eight JSON-constructible Web Components. Every component has a
 stable node ID, participates in the same canonical event stream, and receives selective state
 projection through the application runtime. The catalog descriptor is the authority for accepted
 properties; the IR compiler rejects unknown properties and values of the wrong type before render.
 
-| JSON `$comp`    | Custom element           | Value          | Native foundation        | Canonical interaction                  |
-| --------------- | ------------------------ | -------------- | ------------------------ | -------------------------------------- |
-| `Accordion`     | `unifold-accordion`      | boolean        | `details` and `summary`  | `control.input`                        |
-| `Alert`         | `unifold-alert`          | none           | ARIA live region         | none                                   |
-| `AuditLog`      | `unifold-audit-log`      | none           | section + list + time    | none                                   |
-| `Box`           | `unifold-box`            | none           | slotted container        | descendant scope                       |
-| `Button`        | `unifold-button`         | none           | `button`                 | `component.activated`                  |
-| `Checkbox`      | `unifold-checkbox`       | boolean        | checkbox input           | `control.input`, `control.blurred`     |
-| `Combobox`      | `unifold-combobox`       | string         | input + ARIA listbox     | `control.input`, `control.blurred`     |
-| `Composition`   | `unifold-composition`    | none           | grouping host            | descendant scope                       |
-| `DataGrid`      | `unifold-data-grid`      | object         | table and native inputs  | `control.input`, `control.blurred`     |
-| `Form`          | `unifold-form`           | derived object | `form`                   | `form.submit-requested`                |
-| `Grid`          | `unifold-grid`           | none           | slotted grid container   | descendant scope                       |
-| `Heading`       | `unifold-heading`        | none           | native `h1`–`h6`         | none                                   |
-| `Icon`          | `unifold-icon`           | none           | inline SVG               | none                                   |
-| `Link`          | `unifold-link`           | none           | anchor                   | `component.activated`                  |
-| `MasterDetail`  | `unifold-master-detail`  | string         | virtual listbox + region | `control.input`, `control.blurred`     |
-| `MultiSelect`   | `unifold-multi-select`   | string array   | multiple select          | `control.input`, `control.blurred`     |
-| `RadioGroup`    | `unifold-radio-group`    | string         | fieldset and radio input | `control.input`, `control.blurred`     |
-| `SearchResults` | `unifold-search-results` | object         | search input + listbox   | `control.input`, `control.blurred`     |
-| `Select`        | `unifold-select`         | string         | select                   | `control.input`, `control.blurred`     |
-| `Stack`         | `unifold-stack`          | none           | slotted flex container   | descendant scope                       |
-| `Stepper`       | `unifold-stepper`        | string         | navigation + buttons     | `control.input`, `control.blurred`     |
-| `Table`         | `unifold-table`          | none           | native table             | none                                   |
-| `Text`          | `unifold-text`           | none           | paragraph                | none                                   |
-| `TextArea`      | `unifold-text-area`      | string         | textarea                 | `control.input`, `control.blurred`     |
-| `TextField`     | `unifold-text-field`     | string         | typed input              | `control.input`, `control.blurred`     |
-| `VirtualList`   | `unifold-virtual-list`   | string         | ARIA listbox             | `control.input`, `control.blurred`     |
-| `Wizard`        | `unifold-wizard`         | string         | navigation + region      | `control.input`, `component.activated` |
+| JSON `$comp`    | Custom element           | Value          | Native foundation         | Canonical interaction                  |
+| --------------- | ------------------------ | -------------- | ------------------------- | -------------------------------------- |
+| `Accordion`     | `unifold-accordion`      | boolean        | `details` and `summary`   | `control.input`                        |
+| `Alert`         | `unifold-alert`          | none           | ARIA live region          | none                                   |
+| `AuditLog`      | `unifold-audit-log`      | none           | section + list + time     | none                                   |
+| `Box`           | `unifold-box`            | none           | slotted container         | descendant scope                       |
+| `Button`        | `unifold-button`         | none           | `button`                  | `component.activated`                  |
+| `Checkbox`      | `unifold-checkbox`       | boolean        | checkbox input            | `control.input`, `control.blurred`     |
+| `Combobox`      | `unifold-combobox`       | string         | input + ARIA listbox      | `control.input`, `control.blurred`     |
+| `Composition`   | `unifold-composition`    | none           | grouping host             | descendant scope                       |
+| `DataGrid`      | `unifold-data-grid`      | object         | table and native inputs   | `control.input`, `control.blurred`     |
+| `Form`          | `unifold-form`           | derived object | `form`                    | `form.submit-requested`                |
+| `Grid`          | `unifold-grid`           | none           | slotted grid container    | descendant scope                       |
+| `Heading`       | `unifold-heading`        | none           | native `h1`–`h6`          | none                                   |
+| `Icon`          | `unifold-icon`           | none           | inline SVG                | none                                   |
+| `Link`          | `unifold-link`           | none           | anchor                    | `component.activated`                  |
+| `MasterDetail`  | `unifold-master-detail`  | string         | virtual listbox + region  | `control.input`, `control.blurred`     |
+| `MultiSelect`   | `unifold-multi-select`   | string array   | multiple select           | `control.input`, `control.blurred`     |
+| `RadioGroup`    | `unifold-radio-group`    | string         | fieldset and radio input  | `control.input`, `control.blurred`     |
+| `SearchResults` | `unifold-search-results` | object         | search input + listbox    | `control.input`, `control.blurred`     |
+| `Select`        | `unifold-select`         | string         | select                    | `control.input`, `control.blurred`     |
+| `Stack`         | `unifold-stack`          | none           | slotted flex container    | descendant scope                       |
+| `Stepper`       | `unifold-stepper`        | string         | navigation + buttons      | `control.input`, `control.blurred`     |
+| `Tabs`          | `unifold-tabs`           | string         | ARIA tabs + stable panels | `control.input`, `control.blurred`     |
+| `Table`         | `unifold-table`          | none           | native table              | none                                   |
+| `Text`          | `unifold-text`           | none           | paragraph                 | none                                   |
+| `TextArea`      | `unifold-text-area`      | string         | textarea                  | `control.input`, `control.blurred`     |
+| `TextField`     | `unifold-text-field`     | string         | typed input               | `control.input`, `control.blurred`     |
+| `VirtualList`   | `unifold-virtual-list`   | string         | ARIA listbox              | `control.input`, `control.blurred`     |
+| `Wizard`        | `unifold-wizard`         | string         | navigation + region       | `control.input`, `component.activated` |
 
 Event names above use their readable suffixes. The wire values are versioned enums such as
 `org.unifold.ui.control.input.v1`, exported as `ElementEventType`.
@@ -52,6 +53,31 @@ Event names above use their readable suffixes. The wire values are versioned enu
   ],
   "required": true,
   "value": "us"
+}
+```
+
+`Tabs` uses the same bounded exact item shape through its `tabs` property and requires exactly one
+authored child panel per item. Its controlled string `value` must name an enabled tab. Horizontal
+and vertical arrow keys wrap through enabled tabs; Home and End move to the first and last enabled
+tab. `activationMode` is `automatic` by default or `manual` when selection should wait for Enter or
+Space. The element exposes a labeled tablist, roving-focus tabs, and stable labeled tabpanels while
+retaining every authored child DOM identity. Static export preserves the public selected ID in a
+validated hydration marker and renders all escaped panels with only the selected panel visible.
+
+```json
+{
+  "$comp": "Tabs",
+  "id": "account-tabs",
+  "label": "Account sections",
+  "tabs": [
+    { "id": "summary", "label": "Summary" },
+    { "id": "activity", "label": "Activity" }
+  ],
+  "value": "summary",
+  "$children": [
+    { "$comp": "Text", "id": "summary-panel", "content": "Summary" },
+    { "$comp": "Text", "id": "activity-panel", "content": "Activity" }
+  ]
 }
 ```
 
@@ -276,7 +302,7 @@ import { ButtonVariant, CoreComponentType, type ChoiceOption } from "@unislang/u
 
 ## Component-definition evidence pipeline
 
-All twenty-seven core elements participate in the executable `ComponentDefinition` pipeline. The
+All twenty-eight core elements participate in the executable `ComponentDefinition` pipeline. The
 elements build runs the official Custom Elements Manifest analyzer with its Lit plugin, validates
 the complete result against the official manifest JSON Schema, and writes
 `dist/custom-elements.json`. The generated manifest owns facts that can be derived from source:
@@ -304,7 +330,7 @@ accessibility certification.
 These controls intentionally prefer native browser semantics. They have automated unit and browser
 coverage, including keyboard and axe checks, but that is not a complete accessibility certification.
 Free-form autocomplete variants, validation projection for every future control, field grouping,
-overlays, menus, tabs, form-associated custom-element behavior,
+overlays, menus, form-associated custom-element behavior,
 localization, and the full browser/assistive-technology evidence matrix remain planned work. Do not
 infer support for an unregistered component or property from the long-term architecture catalog.
 

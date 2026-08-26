@@ -1,4 +1,4 @@
-import { getCoreDescriptor, type WorkflowStep } from "@unislang/unifold-catalog";
+import { getCoreDescriptor, type TabItem, type WorkflowStep } from "@unislang/unifold-catalog";
 import { DataClassification, type JsonValue } from "@unislang/unifold-contracts";
 import type { UnifoldIrDocument, UnifoldIrNode } from "@unislang/unifold-ir";
 
@@ -23,6 +23,19 @@ export function renderStaticWizard(context: StaticWorkflowContext): string {
     .map((content, index) => renderPanel(node.id, steps[index], index, value, content))
     .join("");
   return `<div>${renderNavigation(node.id, label, steps, value)}${panels}</div>`;
+}
+
+export function renderStaticTabs(context: StaticWorkflowContext): string {
+  const { childContent, document, node } = context;
+  const { label, tabs, value } = tabSnapshot(document, node);
+  const tabList = tabs.map((tab, index) => renderTab(node.id, tab, index, value)).join("");
+  const panels = childContent
+    .map((content, index) => renderTabPanel(node.id, tabs[index], index, value, content))
+    .join("");
+  return `<div>${staticValue(node.id, value)}<div role="tablist"${attribute(
+    "aria-label",
+    label
+  )}${attribute("aria-orientation", textProperty(node, "orientation"))}>${tabList}</div>${panels}</div>`;
 }
 
 function renderNavigation(
@@ -54,12 +67,40 @@ function renderPanel(
   return `<section role="region"${attribute("aria-labelledby", labelledBy)}${hiddenAttribute(current)}>${content}</section>`;
 }
 
+function renderTab(id: string, tab: TabItem, index: number, value: string): string {
+  const selected = tab.id === value;
+  return `<button type="button" role="tab"${attribute("id", tabId(id, index))}${attribute(
+    "aria-controls",
+    tabPanelId(id, index)
+  )}${attribute("aria-selected", String(selected))} tabindex="-1" disabled>${escapeHtml(
+    tab.label
+  )}</button>`;
+}
+
+function renderTabPanel(
+  id: string,
+  tab: TabItem | undefined,
+  index: number,
+  value: string,
+  content: string
+): string {
+  const selected = tab?.id === value;
+  return `<section role="tabpanel"${attribute("id", tabPanelId(id, index))}${attribute(
+    "aria-labelledby",
+    tabId(id, index)
+  )}${hiddenAttribute(selected)}>${content}</section>`;
+}
+
 function stepId(id: string, index: number): string {
   return `${id}__step_${index}`;
 }
 
 function stepProperty(node: UnifoldIrNode): readonly WorkflowStep[] {
   return property(node, "steps") as unknown as readonly WorkflowStep[];
+}
+
+function tabProperty(node: UnifoldIrNode): readonly TabItem[] {
+  return property(node, "tabs") as unknown as readonly TabItem[];
 }
 
 function textProperty(node: UnifoldIrNode, name: string): string {
@@ -93,6 +134,17 @@ function workflowSnapshot(document: UnifoldIrDocument, node: UnifoldIrNode) {
   };
 }
 
+function tabSnapshot(document: UnifoldIrDocument, node: UnifoldIrNode) {
+  if (classification(document, node) !== DataClassification.Public) {
+    return { label: "", tabs: [], value: "" };
+  }
+  return {
+    label: textProperty(node, "label"),
+    tabs: tabProperty(node),
+    value: textProperty(node, "value")
+  };
+}
+
 function workflowStepId(step: WorkflowStep | undefined): string | undefined {
   return step?.id;
 }
@@ -103,6 +155,21 @@ function panelLabelId(step: WorkflowStep | undefined, id: string, index: number)
 
 function hiddenAttribute(current: boolean): string {
   return current ? "" : " hidden";
+}
+
+function tabId(id: string, index: number): string {
+  return `${id}__tab_${index}`;
+}
+
+function tabPanelId(id: string, index: number): string {
+  return `${id}__tabpanel_${index}`;
+}
+
+function staticValue(id: string, value: string): string {
+  return `<input type="hidden"${attribute("data-unifold-static-control", id)}${attribute(
+    "value",
+    value
+  )}>`;
 }
 
 function defaultProperty(node: UnifoldIrNode, name: string): JsonValue | undefined {

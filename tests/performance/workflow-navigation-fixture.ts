@@ -8,7 +8,7 @@ import {
   UiSchemaVersion,
   type JsonObject
 } from "@unislang/unifold-contracts";
-import type { UnifoldStepper, UnifoldWizard } from "@unislang/unifold-elements";
+import type { UnifoldStepper, UnifoldTabs, UnifoldWizard } from "@unislang/unifold-elements";
 import {
   mountUnifoldApplication,
   UnifoldApplicationMountStatus,
@@ -18,7 +18,7 @@ import {
 import { percentile } from "./profile-statistics.js";
 
 const WORKFLOW_STEP_COUNT = 100;
-export const WORKFLOW_BUTTON_LIMIT = 200;
+export const WORKFLOW_BUTTON_LIMIT = 300;
 const STARTUP_P95_LIMIT_MILLISECONDS = 1_000;
 const INTERACTION_P95_LIMIT_MILLISECONDS = 100;
 const PROFILE_SAMPLES = 20;
@@ -27,6 +27,7 @@ interface MountedWorkflow {
   readonly application: UnifoldApplicationPort;
   readonly container: HTMLElement;
   readonly stepper: UnifoldStepper;
+  readonly tabs: UnifoldTabs;
   readonly wizard: UnifoldWizard;
 }
 
@@ -34,6 +35,9 @@ interface WorkflowInteraction {
   readonly renderedButtons: number;
   readonly stepperMilliseconds: number;
   readonly stepperValue: string;
+  readonly tabMilliseconds: number;
+  readonly tabValue: string;
+  readonly visibleTabPanels: number;
   readonly visiblePanels: number;
   readonly wizardMilliseconds: number;
   readonly wizardValue: string;
@@ -62,13 +66,14 @@ export async function mountWorkflow(): Promise<MountedWorkflow> {
     throw new Error(`Workflow mount failed: ${JSON.stringify(mounted.diagnostics)}`);
   }
   const stepper = requireElement<UnifoldStepper>(container, "unifold-stepper");
+  const tabs = requireElement<UnifoldTabs>(container, "unifold-tabs");
   const wizard = requireElement<UnifoldWizard>(container, "unifold-wizard");
-  await Promise.all([stepper.updateComplete, wizard.updateComplete]);
-  return { application: mounted.application, container, stepper, wizard };
+  await Promise.all([stepper.updateComplete, tabs.updateComplete, wizard.updateComplete]);
+  return { application: mounted.application, container, stepper, tabs, wizard };
 }
 
 export async function exerciseWorkflow(mounted: MountedWorkflow): Promise<WorkflowInteraction> {
-  const { stepper, wizard } = mounted;
+  const { stepper, tabs, wizard } = mounted;
   const target = WORKFLOW_STEP_COUNT - 1;
   const stepperStarted = performance.now();
   button(stepper, target).click();
@@ -77,12 +82,19 @@ export async function exerciseWorkflow(mounted: MountedWorkflow): Promise<Workfl
   const wizardStarted = performance.now();
   button(wizard, target).click();
   await wizard.updateComplete;
+  const wizardMilliseconds = performance.now() - wizardStarted;
+  const tabStarted = performance.now();
+  tabButton(tabs, target).click();
+  await tabs.updateComplete;
   return {
-    renderedButtons: buttonCount(stepper) + buttonCount(wizard),
+    renderedButtons: buttonCount(stepper) + buttonCount(wizard) + tabButtonCount(tabs),
     stepperMilliseconds,
     stepperValue: stepper.value,
+    tabMilliseconds: performance.now() - tabStarted,
+    tabValue: tabs.value,
+    visibleTabPanels: visibleTabPanelCount(tabs),
     visiblePanels: [...wizard.children].filter((child) => !child.hasAttribute("hidden")).length,
-    wizardMilliseconds: performance.now() - wizardStarted,
+    wizardMilliseconds,
     wizardValue: wizard.value
   };
 }
@@ -112,7 +124,7 @@ function workflowDocument(): JsonObject {
 function workflowView(): JsonObject {
   return {
     $comp: "Stack",
-    $children: [stepperNode(), wizardNode()],
+    $children: [stepperNode(), wizardNode(), tabsNode()],
     id: "workflow-root",
     label: "Workflow navigation"
   };
@@ -144,6 +156,21 @@ function wizardNode(): JsonObject {
   };
 }
 
+function tabsNode(): JsonObject {
+  return {
+    $comp: "Tabs",
+    $children: Array.from({ length: WORKFLOW_STEP_COUNT }, (_, index) => ({
+      $comp: "Text",
+      content: `Tab panel ${index}`,
+      id: `tab-panel-${String(index).padStart(3, "0")}`
+    })),
+    id: "workflow-tabs",
+    label: "Workflow tabs",
+    tabs: tabItems(),
+    value: "tab-000"
+  };
+}
+
 function steps(): readonly JsonObject[] {
   return Array.from({ length: WORKFLOW_STEP_COUNT }, (_, index) => ({
     description: `Description ${index}`,
@@ -152,39 +179,69 @@ function steps(): readonly JsonObject[] {
   }));
 }
 
+function tabItems(): readonly JsonObject[] {
+  return Array.from({ length: WORKFLOW_STEP_COUNT }, (_, index) => ({
+    id: `tab-${String(index).padStart(3, "0")}`,
+    label: `Tab ${index}`
+  }));
+}
+
 function performanceEvidence(
   startupSamples: readonly number[],
   interactions: readonly WorkflowInteraction[]
 ) {
   const startup = statistics(startupSamples);
-  const stepperSelection = statistics(
-    interactions.map(({ stepperMilliseconds }) => stepperMilliseconds)
-  );
-  const wizardSelection = statistics(
-    interactions.map(({ wizardMilliseconds }) => wizardMilliseconds)
-  );
+  const { stepperSelection, tabSelection, wizardSelection } = selectionStatistics(interactions);
   const maximumRenderedButtons = Math.max(
     ...interactions.map(({ renderedButtons }) => renderedButtons)
   );
-  const exact = interactions.every(
-    ({ stepperValue, visiblePanels, wizardValue }) =>
-      stepperValue === "step-099" && wizardValue === "step-099" && visiblePanels === 1
-  );
+  const exact = interactions.every(isExactInteraction);
   return {
-    gates: workflowGates(startup, stepperSelection, wizardSelection, maximumRenderedButtons, exact),
+    gates: workflowGates(
+      startup,
+      stepperSelection,
+      wizardSelection,
+      tabSelection,
+      maximumRenderedButtons,
+      exact
+    ),
     maximumRenderedButtons,
     sampleCount: PROFILE_SAMPLES,
     startup,
     stepCount: WORKFLOW_STEP_COUNT,
     stepperSelection,
+    tabSelection,
     wizardSelection
   };
+}
+
+function selectionStatistics(interactions: readonly WorkflowInteraction[]) {
+  return {
+    stepperSelection: statistics(
+      interactions.map(({ stepperMilliseconds }) => stepperMilliseconds)
+    ),
+    tabSelection: statistics(interactions.map(({ tabMilliseconds }) => tabMilliseconds)),
+    wizardSelection: statistics(interactions.map(({ wizardMilliseconds }) => wizardMilliseconds))
+  };
+}
+
+function isExactInteraction(interaction: WorkflowInteraction): boolean {
+  return (
+    [
+      interaction.stepperValue,
+      interaction.tabValue,
+      interaction.wizardValue,
+      interaction.visiblePanels,
+      interaction.visibleTabPanels
+    ].join("|") === "step-099|tab-099|step-099|1|1"
+  );
 }
 
 function workflowGates(
   startup: ReturnType<typeof statistics>,
   stepper: ReturnType<typeof statistics>,
   wizard: ReturnType<typeof statistics>,
+  tabs: ReturnType<typeof statistics>,
   buttons: number,
   exact: boolean
 ) {
@@ -199,18 +256,24 @@ function workflowGates(
         buttons <= WORKFLOW_BUTTON_LIMIT,
       renderedButtonLimit: WORKFLOW_BUTTON_LIMIT
     },
-    interactionGate("100-step Stepper selection", stepper.p95Milliseconds, exact),
-    interactionGate("100-panel Wizard selection", wizard.p95Milliseconds, exact)
+    interactionGate("100-step Stepper selection", stepper.p95Milliseconds, "step-099", exact),
+    interactionGate("100-panel Wizard selection", wizard.p95Milliseconds, "step-099", exact),
+    interactionGate("100-panel Tabs selection", tabs.p95Milliseconds, "tab-099", exact)
   ];
 }
 
-function interactionGate(name: string, actualP95Milliseconds: number, exact: boolean) {
+function interactionGate(
+  name: string,
+  actualP95Milliseconds: number,
+  requiredSelectedStepId: string,
+  exact: boolean
+) {
   return {
     actualP95Milliseconds,
     limitP95Milliseconds: INTERACTION_P95_LIMIT_MILLISECONDS,
     name,
     passed: actualP95Milliseconds <= INTERACTION_P95_LIMIT_MILLISECONDS && exact,
-    requiredSelectedStepId: "step-099"
+    requiredSelectedStepId
   };
 }
 
@@ -238,4 +301,19 @@ function button(element: UnifoldStepper, index: number): HTMLButtonElement {
 
 function buttonCount(element: UnifoldStepper): number {
   return element.shadowRoot?.querySelectorAll("[data-step-index]").length ?? 0;
+}
+
+function tabButton(element: UnifoldTabs, index: number): HTMLButtonElement {
+  return requireElement<HTMLButtonElement>(
+    element.shadowRoot as ShadowRoot,
+    `[data-tab-index="${index}"]`
+  );
+}
+
+function tabButtonCount(element: UnifoldTabs): number {
+  return element.shadowRoot?.querySelectorAll("[data-tab-index]").length ?? 0;
+}
+
+function visibleTabPanelCount(element: UnifoldTabs): number {
+  return element.shadowRoot?.querySelectorAll('[role="tabpanel"]:not([hidden])').length ?? 0;
 }

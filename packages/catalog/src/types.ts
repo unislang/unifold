@@ -91,6 +91,7 @@ export interface CatalogSearchResultsStateConstraint {
 export interface CatalogStepNavigationStateConstraint {
   readonly childMode: "match-steps" | "none";
   readonly kind: CatalogConstraintKind.StepNavigationState;
+  readonly owner: "stepper" | "tabs" | "wizard";
   readonly stepsProperty: string;
   readonly valueProperty: string;
 }
@@ -145,6 +146,8 @@ export interface WorkflowStep extends JsonObject {
   readonly id: string;
   readonly label: string;
 }
+
+export type TabItem = WorkflowStep;
 
 export interface ComponentDescriptor {
   readonly componentType: CoreComponentType;

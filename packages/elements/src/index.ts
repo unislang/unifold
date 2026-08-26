@@ -35,6 +35,7 @@ export { UnifoldSearchResults } from "./search-results.js";
 export { UnifoldSelect } from "./select.js";
 export { UnifoldStack } from "./stack.js";
 export { UnifoldStepper } from "./stepper.js";
+export { UnifoldTabs } from "./tabs.js";
 export { UnifoldTable } from "./table.js";
 export { UnifoldText } from "./text.js";
 export { UnifoldTextArea } from "./text-area.js";

@@ -20,6 +20,7 @@ export enum CoreComponentType {
   Select = "Select",
   Stack = "Stack",
   Stepper = "Stepper",
+  Tabs = "Tabs",
   Table = "Table",
   Text = "Text",
   TextArea = "TextArea",

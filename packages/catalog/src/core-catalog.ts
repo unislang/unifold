@@ -259,6 +259,7 @@ const descriptors: Record<CoreComponentType, ComponentDescriptor> = {
     version: "1.0.0"
   },
   [CoreComponentType.Stepper]: workflows.stepperDescriptor,
+  [CoreComponentType.Tabs]: workflows.tabsDescriptor,
   [CoreComponentType.Table]: dataViews.tableDescriptor,
   [CoreComponentType.Text]: {
     componentType: CoreComponentType.Text,

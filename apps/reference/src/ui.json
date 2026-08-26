@@ -250,6 +250,38 @@
                 ]
               }
             ]
+          },
+          {
+            "$comp": "Tabs",
+            "activationMode": "automatic",
+            "id": "account-tabs",
+            "label": "Account sections",
+            "name": "accountSection",
+            "orientation": "horizontal",
+            "tabs": [
+              { "id": "summary", "label": "Summary" },
+              { "disabled": true, "id": "billing", "label": "Billing" },
+              { "id": "activity", "label": "Activity" }
+            ],
+            "testId": "account-tabs",
+            "value": "summary",
+            "$children": [
+              {
+                "$comp": "Text",
+                "content": "Account summary remains mounted while another panel is selected.",
+                "id": "summary-panel"
+              },
+              {
+                "$comp": "Text",
+                "content": "Billing is currently unavailable.",
+                "id": "billing-panel"
+              },
+              {
+                "$comp": "Text",
+                "content": "Recent account activity.",
+                "id": "activity-panel"
+              }
+            ]
           }
         ]
       },

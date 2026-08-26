@@ -4,4 +4,4 @@ export { renderStaticMasterDetail } from "./static-master-detail.js";
 export { renderStaticSearchResults } from "./static-search-results.js";
 export { renderStaticTable } from "./static-table.js";
 export { renderStaticVirtualList } from "./static-virtual-list.js";
-export { renderStaticStepper, renderStaticWizard } from "./static-workflow.js";
+export { renderStaticStepper, renderStaticTabs, renderStaticWizard } from "./static-workflow.js";

@@ -34,6 +34,24 @@ export function classifiedStepperDocument(): JsonObject {
   };
 }
 
+export function publicTabsDocument(): JsonObject {
+  return documentWithView({
+    $comp: "Tabs",
+    $children: [
+      { $comp: "Text", content: '<img src=x onerror="alert(1)"> summary', id: "summary-panel" },
+      { $comp: "Text", content: "Activity", id: "activity-panel" }
+    ],
+    id: "account-tabs",
+    label: "Account <sections>",
+    orientation: "horizontal",
+    tabs: [
+      { id: "summary", label: "Summary <safe>" },
+      { id: "activity", label: "Activity" }
+    ],
+    value: "summary"
+  });
+}
+
 function storeDefinition(): JsonObject {
   return {
     access: "read-only",

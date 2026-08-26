@@ -91,3 +91,40 @@ export const comboboxStyles = css`
     display: none;
   }
 `;
+
+export const tabStyles = css`
+  [part="tablist"] {
+    border-bottom: 1px solid var(--unifold-color-border, #6b7280);
+    display: flex;
+    gap: var(--unifold-space-1, 0.25rem);
+  }
+  :host([orientation="vertical"]) [part="tablist"] {
+    align-items: flex-start;
+    border-bottom: 0;
+    border-inline-end: 1px solid var(--unifold-color-border, #6b7280);
+    flex-direction: column;
+  }
+  [part="tab"] {
+    background: transparent;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    padding: var(--unifold-space-2, 0.5rem) var(--unifold-space-3, 0.75rem);
+  }
+  [part="tab"][aria-selected="true"] {
+    border-color: var(--unifold-color-primary, #1d4ed8);
+    font-weight: 600;
+  }
+  [part="tab"]:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+  [part="panel"] {
+    padding-block: var(--unifold-space-3, 0.75rem);
+  }
+  [hidden] {
+    display: none;
+  }
+`;

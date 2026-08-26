@@ -24,6 +24,23 @@ export function referenceWizardNode(): JsonObject {
   };
 }
 
+export function referenceTabsNode(): JsonObject {
+  return {
+    $comp: "Tabs",
+    $children: [
+      { $comp: "Text", content: "Profile summary", id: "summary-tab-panel" },
+      { $comp: "Text", content: "Profile activity", id: "activity-tab-panel" }
+    ],
+    id: "profile-tabs",
+    label: "Profile sections",
+    tabs: [
+      { id: "summary", label: "Summary" },
+      { id: "activity", label: "Activity" }
+    ],
+    value: "summary"
+  };
+}
+
 function workflowSteps(): readonly JsonObject[] {
   return [
     { id: "details", label: "Details" },

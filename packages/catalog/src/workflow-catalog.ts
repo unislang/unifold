@@ -5,7 +5,8 @@ import {
   CatalogConstraintKind,
   CatalogPropertyType,
   CoreElementTag,
-  StepperOrientation
+  StepperOrientation,
+  TabActivationMode
 } from "./enums.js";
 import type { CatalogPropertyDescriptor, ComponentDescriptor } from "./types.js";
 
@@ -62,6 +63,7 @@ export const stepperDescriptor: ComponentDescriptor = {
     {
       childMode: "none",
       kind: CatalogConstraintKind.StepNavigationState,
+      owner: "stepper",
       stepsProperty: "steps",
       valueProperty: "value"
     }
@@ -75,12 +77,38 @@ export const stepperDescriptor: ComponentDescriptor = {
   version: "1.0.0"
 };
 
+export const tabsDescriptor: ComponentDescriptor = {
+  componentType: CoreComponentType.Tabs,
+  constraints: [
+    {
+      childMode: "match-steps",
+      kind: CatalogConstraintKind.StepNavigationState,
+      owner: "tabs",
+      stepsProperty: "tabs",
+      valueProperty: "value"
+    }
+  ],
+  properties: [
+    ...controlProperties().map((descriptor) =>
+      descriptor.name === "steps"
+        ? { ...descriptor, name: "tabs", bindingName: "tabs" }
+        : descriptor
+    ),
+    enumProperty("activationMode", TabActivationMode.Automatic, Object.values(TabActivationMode)),
+    enumProperty("orientation", StepperOrientation.Horizontal, Object.values(StepperOrientation)),
+    testId
+  ],
+  tagName: CoreElementTag.Tabs,
+  version: "1.0.0"
+};
+
 export const wizardDescriptor: ComponentDescriptor = {
   componentType: CoreComponentType.Wizard,
   constraints: [
     {
       childMode: "match-steps",
       kind: CatalogConstraintKind.StepNavigationState,
+      owner: "wizard",
       stepsProperty: "steps",
       valueProperty: "value"
     }

@@ -14,6 +14,7 @@ import type { CompilerDiagnostic } from "./types.js";
 const wizardConstraint: CatalogStepNavigationStateConstraint = {
   childMode: "match-steps",
   kind: CatalogConstraintKind.StepNavigationState,
+  owner: "wizard",
   stepsProperty: "steps",
   valueProperty: "value"
 };
@@ -50,6 +51,36 @@ it("reports duplicate, unknown, disabled, child-count, and leaf-child failures",
   ]);
 });
 
+it("reports tab-specific diagnostics at the shared bounded navigation boundary", () => {
+  const constraint: CatalogStepNavigationStateConstraint = {
+    ...wizardConstraint,
+    owner: "tabs",
+    stepsProperty: "tabs"
+  };
+  expect(
+    codes(
+      validateTabs(constraint, {
+        tabs: [step("summary"), step("summary")],
+        value: "summary"
+      })
+    )
+  ).toEqual([DiagnosticCode.DuplicateTabId]);
+  expect(codes(validateTabs(constraint, { value: "missing" }))).toEqual([
+    DiagnosticCode.UnknownTabSelection
+  ]);
+  expect(
+    codes(
+      validateTabs(constraint, {
+        tabs: [step("summary", true), step("activity")],
+        value: "summary"
+      })
+    )
+  ).toEqual([DiagnosticCode.DisabledTabSelection]);
+  expect(codes(validateTabs(constraint, { $children: [{}] }))).toEqual([
+    DiagnosticCode.TabChildCountMismatch
+  ]);
+});
+
 function validateNode(
   constraint: CatalogStepNavigationStateConstraint,
   changes: Readonly<Record<string, unknown>> = {}
@@ -66,6 +97,20 @@ function validateNode(
 
 function steps() {
   return [step("account"), step("review")];
+}
+
+function validateTabs(
+  constraint: CatalogStepNavigationStateConstraint,
+  changes: Readonly<Record<string, unknown>>
+): CompilerDiagnostic[] {
+  const diagnostics: CompilerDiagnostic[] = [];
+  validateStepNavigationStateConstraint(
+    { $children: [{}, {}], id: "tabs", tabs: steps(), value: "account", ...changes },
+    constraint,
+    "/view",
+    diagnostics
+  );
+  return diagnostics;
 }
 
 function step(id: string, disabled = false) {

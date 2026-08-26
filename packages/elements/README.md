@@ -49,7 +49,7 @@ for JSON examples, value types, and the current accessibility boundary.
 
 ## Component manifests
 
-`pnpm generate:cem` analyzes all twenty-seven core elements with the official Custom Elements Manifest
+`pnpm generate:cem` analyzes all twenty-eight core elements with the official Custom Elements Manifest
 analyzer and Lit plugin. It validates the output against the official manifest schema and writes
 `dist/custom-elements.json`. The package exposes that file through its standard `customElements`
 metadata and `./custom-elements.json` export.

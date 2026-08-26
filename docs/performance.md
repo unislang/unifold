@@ -65,9 +65,10 @@ results. They are evidence from a developer workstation, not ratified release th
 | 10k-result SearchResults startup            |  41.59 ms |  50.17 ms |  52.28 ms |
 | 10k-result SearchResults query update       |   4.48 ms |   5.50 ms |   8.32 ms |
 | 10k-result SearchResults selection update   |   4.01 ms |   4.89 ms |   5.16 ms |
-| 100-step workflow startup                   |  28.61 ms |  37.20 ms |  40.52 ms |
-| 100-step Stepper selection                  |   1.55 ms |   4.89 ms |   5.14 ms |
-| 100-panel Wizard selection                  |   2.15 ms |   3.76 ms |   7.27 ms |
+| 100-item workflow startup                   |  44.79 ms |  61.36 ms |  68.76 ms |
+| 100-step Stepper selection                  |   1.81 ms |   4.58 ms |   4.82 ms |
+| 100-panel Wizard selection                  |   2.10 ms |   5.49 ms |   7.39 ms |
+| 100-panel Tabs selection                    |   1.59 ms |   4.14 ms |   5.07 ms |
 | 10k-entry AuditLog startup                  |  60.67 ms |  68.65 ms |  72.95 ms |
 | 10k-entry AuditLog distant scroll           |   0.63 ms |   1.04 ms |   2.90 ms |
 | 1k cached data-actor resolutions            |   5.67 ms |   7.39 ms |   7.60 ms |
@@ -114,9 +115,9 @@ emits exactly 25 typed commands, and leaves every unrelated chain unchanged. Its
 p95 is below the provisional 4 ms target on the current workstation. The combined public-runtime
 fixture proves one commit spans the leaf edit, three synchronous validations (leaf, group, form),
 two ancestor aggregates, 20 transitive rule commands, and committed-revision selector delivery.
-Its 1.35 ms p95 is below the provisional 8 ms target. All forty timing limits and the lifecycle
+Its 1.35 ms p95 is below the provisional 8 ms target. All forty-one timing limits and the lifecycle
 limit are executable benchmark gates and are included with actual/limit/pass fields in the
-schema-2.18.0 machine-readable report; the current run passes all 41/41.
+schema-2.19.0 machine-readable report; the current run passes all 42/42.
 The report also contains a 50-sample paired selection-overhead profile. It alternates measurement
 order between identical 10,000-node stores with zero and 2,000 indexed selections and subtracts
 their five-edit batch medians. This removes shared transaction work without assigning an unrelated
@@ -183,13 +184,14 @@ gate, query updates measured 4.48/5.50/8.32 ms against 100 ms, and selection upd
 prove native search semantics, listbox keyboard focus, polite result-count status, canonical object
 state, axe checks, hostile-text escaping, rollback, recovery, and stable host identity.
 
-The exact shared workflow fixture compiles and mounts a 100-step Stepper beside a 100-panel Wizard
-twenty times after warm-up. Startup measured 28.61/37.20/40.52 ms against a 1,000 ms p95 gate,
-distant Stepper selection measured 1.55/4.89/5.14 ms, and distant Wizard panel selection measured
-2.15/3.76/7.27 ms against 100 ms gates. Every sample rendered exactly 200 step buttons, selected
-`step-099` in both controls, and left exactly one Wizard child panel visible. Chromium and WebKit
-add roving keyboard focus, linear disabled-step skipping, completion, axe, hostile-text escaping,
-last-known-good rollback, recovery, host identity, and child-panel identity evidence.
+The exact shared workflow fixture compiles and mounts a 100-step Stepper, 100-panel Wizard, and
+100-panel Tabs control twenty times after warm-up. Startup measured 44.79/61.36/68.76 ms against a
+1,000 ms p95 gate. Distant Stepper, Wizard, and Tabs selection measured 1.81/4.58/4.82 ms,
+2.10/5.49/7.39 ms, and 1.59/4.14/5.07 ms respectively against 100 ms gates. Every sample rendered
+exactly 300 navigation buttons, selected `step-099` in the workflow controls and `tab-099` in Tabs,
+and left exactly one Wizard panel and one tabpanel visible. Chromium and WebKit add roving keyboard
+focus, disabled-item skipping, automatic/manual activation coverage, canonical state, axe,
+hostile-text escaping, selective updates, and stable child-panel identity evidence.
 
 The read-only AuditLog fixture compiles and mounts an exact schema-valid 10,000-entry authorized
 history twenty times after warm-up. Startup measured 60.67/68.65/72.95 ms against a 1,000 ms p95

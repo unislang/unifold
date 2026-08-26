@@ -11,7 +11,7 @@ import { auditLogSidecar } from "./audit-log-sidecar.js";
 import { comboboxSidecar } from "./combobox-sidecar.js";
 import { ComponentAccessibilityPattern, IconName } from "./enums.js";
 import { searchResultsSidecar } from "./search-results-sidecar.js";
-import { stepperSidecar, wizardSidecar } from "./workflow-sidecars.js";
+import { stepperSidecar, tabsSidecar, wizardSidecar } from "./workflow-sidecars.js";
 import type { ComponentDefinitionSidecar } from "./types.js";
 
 const contentScenario = "renders semantic content and publishes Link activation";
@@ -269,6 +269,7 @@ const sidecars: Readonly<Record<CoreComponentType, ComponentDefinitionSidecar>> 
     sensitiveProperties: ["label"]
   }),
   [CoreComponentType.Stepper]: stepperSidecar,
+  [CoreComponentType.Tabs]: tabsSidecar,
   [CoreComponentType.Table]: definition({
     behaviors: ["Uses native table semantics", "Renders scalar cells as escaped text"],
     browserScenarios: ["renders and safely revises a native JSON table"],

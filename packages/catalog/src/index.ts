@@ -39,6 +39,7 @@ export {
   StackDirection,
   StepperOrientation,
   SurfaceTone,
+  TabActivationMode,
   TextSize,
   TextTone,
   TextWeight,
@@ -76,5 +77,6 @@ export type {
   TableCellValue,
   TableColumn,
   TableRow,
+  TabItem,
   WorkflowStep
 } from "./types.js";

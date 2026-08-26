@@ -71,6 +71,7 @@ export enum ComponentAccessibilityPattern {
   NativeTextInput = "native-text-input",
   SearchResults = "search-results",
   StepNavigation = "step-navigation",
+  Tabs = "tabs",
   Listbox = "listbox",
   StaticText = "static-text",
   SvgImage = "svg-image"
@@ -150,6 +151,7 @@ export enum CoreElementTag {
   Select = "unifold-select",
   Stack = "unifold-stack",
   Stepper = "unifold-stepper",
+  Tabs = "unifold-tabs",
   Table = "unifold-table",
   Text = "unifold-text",
   TextArea = "unifold-text-area",
@@ -230,6 +232,11 @@ export enum StackDirection {
 export enum StepperOrientation {
   Horizontal = "horizontal",
   Vertical = "vertical"
+}
+
+export enum TabActivationMode {
+  Automatic = "automatic",
+  Manual = "manual"
 }
 
 export enum SurfaceTone {

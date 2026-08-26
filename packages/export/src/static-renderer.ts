@@ -32,6 +32,7 @@ const renderers: Readonly<Record<CoreComponentType, NodeRenderer>> = {
   [CoreComponentType.Select]: renderSelect,
   [CoreComponentType.Stack]: renderContainer,
   [CoreComponentType.Stepper]: staticComponents.renderStaticStepper,
+  [CoreComponentType.Tabs]: staticComponents.renderStaticTabs,
   [CoreComponentType.Table]: staticComponents.renderStaticTable,
   [CoreComponentType.Text]: renderText,
   [CoreComponentType.TextArea]: renderTextArea,
@@ -342,7 +343,6 @@ function requireNode(document: UnifoldIrDocument, id: string): UnifoldIrNode {
   if (node === undefined) throw new Error(`Static IR node is missing: ${id}.`);
   return node;
 }
-
 function requireRenderer(node: UnifoldIrNode): NodeRenderer {
   const renderer = renderers[node.componentType as CoreComponentType];
   if (renderer === undefined) throw new Error(`No static renderer for ${node.componentType}.`);

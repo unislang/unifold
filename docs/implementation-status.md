@@ -87,7 +87,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
 - A Vercel AI SDK 7 provider-model boundary with schema-constrained patch proposals, RFC 8785 base
   fingerprints, RFC 6902 operations, stable-path and revision policy, risk enums, approval gating,
   compiler validation, and commit through the normal application coordinator.
-- Browser-safe portable JSON and static HTML exporters. Static HTML covers all twenty-seven core
+- Browser-safe portable JSON and static HTML exporters. Static HTML covers all twenty-eight core
   components with native no-JavaScript content, deterministic upgrade markers, public-data-only
   values, exactly one script-safe JSON-LD graph, and a versioned SHA-256 integrity manifest.
 - A versioned detached Ed25519 document envelope and JSON Schema, browser-safe signing helper, and
@@ -161,7 +161,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
   bounded Stepper navigation and a composed Wizard with stable authored panels; a read-only,
   virtualized AuditLog with native list/time semantics; a Tailwind theme foundation;
   component metadata; a DOM renderer; and a JSON-defined reference form.
-- An experimental full-catalog `ComponentDefinition` pipeline for all twenty-seven core elements. The
+- An experimental full-catalog `ComponentDefinition` pipeline for all twenty-eight core elements. The
   official Custom Elements Manifest analyzer and schema derive and validate element API facts;
   enum-backed catalog sidecars supply behavior, accessibility, privacy, structured semantics,
   complete examples, and test evidence. The package publishes standard CEM and joined definition
@@ -169,7 +169,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
   and live-event drift checks prove every catalog property is exposed and represented exactly in
   canonical snapshots.
 - The complete 15-component Phase 1 foundation release group, plus Composition, Combobox, MultiSelect,
-  Accordion, VirtualList, Table, DataGrid, MasterDetail, SearchResults, Stepper, Wizard, and AuditLog components exercised by later interaction slices.
+  Accordion, VirtualList, Table, DataGrid, MasterDetail, SearchResults, Stepper, Tabs, Wizard, and AuditLog components exercised by later interaction slices.
 - A pinned Schema.org 30.0 semantic graph contract carried through the typed document and IR,
   with public/visible committed-state bindings, typed composition-export bindings, an allowlisted
   starter vocabulary, deterministic script-safe JSON-LD, framework-owned mount/update/transaction/
@@ -229,7 +229,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
    Firefox still fails before page creation on the managed Windows runner. The select-only Combobox
    path is now catalog-authoritative from JSON through static/interactive rendering, runtime events,
    reset, keyboard, axe, and bounded 10k-option filtering evidence. Continue with free-form
-   autocomplete variants, menus, overlays, tabs, navigation, upload, and variable-height or
+   autocomplete variants, menus, overlays, navigation, upload, and variable-height or
    two-dimensional virtualization while retaining Firefox as an external release gate. See
    [composition P0 follow-ups](./compositions.md#p0-hardening-follow-ups).
 5. Add stable-release evidence and generated documentation/test skeletons to the complete core

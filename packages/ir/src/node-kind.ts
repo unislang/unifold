@@ -22,6 +22,7 @@ const NODE_KINDS: Readonly<Record<CoreComponentType, UiNodeKind>> = {
   [CoreComponentType.Select]: UiNodeKind.Control,
   [CoreComponentType.Stack]: UiNodeKind.Component,
   [CoreComponentType.Stepper]: UiNodeKind.Control,
+  [CoreComponentType.Tabs]: UiNodeKind.Control,
   [CoreComponentType.Table]: UiNodeKind.Component,
   [CoreComponentType.Text]: UiNodeKind.Component,
   [CoreComponentType.TextArea]: UiNodeKind.Control,

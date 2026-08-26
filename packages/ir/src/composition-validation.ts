@@ -235,6 +235,7 @@ const controlComponents = new Set<CoreComponentType>([
   CoreComponentType.MultiSelect,
   CoreComponentType.RadioGroup,
   CoreComponentType.Select,
+  CoreComponentType.Tabs,
   CoreComponentType.TextArea,
   CoreComponentType.TextField
 ]);

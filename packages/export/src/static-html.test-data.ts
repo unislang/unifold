@@ -26,6 +26,7 @@ import { referenceSearchResultsNode } from "./static-search-results-reference.te
 import { largeVirtualListNode } from "./static-virtual-list-reference.test-data.js";
 import {
   referenceStepperNode,
+  referenceTabsNode,
   referenceWizardNode
 } from "./static-workflow-reference.test-data.js";
 
@@ -49,7 +50,7 @@ function referenceRoot(): JsonObject {
     $comp: "Composition",
     id: "root",
     label: "Reference",
-    $children: [referenceForm(), referenceDisclosure()]
+    $children: [referenceForm(), referenceDisclosure(), referenceTabsNode()]
   };
 }
 
