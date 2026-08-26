@@ -19,14 +19,14 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
 - Previous published progress checkpoint: `5735ec81b0d1b83ee1d688e6e42b5b75e55f74c3`
   (`docs: record native form checkpoint`).
-- Latest verified implementation checkpoint: `33d80faf35b6ccd85d12b68e93c66db4bcd07032`
-  (`feat: add native form structures`), pushed to `https://github.com/unislang/unifold.git` and
+- Latest verified implementation checkpoint: `5e15efd478c2249be198aa93e7c5f93d526e71f6`
+  (`feat: add JSON content media primitives`), pushed to `https://github.com/unislang/unifold.git` and
   independently verified at `refs/heads/main` with `git ls-remote`.
-- Current local slice: catalog-authoritative `Card` and `Image` primitives are implemented across
+- Current completed slice: catalog-authoritative `Card` and `Image` primitives are implemented across
   contracts, catalog sidecars, IR validation, deferred Lit definitions, package subpaths, static
   rendering/upgrade, the Scratch-style hierarchical JSON example, browser evidence, and an exact
-  100-pair performance gate. This slice is verified locally but is not a remote checkpoint until the
-  commit and `unifold` push recorded below complete.
+  100-pair performance gate. The implementation is committed and independently verified on the
+  `unifold` remote at the exact SHA above.
 - Goal status: active. This checkpoint does not complete the architecture plan; the authoritative
   inventory still lists NumberField, SearchField, CheckboxGroup, Switch, DateField, Toast, and
   Pagination as component-family gaps, followed by the
@@ -861,7 +861,9 @@ behavioral evidence; rerun Firefox when the managed runner can create a page rel
   the schema-2.26.0 benchmark passes 51/51 with 100 pairs at 3.57 ms p95/100 ms. The production
   reference passes at 184,204/184,320 gzip bytes and the example's pair is a separate 0.98 kB gzip
   chunk. Chromium/WebKit pass all new and existing applicable hierarchical/static cases; Firefox is
-  globally blocked before page creation by the current runner. Resume by keeping concurrent
-  AI/Studio files unstaged, committing/pushing the content-media allowlist below, updating this entry
-  with both local and remote SHAs, then selecting one of the seven remaining catalog gaps from
+  globally blocked before page creation by the current runner. The implementation is committed as
+  `5e15efd478c2249be198aa93e7c5f93d526e71f6`, pushed to
+  `https://github.com/unislang/unifold.git`, and independently verified at `refs/heads/main`. Resume
+  by preserving the concurrent AI/Studio worktree, reconciling its separate quality failures after
+  that workstream settles, then selecting one of the seven remaining catalog gaps from
   `docs/implementation-status.md`.
