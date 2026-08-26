@@ -17,11 +17,13 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest implementation checkpoint: `6dfc3d9` (`feat: govern document provenance and JsonUI parity`)
-- Verified implementation remote state: `origin/main` resolved to
-  `6dfc3d936fc92a46cb4edffb20714e5a73a6793d` after the implementation push.
-- Working tree: architecture slice 4 composition-identity hardening is implemented and validated
-  locally as described below; the remaining slice-4 migration and compilation work stays open.
+- Latest implementation checkpoint: `2b38399` (`feat: make composition identities reversible`)
+- Verified implementation remote state: the first push advanced `origin/main` to
+  `2b383996199391332cde78454702cb2eebc0981e`; the documentation commit that records this exact
+  state is pushed immediately afterward and independently verified.
+- Working tree: architecture slice 4 composition-identity hardening is implemented, validated,
+  committed, and pushed as described below; the remaining slice-4 migration and compilation work
+  stays open.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
@@ -213,7 +215,7 @@ Architecture slice 3 is implemented, fully validated, committed as `6dfc3d9`, an
 
 ### 2026-08-26 reversible composition-identity checkpoint
 
-The first architecture slice-4 hardening sub-slice is implemented and ready for checkpointing:
+The first architecture slice-4 hardening sub-slice is implemented and committed as `2b38399`:
 
 - Composition instance, template, nested, slot, and supplied-node identity segments now use
   canonical URI-component encoding before the readable `::` namespace is assembled. The codec
@@ -326,5 +328,6 @@ silently waived.
 - 2026-08-26: Implemented reversible composition identities, manifest-versioned one-to-one legacy
   aliases, IR/runtime validation, and atomic compatible dirty/focus migration. Full quality,
   333-file/853-test package coverage, complete tests, coverage, build, bundle, and clean-consumer
-  gates pass. The checkpoint is ready to commit and push; cross-version definition migrations and
-  measured composition compilation remain next.
+  gates pass. Committed the checkpoint as `2b38399` and pushed it to
+  `https://github.com/unislang/unifold.git`; cross-version definition migrations and measured
+  composition compilation remain next.
