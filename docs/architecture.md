@@ -112,8 +112,10 @@ classification; mutation tags invalidate local and cross-context caches. See
 
 Text received from storage, a server, import, or collaboration enters through
 `loadUnifoldDocument()`. A signed envelope is shape- and size-checked, then its Ed25519 signature is
-verified over the exact payload bytes before parsing. Only afterward may trusted, bounded, explicit
-schema migrations run; the migrated document still passes composition expansion and IR compilation.
+verified over the exact payload bytes before parsing. A governed host policy resolves the key's
+trusted issuer and active/revoked state, fingerprints exact payload bytes, and requires a validated
+metadata-only durable audit receipt. Only afterward may trusted, bounded, explicit schema migrations
+run; the migrated document still passes composition expansion and IR compilation.
 Unsigned local authoring requires an explicit policy value and is never a fallback for failed
 verification. Signatures establish integrity, not server authorization or executable capability.
 See [document trust, signatures, and migrations](./document-trust.md).

@@ -1,5 +1,5 @@
 import type { ComponentMap, JsonUINode } from "@jsonui/react";
-import type { ReactNode } from "react";
+import type { ChangeEventHandler, ReactNode } from "react";
 
 type OracleProps = JsonUINode & { readonly children?: ReactNode };
 
@@ -49,7 +49,7 @@ function visibleContent(type: string, props: OracleProps): ReactNode {
 }
 
 const visibleRenderers: Readonly<Record<string, (props: OracleProps) => ReactNode>> = {
-  Edit: (props) => <input aria-label={optionalString(props["label"])} readOnly />,
+  Edit: (props) => <OracleInput {...props} />,
   Text: (props) => optionalString(props["content"]),
   TextField: (props) => (
     <input
@@ -59,6 +59,40 @@ const visibleRenderers: Readonly<Record<string, (props: OracleProps) => ReactNod
     />
   )
 };
+
+function OracleInput(props: OracleProps) {
+  const error = fieldError(props);
+  return (
+    <input
+      aria-invalid={ariaInvalid(error)}
+      aria-label={optionalString(props["label"])}
+      data-parity-error={error}
+      data-parity-touched={touchedValue(props)}
+      onChange={changeHandler(props["onChange"])}
+      value={inputValue(props)}
+    />
+  );
+}
+
+function fieldError(props: OracleProps): string | undefined {
+  return optionalString(props.$ctx?.fieldErrors);
+}
+
+function ariaInvalid(error: string | undefined): "false" | "true" {
+  return error === undefined ? "false" : "true";
+}
+
+function touchedValue(props: OracleProps): string {
+  return String(Boolean(props.$ctx?.fieldTouched));
+}
+
+function inputValue(props: OracleProps): string {
+  return optionalString(props["value"]) ?? "";
+}
+
+function changeHandler(value: unknown): ChangeEventHandler<HTMLInputElement> | undefined {
+  return typeof value === "function" ? (value as ChangeEventHandler<HTMLInputElement>) : undefined;
+}
 
 function optionalString(value: unknown): string | undefined {
   return typeof value === "string" && value.length > 0 ? value : undefined;

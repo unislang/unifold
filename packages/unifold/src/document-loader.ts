@@ -9,7 +9,21 @@ import {
 
 import { prepareUnifoldDocument } from "./compiler.js";
 import {
+  DocumentLoadRejection,
+  auditDocumentLoad,
+  captureDocumentSignature,
+  createDocumentLoadEvidence,
+  rejectDocument as reject,
+  rejectDocumentLoad,
+  type DocumentLoadEvidence
+} from "./document-load-evidence.js";
+import {
+  fingerprintDocumentPayload,
+  resolveDocumentVerificationTrust
+} from "./document-provenance.js";
+import {
   UnifoldDocumentIntegrity,
+  UnifoldDocumentLoadAuditOutcome,
   UnifoldDocumentLoadDiagnosticCode,
   UnifoldDocumentLoadLimit,
   UnifoldDocumentLoadStatus,
@@ -18,16 +32,10 @@ import {
   type LoadedUnifoldDocumentResult,
   type LoadUnifoldDocumentOptions,
   type LoadUnifoldDocumentResult,
-  type UnifoldDocumentKeyResolver,
   type UnifoldDocumentProvenance
 } from "./document-loading-types.js";
 import { migrateUnifoldDocument } from "./document-migration.js";
-import {
-  UnifoldApplicationDiagnosticStage,
-  UnifoldPreparationStatus,
-  type PreparedUnifoldDocument,
-  type UnifoldApplicationDiagnostic
-} from "./types.js";
+import { UnifoldPreparationStatus, type PreparedUnifoldDocument } from "./types.js";
 
 interface ExtractedPayload {
   readonly payload: string;
@@ -36,49 +44,47 @@ interface ExtractedPayload {
 
 interface VerifiedIntegrity {
   readonly integrity: UnifoldDocumentIntegrity;
+  readonly issuer?: string;
   readonly keyId?: string;
-}
-
-class DocumentLoadRejection extends Error {
-  constructor(readonly diagnostics: readonly UnifoldApplicationDiagnostic[]) {
-    super(diagnostics[0]?.message ?? "Document loading was rejected.");
-  }
 }
 
 export async function loadUnifoldDocument(
   source: unknown,
   options: LoadUnifoldDocumentOptions
 ): Promise<LoadUnifoldDocumentResult> {
+  const evidence = createDocumentLoadEvidence(source);
   try {
-    return await loadVerifiedDocument(source, options);
+    return await loadVerifiedDocument(source, options, evidence);
   } catch (error) {
-    const diagnostics =
-      error instanceof DocumentLoadRejection
-        ? error.diagnostics
-        : [
-            loadDiagnostic(UnifoldDocumentLoadDiagnosticCode.EnvelopeInvalid, "Invalid input.", "/")
-          ];
-    return { diagnostics, status: UnifoldDocumentLoadStatus.Rejected };
+    return rejectDocumentLoad(error, options, evidence);
   }
 }
 
 async function loadVerifiedDocument(
   source: unknown,
-  options: LoadUnifoldDocumentOptions
+  options: LoadUnifoldDocumentOptions,
+  evidence: DocumentLoadEvidence
 ): Promise<LoadedUnifoldDocumentResult> {
   const extracted = extractPayload(source);
+  captureDocumentSignature(evidence, extracted.signature);
   assertPayloadSize(extracted.payload, options.maxPayloadBytes);
-  const verified = await verifyIntegrity(extracted, options);
+  evidence.payloadSha256 = await fingerprintDocumentPayload(extracted.payload);
+  const verified = await verifyIntegrity(extracted, options, evidence);
   const parsed = parsePayload(extracted.payload);
   const migration = migrateUnifoldDocument(parsed, options.migrations ?? []);
   const migrated = requireMigration(migration);
+  evidence.migrationCount = migrated.appliedMigrations.length;
   const prepared = requirePreparation(prepareUnifoldDocument(migrated.document));
-  return loaded(prepared, {
+  const provenance: UnifoldDocumentProvenance = {
     appliedMigrations: migrated.appliedMigrations,
     integrity: verified.integrity,
     originalSchemaVersion: migrated.originalSchemaVersion,
+    payloadSha256: evidence.payloadSha256,
+    ...verifiedIssuer(verified.issuer),
     ...verifiedKey(verified.keyId)
-  });
+  };
+  const audit = await auditDocumentLoad(options, evidence, UnifoldDocumentLoadAuditOutcome.Loaded);
+  return loaded(prepared, { ...provenance, ...(audit === undefined ? {} : { audit }) });
 }
 
 function extractPayload(source: unknown): ExtractedPayload {
@@ -89,17 +95,48 @@ function extractPayload(source: unknown): ExtractedPayload {
 
 async function verifyIntegrity(
   extracted: ExtractedPayload,
-  options: LoadUnifoldDocumentOptions
+  options: LoadUnifoldDocumentOptions,
+  evidence: DocumentLoadEvidence
 ): Promise<VerifiedIntegrity> {
-  if (extracted.signature === undefined) return unsignedIntegrity(options.trustRequirement);
-  const key = await resolveKey(extracted.signature, options.keyResolver);
-  const valid = await verifyPayload(extracted.payload, extracted.signature.value, key);
+  if (extracted.signature === undefined) return captureUnsignedIntegrity(options, evidence);
+  return verifySignedIntegrity(extracted.payload, extracted.signature, options, evidence);
+}
+
+function captureUnsignedIntegrity(
+  options: LoadUnifoldDocumentOptions,
+  evidence: DocumentLoadEvidence
+): VerifiedIntegrity {
+  const verified = unsignedIntegrity(options.trustRequirement);
+  evidence.integrity = verified.integrity;
+  return verified;
+}
+
+async function verifySignedIntegrity(
+  payload: string,
+  signature: UiDocumentSignature,
+  options: LoadUnifoldDocumentOptions,
+  evidence: DocumentLoadEvidence
+): Promise<VerifiedIntegrity> {
+  const trust = await resolveDocumentVerificationTrust(signature, options);
+  const valid = await verifyPayload(payload, signature.value, trust.key);
   if (!valid)
     reject(UnifoldDocumentLoadDiagnosticCode.SignatureInvalid, "Invalid signature.", "/signature");
+  const verified = signedIntegrity(signature.keyId, trust.issuer);
+  captureSignedEvidence(evidence, verified);
+  return verified;
+}
+
+function signedIntegrity(keyId: string, issuer: string | undefined): VerifiedIntegrity {
   return {
     integrity: UnifoldDocumentIntegrity.VerifiedSignature,
-    keyId: extracted.signature.keyId
+    ...(issuer === undefined ? {} : { issuer }),
+    keyId
   };
+}
+
+function captureSignedEvidence(evidence: DocumentLoadEvidence, verified: VerifiedIntegrity): void {
+  evidence.integrity = verified.integrity;
+  if (verified.issuer !== undefined) evidence.issuer = verified.issuer;
 }
 
 function unsignedIntegrity(requirement: UnifoldDocumentTrustRequirement): VerifiedIntegrity {
@@ -111,32 +148,6 @@ function unsignedIntegrity(requirement: UnifoldDocumentTrustRequirement): Verifi
     );
   }
   return { integrity: UnifoldDocumentIntegrity.Unsigned };
-}
-
-async function resolveKey(
-  signature: UiDocumentSignature,
-  resolver: UnifoldDocumentKeyResolver | undefined
-): Promise<CryptoKey> {
-  if (resolver === undefined) return rejectKey(signature.keyId);
-  return resolveKnownKey(signature, resolver);
-}
-
-async function resolveKnownKey(
-  signature: UiDocumentSignature,
-  resolver: UnifoldDocumentKeyResolver
-): Promise<CryptoKey> {
-  try {
-    return requireKey(
-      await resolver.resolve(signature.keyId, signature.algorithm),
-      signature.keyId
-    );
-  } catch {
-    return rejectKey(signature.keyId);
-  }
-}
-
-function requireKey(key: CryptoKey | undefined, keyId: string): CryptoKey {
-  return key ?? rejectKey(keyId);
 }
 
 async function verifyPayload(payload: string, encoded: string, key: CryptoKey): Promise<boolean> {
@@ -274,24 +285,8 @@ function verifiedKey(keyId: string | undefined): { readonly verifiedKeyId?: stri
   return keyId === undefined ? {} : { verifiedKeyId: keyId };
 }
 
-function rejectKey(keyId: string): never {
-  return reject(
-    UnifoldDocumentLoadDiagnosticCode.KeyResolutionFailed,
-    `No trusted verification key is available for ${keyId}.`,
-    "/signature/keyId"
-  );
-}
-
-function reject(code: UnifoldDocumentLoadDiagnosticCode, message: string, path: string): never {
-  throw new DocumentLoadRejection([loadDiagnostic(code, message, path)]);
-}
-
-function loadDiagnostic(
-  code: UnifoldDocumentLoadDiagnosticCode,
-  message: string,
-  path: string
-): UnifoldApplicationDiagnostic {
-  return { code, message, path, stage: UnifoldApplicationDiagnosticStage.DocumentLoading };
+function verifiedIssuer(issuer: string | undefined): { readonly verifiedIssuer?: string } {
+  return issuer === undefined ? {} : { verifiedIssuer: issuer };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

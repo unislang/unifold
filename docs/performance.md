@@ -34,7 +34,7 @@ revision instead of failing the measurement. The Chromium scale journey writes
 
 ## Current local observation
 
-On 2026-08-25, Node 22.14.0 on Windows x64 with an AMD Ryzen 9 9950X produced these descriptive
+On 2026-08-25 and 2026-08-26, Node 22.14.0 on Windows x64 with an AMD Ryzen 9 9950X produced these descriptive
 results. They are evidence from a developer workstation, not ratified release thresholds.
 
 | Workload                                    |       p50 |       p95 |       p99 |
@@ -79,6 +79,8 @@ results. They are evidence from a developer workstation, not ratified release th
 | 1k SQLite outbox lease and acknowledgement  |  14.48 ms |  30.66 ms |  30.66 ms |
 | 1k authorized async store commits           |  58.10 ms |  75.43 ms |  75.43 ms |
 | 1k mounted external store projections       |  75.03 ms | 104.28 ms | 104.28 ms |
+| 1k governed signed document loads           | 187.39 ms | 236.73 ms | 236.73 ms |
+| 1k revoked document denials                 |  40.20 ms |  42.58 ms |  42.58 ms |
 
 Five create/edit/dispose cycles of a selection-free 10,000-node store retained 7.41 MiB after forced
 garbage collection, below the provisional 64 MiB leak-sentinel ceiling; peak observed heap was
@@ -108,9 +110,9 @@ emits exactly 25 typed commands, and leaves every unrelated chain unchanged. Its
 p95 is below the provisional 4 ms target on the current workstation. The combined public-runtime
 fixture proves one commit spans the leaf edit, three synchronous validations (leaf, group, form),
 two ancestor aggregates, 20 transitive rule commands, and committed-revision selector delivery.
-Its 1.15 ms p95 is below the provisional 8 ms target. All thirty-five timing limits and the lifecycle
+Its 1.15 ms p95 is below the provisional 8 ms target. All thirty-seven timing limits and the lifecycle
 limit are executable benchmark gates and are included with actual/limit/pass fields in the
-schema-2.15.0 machine-readable report; the current run passes all 36/36.
+schema-2.16.0 machine-readable report; the current run passes all 38/38.
 The report also contains a 50-sample paired selection-overhead profile. It alternates measurement
 order between identical 10,000-node stores with zero and 2,000 indexed selections and subtracts
 their five-edit batch medians. This removes shared transaction work without assigning an unrelated
@@ -230,6 +232,13 @@ against 5,000 ms, requiring exactly 1,000 normalized transactions, the exact fin
 provider commit echoes. Unit and Chromium/WebKit journeys additionally cover pre-render atomic
 connection, delayed effect settlement, optional first revision, rollback, subscription conflicts,
 external projection, and disposal.
+
+The governed document fixture loads the same signed two-node document 1,000 times through the
+public provenance policy and measured 187.39/236.73/236.73 ms p50/p95/p99 against a 5,000 ms gate.
+It then rejects the same envelope 1,000 times with a revoked trusted key in
+40.20/42.58/42.58 ms against a 1,000 ms gate. Five samples require exact prepared node counts,
+issuer/key/hash/receipt evidence, stable revocation diagnostics, and exactly one metadata-only audit
+receipt per operation; those correctness conditions are part of each executable gate.
 
 Ratification still requires a provisioned, versioned mid-tier runner. Developer-workstation timing
 remains descriptive even though benchmark execution now rejects any provisional p95 limit or the

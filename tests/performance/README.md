@@ -61,6 +61,11 @@ external snapshot projections through a mounted one-control application. Five sa
 at or below 2,000 ms and 5,000 ms respectively while proving the advancing revision, exact final
 value, exactly 1,000 normalized projection transactions, and zero provider write echoes.
 
+An exact governed-document fixture performs 1,000 signed document loads and 1,000 revoked-key
+denials per sample through the public loader. Five samples require p95 at or below 5,000 ms and
+1,000 ms respectively while proving exact compilation, issuer/key/hash/receipt evidence, stable
+revocation diagnostics, and one metadata-only durable-audit receipt per operation.
+
 An exact 10,000-row MasterDetail document adds twenty post-warm-up startup and selection samples.
 Its gates require startup p95 at or below 1,000 ms, selection p95 at or below 100 ms, no more than
 200 rendered master options, the expected canonical selected row, and the matching detail content.

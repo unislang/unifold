@@ -22,8 +22,10 @@ critical seam; it is not yet the full catalog or Studio product described by the
   schema/enum agreement test, and IR provenance field prevent silent dialect drift or a second store.
   A test-only real-upstream parity workspace pins package integrity and source revision, verifies
   copied-fixture SHA-256 provenance, and compares supported trees against the Unifold IR in Chromium,
-  Firefox, and WebKit. Its measured isolated production-profile cost is 5.88 kB minified/1.76 kB
-  gzip. The current complete reference is 179.52 KiB gzip against the executable 180 KiB Phase 1
+  Firefox, and WebKit. A behavioral case additionally compares binding and touched-validation
+  outcomes and verifies Unifold's exact redacted canonical event chain in Chromium/WebKit. Its
+  measured isolated production-profile cost is 5.88 kB minified/1.76 kB
+  gzip. The current complete reference is 179.51 KiB gzip against the executable 180 KiB Phase 1
   budget.
 - Typed `UiStoreDefinition` contracts and a Unifold `store`/`path` profile extension. The compiler
   validates unique definitions, enum-backed policy, embedded local-only Draft 2020-12 schemas,
@@ -94,6 +96,12 @@ critical seam; it is not yet the full catalog or Studio product described by the
   and enters the existing composition/IR compiler. Missing keys, tampering, invalid JSON, duplicate
   or missing migration edges, cycles, budget exhaustion, exceptions, invalid outputs, and ordinary
   compiler rejection fail without partial IR.
+- An optional governed document-provenance policy resolves trusted issuer and active/revoked key
+  state before verification, adds exact payload SHA-256 evidence, records metadata-only acceptance
+  or denial through a host audit port, validates bounded canonical receipts, and fails closed on
+  resolver, metadata, revocation, audit, or receipt failure without leaking provider details. Its
+  exact five-sample performance fixture passes 1,000 accepted loads at 236.73 ms p95 against 5,000
+  ms and 1,000 revoked denials at 42.58 ms against 1,000 ms, with one audited receipt per operation.
 - A published current compatibility matrix distinguishing private package placeholders from durable
   JSON/protocol versions. Unsupported versions reject exactly; the generic document migration engine
   now also rejects non-JSON, cyclic, and post-migration outputs over the one-megabyte document limit.
@@ -206,9 +214,10 @@ critical seam; it is not yet the full catalog or Studio product described by the
    authorization, two-adapter conformance, mounted-runtime integration, browser lifecycle evidence,
    and exact 1,000-operation gates without weakening normalized UI-state ownership. Production
    promotion still requires connector credentials, offline/retry policy, and operational evidence.
-3. Publish actual profile migration edges only when a successor schema exists, expand document
-   provenance with issuer/revocation/audit integration, and extend parity to binding, validation, and
-   canonical event semantics before any React adapter.
+3. Completed locally: governed issuer/revocation/audit document provenance and a real-upstream
+   binding/validation plus redacted canonical-event behavioral oracle are executable. No fabricated
+   profile migration is published because `unifold-jsonui@1.0.0` still has no successor; the first
+   successor must add its reviewed edge and golden/recovery fixtures in the same release.
 4. Harden the initial composition slice with reversible ID encoding, explicit version migrations,
    and measured incremental compilation; then add combobox/autocomplete, menus, overlays, tabs,
    navigation, upload, and variable-height or two-dimensional virtualization. See
@@ -268,7 +277,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
   identity, and pre-render adapter rejection. The default runtime stream applies
   classification-aware public-safe disclosure.
 - Client-side validation and application coordination contribute materially to the reference bundle.
-  The current reference closure is 179.52 KiB gzip and remains below the executable 180 KiB gate,
+  The current reference closure is 179.51 KiB gzip and remains below the executable 180 KiB gate,
   which sums every emitted JavaScript chunk after each reference build. Preserve the `/validation`
   split and evaluate schema
   precompilation, build-time validation, or an explicit lazy authoring/compiler boundary before

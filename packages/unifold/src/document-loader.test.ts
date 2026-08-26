@@ -11,10 +11,14 @@ import { authoredDocument } from "./application.test-data.js";
 import { loadUnifoldDocument } from "./document-loader.js";
 import {
   UnifoldDocumentIntegrity,
+  UnifoldDocumentKeyStatus,
+  UnifoldDocumentLoadAuditOutcome,
   UnifoldDocumentLoadDiagnosticCode,
   UnifoldDocumentLoadStatus,
+  UnifoldDocumentSourceKind,
   UnifoldDocumentTrustRequirement,
   type UnifoldDocumentKeyResolver,
+  type UnifoldDocumentLoadAuditRecord,
   type UnifoldDocumentMigration
 } from "./document-loading-types.js";
 
@@ -41,6 +45,65 @@ it("verifies exact signed payload bytes before compiling", async () => {
   if (result.status !== UnifoldDocumentLoadStatus.Loaded) return;
   expect(result.provenance.integrity).toBe(UnifoldDocumentIntegrity.VerifiedSignature);
   expect(result.provenance.verifiedKeyId).toBe("release-key-1");
+});
+
+it("binds active issuer, payload fingerprint, and durable audit receipt to provenance", async () => {
+  const keys = await signingKeys();
+  const records: UnifoldDocumentLoadAuditRecord[] = [];
+  const envelope = await signedEnvelope(JSON.stringify(authoredDocument()), keys.privateKey);
+  const result = await loadUnifoldDocument(envelope, provenanceOptions(keys.publicKey, records));
+  expect(result.status).toBe(UnifoldDocumentLoadStatus.Loaded);
+  if (result.status !== UnifoldDocumentLoadStatus.Loaded) return;
+  expect(result.provenance).toMatchObject({
+    audit: { recordId: "document-audit-1", recordedAt: "2026-08-26T08:00:00.000Z" },
+    payloadSha256: expect.stringMatching(/^[a-f\d]{64}$/u),
+    verifiedIssuer: "https://issuer.example",
+    verifiedKeyId: "release-key-1"
+  });
+  expect(records).toEqual([
+    expect.objectContaining({
+      integrity: UnifoldDocumentIntegrity.VerifiedSignature,
+      issuer: "https://issuer.example",
+      keyId: "release-key-1",
+      migrationCount: 0,
+      outcome: UnifoldDocumentLoadAuditOutcome.Loaded,
+      sourceKind: UnifoldDocumentSourceKind.SignedEnvelope
+    })
+  ]);
+  expect(records[0]).not.toHaveProperty("payload");
+  expect(records[0]).not.toHaveProperty("signature");
+});
+
+it("rejects revoked issuer keys before parsing and records the denial", async () => {
+  const keys = await signingKeys();
+  const records: UnifoldDocumentLoadAuditRecord[] = [];
+  const envelope = await signedEnvelope("not-json", keys.privateKey);
+  const result = await loadUnifoldDocument(
+    envelope,
+    provenanceOptions(keys.publicKey, records, UnifoldDocumentKeyStatus.Revoked)
+  );
+  expect(diagnosticCode(result)).toBe(UnifoldDocumentLoadDiagnosticCode.KeyRevoked);
+  expect(records).toEqual([
+    expect.objectContaining({
+      diagnosticCode: UnifoldDocumentLoadDiagnosticCode.KeyRevoked,
+      issuer: "https://issuer.example",
+      keyId: "release-key-1",
+      outcome: UnifoldDocumentLoadAuditOutcome.Rejected
+    })
+  ]);
+});
+
+it("fails closed when a successful load cannot produce an audit receipt", async () => {
+  const keys = await signingKeys();
+  const records: UnifoldDocumentLoadAuditRecord[] = [];
+  const options = provenanceOptions(keys.publicKey, records);
+  vi.mocked(options.provenancePolicy.audit.record).mockRejectedValueOnce(
+    new Error("private audit failure")
+  );
+  const envelope = await signedEnvelope(JSON.stringify(authoredDocument()), keys.privateKey);
+  const result = await loadUnifoldDocument(envelope, options);
+  expect(diagnosticCode(result)).toBe(UnifoldDocumentLoadDiagnosticCode.AuditFailed);
+  expect(options.provenancePolicy.audit.record).toHaveBeenCalledOnce();
 });
 
 it("rejects signed payload tampering", async () => {
@@ -128,6 +191,34 @@ function keyResolver(publicKey: CryptoKey): UnifoldDocumentKeyResolver {
         ? publicKey
         : undefined
   };
+}
+
+function provenanceOptions(
+  publicKey: CryptoKey,
+  records: UnifoldDocumentLoadAuditRecord[],
+  status = UnifoldDocumentKeyStatus.Active
+) {
+  return {
+    provenancePolicy: {
+      audit: {
+        record: vi.fn(async (record: UnifoldDocumentLoadAuditRecord) => {
+          records.push(record);
+          return {
+            recordId: "document-audit-1",
+            recordedAt: "2026-08-26T08:00:00.000Z"
+          };
+        })
+      },
+      trustResolver: {
+        resolve: vi.fn(async () => ({
+          issuer: "https://issuer.example",
+          key: publicKey,
+          status
+        }))
+      }
+    },
+    trustRequirement: UnifoldDocumentTrustRequirement.RequireSignature
+  } as const;
 }
 
 function migration(migrate: UnifoldDocumentMigration["migrate"]): UnifoldDocumentMigration {

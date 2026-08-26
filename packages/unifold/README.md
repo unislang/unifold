@@ -59,8 +59,10 @@ document; subtree compilation is reserved for a measured performance optimizatio
 Remote or governed documents should enter through asynchronous `loadAndMountUnifoldApplication()`
 rather than through a pre-parsed object. The loader enforces a byte budget, optionally requires a detached
 Ed25519 signature, verifies the original payload before JSON parsing, applies only host-registered
-bounded migrations, and then calls the same preparation/compiler boundary. Unsigned loading must be
-selected explicitly for trusted local authoring. See
+bounded migrations, and then calls the same preparation/compiler boundary. A governed
+`provenancePolicy` additionally resolves trusted issuer/revocation metadata, fingerprints exact
+payload bytes, emits metadata-only load evidence, and requires a validated audit receipt before
+acceptance. Unsigned loading must be selected explicitly for trusted local authoring. See
 [document trust and migrations](../../docs/document-trust.md).
 
 Hosts can provide trusted `storeAdapters` at mount. Unifold validates each adapter's version and
@@ -78,8 +80,9 @@ without changing synchronous mount behavior. It supports exact trusted migration
 revision/idempotency-based commits, cancellation, validated subscriptions, and explicit
 `reject-concurrent` or `external-wins` policy. `createAsyncMemoryStoreAdapter()` and
 `createAsyncKeyValueStoreAdapter()` pass the same conformance suite; the latter uses an injected
-atomic compare-and-set port and bounded versioned JSON envelopes. Automatic projection of these
-sessions into a mounted application is still a release gate.
+atomic compare-and-set port and bounded versioned JSON envelopes. `mountUnifoldApplicationAsync()`
+connects all declared sessions before render, serializes commits, compensates failed optimistic
+values, and projects validated external snapshots without write echoes.
 
 The bubbling DOM `unifold-event` is a trusted, value-bearing ingress message. Subscribe to
 `application.runtime.events$` for classification-aware public-safe facts: non-public data and every

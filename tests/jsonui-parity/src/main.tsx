@@ -19,6 +19,7 @@ import { createRoot } from "react-dom/client";
 
 import officialQuickExample from "../fixtures/upstream/official-quick-example.json" with { type: "json" };
 import { PARITY_CASES } from "./cases.js";
+import { BEHAVIOR_PARITY_CASE_ID, mountBehaviorParity } from "./behavior-parity.js";
 import { normalizeAuthored, normalizeIr } from "./normalize.js";
 import { oracleComponents } from "./oracle-components.js";
 import { ParityPreparationStatus, type ParityCaseResult } from "./types.js";
@@ -32,7 +33,8 @@ PARITY_CASES.filter(({ id }) => requestedCase === null || id === requestedCase).
 if (requestedCase === null || requestedCase === "official-readme-quick-example") {
   mountCase("official-readme-quick-example", officialQuickExample as JsonUINode, true);
 }
-window.__jsonUiParity = { cases: results };
+const behavior = requestedCase === BEHAVIOR_PARITY_CASE_ID ? mountBehaviorParity(root) : undefined;
+window.__jsonUiParity = { cases: results, ...(behavior === undefined ? {} : { behavior }) };
 
 function mountCase(id: string, view: JsonUINode, upstreamOnly = false): void {
   const section = document.createElement("section");

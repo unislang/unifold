@@ -18,7 +18,30 @@ export interface ParityCaseResult {
   readonly status: ParityPreparationStatus;
 }
 
+export interface NormalizedCanonicalEvent {
+  readonly causationId?: string;
+  readonly commandType?: string;
+  readonly correlationId: string;
+  readonly disclosureMode?: string;
+  readonly hasSnapshot: boolean;
+  readonly id: string;
+  readonly phase: string;
+  readonly redactionReason?: string;
+  readonly sequence: number;
+  readonly source: string;
+  readonly sourceNodeId?: string;
+  readonly stateRevision: number;
+  readonly transactionId: string;
+  readonly type: string;
+}
+
+export interface BehaviorParityResult {
+  readonly canonicalEvents: readonly NormalizedCanonicalEvent[];
+  readonly unifoldStoreValue: string;
+}
+
 interface JsonUiParityResults {
+  readonly behavior?: BehaviorParityResult;
   readonly cases: Readonly<Record<string, ParityCaseResult>>;
 }
 

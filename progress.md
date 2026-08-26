@@ -18,10 +18,10 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
 - Latest implementation checkpoint: `c437e21` (`feat: mount async stores in runtime`)
-- Verified remote state: `origin/main` and local `HEAD` matched at
-  `c437e212cdc2f34c0fa80982a15e8eb195796b01` after the implementation push.
-- Working tree after that implementation checkpoint was clean; this resumability update is the only
-  subsequent change.
+- Verified pre-slice remote state: `origin/main` and local `HEAD` matched at
+  `9156049fc856e3d6432ca13a9894acc3460e6dbd` before the work below.
+- Working tree: architecture slice 3 is implemented and fully validated locally as described below;
+  only the checkpoint commit/push and its remote verification remain pending.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
@@ -54,12 +54,12 @@ record new measurements rather than treating the numbers above as proof for late
 
 ## Active slice
 
-The framework-owned portion of architecture slice 2, async/external store adapters, is complete and
-pushed. Resume with slice 3 in
-[`docs/implementation-status.md`](./docs/implementation-status.md#next-architecture-slices): actual
-profile migration edges when a successor exists, richer issuer/revocation/audit provenance, and
-binding/validation/canonical-event parity. Production provisioning of slices 1 and 2 remains a
-separate external-environment release gate rather than unfinished local framework code.
+Architecture slice 3 is implemented and fully validated locally. After the pending checkpoint push,
+continue with slice 4 in
+[`docs/implementation-status.md`](./docs/implementation-status.md#next-architecture-slices):
+reversible composition identity encoding, explicit successor migrations, incremental compilation,
+and the next interaction families. Production provisioning of slices 1 and 2 remains a separate
+external-environment release gate rather than unfinished local framework code.
 
 ### 2026-08-26 durability checkpoint
 
@@ -174,13 +174,51 @@ pushed to `origin/main`:
   async commits at 75.43 ms p95 against 2,000 ms and 1,000 mounted external projections at 104.28 ms
   p95 against 5,000 ms, with exact revisions/final values and zero provider write echoes.
 
+### 2026-08-26 document-provenance and behavioral-parity checkpoint
+
+Architecture slice 3 is implemented, fully validated locally, and awaiting its checkpoint commit:
+
+- Every accepted document now carries the SHA-256 of its exact pre-parse payload bytes. An optional
+  governed provenance policy resolves a host-trusted issuer plus active/revoked Ed25519 key state,
+  rejects revocation before verification or parsing, and forbids simultaneous legacy/policy
+  resolvers.
+- Governed loading records metadata-only acceptance or denial evidence through a host audit port.
+  Audit records omit payload/signature bytes; bounded IDs and canonical UTC receipts are validated,
+  and missing, malformed, or failed audit receipts fail a would-be successful load closed.
+- Provider exceptions are contained behind stable diagnostics. Successful results expose verified
+  issuer/key identity, payload fingerprint, applied migrations, and the durable audit receipt.
+- The real pinned upstream JsonUI runner now exercises simplified `store`/`path` actions and AJV
+  validation beside the corresponding declared Unifold store and required-rule behavior. It proves
+  equal initial/edited values and touched valid/invalid outcomes without installing upstream state
+  as Unifold authority.
+- The same browser case requires the exact six-event Unifold input chain, source/correlation/
+  causation/transaction identity, contiguous runtime sequence, exact revision, and metadata-only
+  disclosure without snapshots. The full Chromium/WebKit parity matrix passes 18/18 cases.
+  Firefox fails all 9 old and new cases before page creation with the existing elevated-Windows
+  runner error; this is unchanged environment evidence rather than a behavior regression.
+- The scoped `@unislang/unifold` source typecheck and 29-file/136-test suite pass. Changed-file
+  ESLint, strict repository test typechecking, file-size, and colocated-test gates pass.
+- Complete repository quality passes, including lint, all source/test typechecks, Knip, and
+  dependency rules over 1,377 modules and 3,081 edges. The full test command passes; its package
+  matrix is 331 files/843 tests and the performance correctness matrix is 28 tests.
+- Coverage passes at 97.20% lines/statements, 97.01% functions, and 90.03% branches. The full build,
+  formatting, duplication threshold, and clean packed-consumer lifecycle pass; the reference
+  JavaScript is 179.51 KiB gzip against the executable 180 KiB limit.
+- Benchmark report schema 2.16.0 passes all 38/38 gates. Five exact samples measured 1,000 governed
+  signed loads at 236.73 ms p95 against 5,000 ms and 1,000 revoked denials at 42.58 ms against 1,000
+  ms, proving exact outcomes and 1,000 metadata-only audit receipts for each path in every sample.
+- No JsonUI profile migration edge was invented: `unifold-jsonui@1.0.0` still has no successor. The
+  first real successor must ship its reviewed exact edge, golden fixtures, failure/recovery cases,
+  compatibility range, and rollback guidance together.
+
 ## Immediate resume procedure
 
-1. Read this file, `docs/implementation-status.md`, and the provenance/parity sections of the
-   architecture plan for the next local slice.
+1. Read this file, `docs/implementation-status.md`, and the composition sections of the architecture
+   plan for slice 4.
 2. Inspect `git status --short --branch` and preserve any post-checkpoint user changes.
-3. Verify the mounted async-store commit and remote `main`, then begin implementation-status slice
-   3 without reopening completed store ownership decisions.
+3. Confirm the slice-3 checkpoint is present on `origin/main`, then implement reversible composition
+   identity encoding, real successor migrations only where versions exist, and incremental
+   compilation evidence. Preserve the Firefox runner limitation as external release evidence.
 4. Keep production modules and their adjacent tests within the enforced complexity, function-length,
    file-length, and one-test-per-module limits.
 5. Use `apply_patch` for edits. Run Prettier before assuming a diff is ready.
@@ -245,3 +283,9 @@ silently waived.
   local matrix passes. Committed the implementation as `c437e21`, pushed it to
   `https://github.com/unislang/unifold.git`, and independently verified remote `main` at
   `c437e212cdc2f34c0fa80982a15e8eb195796b01`.
+- 2026-08-26: Implemented governed document issuer/revocation/audit provenance and expanded the real
+  upstream JsonUI browser oracle to binding, touched validation, and exact redacted canonical-event
+  semantics. Added exact accepted/revoked provenance workload gates, regenerated the schema-2.16.0
+  38/38 report, and passed complete quality, 331-file/843-test package coverage, performance,
+  coverage, build, packed-consumer, formatting, duplication, and Chromium/WebKit parity matrices.
+  The checkpoint commit and push are the only remaining actions for this slice.

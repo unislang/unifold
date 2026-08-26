@@ -30,7 +30,38 @@ const controlPlaneDurabilityPath = resolve(
   "control-plane-durability-performance.raw.json"
 );
 const asyncStorePath = resolve(resultDirectory, "async-store-performance.raw.json");
+const documentProvenancePath = resolve(resultDirectory, "document-provenance-performance.raw.json");
 const finalPath = resolve(resultDirectory, "selective-rendering.json");
+const profileRuns = [
+  ["performance-profile.test.ts", "UNIFOLD_PERFORMANCE_PROFILE_OUTPUT", profilePath],
+  ["lifecycle-memory-profile.test.ts", "UNIFOLD_LIFECYCLE_MEMORY_OUTPUT", lifecycleMemoryPath],
+  ["virtual-list-profile.test.ts", "UNIFOLD_VIRTUAL_LIST_OUTPUT", virtualListPath],
+  ["table-profile.test.ts", "UNIFOLD_TABLE_OUTPUT", tablePath],
+  ["data-grid-profile.test.ts", "UNIFOLD_DATA_GRID_OUTPUT", dataGridPath],
+  ["master-detail-profile.test.ts", "UNIFOLD_MASTER_DETAIL_OUTPUT", masterDetailPath],
+  ["search-results-profile.test.ts", "UNIFOLD_SEARCH_RESULTS_OUTPUT", searchResultsPath],
+  ["workflow-navigation-profile.test.ts", "UNIFOLD_WORKFLOW_OUTPUT", workflowPath],
+  ["audit-log-profile.test.ts", "UNIFOLD_AUDIT_LOG_OUTPUT", auditLogPath],
+  ["data-actor-profile.test.ts", "UNIFOLD_DATA_ACTOR_OUTPUT", dataActorPath],
+  ["collaboration-profile.test.ts", "UNIFOLD_COLLABORATION_OUTPUT", collaborationPath],
+  ["devtools-profile.test.ts", "UNIFOLD_DEVTOOLS_OUTPUT", devtoolsPath],
+  [
+    "control-plane-durability-profile.test.ts",
+    "UNIFOLD_CONTROL_PLANE_DURABILITY_OUTPUT",
+    controlPlaneDurabilityPath
+  ],
+  [
+    "control-plane-transport-profile.test.ts",
+    "UNIFOLD_CONTROL_PLANE_TRANSPORT_OUTPUT",
+    controlPlaneTransportPath
+  ],
+  ["async-store-profile.test.ts", "UNIFOLD_ASYNC_STORE_OUTPUT", asyncStorePath],
+  [
+    "document-provenance-profile.test.ts",
+    "UNIFOLD_DOCUMENT_PROVENANCE_OUTPUT",
+    documentProvenancePath
+  ]
+];
 
 await mkdir(resultDirectory, { recursive: true });
 runVitest();
@@ -55,6 +86,7 @@ const controlPlaneDurabilityPerformance = JSON.parse(
   await readFile(controlPlaneDurabilityPath, "utf8")
 );
 const asyncStorePerformance = JSON.parse(await readFile(asyncStorePath, "utf8"));
+const documentProvenancePerformance = JSON.parse(await readFile(documentProvenancePath, "utf8"));
 const profile = {
   ...measuredProfile,
   gates: [
@@ -72,7 +104,8 @@ const profile = {
     ...devtoolsPerformance.gates,
     ...controlPlaneDurabilityPerformance.gates,
     ...controlPlaneTransportPerformance.gates,
-    ...asyncStorePerformance.gates
+    ...asyncStorePerformance.gates,
+    ...documentProvenancePerformance.gates
   ],
   asyncStorePerformance,
   auditLogPerformance,
@@ -80,6 +113,7 @@ const profile = {
   controlPlaneDurabilityPerformance,
   controlPlaneTransportPerformance,
   devtoolsPerformance,
+  documentProvenancePerformance,
   dataActorPerformance,
   lifecycleMemory,
   dataGridPerformance,
@@ -94,7 +128,7 @@ const report = {
   environment: environmentMetadata(),
   generatedAt: new Date().toISOString(),
   profile,
-  schemaVersion: "2.15.0"
+  schemaVersion: "2.16.0"
 };
 await writeFile(finalPath, `${JSON.stringify(report, null, 2)}\n`);
 process.stdout.write(`Benchmark report: ${finalPath}\n`);
@@ -108,32 +142,7 @@ function runVitest() {
 }
 
 function runProfile() {
-  const profiles = [
-    ["performance-profile.test.ts", "UNIFOLD_PERFORMANCE_PROFILE_OUTPUT", profilePath],
-    ["lifecycle-memory-profile.test.ts", "UNIFOLD_LIFECYCLE_MEMORY_OUTPUT", lifecycleMemoryPath],
-    ["virtual-list-profile.test.ts", "UNIFOLD_VIRTUAL_LIST_OUTPUT", virtualListPath],
-    ["table-profile.test.ts", "UNIFOLD_TABLE_OUTPUT", tablePath],
-    ["data-grid-profile.test.ts", "UNIFOLD_DATA_GRID_OUTPUT", dataGridPath],
-    ["master-detail-profile.test.ts", "UNIFOLD_MASTER_DETAIL_OUTPUT", masterDetailPath],
-    ["search-results-profile.test.ts", "UNIFOLD_SEARCH_RESULTS_OUTPUT", searchResultsPath],
-    ["workflow-navigation-profile.test.ts", "UNIFOLD_WORKFLOW_OUTPUT", workflowPath],
-    ["audit-log-profile.test.ts", "UNIFOLD_AUDIT_LOG_OUTPUT", auditLogPath],
-    ["data-actor-profile.test.ts", "UNIFOLD_DATA_ACTOR_OUTPUT", dataActorPath],
-    ["collaboration-profile.test.ts", "UNIFOLD_COLLABORATION_OUTPUT", collaborationPath],
-    ["devtools-profile.test.ts", "UNIFOLD_DEVTOOLS_OUTPUT", devtoolsPath],
-    [
-      "control-plane-durability-profile.test.ts",
-      "UNIFOLD_CONTROL_PLANE_DURABILITY_OUTPUT",
-      controlPlaneDurabilityPath
-    ],
-    [
-      "control-plane-transport-profile.test.ts",
-      "UNIFOLD_CONTROL_PLANE_TRANSPORT_OUTPUT",
-      controlPlaneTransportPath
-    ],
-    ["async-store-profile.test.ts", "UNIFOLD_ASYNC_STORE_OUTPUT", asyncStorePath]
-  ];
-  profiles.forEach(([testFile, environmentKey, outputPath]) =>
+  profileRuns.forEach(([testFile, environmentKey, outputPath]) =>
     runNamedProfile(vitestExecutable, testFile, environmentKey, outputPath)
   );
 }

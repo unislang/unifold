@@ -91,6 +91,12 @@ repository and installs packed Unifold tarballs before repeating it in Chromium.
 `PLAYWRIGHT_HOST_PARITY_BASE_URL` for an external build or `PLAYWRIGHT_HOST_PARITY_PORT` to override
 the strict local port.
 
+The pinned JsonUI parity matrix runs the real upstream React artifact beside Unifold. In addition to
+tree/IR/static-output cases, its behavioral case drives upstream shorthand binding and AJV
+validation against Unifold's declared store and required validation behavior, then verifies the
+exact redacted canonical event chain. Run it with `pnpm test:jsonui-parity`; use explicit Chromium
+and WebKit projects when auditing the documented elevated-Windows Firefox runner limitation.
+
 The deterministic 1k/10k node-store suite asserts exact selective-dispatch and aggregate-validation
 behavior on every machine. The separate benchmark emits direct p50/p95/p99 and forced-GC heap JSON;
 its timings remain descriptive until its runner and budgets are ratified, while the provisional heap
@@ -189,6 +195,10 @@ The async-store fixture executes exactly 1,000 authorized optimistic session com
 revisions, the exact final value, zero provider write echoes, and executable p95 limits of 2,000 ms
 and 5,000 ms respectively. The typed-store Playwright journey separately proves pre-render
 hydration, local async settlement, external DOM/runtime projection, and disposal behavior.
+The governed-document fixture executes exactly 1,000 accepted signed loads and exactly 1,000
+revoked-key denials per sample through the public loader. Its 5,000/1,000 ms p95 gates also require
+exact compilation or stable denial diagnostics, verified issuer/key/hash/receipt evidence for every
+acceptance, and one metadata-only durable-audit receipt for every operation.
 The Chromium scale journey complements the Node suite by observing all 1,000 or 10,000 rendered
 hosts in one page-context pass. It requires one render-counter mutation, unchanged unrelated counts,
 retained element and shadow-input identity/focus, canonical event order, and an exact one-node commit.

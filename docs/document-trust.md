@@ -4,14 +4,17 @@ Unifold provides one explicit ingress boundary for JSON received as text or as a
 `loadUnifoldDocument()` applies this order:
 
 1. validate the envelope shape and payload byte budget;
-2. resolve a trusted public key and verify the Ed25519 signature over the exact UTF-8 payload;
+2. resolve a trusted public key (and, for governed loading, its issuer and revocation state), then
+   verify the Ed25519 signature over the exact UTF-8 payload;
 3. parse JSON;
 4. apply a bounded chain of host-registered pure migrations;
-5. expand compositions and compile through the normal Unifold IR boundary.
+5. expand compositions and compile through the normal Unifold IR boundary;
+6. require a validated durable audit receipt when a provenance policy is configured.
 
 Verification deliberately happens before parsing and migration. A signature therefore describes the
 original bytes that were reviewed or published, not a later transformed representation. Migration
-records become provenance on the loaded result. Invalid input never produces partial IR.
+records become provenance on the loaded result. Every accepted payload receives an exact SHA-256
+fingerprint. Invalid input never produces partial IR.
 
 ## Signed loading
 
@@ -19,20 +22,26 @@ records become provenance on the loaded result. Invalid input never produces par
 import {
   UnifoldApplicationMountStatus,
   UnifoldDocumentTrustRequirement,
-  loadAndMountUnifoldApplication
+  loadAndMountUnifoldApplication,
+  type UnifoldDocumentLoadAuditPort,
+  type UnifoldDocumentTrustRecord
 } from "@unislang/unifold";
 import { signUiDocumentPayload } from "@unislang/unifold-export";
 
 declare const exported: { readonly output: { readonly content: string } };
 declare const privateKey: CryptoKey;
-declare const trustedPublicKeys: ReadonlyMap<string, CryptoKey>;
+declare const trustedSigningKeys: ReadonlyMap<string, UnifoldDocumentTrustRecord>;
+declare const documentLoadAudit: UnifoldDocumentLoadAuditPort;
 
 const envelope = await signUiDocumentPayload(exported.output.content, "release-key-1", privateKey);
 const host = document.querySelector<HTMLElement>("#app");
 if (host === null) throw new Error("Missing application host.");
 const loaded = await loadAndMountUnifoldApplication(envelope, host, {
-  keyResolver: {
-    resolve: async (keyId) => trustedPublicKeys.get(keyId)
+  provenancePolicy: {
+    audit: documentLoadAudit,
+    trustResolver: {
+      resolve: async (keyId) => trustedSigningKeys.get(keyId)
+    }
   },
   trustRequirement: UnifoldDocumentTrustRequirement.RequireSignature
 });
@@ -47,6 +56,20 @@ browser. The resolver is also host-owned so rotation, revocation, tenant policy,
 stores remain outside portable JSON. Unknown keys, malformed signatures, modified whitespace or
 content, oversized payloads, invalid JSON, and compiler failures reject with enum-backed staged
 diagnostics.
+
+A governed trust record contains a public Ed25519 verification key, a bounded issuer identity, and
+an enum-backed `active` or `revoked` state. Revoked keys reject before cryptographic verification or
+JSON parsing. Resolver failures are contained as key-resolution denials, invalid metadata fails
+closed, and configuring both `provenancePolicy` and the legacy `keyResolver` is rejected. The audit
+port receives only source kind, key/issuer identity when known, integrity state, migration count,
+diagnostic code, and the payload SHA-256—not payload or signature bytes. Its receipt must contain a
+bounded record ID and canonical UTC timestamp. A missing, malformed, or failed receipt rejects a
+load that would otherwise succeed.
+
+Successful provenance includes `payloadSha256`, the verified key and issuer when signed, applied
+migration edges, and the audit receipt. The legacy `keyResolver` remains available for compatible
+integrity-only loading, but it cannot provide issuer, revocation, or durable-audit evidence and is
+not sufficient for a governed production source.
 
 For local authored prototypes only, a host may explicitly select
 `UnifoldDocumentTrustRequirement.AllowUnsigned`. There is no implicit unsigned fallback when a

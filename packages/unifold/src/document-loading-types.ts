@@ -21,6 +21,22 @@ export enum UnifoldDocumentIntegrity {
   VerifiedSignature = "verified-signature"
 }
 
+export enum UnifoldDocumentKeyStatus {
+  Active = "active",
+  Revoked = "revoked"
+}
+
+export enum UnifoldDocumentLoadAuditOutcome {
+  Loaded = "loaded",
+  Rejected = "rejected"
+}
+
+export enum UnifoldDocumentSourceKind {
+  SignedEnvelope = "signed-envelope",
+  UnsignedJson = "unsigned-json",
+  Unknown = "unknown"
+}
+
 export enum UnifoldDocumentLoadStatus {
   Loaded = "loaded",
   Rejected = "rejected"
@@ -37,8 +53,10 @@ export enum UnifoldDocumentLoadLimit {
 }
 
 export enum UnifoldDocumentLoadDiagnosticCode {
+  AuditFailed = "document-audit-failed",
   EnvelopeInvalid = "document-envelope-invalid",
   JsonInvalid = "document-json-invalid",
+  KeyRevoked = "document-key-revoked",
   KeyResolutionFailed = "document-key-resolution-failed",
   MigrationBudgetExceeded = "document-migration-budget-exceeded",
   MigrationCycle = "document-migration-cycle",
@@ -48,7 +66,8 @@ export enum UnifoldDocumentLoadDiagnosticCode {
   MigrationMissing = "document-migration-missing",
   PayloadTooLarge = "document-payload-too-large",
   SignatureInvalid = "document-signature-invalid",
-  SignatureRequired = "document-signature-required"
+  SignatureRequired = "document-signature-required",
+  TrustMetadataInvalid = "document-trust-metadata-invalid"
 }
 
 export interface UnifoldDocumentMigration {
@@ -66,17 +85,64 @@ export interface UnifoldDocumentKeyResolver {
   resolve(keyId: string, algorithm: UiDocumentSignatureAlgorithm): Promise<CryptoKey | undefined>;
 }
 
+export interface UnifoldDocumentTrustRecord {
+  readonly issuer: string;
+  readonly key: CryptoKey;
+  readonly status: UnifoldDocumentKeyStatus;
+}
+
+export interface UnifoldDocumentTrustResolver {
+  resolve(
+    keyId: string,
+    algorithm: UiDocumentSignatureAlgorithm
+  ): Promise<UnifoldDocumentTrustRecord | undefined>;
+}
+
+export interface UnifoldDocumentLoadAuditRecord extends JsonObject {
+  readonly diagnosticCode?: string;
+  readonly integrity?: UnifoldDocumentIntegrity;
+  readonly issuer?: string;
+  readonly keyId?: string;
+  readonly migrationCount: number;
+  readonly outcome: UnifoldDocumentLoadAuditOutcome;
+  readonly payloadSha256?: string;
+  readonly sourceKind: UnifoldDocumentSourceKind;
+}
+
+export interface UnifoldDocumentLoadAuditReceipt extends JsonObject {
+  readonly recordId: string;
+  readonly recordedAt: string;
+}
+
+export interface UnifoldDocumentLoadAuditPort {
+  record(entry: UnifoldDocumentLoadAuditRecord): Promise<UnifoldDocumentLoadAuditReceipt>;
+}
+
+export interface UnifoldDocumentProvenancePolicy {
+  readonly audit: UnifoldDocumentLoadAuditPort;
+  readonly trustResolver: UnifoldDocumentTrustResolver;
+}
+
 export interface LoadUnifoldDocumentOptions {
   readonly keyResolver?: UnifoldDocumentKeyResolver;
   readonly maxPayloadBytes?: number;
   readonly migrations?: readonly UnifoldDocumentMigration[];
+  readonly provenancePolicy?: UnifoldDocumentProvenancePolicy;
   readonly trustRequirement: UnifoldDocumentTrustRequirement;
+}
+
+export interface UnifoldDocumentProvenanceAudit extends JsonObject {
+  readonly recordId: string;
+  readonly recordedAt: string;
 }
 
 export interface UnifoldDocumentProvenance extends JsonObject {
   readonly appliedMigrations: readonly UnifoldDocumentMigrationRecord[];
+  readonly audit?: UnifoldDocumentProvenanceAudit;
   readonly integrity: UnifoldDocumentIntegrity;
   readonly originalSchemaVersion: string;
+  readonly payloadSha256: string;
+  readonly verifiedIssuer?: string;
   readonly verifiedKeyId?: string;
 }
 

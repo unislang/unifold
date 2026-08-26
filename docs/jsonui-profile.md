@@ -73,10 +73,16 @@ The gate verifies npm tarball integrity, package license and `gitHead`, schema-p
 fixture SHA-256 before browser execution. React and the upstream runtime remain isolated from every
 published Unifold package.
 
-Store-binding conformance currently comes from contract, profile, IR, runtime, and application-mount
-unit tests. The structural upstream parity runner does not claim binding or event parity: upstream
-and Unifold deliberately use different store authorities. Browser E2E coverage for the Unifold
-adapter lifecycle remains open.
+The same runner now includes one behavioral oracle over the real upstream simplified `store`/`path`
+action and AJV validation path. It compares initial and edited values plus touched valid/invalid
+outcomes with a declared Unifold store binding and registered required semantics. The mapping is
+behavioral evidence, not shared state: upstream remains confined to the test renderer, while
+Unifold commits through its normalized transaction and trusted adapter. The Unifold edit must emit
+the exact intent → state commands → committed transaction → requested/completed store-effect chain,
+with one source/correlation/causation/transaction identity, contiguous runtime sequence, exact
+revision, and metadata-only disclosure. Chromium and WebKit pass locally; the managed elevated
+Windows Firefox runner still fails before page creation for every old and new parity case, so Linux
+or non-elevated Windows CI retains that release gate.
 
 Action detection follows the pinned upstream event-property grammar rather than scanning arbitrary
 application data. Modifier detection follows recursively resolved property values. This prevents an
@@ -94,6 +100,6 @@ The generic migration engine is implemented, but there is no fabricated legacy J
 Future profile migrations are exact trusted version edges and run only after any required signature
 has verified the original payload. See [document trust and migrations](./document-trust.md).
 
-The structural parity runner is evidence, not a production adapter. A future optional React adapter
-must additionally prove how declared Unifold bindings, validation, and canonical events cross that
-boundary without installing the upstream store as application truth.
+The parity runner is evidence, not a production adapter. A future optional React adapter must use
+the now-executable binding, validation, and canonical-event oracle without installing the upstream
+store as application truth.
