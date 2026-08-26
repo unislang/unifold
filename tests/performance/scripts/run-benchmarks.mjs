@@ -24,6 +24,10 @@ const controlPlaneTransportPath = resolve(
   resultDirectory,
   "control-plane-transport-performance.raw.json"
 );
+const controlPlaneDurabilityPath = resolve(
+  resultDirectory,
+  "control-plane-durability-performance.raw.json"
+);
 const finalPath = resolve(resultDirectory, "selective-rendering.json");
 
 await mkdir(resultDirectory, { recursive: true });
@@ -45,6 +49,9 @@ const devtoolsPerformance = JSON.parse(await readFile(devtoolsPath, "utf8"));
 const controlPlaneTransportPerformance = JSON.parse(
   await readFile(controlPlaneTransportPath, "utf8")
 );
+const controlPlaneDurabilityPerformance = JSON.parse(
+  await readFile(controlPlaneDurabilityPath, "utf8")
+);
 const profile = {
   ...measuredProfile,
   gates: [
@@ -60,10 +67,12 @@ const profile = {
     ...dataActorPerformance.gates,
     ...collaborationPerformance.gates,
     ...devtoolsPerformance.gates,
+    ...controlPlaneDurabilityPerformance.gates,
     ...controlPlaneTransportPerformance.gates
   ],
   auditLogPerformance,
   collaborationPerformance,
+  controlPlaneDurabilityPerformance,
   controlPlaneTransportPerformance,
   devtoolsPerformance,
   dataActorPerformance,
@@ -80,7 +89,7 @@ const report = {
   environment: environmentMetadata(),
   generatedAt: new Date().toISOString(),
   profile,
-  schemaVersion: "2.12.0"
+  schemaVersion: "2.14.0"
 };
 await writeFile(finalPath, `${JSON.stringify(report, null, 2)}\n`);
 process.stdout.write(`Benchmark report: ${finalPath}\n`);
@@ -109,6 +118,11 @@ function runProfile() {
     ["data-actor-profile.test.ts", "UNIFOLD_DATA_ACTOR_OUTPUT", dataActorPath],
     ["collaboration-profile.test.ts", "UNIFOLD_COLLABORATION_OUTPUT", collaborationPath],
     ["devtools-profile.test.ts", "UNIFOLD_DEVTOOLS_OUTPUT", devtoolsPath],
+    [
+      "control-plane-durability-profile.test.ts",
+      "UNIFOLD_CONTROL_PLANE_DURABILITY_OUTPUT",
+      controlPlaneDurabilityPath
+    ],
     [
       "control-plane-transport-profile.test.ts",
       "UNIFOLD_CONTROL_PLANE_TRANSPORT_OUTPUT",

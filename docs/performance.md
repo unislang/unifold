@@ -75,6 +75,8 @@ results. They are evidence from a developer workstation, not ratified release th
 | 500-node privacy-aware picker               |   0.16 ms |   0.30 ms |   0.43 ms |
 | 1k bounded Fetch control-plane reads        |  25.55 ms |  95.78 ms |  95.78 ms |
 | 1k-message Fetch realtime resume            |   4.14 ms |   6.01 ms |   6.01 ms |
+| 1k SQLite atomic control-plane commits      |  86.91 ms |  97.81 ms |  97.81 ms |
+| 1k SQLite outbox lease and acknowledgement  |  14.48 ms |  30.66 ms |  30.66 ms |
 
 Five create/edit/dispose cycles of a selection-free 10,000-node store retained 7.41 MiB after forced
 garbage collection, below the provisional 64 MiB leak-sentinel ceiling; peak observed heap was
@@ -104,9 +106,9 @@ emits exactly 25 typed commands, and leaves every unrelated chain unchanged. Its
 p95 is below the provisional 4 ms target on the current workstation. The combined public-runtime
 fixture proves one commit spans the leaf edit, three synchronous validations (leaf, group, form),
 two ancestor aggregates, 20 transitive rule commands, and committed-revision selector delivery.
-Its 1.15 ms p95 is below the provisional 8 ms target. All thirty timing limits and the lifecycle
+Its 1.15 ms p95 is below the provisional 8 ms target. All thirty-three timing limits and the lifecycle
 limit are executable benchmark gates and are included with actual/limit/pass fields in the
-schema-2.12.0 machine-readable report; the current run passes all 31/31.
+schema-2.14.0 machine-readable report; the current run passes all 34/34.
 The report also contains a 50-sample paired selection-overhead profile. It alternates measurement
 order between identical 10,000-node stores with zero and 2,000 indexed selections and subtracts
 their five-edit batch medians. This removes shared transaction work without assigning an unrelated
@@ -206,6 +208,18 @@ decode. Ten samples measured 25.55/95.78/95.78 ms p50/p95/p99 against a 2,000 ms
 1,000 tenant-sequenced facts, then resumes the entire contiguous batch through Fetch and the
 stateful cursor in 4.14/6.01/6.01 ms against a 500 ms gate, proving sequences 1 through 1,000 and an
 exact final cursor with no duplicate advancement.
+
+The database durability fixture creates a fresh in-memory SQLite database per sample and commits
+exactly 1,000 distinct tenant documents. Each commit must create the assigned revision, redacted
+audit entry, retained realtime fact, and pending outbox row through one database transaction. Five
+samples measured 83.93/94.60/94.60 ms p50/p95/p99 against a 2,000 ms gate. It then drains all 1,000
+rows in ten bounded lease/acknowledgement batches, proving ordered unique sequences and zero
+survivors in 14.18/16.72/16.72 ms against 500 ms. It next exports the same exact 1,000-document
+tenant, encrypts it with AES-256-GCM, reads and decrypts the external envelope, and round-trips it
+through a disposable SQLite restore. Five samples measured that complete recovery drill at
+38.85/40.70/40.70 ms against 2,000 ms while requiring exact integrity and last-known-good evidence.
+Separate trigger-injection tests prove failures roll back document and effect state together with
+audit, realtime, and outbox rows.
 
 Ratification still requires a provisioned, versioned mid-tier runner. Developer-workstation timing
 remains descriptive even though benchmark execution now rejects any provisional p95 limit or the

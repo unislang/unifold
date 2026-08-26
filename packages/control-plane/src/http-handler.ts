@@ -1,4 +1,5 @@
 import type { ControlPlaneService } from "./service.js";
+import type { ControlPlaneHttpAdmissionPort } from "./http-admission.js";
 import {
   ControlPlaneBodyError,
   ControlPlaneBodyErrorCode,
@@ -23,6 +24,7 @@ const defaultMaximumRequestBytes = 1024 * 1024;
 const defaultPathname = "/v1/control-plane";
 
 export interface ControlPlaneHttpHandlerOptions {
+  readonly admission?: ControlPlaneHttpAdmissionPort;
   readonly maximumRequestBytes?: number;
   readonly pathname?: string;
 }
@@ -38,33 +40,60 @@ export function createControlPlaneHttpHandler(
     options?.maximumRequestBytes,
     defaultMaximumRequestBytes
   );
-  return async (request) => handleRequest(service, request, pathname, maximumBytes);
+  return async (request) =>
+    handleRequest(service, request, pathname, maximumBytes, options?.admission);
 }
 
 async function handleRequest(
   service: ControlPlaneService,
   request: Request,
   pathname: string,
-  maximumBytes: number
+  maximumBytes: number,
+  admission: ControlPlaneHttpAdmissionPort | undefined
 ): Promise<Response> {
   const rejected = requestRejection(request, pathname, maximumBytes);
   if (rejected !== undefined) return rejected;
-  return handleBody(service, request, maximumBytes);
+  return handleBody(service, request, maximumBytes, admission);
 }
 
 async function handleBody(
   service: ControlPlaneService,
   request: Request,
-  maximumBytes: number
+  maximumBytes: number,
+  admission: ControlPlaneHttpAdmissionPort | undefined
 ): Promise<Response> {
   try {
     const text = await readBoundedBody(request.body, maximumBytes);
-    const decoded = decodeControlPlaneRequest(parseJson(text));
-    if (decoded === undefined) return jsonResponse(invalid(), 400);
-    const result = await dispatch(service, decoded, request.signal);
-    return jsonResponse(result, controlPlaneHttpStatus(result.status));
+    const response = await decodeAndDispatch(service, request, admission, text);
+    return response;
   } catch (error) {
     return errorResponse(error);
+  }
+}
+
+async function decodeAndDispatch(
+  service: ControlPlaneService,
+  request: Request,
+  admission: ControlPlaneHttpAdmissionPort | undefined,
+  text: string
+): Promise<Response> {
+  const decoded = decodeControlPlaneRequest(parseJson(text));
+  if (decoded === undefined) return jsonResponse(invalid(), 400);
+  if (!(await admitted(admission, request, decoded))) return jsonResponse(denied(), 403);
+  const result = await dispatch(service, decoded, request.signal);
+  return jsonResponse(result, controlPlaneHttpStatus(result.status));
+}
+
+async function admitted(
+  admission: ControlPlaneHttpAdmissionPort | undefined,
+  request: Request,
+  decoded: ControlPlaneWireRequest
+): Promise<boolean> {
+  if (admission === undefined) return true;
+  try {
+    return await admission.admit(request, decoded);
+  } catch {
+    return false;
   }
 }
 
@@ -111,6 +140,10 @@ export function controlPlaneHttpStatus(status: ControlPlaneOperationStatus): num
 
 function invalid(): ControlPlaneResult<never> {
   return failure(ControlPlaneOperationStatus.Invalid, ControlPlaneErrorCode.InvalidRequest);
+}
+
+function denied(): ControlPlaneResult<never> {
+  return failure(ControlPlaneOperationStatus.Denied, ControlPlaneErrorCode.AuthorizationDenied);
 }
 
 function requestRejection(

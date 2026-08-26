@@ -4,11 +4,15 @@ import type {
   ControlPlaneFingerprintPort,
   ControlPlaneCommitCommand,
   ControlPlaneCompleteEffectCommand,
+  ControlPlaneDurableStorePort,
   ControlPlaneEffectLease,
   ControlPlaneEffectLeaseCommand,
   ControlPlaneFailEffectCommand,
-  ControlPlaneRecoveryCommand,
-  ControlPlaneStorePort
+  ControlPlaneOutboxAcknowledgeCommand,
+  ControlPlaneOutboxEntry,
+  ControlPlaneOutboxLeaseCommand,
+  ControlPlaneOutboxReleaseCommand,
+  ControlPlaneRecoveryCommand
 } from "./ports.js";
 import {
   ControlPlaneAuditAction,
@@ -26,6 +30,7 @@ import {
   type ControlPlaneRestoreReceipt,
   type ControlPlaneResult
 } from "./types.js";
+import { ReferenceControlPlaneOutbox } from "./reference-outbox.js";
 import {
   backupPayload,
   commitAudit,
@@ -34,9 +39,7 @@ import {
   currentRevision,
   effectAudit,
   failure,
-  firstRealtimeSequence,
   matchesExpectedRevision,
-  oldestAvailableSequence,
   quotaExceeded,
   recoveryAudit,
   revisionRecord,
@@ -53,9 +56,8 @@ interface TenantState {
   audits: ControlPlaneAuditEntry[];
   documents: Map<string, ControlPlaneDocumentRevision>;
   effects: Map<string, StoredEffect>;
-  messages: ControlPlaneRealtimeMessage[];
   nextRevision: number;
-  nextSequence: number;
+  outbox: ReferenceControlPlaneOutbox;
 }
 
 interface TenantBackup {
@@ -71,7 +73,7 @@ export interface ReferenceStoreOptions {
   readonly realtimeRetention?: number | undefined;
 }
 
-export class ReferenceControlPlaneStore implements ControlPlaneStorePort {
+export class ReferenceControlPlaneStore implements ControlPlaneDurableStorePort {
   readonly #backups = new Map<string, TenantBackup>();
   readonly #maxDocuments: number;
   readonly #fingerprint: ControlPlaneFingerprintPort;
@@ -170,19 +172,21 @@ export class ReferenceControlPlaneStore implements ControlPlaneStorePort {
     tenantId: string,
     afterSequence: number
   ): Promise<ControlPlaneResult<ControlPlaneRealtimeBatch>> {
-    const state = this.state(tenantId);
-    const oldest = oldestAvailableSequence(
-      firstRealtimeSequence(state.messages),
-      state.nextSequence
-    );
-    if (state.messages.length > 0 && afterSequence < oldest - 1) {
-      return failure(ControlPlaneOperationStatus.Gap, ControlPlaneErrorCode.RealtimeGap);
-    }
-    return succeeded({
-      latestSequence: state.nextSequence - 1,
-      messages: structuredClone(state.messages.filter((item) => item.sequence > afterSequence)),
-      oldestAvailableSequence: oldest
-    });
+    return this.state(tenantId).outbox.resume(afterSequence);
+  }
+
+  async leaseOutbox(
+    command: ControlPlaneOutboxLeaseCommand
+  ): Promise<readonly ControlPlaneOutboxEntry[]> {
+    return this.state(command.tenantId).outbox.lease(command);
+  }
+
+  async acknowledgeOutbox(command: ControlPlaneOutboxAcknowledgeCommand): Promise<number> {
+    return this.state(command.tenantId).outbox.acknowledge(command);
+  }
+
+  async releaseOutbox(command: ControlPlaneOutboxReleaseCommand): Promise<number> {
+    return this.state(command.tenantId).outbox.release(command);
   }
 
   async createBackup(
@@ -191,7 +195,7 @@ export class ReferenceControlPlaneStore implements ControlPlaneStorePort {
     const state = this.state(command.tenantId);
     const backupId = `backup-${this.#nextBackup++}`;
     const digest = await this.#fingerprint.fingerprint(
-      backupPayload(command.tenantId, state.documents)
+      backupPayload(command.tenantId, state.documents, state.effects)
     );
     this.#backups.set(backupId, {
       digest,
@@ -216,7 +220,7 @@ export class ReferenceControlPlaneStore implements ControlPlaneStorePort {
       return failure(ControlPlaneOperationStatus.NotFound, ControlPlaneErrorCode.BackupNotFound);
     }
     const digest = await this.#fingerprint.fingerprint(
-      backupPayload(command.tenantId, backup.documents)
+      backupPayload(command.tenantId, backup.documents, backup.effects)
     );
     if (digest !== backup.digest) {
       return failure(
@@ -259,7 +263,7 @@ export class ReferenceControlPlaneStore implements ControlPlaneStorePort {
   }
 
   realtimeMessages(tenantId: string): readonly ControlPlaneRealtimeMessage[] {
-    return structuredClone(this.state(tenantId).messages);
+    return this.state(tenantId).outbox.messages();
   }
 
   private ownedBackup(backupId: string, tenantId: string): TenantBackup | undefined {
@@ -306,15 +310,13 @@ export class ReferenceControlPlaneStore implements ControlPlaneStorePort {
     payload: JsonObject,
     type: ControlPlaneRealtimeMessageType
   ): void {
-    state.messages.push({
+    state.outbox.publish({
       correlationId,
       occurredAt,
       payload,
-      sequence: state.nextSequence++,
       tenantId,
       type
     });
-    if (state.messages.length > this.#retention) state.messages.shift();
   }
 
   private state(tenantId: string): TenantState {
@@ -324,9 +326,8 @@ export class ReferenceControlPlaneStore implements ControlPlaneStorePort {
       audits: [],
       documents: new Map(),
       effects: new Map(),
-      messages: [],
       nextRevision: 1,
-      nextSequence: 1
+      outbox: new ReferenceControlPlaneOutbox(this.#retention)
     };
     this.#tenants.set(tenantId, created);
     return created;

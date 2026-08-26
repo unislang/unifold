@@ -37,7 +37,11 @@ Authenticated revisions and external effects can use the separately deployable
 `@unislang/unifold-control-plane` protocol. Its Phase 0 reference adapter proves trusted
 session-derived tenancy, deny-by-default authorization, idempotent registered effects, resumable
 server sequences, bounded Fetch host/client transport, redacted audit metadata, and
-integrity-verified restore without coupling the browser runtime to a server framework. See
+integrity-verified restore without coupling the browser runtime to a server framework. A shared
+durability suite now proves the same atomic state/audit/realtime/outbox and lease semantics against
+both memory and SQLite stores. Provider-neutral OpenFGA and OpenTelemetry mappings, exact
+cookie-session/CSRF admission, and AES-256-GCM external backup with isolated SQLite restore drills
+complete the executable infrastructure integration boundary. See
 [Control-plane trust and recovery](./docs/control-plane.md).
 
 Collaborative authoring uses the versioned `@unislang/unifold-collaboration` protocol for immutable

@@ -14,10 +14,17 @@ import {
   ControlPlaneOperationStatus,
   type ControlPlaneAuditEntry,
   type ControlPlaneDocumentRevision,
+  type ControlPlaneEffectExecution,
   type ControlPlaneErrorCode,
   type ControlPlaneRealtimeMessage,
   type ControlPlaneResult
 } from "./types.js";
+
+interface BackupEffectState {
+  readonly fingerprint: string;
+  readonly pending: boolean;
+  readonly result?: ControlPlaneResult<ControlPlaneEffectExecution>;
+}
 
 export function revisionRecord(
   command: ControlPlaneCommitCommand,
@@ -39,10 +46,12 @@ export function revisionRecord(
 
 export function backupPayload(
   tenantId: string,
-  source: ReadonlyMap<string, ControlPlaneDocumentRevision>
+  source: ReadonlyMap<string, ControlPlaneDocumentRevision>,
+  effects: ReadonlyMap<string, BackupEffectState>
 ): JsonObject {
   const documents = [...source.entries()].sort(compareEntries).map(backupDocument);
-  return { documents, tenantId };
+  const idempotency = [...effects.entries()].sort(compareEffectEntries).map(backupEffect);
+  return { documents, idempotency, tenantId };
 }
 
 function compareEntries(
@@ -54,6 +63,20 @@ function compareEntries(
 
 function backupDocument(entry: readonly [string, ControlPlaneDocumentRevision]): JsonObject {
   return { objectId: entry[0], revision: entry[1] };
+}
+
+function compareEffectEntries(
+  first: readonly [string, BackupEffectState],
+  second: readonly [string, BackupEffectState]
+): number {
+  return first[0].localeCompare(second[0]);
+}
+
+function backupEffect(entry: readonly [string, BackupEffectState]): JsonObject {
+  const [idempotencyKey, effect] = entry;
+  const result =
+    effect.result === undefined ? null : (structuredClone(effect.result) as unknown as JsonValue);
+  return { fingerprint: effect.fingerprint, idempotencyKey, pending: effect.pending, result };
 }
 
 export function matchesExpectedRevision(

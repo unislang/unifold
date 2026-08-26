@@ -10,6 +10,7 @@ import type {
   ControlPlaneEffectLeaseStatus,
   ControlPlaneGrant,
   ControlPlaneRealtimeBatch,
+  ControlPlaneRealtimeMessage,
   ControlPlaneRequestMetadata,
   ControlPlaneRestoreReceipt,
   ControlPlaneResult,
@@ -35,6 +36,33 @@ export interface ControlPlaneEffectRegistryPort {
 export interface ControlPlaneEffectLease {
   readonly result?: ControlPlaneResult<ControlPlaneEffectExecution>;
   readonly status: ControlPlaneEffectLeaseStatus;
+}
+
+export interface ControlPlaneOutboxEntry {
+  readonly attempts: number;
+  readonly message: ControlPlaneRealtimeMessage;
+}
+
+export interface ControlPlaneOutboxLeaseCommand {
+  readonly leaseUntil: string;
+  readonly leasedAt: string;
+  readonly limit: number;
+  readonly tenantId: string;
+  readonly workerId: string;
+}
+
+export interface ControlPlaneOutboxAcknowledgeCommand {
+  readonly acknowledgedAt: string;
+  readonly sequences: readonly number[];
+  readonly tenantId: string;
+  readonly workerId: string;
+}
+
+export interface ControlPlaneOutboxReleaseCommand {
+  readonly availableAt: string;
+  readonly sequences: readonly number[];
+  readonly tenantId: string;
+  readonly workerId: string;
 }
 
 export interface ControlPlaneCommitCommand {
@@ -110,6 +138,17 @@ export interface ControlPlaneStorePort {
     afterSequence: number
   ): Promise<ControlPlaneResult<ControlPlaneRealtimeBatch>>;
 }
+
+/** Worker-facing delivery contract over the transactionally populated durable outbox. */
+export interface ControlPlaneOutboxPort {
+  acknowledgeOutbox(command: ControlPlaneOutboxAcknowledgeCommand): Promise<number>;
+  leaseOutbox(command: ControlPlaneOutboxLeaseCommand): Promise<readonly ControlPlaneOutboxEntry[]>;
+  releaseOutbox(command: ControlPlaneOutboxReleaseCommand): Promise<number>;
+}
+
+export interface ControlPlaneDurableStorePort
+  extends ControlPlaneStorePort,
+    ControlPlaneOutboxPort {}
 
 export interface ControlPlaneClockPort {
   now(): string;

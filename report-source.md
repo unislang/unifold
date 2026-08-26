@@ -181,18 +181,27 @@ the envelope.
 RFC 8785 identifies the existing Apache-2.0 `canonicalize` JavaScript implementation, which the
 control-plane seam reuses for stable effect and backup fingerprints. OpenFGA provides a maintained
 JavaScript SDK for external fine-grained object authorization, while OpenTelemetry JavaScript
-publishes stable trace APIs. Neither is bundled into the framework package: each implies an external
-service, configuration, credentials, retry, data-export, and operational decision that belongs to a
-deployment adapter.
+publishes stable trace APIs. Unifold now bundles only narrow structural mappings for their official
+client/API shapes: deployments still own the external service, model, configuration, credentials,
+retry, data export, sampling, and operational decisions.
 
 The implemented package therefore owns only Unifold-specific protocol and orchestration: trusted
 session-derived tenancy, deny-by-default capability/resource checks, revision concurrency,
 idempotency leases, safe audit metadata, resumable sequences, and verified restore. A deterministic
 shared-schema/tenant-key in-memory adapter supplies executable conformance evidence. Research
 stopped after the standards and mature adapter boundaries showed that building production identity,
-authorization, tracing, transaction, queue, or backup infrastructure inside Unifold would duplicate
-existing systems. Production adapter selection, concurrency evidence, and operational drills remain
-explicit release gates.
+authorization, tracing, queue, or backup infrastructure inside Unifold would duplicate existing
+systems. The subsequent implementation adds a bounded durable-outbox contract and a second store
+over Node SQLite, using database transactions and unique tenant/idempotency keys rather than a
+parallel protocol. The same conformance suite now proves memory/SQLite revision, recovery,
+concurrent reservation, lease-expiry, stale-owner, and replay behavior, while injected SQLite
+triggers prove full mutation rollback. Node 22.14 emits an experimental warning for `node:sqlite`;
+the follow-up implementation also proves exact OpenFGA tuples and fail-closed checks,
+classification-safe OpenTelemetry attributes, cookie session/CSRF admission, AES-256-GCM external
+envelopes, and scheduled-callable SQLite scratch restore before last-known-good advancement. Thus
+live authorization/telemetry provisioning, failure-domain vault/key operations, scheduled drill
+alerts, durable CSRF/session revocation controls, and production driver acceptance remain explicit
+release gates.
 
 Research covered the linked JsonUI site, repository, and package; Vercel AI SDK Core/UI; XState stable v5 and v6-alpha distinctions; Web Components and form participation; Lit composition/styling/SSR; Tailwind v4 source detection; WCAG 2.2 and ARIA APG; NN/g accessibility material; axe-core; CloudEvents; JSON Schema/Patch; trace context; and OWASP browser/LLM guidance.
 

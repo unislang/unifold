@@ -28,8 +28,17 @@ it("assigns server revisions without mutating the submitted document", () => {
   expect(command.document.revision).toBe("client-value");
   expect(matchesExpectedRevision(revision, "revision-1")).toBe(true);
   expect(succeeded(revision).status).toBe(ControlPlaneOperationStatus.Succeeded);
-  expect(backupPayload("tenant-a", new Map([["document-1", revision]]))).toEqual({
+  const effects = new Map([["effect-1", { fingerprint: "fingerprint-1", pending: true }]]);
+  expect(backupPayload("tenant-a", new Map([["document-1", revision]]), effects)).toEqual({
     documents: [{ objectId: "document-1", revision }],
+    idempotency: [
+      {
+        fingerprint: "fingerprint-1",
+        idempotencyKey: "effect-1",
+        pending: true,
+        result: null
+      }
+    ],
     tenantId: "tenant-a"
   });
   expect(configuredLimit(undefined, 1000)).toBe(1000);

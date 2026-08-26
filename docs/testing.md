@@ -173,6 +173,17 @@ ms for the cached batch and 100 ms for invalidation. Unit and XState integration
 schema/runtime rejection, paging keys, retention/LRU behavior, offline recovery, retry selection,
 optimistic commit/rollback, conflicts, cross-context invalidation, supersession, cancellation,
 timeout abort, stale completion, and raw-adapter-error containment.
+The control-plane durability fixture creates a fresh SQLite database, commits exactly 1,000
+tenant-keyed documents, and requires matching revisions, audits, retained realtime facts, and
+pending outbox rows. It then drains exactly 1,000 ordered rows in bounded 100-message lease and
+acknowledgement batches with no duplicates or survivors. Executable p95 limits are 2,000 ms for the
+atomic commit batch and 500 ms for the complete outbox drain. The same fixture encrypts the exact
+tenant snapshot and verifies a disposable SQLite restore under a 2,000 ms p95 gate, requiring the
+recorded key identity, integrity digest, and last-known-good checkpoint. The package-level shared
+conformance suite runs against memory and SQLite stores and adds conflicting/concurrent idempotency
+reservations, lease partitioning, expiry takeover, stale-owner rejection, release/retry, tenant
+isolation, verified restore, database-trigger rollback, OpenFGA fail-closed mapping, telemetry
+redaction, encrypted-recovery tampering/cancellation, and session/CSRF admission cases.
 The Chromium scale journey complements the Node suite by observing all 1,000 or 10,000 rendered
 hosts in one page-context pass. It requires one render-counter mutation, unchanged unrelated counts,
 retained element and shadow-input identity/focus, canonical event order, and an exact one-node commit.

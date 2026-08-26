@@ -8,10 +8,10 @@ behavior, and how it can be replaced. Package versions remain exact in the works
 
 | Field                 | Decision                                                                                      |
 | --------------------- | --------------------------------------------------------------------------------------------- |
-| Status                | Accepted Phase 0 protocol/service seam; production infrastructure adapters remain open        |
+| Status                | Accepted protocol/service seam with provider-neutral production adapter mappings              |
 | Runtime dependency    | `canonicalize@4.0.0`, Apache-2.0, for RFC 8785 request and backup fingerprinting              |
 | Evaluated adapters    | OpenFGA JavaScript SDK for object authorization; OpenTelemetry JS API for trace correlation   |
-| Bundled adapters      | Deterministic in-memory conformance adapter only                                              |
+| Bundled adapters      | Memory/SQLite stores plus structural OpenFGA, OpenTelemetry, admission, and recovery adapters |
 | Custom ownership      | Unifold request/result protocol, orchestration order, safe errors, redaction, and conformance |
 | Network/data behavior | None in the reference adapter; production port implementations declare their own behavior     |
 | Isolation decision    | Shared-schema/mandatory-tenant-key reference tier; stronger tiers replace the store port      |
@@ -25,14 +25,15 @@ authorization storage, transaction management, queues, observability, secrets, o
 Those are injected ports because deployment requirements differ and mature infrastructure already
 exists.
 
-The official OpenFGA SDK exposes relationship checks against an external authorization service and
-is an appropriate adapter candidate, but bundling it would silently select a service, model, retry,
-and credential topology for every consumer. The official OpenTelemetry JS trace API is stable and
-is the intended observability adapter boundary; the library keeps only protocol correlation and
-trace-context fields. The local adapter proves the Unifold-specific chain and denies by default.
-Production promotion requires transactional database/outbox, concurrent idempotency, OpenFGA or an
-equivalent policy adapter, OpenTelemetry export, encrypted backup/restore, and alternate-adapter
-conformance evidence.
+The official OpenFGA SDK exposes relationship checks against an external authorization service.
+Unifold now ships a narrow structural adapter compatible with its documented `check()` call rather
+than selecting a service URL, store, retry, or credential topology. The official OpenTelemetry JS
+API is the intended library instrumentation boundary; Unifold's wrapper accepts its tracer/meter
+shape and exports an explicit privacy-safe attribute allowlist while the host supplies the SDK and
+exporters. These adapters prove exact Unifold mapping, failure containment, and replaceability
+without adding a mandatory runtime client. Production promotion still requires live deployment
+configuration, availability and credential evidence, external vault/key custody, scheduled drill
+alerts, and explicit acceptance of the chosen database driver.
 
 ## Document signatures: Web Crypto Ed25519
 

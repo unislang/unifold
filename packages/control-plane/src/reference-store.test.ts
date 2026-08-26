@@ -1,6 +1,7 @@
 import { expect, it, vi } from "vitest";
 
 import { ReferenceControlPlaneStore } from "./reference-store.js";
+import { registerDurableStoreConformance } from "./durable-store-conformance.test-data.js";
 import {
   ControlPlaneErrorCode,
   ControlPlaneOperationStatus,
@@ -64,3 +65,7 @@ function requireValue<TValue>(value: TValue | undefined): TValue {
   if (value === undefined) throw new Error("Expected backup value.");
   return value;
 }
+
+registerDurableStoreConformance("reference memory", () => ({
+  store: new ReferenceControlPlaneStore()
+}));

@@ -2,6 +2,7 @@ import { expect, it, vi } from "vitest";
 
 import { grant, metadata, referenceOptions } from "./control-plane.test-data.js";
 import { createControlPlaneHttpHandler } from "./http-handler.js";
+import { createReferenceControlPlaneHttpAdmission } from "./http-admission.js";
 import { createReferenceControlPlane } from "./reference.js";
 import type { ControlPlaneService } from "./service.js";
 import {
@@ -78,10 +79,66 @@ it("validates configured transport bounds", () => {
   );
 });
 
-function post(value: unknown): Request {
+it("enforces transport admission before dispatch and rejects other unsafe methods", async () => {
+  const handler = secureHandler();
+  const body = secureBody();
+  const admitted = await handler(
+    post(body, {
+      Cookie: "__Host-unifold-session=opaque-session-token-0001",
+      Origin: "https://control.example",
+      "X-Unifold-CSRF": "csrf-token-with-strong-entropy-0001"
+    })
+  );
+  expect(admitted.status).toBe(503);
+  const denied = await handler(post(body, { Origin: "https://control.example" }));
+  expect(denied.status).toBe(403);
+  expect(await denied.json()).toMatchObject({
+    error: { code: ControlPlaneErrorCode.AuthorizationDenied }
+  });
+});
+
+it("rejects non-POST unsafe methods before secure transport admission", async () => {
+  const handler = secureHandler();
+  expect(
+    (
+      await handler(
+        new Request(endpoint, {
+          body: JSON.stringify(secureBody()),
+          headers: { "Content-Type": "application/json" },
+          method: "PUT"
+        })
+      )
+    ).status
+  ).toBe(405);
+});
+
+function secureHandler() {
+  return createControlPlaneHttpHandler(stubService(), {
+    admission: createReferenceControlPlaneHttpAdmission({
+      allowedOrigins: ["https://control.example"],
+      clock: { now: () => "2026-08-26T00:00:00.000Z" },
+      sessions: {
+        "opaque-session-token-0001": {
+          csrfToken: "csrf-token-with-strong-entropy-0001",
+          expiresAt: "2026-08-27T00:00:00.000Z"
+        }
+      }
+    })
+  });
+}
+
+function secureBody() {
+  return {
+    ...metadata(ControlPlaneOperation.DocumentRead),
+    objectId: "document-1",
+    sessionToken: "opaque-session-token-0001"
+  };
+}
+
+function post(value: unknown, headers?: Readonly<Record<string, string>>): Request {
   return new Request(endpoint, {
     body: JSON.stringify(value),
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...headers },
     method: "POST"
   });
 }

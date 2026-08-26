@@ -101,7 +101,17 @@ critical seam; it is not yet the full catalog or Studio product described by the
   status mapping, cancellation, and redacted failures. A resumable cursor advances only across a
   validated contiguous tenant batch, retains its position on gaps, and requires explicit reset after
   authoritative reread. Exact 1,000-read and 1,000-message fixtures pass 95.78/6.01 ms p95 against
-  2,000/500 ms gates.
+  2,000/500 ms gates. A bounded durable-outbox port and independent SQLite store add `STRICT`
+  tenant-keyed tables, atomic revision/effect/audit/realtime/outbox transactions, lease/ack/retry/
+  expiry semantics, storage-layer rollback injection, and one shared alternate-adapter conformance
+  suite. Exact 1,000-commit and 1,000-message SQLite fixtures pass 97.81/30.66 ms p95 against
+  2,000/500 ms gates. An official-client-compatible OpenFGA adapter pins the model and exact
+  tenant-scoped tuple, while an OpenTelemetry service wrapper exports only allowlisted trace and
+  low-cardinality metric attributes. Optional Fetch admission proves exact Origin, cookie/body
+  session binding, CSRF, expiry, revocation, duplicate-cookie, and unsafe-method rejection.
+  AES-256-GCM external recovery accepts deployment-owned key/vault/checkpoint ports and advances
+  last-known-good only after an isolated SQLite scratch restore; its exact 1,000-document gate
+  passes 40.70 ms p95 against 2,000 ms.
 - A versioned `@unislang/unifold-collaboration` protocol and in-memory conformance service with a
   closed Draft 2020-12 request schema, separately trusted tenant/actor/capability context,
   server-sequenced immutable revisions, idempotent proposals, conservative disjoint-path rebasing,
@@ -177,10 +187,12 @@ critical seam; it is not yet the full catalog or Studio product described by the
 
 ## Next architecture slices
 
-1. Add database transaction/outbox and concurrent-lease conformance suites,
-   OpenFGA/OpenTelemetry reference adapters, encrypted external backup drills, transport-level
-   CSRF/session integration evidence, and a second store implementation to prove control-plane
-   replaceability. The bounded Fetch and resumable-cursor transport adapters are complete.
+1. Provision the completed OpenFGA, OpenTelemetry, admission, encrypted-recovery, outbox, and SQLite
+   seams in a production-like environment. Retain evidence for live model/store credentials,
+   telemetry export, external failure-domain vault and key rotation, scheduled drill alerts,
+   session revocation propagation, and chosen RPO/RTO. Promotion of the current Node SQLite adapter
+   also requires explicit acceptance of its experimental runtime API or a supported driver
+   implementing the same conformance contract.
 2. Expand store adapters with async loading, external subscriptions, explicit data-migration edges,
    concurrency/conflict policy, privileged sink authorization, a second implementation, and browser
    lifecycle evidence without weakening normalized UI-state ownership.
@@ -224,11 +236,13 @@ critical seam; it is not yet the full catalog or Studio product described by the
 - The packed-tarball gate proves artifact integrity without weakening that private boundary. After
   license and scope approval, add an ephemeral-registry facade-only install plus npm/Yarn parity,
   package-lint, provenance, SBOM, and license-inventory gates.
-- The control-plane reference adapter proves protocol orchestration and recovery semantics only.
-  Production release still requires at least one transactional database/outbox adapter, concurrent
-  idempotency reservation tests, external authorization/telemetry adapters, encrypted backup and
-  scheduled restore evidence, transport-level CSRF/session controls, and an alternate-adapter
-  compatibility run.
+- The control-plane now has memory and SQLite implementations, atomic database/outbox rollback
+  evidence, concurrent idempotency and delivery reservation cases, OpenFGA/OpenTelemetry mappings,
+  encrypted external envelopes with scheduled-callable SQLite scratch drills, and transport-level
+  session/CSRF admission. Production release still requires provisioned live-service evidence,
+  failure-domain vault/key custody, scheduler/alert evidence, durable revocation propagation, and
+  either explicit acceptance of Node's experimental SQLite API or a supported database driver
+  passing the same suite.
 - The store seam proves synchronous host adapter loading and post-commit draft writes in unit and
   mount tests. Writes are authorized against the current node binding, validated as a complete
   candidate store, bounded by schema/quota policy, and protected from prototype-sensitive pointers.
