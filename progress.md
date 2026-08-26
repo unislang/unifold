@@ -17,11 +17,11 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest pushed checkpoint: `e4c7fb6` (`docs: record async store checkpoint`)
-- Remote state before this slice: `origin/main` and local `HEAD` were independently verified at
-  `e4c7fb662f90fe32df3c488bbde4189ba3448a62`.
-- Working tree: the fully validated mounted async-store slice described below is ready for its
-  requested commit and push.
+- Latest implementation checkpoint: `c437e21` (`feat: mount async stores in runtime`)
+- Verified remote state: `origin/main` and local `HEAD` matched at
+  `c437e212cdc2f34c0fa80982a15e8eb195796b01` after the implementation push.
+- Working tree after that implementation checkpoint was clean; this resumability update is the only
+  subsequent change.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
@@ -55,7 +55,7 @@ record new measurements rather than treating the numbers above as proof for late
 ## Active slice
 
 The framework-owned portion of architecture slice 2, async/external store adapters, is complete and
-awaiting the requested commit/push. Resume with slice 3 in
+pushed. Resume with slice 3 in
 [`docs/implementation-status.md`](./docs/implementation-status.md#next-architecture-slices): actual
 profile migration edges when a successor exists, richer issuer/revocation/audit provenance, and
 binding/validation/canonical-event parity. Production provisioning of slices 1 and 2 remains a
@@ -146,7 +146,8 @@ The standalone async/external store boundary is implemented and committed as `60
 
 ### 2026-08-26 mounted async-store checkpoint
 
-The remaining framework integration is implemented and fully validated, ready to commit:
+The remaining framework integration is implemented, fully validated, committed as `c437e21`, and
+pushed to `origin/main`:
 
 - `mountUnifoldApplicationAsync()` compiles first, connects every declared store in parallel, and
   renders only after all authorization, loading, migration, and validation succeeds. Any peer
@@ -241,4 +242,6 @@ silently waived.
 - 2026-08-26: Completed mounted async store integration, async canonical effect settlement,
   write-suppressed external ingress, optional first revisions, compensation/disposal, public API,
   Chromium/WebKit evidence, clean-consumer validation, and two new performance gates. The complete
-  local matrix passes; commit and push are the next requested actions.
+  local matrix passes. Committed the implementation as `c437e21`, pushed it to
+  `https://github.com/unislang/unifold.git`, and independently verified remote `main` at
+  `c437e212cdc2f34c0fa80982a15e8eb195796b01`.
