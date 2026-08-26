@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const workspaceRoot = resolve(packageRoot, "../..");
+const vitestExecutable = resolve(workspaceRoot, "node_modules/vitest/vitest.mjs");
 const resultDirectory = resolve(workspaceRoot, "benchmark-results");
 const rawPath = resolve(resultDirectory, "selective-rendering.raw.json");
 const profilePath = resolve(resultDirectory, "performance-profile.raw.json");
@@ -28,6 +29,7 @@ const controlPlaneDurabilityPath = resolve(
   resultDirectory,
   "control-plane-durability-performance.raw.json"
 );
+const asyncStorePath = resolve(resultDirectory, "async-store-performance.raw.json");
 const finalPath = resolve(resultDirectory, "selective-rendering.json");
 
 await mkdir(resultDirectory, { recursive: true });
@@ -52,6 +54,7 @@ const controlPlaneTransportPerformance = JSON.parse(
 const controlPlaneDurabilityPerformance = JSON.parse(
   await readFile(controlPlaneDurabilityPath, "utf8")
 );
+const asyncStorePerformance = JSON.parse(await readFile(asyncStorePath, "utf8"));
 const profile = {
   ...measuredProfile,
   gates: [
@@ -68,8 +71,10 @@ const profile = {
     ...collaborationPerformance.gates,
     ...devtoolsPerformance.gates,
     ...controlPlaneDurabilityPerformance.gates,
-    ...controlPlaneTransportPerformance.gates
+    ...controlPlaneTransportPerformance.gates,
+    ...asyncStorePerformance.gates
   ],
+  asyncStorePerformance,
   auditLogPerformance,
   collaborationPerformance,
   controlPlaneDurabilityPerformance,
@@ -89,22 +94,20 @@ const report = {
   environment: environmentMetadata(),
   generatedAt: new Date().toISOString(),
   profile,
-  schemaVersion: "2.14.0"
+  schemaVersion: "2.15.0"
 };
 await writeFile(finalPath, `${JSON.stringify(report, null, 2)}\n`);
 process.stdout.write(`Benchmark report: ${finalPath}\n`);
 
 function runVitest() {
-  const executable = resolve(workspaceRoot, "node_modules/vitest/vitest.mjs");
   execFileSync(
     process.execPath,
-    [executable, "bench", "--run", "--config", "vitest.config.ts", "--outputJson", rawPath],
+    [vitestExecutable, "bench", "--run", "--config", "vitest.config.ts", "--outputJson", rawPath],
     { cwd: packageRoot, stdio: "inherit" }
   );
 }
 
 function runProfile() {
-  const executable = resolve(workspaceRoot, "node_modules/vitest/vitest.mjs");
   const profiles = [
     ["performance-profile.test.ts", "UNIFOLD_PERFORMANCE_PROFILE_OUTPUT", profilePath],
     ["lifecycle-memory-profile.test.ts", "UNIFOLD_LIFECYCLE_MEMORY_OUTPUT", lifecycleMemoryPath],
@@ -127,10 +130,11 @@ function runProfile() {
       "control-plane-transport-profile.test.ts",
       "UNIFOLD_CONTROL_PLANE_TRANSPORT_OUTPUT",
       controlPlaneTransportPath
-    ]
+    ],
+    ["async-store-profile.test.ts", "UNIFOLD_ASYNC_STORE_OUTPUT", asyncStorePath]
   ];
   profiles.forEach(([testFile, environmentKey, outputPath]) =>
-    runNamedProfile(executable, testFile, environmentKey, outputPath)
+    runNamedProfile(vitestExecutable, testFile, environmentKey, outputPath)
   );
 }
 

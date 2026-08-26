@@ -38,19 +38,27 @@ export function cancelledCommitRejection(
 
 export function revisionCommitRejection(
   snapshot: UiAsyncStoreSnapshot | undefined,
-  expectedRevision: string
+  expectedRevision: string | null
 ): UiAsyncStoreCommitResult | undefined {
-  return snapshot?.revision === expectedRevision
+  return snapshotRevision(snapshot) === expectedRevision
     ? undefined
     : commitFailure("conflict", "store-revision-conflict");
+}
+
+function snapshotRevision(snapshot: UiAsyncStoreSnapshot | undefined): string | null {
+  return snapshot === undefined ? null : snapshot.revision;
 }
 
 export function invalidIdentityCommitRejection(
   command: UiAsyncStoreCommitCommand
 ): UiAsyncStoreCommitResult | undefined {
-  return [command.expectedRevision, command.idempotencyKey].every(validIdentity)
+  return validExpectedRevision(command.expectedRevision) && validIdentity(command.idempotencyKey)
     ? undefined
     : commitFailure("invalid", "store-commit-identity-invalid");
+}
+
+function validExpectedRevision(value: string | null): boolean {
+  return value === null || validIdentity(value);
 }
 
 export async function authorizedStoreOperation(

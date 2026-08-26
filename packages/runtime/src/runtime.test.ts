@@ -23,6 +23,7 @@ describe("UnifoldRuntime transactions", () => {
   it("commits multiple commands once and publishes post-commit facts", verifiesCommit);
   it("applies reachable derived rules in the same observable transaction", verifiesDerivedRules);
   it("omits store writes for bound nodes removed in the same batch", verifiesRemovedStoreWrite);
+  it("suppresses store writes for externally projected transactions", verifiesSuppressedStoreWrite);
 });
 
 describe("UnifoldRuntime actor routing", () => {
@@ -127,6 +128,38 @@ function verifiesRemovedStoreWrite(): void {
   expect(record.revision).toBe(1);
   expect(record.changedNodeIds).toContain("field");
   expect(execute).not.toHaveBeenCalled();
+}
+
+function verifiesSuppressedStoreWrite(): void {
+  const execute = vi.fn();
+  const runtime = new UnifoldRuntime({
+    commandPort: { execute },
+    documentId: "test",
+    initialNodes: [controlNode("field", "A"), controlNode("other", "X")],
+    storeBindings: {
+      field: { path: "/name", storeId: "customer" },
+      other: { path: "/value", storeId: "secondary" }
+    }
+  });
+
+  runtime.execute(
+    [
+      { id: "field", type: UiCommandType.ControlSetValue, value: "B" },
+      { id: "other", type: UiCommandType.ControlSetValue, value: "Y" }
+    ],
+    { suppressedStoreWriteIds: ["customer"] }
+  );
+
+  expect(controlValue(runtime.getSnapshot("field"))).toBe("B");
+  expect(execute.mock.calls.map(([command]) => command)).toEqual([
+    {
+      id: "other",
+      path: "/value",
+      storeId: "secondary",
+      type: UiCommandType.StoreWrite,
+      value: "Y"
+    }
+  ]);
 }
 
 function verifiesRouting(): void {

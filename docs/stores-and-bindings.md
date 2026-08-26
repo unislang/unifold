@@ -159,6 +159,40 @@ idempotency semantics; the adapter enforces bounded versioned UTF-8 JSON envelop
 corrupt external notifications. One conformance suite runs the same load, commit, replay, stale
 revision, subscription, and disposal cases against both implementations.
 
+Applications opt into this lifecycle with `mountUnifoldApplicationAsync()`. Every declared store is
+connected, authorized, migrated, and validated before element registration or rendering. If any
+connection fails, successful peer sessions are disposed and the container is left unchanged:
+
+```ts
+const result = await mountUnifoldApplicationAsync(document, host, {
+  asyncStoreAdapters: {
+    customer: {
+      adapter: customerStore,
+      authorization: storeAuthorization,
+      conflictPolicy: "external-wins",
+      migrations: customerMigrations
+    }
+  },
+  signal
+});
+```
+
+Mounted writes remain typed post-commit effects, but their `effect.completed` or `effect.failed`
+fact waits for the adapter promise. Writes to each store execute in order and read the session's
+current revision when they begin. A rejected optimistic write projects the accepted session
+snapshot back through one value transaction. An initially absent optional store uses `null` as the
+explicit compare-and-set base and can create its first opaque revision.
+
+Validated external snapshots enter the ordinary runtime as one transaction of control-value
+commands. That transaction explicitly suppresses derived store writes, preventing subscription
+echoes while retaining rules, validation, aggregate state, canonical events, selective DOM
+projection, and the normalized graph as the sole UI authority. Session update events distinguish
+local commit acceptance from external ingress. Application disposal aborts queued commit signals,
+unsubscribes, and disposes every session; late effect settlement cannot publish into a disposed
+runtime. Synchronous document updates may change view structure and bindings while retaining the
+same exact store definitions. A definition change is rejected because reconnecting privileged
+sessions requires a new asynchronous mount.
+
 ## Current limitations and next evidence
 
 The remaining seam limitations are:
@@ -166,21 +200,17 @@ The remaining seam limitations are:
 - query execution, caching, retry, offline orchestration, automatic connector selection, or remote
   connectors;
 - merge/CRDT semantics or multi-writer arbitration beyond explicit reject/external-wins policy;
-- automatic projection of async session updates into a mounted application's normalized runtime;
-- browser lifecycle evidence for async connection, cancellation, external update, and disposal;
 - atomic rollback across the normalized transaction and an external adapter write.
 
 The replacement boundary has unit evidence for memory and injected Web Storage adapters and browser
-evidence for hydration, write-through, dynamic path replacement, selective sibling identity, and
-missing/invalid adapter rejection before rendering.
+evidence for synchronous and asynchronous hydration, write-through, dynamic path replacement,
+external projection without write-back, selective sibling identity, disposal, and missing/invalid
+adapter rejection before rendering. Deterministic performance fixtures require exact results for
+1,000 authorized commits and 1,000 mounted external projections.
 
-Avoid binding multiple writable controls to the same store path until conflict semantics are defined.
-Async sessions expose validated external changes but application mount integration is still a
-release gate; external changes for a mounted application still require a coordinated document
-update, remount, or application-level command through normal runtime ingress. Future integration
-must retain schema validation,
-single-transaction UI commits, canonical event causality, and the rule that components never own a
-parallel application store.
+Avoid binding multiple writable controls to the same store path until conflict semantics are
+defined. Distributed atomicity, richer merge policy, offline replay, and dynamic privileged session
+reconnection remain host-level or future work rather than a second application store.
 
 The implementation reuses `json-schema-library` for Draft 2020-12 compilation and schema-pointer
 resolution, `@sagold/json-pointer` for RFC 6901 value access, and `semver` for adapter range checks.

@@ -56,6 +56,11 @@ expected first sorted row, and the expected canonical selection. The separate
 `pnpm benchmark:data-grid-foundation` command compares bounded native and Spectrum candidates and
 records why framework-native behavior was selected.
 
+An exact async-store fixture performs 1,000 separately authorized optimistic commits and 1,000
+external snapshot projections through a mounted one-control application. Five samples require p95
+at or below 2,000 ms and 5,000 ms respectively while proving the advancing revision, exact final
+value, exactly 1,000 normalized projection transactions, and zero provider write echoes.
+
 An exact 10,000-row MasterDetail document adds twenty post-warm-up startup and selection samples.
 Its gates require startup p95 at or below 1,000 ms, selection p95 at or below 100 ms, no more than
 200 rendered master options, the expected canonical selected row, and the matching detail content.

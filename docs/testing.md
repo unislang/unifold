@@ -184,6 +184,11 @@ conformance suite runs against memory and SQLite stores and adds conflicting/con
 reservations, lease partitioning, expiry takeover, stale-owner rejection, release/retry, tenant
 isolation, verified restore, database-trigger rollback, OpenFGA fail-closed mapping, telemetry
 redaction, encrypted-recovery tampering/cancellation, and session/CSRF admission cases.
+The async-store fixture executes exactly 1,000 authorized optimistic session commits and exactly
+1,000 external snapshots through a mounted application's normalized runtime. It requires advancing
+revisions, the exact final value, zero provider write echoes, and executable p95 limits of 2,000 ms
+and 5,000 ms respectively. The typed-store Playwright journey separately proves pre-render
+hydration, local async settlement, external DOM/runtime projection, and disposal behavior.
 The Chromium scale journey complements the Node suite by observing all 1,000 or 10,000 rendered
 hosts in one page-context pass. It requires one render-counter mutation, unchanged unrelated counts,
 retained element and shadow-input identity/focus, canonical event order, and an exact one-node commit.

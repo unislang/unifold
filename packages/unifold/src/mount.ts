@@ -57,6 +57,22 @@ export function mountPreparedUnifoldApplication(
   }
 }
 
+export function mountPreparedUnifoldApplicationWithStores(
+  prepared: PreparedUnifoldDocument,
+  container: HTMLElement,
+  options: MountUnifoldApplicationOptions,
+  stores: PreparedApplicationStores,
+  storeCommands: StoreCommandController
+): MountUnifoldApplicationResult {
+  try {
+    const registration = registerApplicationElements(container);
+    if (registration !== undefined) return registration;
+    return mountConfigured(prepared, container, options, stores, storeCommands);
+  } catch (error) {
+    return rejectedMount(errorDiagnostic(error, mountErrorStage(error)));
+  }
+}
+
 function mountPrepared(
   prepared: PreparedUnifoldDocument,
   container: HTMLElement,
@@ -72,7 +88,6 @@ function mountRegistered(
   container: HTMLElement,
   options: MountUnifoldApplicationOptions
 ): MountUnifoldApplicationResult {
-  const hydration = captureHydration(prepared.document, container, options);
   const stores = prepareApplicationStores(prepared.document, options.storeAdapters);
   const storeCommands = createStoreCommandPort(
     prepared.document,
@@ -80,6 +95,17 @@ function mountRegistered(
     storeAdapters(options),
     options.runtime?.commandPort
   );
+  return mountConfigured(prepared, container, options, stores, storeCommands);
+}
+
+function mountConfigured(
+  prepared: PreparedUnifoldDocument,
+  container: HTMLElement,
+  options: MountUnifoldApplicationOptions,
+  stores: PreparedApplicationStores,
+  storeCommands: StoreCommandController
+): MountUnifoldApplicationResult {
+  const hydration = captureHydration(prepared.document, container, options);
   const runtime = createRuntime(prepared.document, options, stores, storeCommands, hydration);
   try {
     return mountRuntime(prepared, container, runtime, stores, storeCommands, options, hydration);

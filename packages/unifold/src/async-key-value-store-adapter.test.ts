@@ -145,7 +145,7 @@ it("rejects invalid configuration and non-advancing revisions", async () => {
     expect(() => createAdapter(fixture.port, maximumBytes)).toThrow(/byte limit/u);
   });
   const adapter = createAsyncKeyValueStoreAdapter(fixture.port, "2.1.0", {
-    createRevision: (revision) => revision,
+    createRevision: (revision) => revision ?? "revision-1",
     key: "customer"
   });
   await expect(adapter.commit(command())).resolves.toEqual({ status: "unavailable" });

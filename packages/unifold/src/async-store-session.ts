@@ -162,12 +162,12 @@ class AsyncStoreSession implements UiAsyncStoreSession {
 
   #acceptCommit(
     result: UiAsyncStoreCommitResult,
-    previousRevision: string
+    previousRevision: string | null
   ): UiAsyncStoreCommitResult {
     if (result.status !== "committed") return result;
     const snapshot = this.#newSnapshot(result.snapshot, previousRevision);
     if (snapshot === undefined) return commitFailure("invalid", "store-commit-result-invalid");
-    this.#apply(snapshot);
+    this.#apply(snapshot, "commit");
     return { snapshot: structuredClone(snapshot), status: "committed" };
   }
 
@@ -216,7 +216,7 @@ class AsyncStoreSession implements UiAsyncStoreSession {
       return;
     }
     if (sameRevision(snapshot, this.#snapshot)) return;
-    this.#apply(snapshot);
+    this.#apply(snapshot, "external");
   }
 
   #validated(value: UiAsyncStoreSnapshot | undefined): UiAsyncStoreSnapshot | undefined {
@@ -226,15 +226,15 @@ class AsyncStoreSession implements UiAsyncStoreSession {
 
   #newSnapshot(
     value: UiAsyncStoreSnapshot | undefined,
-    previousRevision: string
+    previousRevision: string | null
   ): UiAsyncStoreSnapshot | undefined {
     const snapshot = this.#validated(value);
     return snapshot?.revision === previousRevision ? undefined : snapshot;
   }
 
-  #apply(snapshot: UiAsyncStoreSnapshot): void {
+  #apply(snapshot: UiAsyncStoreSnapshot, source: "commit" | "external"): void {
     this.#snapshot = cloneSnapshot(snapshot);
-    this.#emit({ snapshot: structuredClone(snapshot), status: "updated" });
+    this.#emit({ snapshot: structuredClone(snapshot), source, status: "updated" });
   }
 
   #emit(event: UiAsyncStoreEvent): void {

@@ -38,6 +38,30 @@ test("rejects missing and invalid adapters without partial UI", async ({ page })
   }
 });
 
+test("settles async writes and projects external snapshots without write-back", async ({
+  page
+}) => {
+  await page.goto("/");
+  expect(await mountAsyncStoreFixture(page)).toMatchObject({ childCount: 1, status: "mounted" });
+  const field = page.getByLabel("Stored name").last();
+  await expect(field).toHaveValue("Ada");
+
+  await field.fill("Grace");
+  await expect
+    .poll(async () => (await observeAsyncStoreFixture(page)).snapshot)
+    .toEqual({
+      primary: "Grace",
+      secondary: "Katherine"
+    });
+  expect((await observeAsyncStoreFixture(page)).commits).toBe(1);
+
+  await publishAsyncStoreFixture(page, "External");
+  await expect(field).toHaveValue("External");
+  const observation = await observeAsyncStoreFixture(page);
+  expect(observation.runtimeValue).toBe("External");
+  expect(observation.commits).toBe(1);
+});
+
 function mountStoreFixture(page: Page): Promise<StoreMountObservation> {
   return page.evaluate(() => {
     const hooks = (window as unknown as StoreWindow).__unifoldStoreFixture;
@@ -70,6 +94,30 @@ function rejectStoreFixture(page: Page, mode: StoreRejectMode): Promise<StoreMou
   }, mode);
 }
 
+function mountAsyncStoreFixture(page: Page): Promise<StoreMountObservation> {
+  return page.evaluate(() => {
+    const hooks = (window as unknown as StoreWindow).__unifoldAsyncStoreFixture;
+    if (hooks === undefined) throw new Error("The async store fixture hooks are unavailable.");
+    return hooks.mount();
+  });
+}
+
+function observeAsyncStoreFixture(page: Page): Promise<AsyncStoreObservation> {
+  return page.evaluate(() => {
+    const hooks = (window as unknown as StoreWindow).__unifoldAsyncStoreFixture;
+    if (hooks === undefined) throw new Error("The async store fixture hooks are unavailable.");
+    return hooks.observe();
+  });
+}
+
+function publishAsyncStoreFixture(page: Page, value: string): Promise<void> {
+  return page.evaluate((next) => {
+    const hooks = (window as unknown as StoreWindow).__unifoldAsyncStoreFixture;
+    if (hooks === undefined) throw new Error("The async store fixture hooks are unavailable.");
+    hooks.publish(next);
+  }, value);
+}
+
 interface StoreFixtureHooks {
   mount(): StoreMountObservation;
   observe(): StoreObservation;
@@ -89,11 +137,24 @@ interface StoreObservation {
   readonly snapshot: unknown;
 }
 
+interface AsyncStoreObservation {
+  readonly commits: number;
+  readonly runtimeValue: unknown;
+  readonly snapshot: unknown;
+}
+
+interface AsyncStoreFixtureHooks {
+  mount(): Promise<StoreMountObservation>;
+  observe(): AsyncStoreObservation;
+  publish(value: string): void;
+}
+
 enum StoreRejectMode {
   Invalid = "invalid",
   Missing = "missing"
 }
 
 interface StoreWindow {
+  readonly __unifoldAsyncStoreFixture?: AsyncStoreFixtureHooks;
   readonly __unifoldStoreFixture?: StoreFixtureHooks;
 }

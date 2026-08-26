@@ -28,8 +28,12 @@ export interface UiExecutionContext {
   readonly transactionId?: string;
 }
 
+export interface UiRuntimeExecutionContext extends UiExecutionContext {
+  readonly suppressedStoreWriteIds?: readonly string[];
+}
+
 export interface UiCommandPort {
-  execute(command: UiCommand, context: Required<UiExecutionContext>): void;
+  execute(command: UiCommand, context: Required<UiExecutionContext>): Promise<void> | void;
 }
 
 export interface UiRuntimeInspectionSnapshot {

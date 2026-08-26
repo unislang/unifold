@@ -1,5 +1,7 @@
 import type { DataClassification, JsonValue, UiStoreDefinition } from "@unislang/unifold-contracts";
 
+import type { MountUnifoldApplicationOptions } from "./types.js";
+
 export type UiAsyncStoreOperation = "commit" | "load" | "subscribe";
 export type UiAsyncStoreCommitStatus =
   | "cancelled"
@@ -15,6 +17,7 @@ export type UiAsyncStoreConnectionStatus =
   | "invalid"
   | "unavailable";
 export type UiAsyncStoreEventStatus = "conflict" | "rejected" | "updated";
+export type UiAsyncStoreUpdateSource = "commit" | "external";
 export type UiStoreExternalConflictPolicy = "external-wins" | "reject-concurrent";
 
 export interface UiAsyncStoreSnapshot {
@@ -24,7 +27,7 @@ export interface UiAsyncStoreSnapshot {
 }
 
 export interface UiAsyncStoreCommitCommand {
-  readonly expectedRevision: string;
+  readonly expectedRevision: string | null;
   readonly idempotencyKey: string;
   readonly path: string;
   readonly signal?: AbortSignal;
@@ -66,11 +69,16 @@ export interface UiStoreSinkAuthorizationPort {
   decide(request: UiStoreSinkAuthorizationRequest): Promise<boolean>;
 }
 
-export interface UiAsyncStoreEvent {
-  readonly code?: string;
-  readonly snapshot?: UiAsyncStoreSnapshot;
-  readonly status: UiAsyncStoreEventStatus;
-}
+export type UiAsyncStoreEvent =
+  | {
+      readonly code: string;
+      readonly status: Exclude<UiAsyncStoreEventStatus, "updated">;
+    }
+  | {
+      readonly snapshot: UiAsyncStoreSnapshot;
+      readonly source: UiAsyncStoreUpdateSource;
+      readonly status: "updated";
+    };
 
 export interface UiAsyncStoreSession {
   readonly definition: UiStoreDefinition;
@@ -91,4 +99,19 @@ export interface UiAsyncStoreConnectionResult {
   readonly code?: string;
   readonly session?: UiAsyncStoreSession;
   readonly status: UiAsyncStoreConnectionStatus;
+}
+
+export interface UiAsyncStoreRegistration {
+  readonly adapter: UiAsyncStoreAdapter;
+  readonly authorization: UiStoreSinkAuthorizationPort;
+  readonly conflictPolicy?: UiStoreExternalConflictPolicy;
+  readonly migrations?: readonly UiStoreDataMigration[];
+}
+
+export type UiAsyncStoreRegistry = Readonly<Record<string, UiAsyncStoreRegistration>>;
+
+export interface MountAsyncUnifoldApplicationOptions
+  extends Omit<MountUnifoldApplicationOptions, "storeAdapters"> {
+  readonly asyncStoreAdapters?: UiAsyncStoreRegistry;
+  readonly signal?: AbortSignal;
 }

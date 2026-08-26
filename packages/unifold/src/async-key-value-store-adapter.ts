@@ -9,7 +9,7 @@ const envelopeSchemaVersion = "1.0.0";
 const defaultMaximumBytes = 10 * 1024 * 1024;
 
 export interface UiAsyncKeyValueCompareAndSetRequest {
-  readonly expectedRevision: string;
+  readonly expectedRevision: string | null;
   readonly idempotencyKey: string;
   readonly key: string;
   readonly signal?: AbortSignal;
@@ -29,7 +29,7 @@ export interface UiAsyncKeyValueStorePort {
 }
 
 export interface UiAsyncKeyValueStoreOptions {
-  readonly createRevision: (expectedRevision: string, idempotencyKey: string) => string;
+  readonly createRevision: (expectedRevision: string | null, idempotencyKey: string) => string;
   readonly key: string;
   readonly maximumBytes?: number;
 }
@@ -95,7 +95,7 @@ function assertDataVersion(actual: string, expected: string): void {
   if (actual !== expected) throw new Error("Data version is invalid.");
 }
 
-function requireNextRevision(revision: string, previousRevision: string): string {
+function requireNextRevision(revision: string, previousRevision: string | null): string {
   if (!validIdentity(revision)) throw new Error("Revision is invalid.");
   if (revision === previousRevision) throw new Error("Revision did not advance.");
   return revision;

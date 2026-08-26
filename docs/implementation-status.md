@@ -23,7 +23,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
   A test-only real-upstream parity workspace pins package integrity and source revision, verifies
   copied-fixture SHA-256 provenance, and compares supported trees against the Unifold IR in Chromium,
   Firefox, and WebKit. Its measured isolated production-profile cost is 5.88 kB minified/1.76 kB
-  gzip. The current complete reference is 175.14 KiB gzip against the executable 180 KiB Phase 1
+  gzip. The current complete reference is 179.52 KiB gzip against the executable 180 KiB Phase 1
   budget.
 - Typed `UiStoreDefinition` contracts and a Unifold `store`/`path` profile extension. The compiler
   validates unique definitions, enum-backed policy, embedded local-only Draft 2020-12 schemas,
@@ -34,7 +34,11 @@ critical seam; it is not yet the full catalog or Studio product described by the
   authorization, cancellation, exact trusted migration edges, revision/idempotency-based optimistic
   commits carrying the complete validated candidate, external subscriptions, and explicit
   reject/external-wins arbitration. Independent bounded memory and injected atomic key/value CAS
-  adapters pass one shared load/commit/replay/conflict/subscription/disposal conformance suite.
+  adapters pass one shared load/commit/replay/conflict/subscription/disposal conformance suite. The
+  opt-in async application mount connects every session atomically before render, serializes writes
+  against current revisions, settles canonical effects asynchronously, rolls failed optimistic
+  values back, and projects validated external snapshots through one write-suppressed runtime
+  transaction. Chromium/WebKit and deterministic 1,000-operation fixtures cover the lifecycle.
 - Deterministic reusable JSON composition expansion with exact version pins, scalar structural
   parameters, declared slots, nested instances, namespaced IDs, typed exports, versioned manifests,
   per-node provenance, runtime composition handles, and diagnostics.
@@ -197,11 +201,11 @@ critical seam; it is not yet the full catalog or Studio product described by the
    session revocation propagation, and chosen RPO/RTO. Promotion of the current Node SQLite adapter
    also requires explicit acceptance of its experimental runtime API or a supported driver
    implementing the same conformance contract.
-2. Expand store adapters with async loading, external subscriptions, explicit data-migration edges,
-   concurrency/conflict policy, privileged sink authorization, a second implementation, and browser
-   lifecycle evidence without weakening normalized UI-state ownership. The contract, authorization,
-   migration, conflict, and two-adapter conformance portions are implemented; mounted-runtime and
-   browser lifecycle integration remain.
+2. Provision the completed async store boundary against production connectors. The framework seam
+   now includes loading, external subscriptions, migrations, conflict policy, privileged sink
+   authorization, two-adapter conformance, mounted-runtime integration, browser lifecycle evidence,
+   and exact 1,000-operation gates without weakening normalized UI-state ownership. Production
+   promotion still requires connector credentials, offline/retry policy, and operational evidence.
 3. Publish actual profile migration edges only when a successor schema exists, expand document
    provenance with issuer/revocation/audit integration, and extend parity to binding, validation, and
    canonical event semantics before any React adapter.
@@ -255,14 +259,16 @@ critical seam; it is not yet the full catalog or Studio product described by the
   Source/persistence enums do not automatically select connectors. The opt-in async seam now proves
   authorized load/commit/subscription, executed trusted migrations, optimistic conflicts, bounded
   idempotency, cancellation, external-update policy, and a second CAS adapter through one conformance
-  suite. Mounted-runtime reprojection, browser lifecycle evidence, richer merge policy, async query
-  state, and cross-system rollback remain release gates. Memory and injected versioned Web Storage
+  suite. The async mount now proves atomic pre-render connection, serialized canonical effect
+  settlement, optional-store first revision, failed-write compensation, external reprojection with
+  no write echo, and disposal in unit plus Chromium/WebKit journeys. Richer merge policy, async query
+  state, dynamic privileged reconnection, and cross-system rollback remain release gates. Memory and injected versioned Web Storage
   adapters exercise the synchronous replacement
   boundary; Chromium and WebKit cover hydration, write-through, dynamic rebinding, selective DOM
   identity, and pre-render adapter rejection. The default runtime stream applies
   classification-aware public-safe disclosure.
 - Client-side validation and application coordination contribute materially to the reference bundle.
-  The current reference closure is 175.14 KiB gzip and remains below the executable 180 KiB gate,
+  The current reference closure is 179.52 KiB gzip and remains below the executable 180 KiB gate,
   which sums every emitted JavaScript chunk after each reference build. Preserve the `/validation`
   split and evaluate schema
   precompilation, build-time validation, or an explicit lazy authoring/compiler boundary before

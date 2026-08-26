@@ -53,7 +53,7 @@ function writeStore(
   stores: PreparedApplicationStores,
   adapters: UiStoreAdapterRegistry
 ): void {
-  const definition = authorizedDefinition(command, document);
+  const definition = authorizedStoreDefinition(command, document);
   const adapter = requireAuthorizedAdapter(definition, adapters);
   const current = ownValue(stores.values, command.storeId);
   const candidate = safeStoreWrite(current, command.path, command.value);
@@ -62,7 +62,7 @@ function writeStore(
   Reflect.set(stores.values, command.storeId, candidate);
 }
 
-function authorizedDefinition(
+export function authorizedStoreDefinition(
   command: StoreWriteCommand,
   document: UnifoldIrDocument
 ): UiStoreDefinition {

@@ -1,5 +1,6 @@
 export { UnifoldApplication } from "./application.js";
 export { mountPreparedUnifoldApplication, mountUnifoldApplication } from "./mount.js";
+export { mountUnifoldApplicationAsync } from "./async-mount.js";
 export { prepareUnifoldDocument, UnifoldDocumentCompiler } from "./compiler.js";
 export { loadUnifoldDocument } from "./document-loader.js";
 export * from "./document-loading-types.js";

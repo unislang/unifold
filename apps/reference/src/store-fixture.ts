@@ -1,8 +1,11 @@
 import {
   UnifoldApplicationMountStatus,
   UnifoldApplicationUpdateStatus,
+  createAsyncMemoryStoreAdapter,
   createMemoryStoreAdapter,
+  mountUnifoldApplicationAsync,
   mountUnifoldApplication,
+  type UiAsyncMemoryStoreAdapter,
   type UnifoldApplicationPort
 } from "@unislang/unifold";
 
@@ -25,6 +28,11 @@ interface StoreFixtureWindow {
     reject(mode: StoreFixtureRejectMode): StoreFixtureMountObservation;
     updatePath(path: string): UnifoldApplicationUpdateStatus;
   };
+  __unifoldAsyncStoreFixture?: {
+    mount(): Promise<StoreFixtureMountObservation>;
+    observe(): AsyncStoreFixtureObservation;
+    publish(value: string): void;
+  };
 }
 
 interface StoreFixtureMountObservation {
@@ -39,12 +47,26 @@ interface StoreFixtureObservation {
   readonly snapshot: unknown;
 }
 
+interface AsyncStoreFixtureObservation {
+  readonly commits: number;
+  readonly runtimeValue: unknown;
+  readonly snapshot: unknown;
+}
+
 enum StoreFixtureRejectMode {
   Invalid = "invalid",
   Missing = "missing"
 }
 
 let mounted: MountedStoreFixture | undefined;
+let mountedAsync: MountedAsyncStoreFixture | undefined;
+
+interface MountedAsyncStoreFixture {
+  readonly adapter: UiAsyncMemoryStoreAdapter;
+  readonly application: UnifoldApplicationPort;
+  readonly commits: () => number;
+  readonly container: HTMLElement;
+}
 
 export function installStoreFixtureHooks(): void {
   const target = window as unknown as StoreFixtureWindow;
@@ -54,6 +76,83 @@ export function installStoreFixtureHooks(): void {
     reject: rejectStoreFixture,
     updatePath: updateStorePath
   };
+  target.__unifoldAsyncStoreFixture = {
+    mount: mountAsyncStoreFixture,
+    observe: observeAsyncStoreFixture,
+    publish: publishAsyncStoreFixture
+  };
+}
+
+async function mountAsyncStoreFixture(): Promise<StoreFixtureMountObservation> {
+  disposeAsyncStoreFixture();
+  const container = document.createElement("div");
+  container.dataset["testid"] = "async-store-fixture";
+  document.body.append(container);
+  const fixture = countedAsyncAdapter();
+  const result = await mountUnifoldApplicationAsync(
+    storeDocument("/primary", "async-store-1"),
+    container,
+    {
+      asyncStoreAdapters: {
+        customer: { adapter: fixture.adapter, authorization: { decide: async () => true } }
+      }
+    }
+  );
+  if (result.status === UnifoldApplicationMountStatus.Rejected) {
+    return mountObservation(result.status, container, result.diagnostics);
+  }
+  mountedAsync = { ...fixture, application: result.application, container };
+  return mountObservation(result.status, container, result.diagnostics);
+}
+
+function countedAsyncAdapter() {
+  const memory = createAsyncMemoryStoreAdapter("2.1.0", {
+    initialSnapshot: {
+      dataVersion: "2.1.0",
+      revision: "revision-1",
+      value: { primary: "Ada", secondary: "Katherine" }
+    }
+  });
+  let commitCount = 0;
+  const adapter: UiAsyncMemoryStoreAdapter = {
+    commit: (command) => {
+      commitCount += 1;
+      return memory.commit(command);
+    },
+    load: (signal) => memory.load(signal),
+    publish: (snapshot) => memory.publish(snapshot),
+    snapshot: () => memory.snapshot(),
+    subscribe: (listener) => subscribeMemory(memory, listener),
+    version: memory.version
+  };
+  return { adapter, commits: () => commitCount };
+}
+
+function subscribeMemory(
+  adapter: UiAsyncMemoryStoreAdapter,
+  listener: Parameters<NonNullable<UiAsyncMemoryStoreAdapter["subscribe"]>>[0]
+): () => void {
+  const subscribe = adapter.subscribe;
+  if (subscribe === undefined) return () => undefined;
+  return subscribe.call(adapter, listener);
+}
+
+function observeAsyncStoreFixture(): AsyncStoreFixtureObservation {
+  const fixture = requireAsyncStoreFixture();
+  return {
+    commits: fixture.commits(),
+    runtimeValue: fixture.application.runtime.getSnapshot("store-name").control?.value,
+    snapshot: fixture.adapter.snapshot()?.value
+  };
+}
+
+function publishAsyncStoreFixture(value: string): void {
+  const fixture = requireAsyncStoreFixture();
+  fixture.adapter.publish({
+    dataVersion: "2.1.0",
+    revision: `external-${value}`,
+    value: { primary: value, secondary: "Katherine" }
+  });
 }
 
 function mountStoreFixture(): StoreFixtureMountObservation {
@@ -136,9 +235,20 @@ function disposeStoreFixture(): void {
   mounted = undefined;
 }
 
+function disposeAsyncStoreFixture(): void {
+  mountedAsync?.application.dispose();
+  mountedAsync?.container.remove();
+  mountedAsync = undefined;
+}
+
 function requireStoreFixture(): MountedStoreFixture {
   if (mounted === undefined) throw new Error("The store fixture is not mounted.");
   return mounted;
+}
+
+function requireAsyncStoreFixture(): MountedAsyncStoreFixture {
+  if (mountedAsync === undefined) throw new Error("The async store fixture is not mounted.");
+  return mountedAsync;
 }
 
 function requireElement(application: UnifoldApplicationPort, id: string): HTMLElement {

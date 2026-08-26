@@ -61,6 +61,12 @@ rejection, safe retry, optimistic rollback, offline last-known-good reads, Query
 cross-context invalidation without allowing JSON to supply endpoints or identity. See
 [Remote data sources](./docs/data-sources.md).
 
+Typed document stores can use synchronous host adapters or the opt-in
+`mountUnifoldApplicationAsync()` lifecycle. The async boundary authorizes and validates all stores
+before render, serializes optimistic commits, settles canonical effect facts from their promises,
+and projects external snapshots through the sole normalized runtime without write-back loops. See
+[Stores and control bindings](./docs/stores-and-bindings.md).
+
 Every document uses the executable [`unifold-jsonui@1.0.0` profile](./docs/jsonui-profile.md), pinned
 to an exact upstream commit. Unsupported upstream actions, stores, modifiers, validation, lists,
 slots, and state export fail before IR generation instead of creating renderer-specific behavior.

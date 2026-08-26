@@ -86,12 +86,14 @@ only a changed committed value produces a typed post-commit `store.write` effect
 observable as an effect failure and does not roll back the UI transaction.
 
 The source and persistence enums are policy metadata, not automatic connector selection. A parallel
-async session contract now provides authorized loading/commit/subscription, exact trusted migration
+async session contract provides authorized loading/commit/subscription, exact trusted migration
 edges, complete-candidate optimistic commits, bounded idempotency identities, and explicit
 reject/external-wins conflict policy. Independent memory and injected atomic key/value adapters run
-one conformance suite. Automatic mounted-runtime projection, richer merge arbitration, and
-distributed atomicity remain open. Runtime facts apply classification-aware disclosure without
-changing those storage policies. See
+one conformance suite. The opt-in async mount connects atomically before rendering, serializes each
+store's effects, settles canonical effect facts from promises, and projects validated external
+snapshots through one no-write-back runtime transaction. Richer merge arbitration, offline replay,
+dynamic privileged reconnection, and distributed atomicity remain open. Runtime facts apply
+classification-aware disclosure without changing those storage policies. See
 [stores and control bindings](./stores-and-bindings.md) for the adapter contract and
 [runtime event disclosure](./event-disclosure.md) for the stream boundary.
 

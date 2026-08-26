@@ -8,7 +8,7 @@ import type {
 const defaultIdempotencyLimit = 1024;
 
 export interface UiAsyncMemoryStoreOptions {
-  readonly createRevision?: (previousRevision: string) => string;
+  readonly createRevision?: (previousRevision: string | null) => string;
   readonly idempotencyLimit?: number;
   readonly initialSnapshot?: UiAsyncStoreSnapshot;
 }
@@ -28,7 +28,7 @@ export function createAsyncMemoryStoreAdapter(
 
 class AsyncMemoryStoreAdapter implements UiAsyncMemoryStoreAdapter {
   readonly #committed = new Map<string, UiAsyncStoreCommitResult>();
-  readonly #createRevision: ((previousRevision: string) => string) | undefined;
+  readonly #createRevision: ((previousRevision: string | null) => string) | undefined;
   readonly #idempotencyLimit: number;
   readonly #listeners = new Set<(snapshot: UiAsyncStoreSnapshot) => void>();
   #revisionSequence = 0;
@@ -76,7 +76,7 @@ class AsyncMemoryStoreAdapter implements UiAsyncMemoryStoreAdapter {
     rememberResult(this.#committed, key, result, this.#idempotencyLimit);
   }
 
-  #nextRevision(previousRevision: string): string {
+  #nextRevision(previousRevision: string | null): string {
     if (this.#createRevision !== undefined) return this.#createRevision(previousRevision);
     this.#revisionSequence += 1;
     return `memory-${this.#revisionSequence}`;
@@ -86,7 +86,7 @@ class AsyncMemoryStoreAdapter implements UiAsyncMemoryStoreAdapter {
 function commitMemory(
   command: UiAsyncStoreAdapterCommitCommand,
   current: UiAsyncStoreSnapshot | undefined,
-  createRevision: (previousRevision: string) => string,
+  createRevision: (previousRevision: string | null) => string,
   accept: (snapshot: UiAsyncStoreSnapshot, result: UiAsyncStoreCommitResult) => void,
   committed: ReadonlyMap<string, UiAsyncStoreCommitResult>
 ): UiAsyncStoreCommitResult {
@@ -98,7 +98,7 @@ function commitMemory(
 function commitFresh(
   command: UiAsyncStoreAdapterCommitCommand,
   current: UiAsyncStoreSnapshot | undefined,
-  createRevision: (previousRevision: string) => string,
+  createRevision: (previousRevision: string | null) => string,
   accept: (snapshot: UiAsyncStoreSnapshot, result: UiAsyncStoreCommitResult) => void
 ): UiAsyncStoreCommitResult {
   const rejection = memoryCommitRejection(command, current);
@@ -129,7 +129,11 @@ function conflictingMemoryCommit(
   command: UiAsyncStoreAdapterCommitCommand,
   current: UiAsyncStoreSnapshot | undefined
 ): UiAsyncStoreCommitResult | undefined {
-  return current?.revision === command.expectedRevision ? undefined : failure("conflict");
+  return memoryRevision(current) === command.expectedRevision ? undefined : failure("conflict");
+}
+
+function memoryRevision(snapshot: UiAsyncStoreSnapshot | undefined): string | null {
+  return snapshot === undefined ? null : snapshot.revision;
 }
 
 function committedSnapshot(

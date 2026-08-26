@@ -73,7 +73,7 @@ it("rejects unsafe revision factories and invalid configuration", async () => {
   expect(() => createAsyncMemoryStoreAdapter("", {})).toThrow(/version/u);
   expect(() => createAsyncMemoryStoreAdapter("2.1.0", { idempotencyLimit: 0 })).toThrow(/limit/u);
   const adapter = createAsyncMemoryStoreAdapter("2.1.0", {
-    createRevision: (previous) => previous,
+    createRevision: (previous) => previous ?? "revision-1",
     initialSnapshot: snapshot("revision-1", "Ada")
   });
   await expect(adapter.commit(command())).resolves.toEqual({ status: "invalid" });
@@ -83,8 +83,8 @@ it("generates bounded default revisions and supports an initially absent value",
   const adapter = createAsyncMemoryStoreAdapter("2.1.0");
   await expect(adapter.load()).resolves.toBeUndefined();
   await expect(
-    adapter.commit({ ...command("missing"), candidate: { name: "Ada" }, value: "Ada" })
-  ).resolves.toMatchObject({ status: "conflict" });
+    adapter.commit({ ...command(null), candidate: { name: "Ada" }, value: "Ada" })
+  ).resolves.toMatchObject({ snapshot: { revision: "memory-1" }, status: "committed" });
   const initialized = createAsyncMemoryStoreAdapter("2.1.0", {
     initialSnapshot: snapshot("revision-1", "Ada")
   });
@@ -94,7 +94,7 @@ it("generates bounded default revisions and supports an initially absent value",
   });
 });
 
-function command(expectedRevision = "revision-1"): UiAsyncStoreAdapterCommitCommand {
+function command(expectedRevision: string | null = "revision-1"): UiAsyncStoreAdapterCommitCommand {
   return {
     candidate: { name: "Grace" },
     dataVersion: "2.1.0",

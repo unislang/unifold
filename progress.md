@@ -17,11 +17,11 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest implementation checkpoint: `607d208` (`feat: add async external store boundary`)
-- Remote implementation state: `origin/main` and local `HEAD` were independently verified at
-  `607d20881a96f80a9e26cea141f6d08b67fdc4ad` with `git ls-remote` and `git rev-parse` before this
-  progress-record-only update.
-- Working tree at implementation checkpoint: clean.
+- Latest pushed checkpoint: `e4c7fb6` (`docs: record async store checkpoint`)
+- Remote state before this slice: `origin/main` and local `HEAD` were independently verified at
+  `e4c7fb662f90fe32df3c488bbde4189ba3448a62`.
+- Working tree: the fully validated mounted async-store slice described below is ready for its
+  requested commit and push.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
@@ -54,37 +54,12 @@ record new measurements rather than treating the numbers above as proof for late
 
 ## Active slice
 
-Implement the first item under **Next architecture slices** in
-[`docs/implementation-status.md`](./docs/implementation-status.md#next-architecture-slices), beginning
-with the control-plane durability and replaceability proof:
-
-1. Define the transactional persistence boundary and durable outbox semantics without coupling the
-   service to a particular database.
-2. Add transaction rollback, atomic state/outbox commit, leasing, acknowledgement, retry, expiry,
-   and concurrent-reservation conformance cases with deterministic clocks and identities.
-3. Add a genuinely independent second store implementation and run the same conformance suite
-   against both implementations.
-4. Add representative performance fixtures and explicit regression thresholds for transaction and
-   outbox workloads.
-5. Update the control-plane contract, status, testing, performance, and changeset evidence.
-6. Run scoped checks first, then the complete repository validation matrix.
-
-Items 1-6 above are complete. The active continuation of architecture slice 1 was:
-
-1. Add an OpenFGA authorization adapter with exact tenant/actor/resource tuples, deny-by-default
-   error containment, and deterministic client test doubles.
-2. Add OpenTelemetry trace/metric integration that exports only allowlisted, classification-safe
-   attributes and preserves request/correlation/trace causality.
-3. Add an encrypted external-backup port and scheduled restore-drill evidence with integrity,
-   key-identity, failure, cancellation, and last-known-good behavior.
-4. Add transport-level session and CSRF admission integration with origin, cookie/header token,
-   expiry/revocation, and unsafe-method negative cases.
-5. Extend performance/operational gates where these adapters introduce measurable work, update
-   documentation and this record, then repeat the complete validation matrix.
-
-Items 1-5 are implemented, validated, committed, and pushed. The active work is architecture slice
-2: async/external store adapters. Its standalone contract and two implementations are now
-implemented; mounted-runtime/browser lifecycle integration remains before the slice is complete.
+The framework-owned portion of architecture slice 2, async/external store adapters, is complete and
+awaiting the requested commit/push. Resume with slice 3 in
+[`docs/implementation-status.md`](./docs/implementation-status.md#next-architecture-slices): actual
+profile migration edges when a successor exists, richer issuer/revocation/audit provenance, and
+binding/validation/canonical-event parity. Production provisioning of slices 1 and 2 remains a
+separate external-environment release gate rather than unfinished local framework code.
 
 ### 2026-08-26 durability checkpoint
 
@@ -169,13 +144,42 @@ The standalone async/external store boundary is implemented and committed as `60
   lifecycle/cancellation/external-update/disposal evidence, then run the full test/coverage/build and
   performance matrix.
 
+### 2026-08-26 mounted async-store checkpoint
+
+The remaining framework integration is implemented and fully validated, ready to commit:
+
+- `mountUnifoldApplicationAsync()` compiles first, connects every declared store in parallel, and
+  renders only after all authorization, loading, migration, and validation succeeds. Any peer
+  failure disposes successful sessions and preserves the container.
+- `UiCommandPort` effects may return promises. Canonical `effect.completed`/`effect.failed` facts
+  publish only after settlement, redact rejection details, and cannot publish after disposal.
+- The mounted controller serializes commits per store, reads the current revision at execution time,
+  uses bounded idempotency identities, compensates failed optimistic values, supports a `null`
+  compare-and-set base for optional empty stores, and cancels/disposes session work with the app.
+- Validated external snapshots enter the normalized graph as one transaction. An explicit trusted
+  runtime context suppresses derived store-write effects for that ingress, preventing write echoes
+  while retaining validation, rules, aggregates, canonical events, and selective rendering.
+- Unit/integration coverage includes delayed success/failure, late disposal, write suppression,
+  serialization, conflict rollback, external projection, atomic multi-store failure, optional first
+  revision, unchanged-definition updates, and disposal. The typed-store journey passes all three
+  cases in Chromium and WebKit. Firefox still fails before page creation for every typed-store case,
+  including the pre-existing synchronous cases, under the documented elevated-Windows runner issue.
+- Complete quality passes, including all source and strict test typechecks, ESLint, Knip, and
+  dependency rules over 1,369 modules/3,062 edges. The full test run passes 329 package files and 831
+  tests, tooling/script suites, and 27 performance correctness tests.
+- Coverage passes at 97.21% lines/statements, 96.98% functions, and 90.06% branches. Build and the
+  clean packed-consumer lifecycle pass; the reference JavaScript is 179.52 KiB gzip against 180 KiB.
+- Benchmark report schema 2.15.0 passes 36/36 gates. Five exact samples measured 1,000 authorized
+  async commits at 75.43 ms p95 against 2,000 ms and 1,000 mounted external projections at 104.28 ms
+  p95 against 5,000 ms, with exact revisions/final values and zero provider write echoes.
+
 ## Immediate resume procedure
 
-1. Read this file, `docs/implementation-status.md`, `docs/stores-and-bindings.md`, and the store/data
-   sections of the architecture plan.
+1. Read this file, `docs/implementation-status.md`, and the provenance/parity sections of the
+   architecture plan for the next local slice.
 2. Inspect `git status --short --branch` and preserve any post-checkpoint user changes.
-3. Inspect the async session, adapter command, memory/CAS implementations, and shared conformance
-   suite before designing mounted-runtime integration.
+3. Verify the mounted async-store commit and remote `main`, then begin implementation-status slice
+   3 without reopening completed store ownership decisions.
 4. Keep production modules and their adjacent tests within the enforced complexity, function-length,
    file-length, and one-test-per-module limits.
 5. Use `apply_patch` for edits. Run Prettier before assuming a diff is ready.
@@ -234,3 +238,7 @@ silently waived.
   adapters with one conformance suite. Full quality passes; committed and pushed the checkpoint as
   `607d208`, then independently verified `origin/main` at the full hash above. Mounted/browser
   integration remains.
+- 2026-08-26: Completed mounted async store integration, async canonical effect settlement,
+  write-suppressed external ingress, optional first revisions, compensation/disposal, public API,
+  Chromium/WebKit evidence, clean-consumer validation, and two new performance gates. The complete
+  local matrix passes; commit and push are the next requested actions.

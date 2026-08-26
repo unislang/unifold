@@ -52,10 +52,11 @@ import {
 } from "./runtime-helpers.js";
 import { reconciledCompositionInstances, removedOwnerIds } from "./structure-reconciliation.js";
 import { ruleCommandDependencies } from "./rule-command-dependencies.js";
-import { captureBoundValues, changedStoreWrites } from "./store-write.js";
+import { captureBoundValues, storeWriteEffects } from "./store-write.js";
+import { runCommandEffects } from "./effect-runner.js";
 import {
   UnifoldRuntimeStatus,
-  type UiExecutionContext,
+  type UiRuntimeExecutionContext,
   type UiCompositionHandle,
   type UiNodeHandle,
   type RuntimeTransactionResult,
@@ -205,7 +206,10 @@ export class UnifoldRuntime {
     return accepted;
   }
 
-  execute(commands: readonly UiCommand[], input: UiExecutionContext = {}): UiTransactionRecord {
+  execute(
+    commands: readonly UiCommand[],
+    input: UiRuntimeExecutionContext = {}
+  ): UiTransactionRecord {
     this.assertActive();
     const context = this.resolveContext(input);
     try {
@@ -233,20 +237,19 @@ export class UnifoldRuntime {
 
   private commit(
     commands: readonly UiCommand[],
-    context: Required<UiExecutionContext>
+    context: Required<UiRuntimeExecutionContext>
   ): UiTransactionRecord {
     const snapshots = this.store.getSnapshots();
     const removedIds = removedOwnerIds(commands, snapshots);
     const bindings = this.storeBindings;
     const { derivedCommands, record } = this.transact(commands, context);
     const appliedCommands = [...commands, ...derivedCommands];
-    const previousBoundValues = captureBoundValues(appliedCommands, bindings, snapshots);
+    const before = captureBoundValues(appliedCommands, bindings, snapshots);
     this.compositionInstances = reconciledCompositionInstances(commands, this.compositionInstances);
     removedIds.forEach((id) => this.actors.removeOwner(id));
     this.validation.remove(removedIds);
-    const storeWrites = changedStoreWrites(previousBoundValues, bindings, (id) =>
-      this.safeSnapshot(id)
-    );
+    const after = (id: string) => this.safeSnapshot(id);
+    const storeWrites = storeWriteEffects(context.suppressedStoreWriteIds, before, bindings, after);
     const executedCommands = [...appliedCommands, ...storeWrites];
     executedCommands.forEach((command) =>
       this.publisher.command(command, context, record, snapshots)
@@ -264,7 +267,7 @@ export class UnifoldRuntime {
 
   private transact(
     commands: readonly UiCommand[],
-    context: Required<UiExecutionContext>
+    context: Required<UiRuntimeExecutionContext>
   ): RuntimeTransactionResult {
     let derivedCommands: readonly UiCommand[] = [];
     const record = this.store.transact(transactionMetadata(context, this.now()), (draft) => {
@@ -292,28 +295,24 @@ export class UnifoldRuntime {
 
   private runEffects(
     commands: readonly UiCommand[],
-    context: Required<UiExecutionContext>,
+    context: Required<UiRuntimeExecutionContext>,
     record: UiTransactionRecord
   ): void {
-    const port = this.options.commandPort;
-    if (!port) return;
-    commands.forEach((command) => {
-      this.publisher.effect(UiEventType.EffectRequested, command, context, record);
-      try {
-        port.execute(command, context);
-        this.publisher.effect(UiEventType.EffectCompleted, command, context, record);
-      } catch {
-        this.publisher.effect(UiEventType.EffectFailed, command, context, record);
-      }
+    runCommandEffects(commands, context, record, {
+      active: () => this.lifecycle === UnifoldRuntimeStatus.Active,
+      commandPort: this.options.commandPort,
+      publish: (type, command, effectContext, effectRecord) =>
+        this.publisher.effect(type, command, effectContext, effectRecord)
     });
   }
 
-  private resolveContext(input: UiExecutionContext): Required<UiExecutionContext> {
+  private resolveContext(input: UiRuntimeExecutionContext): Required<UiRuntimeExecutionContext> {
     const transactionId = valueOrCreate(input.transactionId, this.createId);
     return {
       transactionId,
       correlationId: valueOrDefault(input.correlationId, transactionId),
-      causationId: valueOrDefault(input.causationId, transactionId)
+      causationId: valueOrDefault(input.causationId, transactionId),
+      suppressedStoreWriteIds: input.suppressedStoreWriteIds ?? []
     };
   }
 
