@@ -86,6 +86,11 @@ An exact search-control fixture mounts 100 deferred `SearchField` elements and p
 controlled query strings across 50 samples. It requires exact host count, the final native search
 value, and projection p95 at or below 100 ms.
 
+An exact repeated-choice fixture mounts 100 deferred `CheckboxGroup` elements with six options
+each and projects every controlled string-array selection across 50 samples. It requires exactly
+100 hosts, 600 native checkboxes, the expected final ordered native selection, and projection p95
+at or below 100 ms.
+
 An exact 10,000-row MasterDetail document adds twenty post-warm-up startup and selection samples.
 Its gates require startup p95 at or below 1,000 ms, selection p95 at or below 100 ms, no more than
 200 rendered master options, the expected canonical selected row, and the matching detail content.

@@ -23,6 +23,7 @@ const renderers: Readonly<Record<CoreComponentType, NodeRenderer>> = {
   [CoreComponentType.Button]: renderButton,
   [CoreComponentType.Card]: staticContent.renderStaticCard,
   [CoreComponentType.Checkbox]: renderCheckbox,
+  [CoreComponentType.CheckboxGroup]: staticComponents.renderStaticCheckboxGroup,
   [CoreComponentType.Combobox]: renderSelect,
   [CoreComponentType.Composition]: renderSection,
   [CoreComponentType.DataGrid]: staticComponents.renderStaticDataGrid,

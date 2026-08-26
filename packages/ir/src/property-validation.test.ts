@@ -82,6 +82,30 @@ it("validates SearchField autocomplete, required label, and leaf shape", () => {
   );
 });
 
+it("validates CheckboxGroup required label, repeated choices, and leaf shape", () => {
+  const invalid = validateUiDocument({
+    ...choiceDocument(),
+    view: {
+      $children: [{ $comp: "Text", content: "Unexpected", id: "child" }],
+      $comp: "CheckboxGroup",
+      id: "topics",
+      options: [
+        { label: "News", value: "news" },
+        { label: "Duplicate", value: "news" }
+      ],
+      value: ["missing"]
+    }
+  });
+  expect(invalid.diagnostics).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ path: "/view/label" }),
+      expect.objectContaining({ path: "/view/options/1/value" }),
+      expect.objectContaining({ path: "/view/value/0" }),
+      expect.objectContaining({ path: "/view/$children" })
+    ])
+  );
+});
+
 it("accepts a bounded virtual-list contract and rejects invalid geometry", () => {
   const document = choiceDocument();
   const valid = {

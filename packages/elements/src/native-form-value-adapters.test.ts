@@ -57,6 +57,9 @@ it("projects repeated enabled values and rejects malformed restored arrays", () 
   expect(adapter.project(["ts"], "").submission).toBeNull();
   expect(adapter.project(["ts", "ts"], "skills").submission).toBeNull();
   expect(adapter.project(["missing"], "skills").submission).toBeNull();
+  expect(adapter.isValueMissing(["disabled"])).toBe(true);
+  expect(adapter.isValueMissing(["missing"])).toBe(true);
+  expect(adapter.isValueMissing(["ts"])).toBe(false);
   expect(adapter.restore('["ts","a11y"]')).toEqual(["ts", "a11y"]);
   expect(adapter.restore('["ts","ts"]')).toBeUndefined();
   expect(adapter.restore('["disabled"]')).toBeUndefined();

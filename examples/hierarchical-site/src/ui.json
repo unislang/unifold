@@ -59,6 +59,23 @@
         "events": { "onInput": "SEARCH_CHANGED" }
       },
       {
+        "id": "contact-topics",
+        "type": "CheckboxGroup",
+        "props": {
+          "label": "Topics",
+          "name": "topics",
+          "options": [
+            { "label": "Product news", "value": "news" },
+            { "label": "Security alerts", "value": "security" },
+            { "disabled": true, "label": "Internal updates", "value": "internal" }
+          ],
+          "required": true,
+          "testId": "contact-topics",
+          "value": ["news"]
+        },
+        "events": { "onInput": "TOPICS_CHANGED" }
+      },
+      {
         "id": "contact-actions",
         "type": "Stack",
         "props": { "direction": "horizontal", "gap": "sm" },
@@ -68,6 +85,15 @@
             "type": "Button",
             "props": { "label": "Create summary", "testId": "show-summary" },
             "events": { "onClick": "SHOW_SUMMARY" }
+          },
+          {
+            "id": "submit-contact",
+            "type": "Button",
+            "props": {
+              "action": "submit",
+              "label": "Submit contact details",
+              "testId": "submit-contact"
+            }
           },
           {
             "id": "summary-status",

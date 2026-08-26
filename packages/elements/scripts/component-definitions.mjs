@@ -295,7 +295,19 @@ function objectSchema(descriptors, keyFor) {
 function propertySchema(descriptor) {
   const base = basePropertySchema(descriptor);
   if (base === undefined) throw new Error(`Unsupported property type: ${descriptor.valueType}.`);
-  return defaultedSchema(descriptor, base);
+  return defaultedSchema(descriptor, boundedSchema(descriptor, base));
+}
+
+function boundedSchema(descriptor, base) {
+  const schema = { ...base };
+  addBound(schema, "maxItems", descriptor.maximumItems);
+  addBound(schema, "minItems", descriptor.minimumItems);
+  addBound(schema, "minLength", descriptor.minimumLength);
+  return schema;
+}
+
+function addBound(schema, name, value) {
+  if (value !== undefined) schema[name] = value;
 }
 
 function controlAdapter(descriptor) {

@@ -19,7 +19,7 @@ export interface DomRenderController {
   dispose(): void;
   getElement(nodeId: string): HTMLElement | undefined;
   project(snapshot: UiNodeSnapshot, routedErrors?: readonly UiValidationError[]): void;
-  restoreFocus(nodeId: string): Promise<void>;
+  restoreFocus(nodeId: string, controlIndex?: number): Promise<void>;
   update(document: UnifoldIrDocument): void;
   validate(document: UnifoldIrDocument): void;
 }

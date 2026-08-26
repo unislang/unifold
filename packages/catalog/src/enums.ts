@@ -90,6 +90,7 @@ export enum CoreElementTag {
   Button = "unifold-button",
   Card = "unifold-card",
   Checkbox = "unifold-checkbox",
+  CheckboxGroup = "unifold-checkbox-group",
   Combobox = "unifold-combobox",
   Composition = "unifold-composition",
   DataGrid = "unifold-data-grid",

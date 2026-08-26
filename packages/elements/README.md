@@ -22,8 +22,8 @@ definition failure reports the tags already defined because the platform registr
 Use an iframe or another document realm for incompatible catalog releases. The shared constructor
 marker coordinates trusted same-realm packages; it is not a security boundary.
 
-The nineteen deferred families are explicit, side-effect-free subpath imports so an
-application pays for only the families its JSON can reference: `audit-log`, `breadcrumb`, `combobox`, `content-media`, `data-grid`,
+The twenty deferred families are explicit, side-effect-free subpath imports so an
+application pays for only the families its JSON can reference: `audit-log`, `breadcrumb`, `checkbox-group`, `combobox`, `content-media`, `data-grid`,
 `dialog`, `file-input`, `form-structure`, `master-detail`, `menu-button`, `number-field`, `popover`, `search-field`, `search-results`, `stepper`, `tabs`, `tooltip`,
 `virtual-list`, and `wizard`. Each entry exports its element classes and `defineUnifold*()` functions with the same
 preflight diagnostics. For example:
@@ -63,8 +63,9 @@ shared generic Lit controller projects committed values and validity through `El
 combines authored and ancestor-fieldset disabled state, and normalizes reset, restore, and
 autocomplete into the existing canonical input path. A thin scalar controller additionally
 suppresses intermediate IME input. It does not own application state or validation. The host
-`name` reflects for native `FormData`; Checkbox submits `"on"` only while checked, MultiSelect uses
-repeated keys, and FileInput exposes live `File` values only at the trusted native-form boundary.
+`name` reflects for native `FormData`; Checkbox submits `"on"` only while checked, CheckboxGroup
+and MultiSelect use repeated keys, and FileInput exposes live `File` values only at the trusted
+native-form boundary.
 The accessible editing surface remains the native control inside each component. See the
 [native form research record](../../docs/research/forms/report-source.md).
 
@@ -76,7 +77,7 @@ element invalidates those resolutions.
 
 ## Component manifests
 
-`pnpm generate:cem` analyzes all forty-one catalog elements with the official Custom Elements Manifest
+`pnpm generate:cem` analyzes all forty-two catalog elements with the official Custom Elements Manifest
 analyzer and Lit plugin. It validates the output against the official manifest schema and writes
 `dist/custom-elements.json`. The package exposes that file through its standard `customElements`
 metadata and `./custom-elements.json` export.

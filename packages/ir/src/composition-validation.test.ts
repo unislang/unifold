@@ -45,6 +45,10 @@ it.each([CoreComponentType.NumberField, CoreComponentType.SearchField])(
   }
 );
 
+it("accepts CheckboxGroup control-value selection exports", () => {
+  expect(compileUiDocument(withCheckboxGroup()).status).toBe(CompilationStatus.Valid);
+});
+
 it("rejects malformed manifest identity and export kinds", () => {
   const source = composedDocument();
   const instance = requireInstance(source);
@@ -113,6 +117,25 @@ function withScalarControl(componentType: CoreComponentType): UiDocument {
     view: {
       ...source.view,
       $children: [{ $comp: componentType, id: "editor::name", label: "Name", value }]
+    }
+  };
+}
+
+function withCheckboxGroup(): UiDocument {
+  const source = composedDocument();
+  return {
+    ...source,
+    view: {
+      ...source.view,
+      $children: [
+        {
+          $comp: CoreComponentType.CheckboxGroup,
+          id: "editor::name",
+          label: "Topics",
+          options: [{ label: "News", value: "news" }],
+          value: ["news"]
+        }
+      ]
     }
   };
 }

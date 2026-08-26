@@ -22,6 +22,7 @@ const EVENTS: Readonly<Record<CoreComponentType, readonly UiComponentEventBindin
   [CoreComponentType.Button]: ACTIVATED,
   [CoreComponentType.Card]: NONE,
   [CoreComponentType.Checkbox]: INPUT_AND_BLUR,
+  [CoreComponentType.CheckboxGroup]: INPUT_AND_BLUR,
   [CoreComponentType.Combobox]: INPUT_AND_BLUR,
   [CoreComponentType.Composition]: NONE,
   [CoreComponentType.DataGrid]: INPUT_AND_BLUR,

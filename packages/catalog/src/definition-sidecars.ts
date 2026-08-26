@@ -8,6 +8,7 @@ import {
 } from "./definition-sidecar-helpers.js";
 import { auditLogSidecar } from "./audit-log-sidecar.js";
 import { breadcrumbSidecar } from "./breadcrumb-sidecar.js";
+import { checkboxGroupSidecar } from "./checkbox-group-sidecar.js";
 import { cardSidecar, imageSidecar } from "./content-media-sidecars.js";
 import { comboboxSidecar } from "./combobox-sidecar.js";
 import { dialogSidecar } from "./dialog-sidecar.js";
@@ -95,6 +96,7 @@ export const componentDefinitionSidecars = Object.freeze({
     semanticAttachmentPoints: [],
     sensitiveProperties: ["errorMessage", "value"]
   }),
+  [CoreComponentType.CheckboxGroup]: checkboxGroupSidecar,
   [CoreComponentType.Combobox]: comboboxSidecar,
   [CoreComponentType.Composition]: definition({
     behaviors: ["Preserves expanded child identities", "Provides one accessible grouping boundary"],

@@ -30,6 +30,7 @@ function referenceFormChildren(): readonly JsonObject[] {
     searchField(),
     referenceFileInputNode(),
     checkbox(),
+    checkboxGroup(),
     radioGroup(),
     selectNode("Combobox", "assignee", "Assignee", "email"),
     selectNode("Select", "country", "Country", "us"),
@@ -152,6 +153,20 @@ function checkbox(): JsonObject {
     label: "Newsletter",
     name: "newsletter",
     value: true
+  };
+}
+
+function checkboxGroup(): JsonObject {
+  return {
+    $comp: "CheckboxGroup",
+    id: "topics",
+    label: "Topics",
+    name: "topics",
+    options: [
+      { label: "Product news", value: "news" },
+      { label: "Security alerts", value: "security" }
+    ],
+    value: ["news"]
   };
 }
 

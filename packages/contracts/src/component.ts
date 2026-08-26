@@ -7,6 +7,7 @@ export enum CoreComponentType {
   Button = "Button",
   Card = "Card",
   Checkbox = "Checkbox",
+  CheckboxGroup = "CheckboxGroup",
   Combobox = "Combobox",
   Composition = "Composition",
   DataGrid = "DataGrid",

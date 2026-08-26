@@ -285,7 +285,7 @@ function restoreCapturedFocus(
   hydration: StaticDomHydrationState | undefined
 ): void {
   if (hydration?.focusedNodeId === undefined) return;
-  void renderer.restoreFocus(hydration.focusedNodeId);
+  void renderer.restoreFocus(hydration.focusedNodeId, hydration.focusedControlIndex);
 }
 
 function mountErrorStage(error: unknown): UnifoldApplicationDiagnosticStage {

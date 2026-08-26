@@ -1,6 +1,6 @@
 # Core components
 
-The implemented core catalog contains forty-one JSON-constructible Web Components. Every component has a
+The implemented core catalog contains forty-two JSON-constructible Web Components. Every component has a
 stable node ID, participates in the same canonical event stream, and receives selective state
 projection through the application runtime. The catalog descriptor is the authority for accepted
 properties; the IR compiler rejects unknown properties and values of the wrong type before render.
@@ -15,6 +15,7 @@ properties; the IR compiler rejects unknown properties and values of the wrong t
 | `Button`        | `unifold-button`         | none           | `button`                   | `component.activated`                  |
 | `Card`          | `unifold-card`           | none           | `article`                  | descendant scope                       |
 | `Checkbox`      | `unifold-checkbox`       | boolean        | checkbox input             | `control.input`, `control.blurred`     |
+| `CheckboxGroup` | `unifold-checkbox-group` | string array   | fieldset + checkboxes      | `control.input`, `control.blurred`     |
 | `Combobox`      | `unifold-combobox`       | string         | input + ARIA listbox       | `control.input`, `control.blurred`     |
 | `Composition`   | `unifold-composition`    | none           | grouping host              | descendant scope                       |
 | `DataGrid`      | `unifold-data-grid`      | object         | table and native inputs    | `control.input`, `control.blurred`     |
@@ -52,7 +53,7 @@ properties; the IR compiler rejects unknown properties and values of the wrong t
 Event names above use their readable suffixes. The wire values are versioned enums such as
 `org.unifold.ui.control.input.v1`, exported as `ElementEventType`.
 
-The baseline registration includes the nineteen small families. AuditLog, Breadcrumb, Card, Combobox,
+The baseline registration includes the nineteen small families. AuditLog, Breadcrumb, Card, CheckboxGroup, Combobox,
 DataGrid, Dialog, ErrorSummary, Field, Fieldset, FileInput, Image, MasterDetail, MenuButton, Popover,
 NumberField, SearchField, SearchResults, Stepper, Tabs, Tooltip, VirtualList, and Wizard are deferred families loaded through matching
 `@unislang/unifold/<kebab-case-name>` subpaths. Strict mounting requires those definitions before
@@ -125,6 +126,40 @@ The Scratch-style JSON shape stays declarative: a component `type`, a stable `id
 ```ts
 const { defineUnifoldSearchField } = await import("@unislang/unifold/search-field");
 defineUnifoldSearchField();
+```
+
+## CheckboxGroup repeated-choice contract
+
+`CheckboxGroup` is loaded through `@unislang/unifold/checkbox-group`. It requires a non-empty
+label and between 1 and 100 exact choice options. Option values and the canonical string-array
+selection are unique; every selected value must name an enabled declared option. The native
+fieldset submits each selected value under the same form name, emits the complete selection in
+catalog order, and emits one group blur only when focus leaves the fieldset.
+
+The public authoring shape follows the Scratch layout model and lowers into the canonical
+`$comp` representation before IR validation:
+
+```json
+{
+  "type": "CheckboxGroup",
+  "id": "contact-topics",
+  "props": {
+    "label": "Topics",
+    "name": "topics",
+    "options": [
+      { "label": "Product news", "value": "news" },
+      { "label": "Security alerts", "value": "security" }
+    ],
+    "required": true,
+    "value": ["news"]
+  },
+  "events": { "onInput": "TOPICS_CHANGED" }
+}
+```
+
+```ts
+const { defineUnifoldCheckboxGroup } = await import("@unislang/unifold/checkbox-group");
+defineUnifoldCheckboxGroup();
 ```
 
 `Card` and `Image` are delivered together through the deferred

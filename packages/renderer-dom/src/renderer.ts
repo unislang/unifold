@@ -91,15 +91,15 @@ class DomRenderer implements DomRenderController {
     rendered.properties = properties;
   }
 
-  async restoreFocus(nodeId: string): Promise<void> {
+  async restoreFocus(nodeId: string, controlIndex?: number): Promise<void> {
     const element = this.getElement(nodeId) as UnifoldElementHost | undefined;
     if (element === undefined) return;
     const ancestorUpdates = pendingAncestorUpdates(element);
-    focusElement(element);
+    focusElement(element, controlIndex);
     await element.updateComplete;
-    focusElement(element);
+    focusElement(element, controlIndex);
     await Promise.all(ancestorUpdates);
-    focusElement(element);
+    focusElement(element, controlIndex);
   }
 
   private createElement(id: string, document: UnifoldIrDocument): UnifoldElementHost {
@@ -297,9 +297,37 @@ function resolveText(value: string | undefined, fallback: string): string {
   return value ?? fallback;
 }
 
-function focusElement(element: HTMLElement): void {
-  const target = element.shadowRoot?.querySelector<HTMLElement>(
+function focusElement(element: HTMLElement, controlIndex?: number): void {
+  focusTarget(element, controlIndex).focus();
+}
+
+function focusTarget(element: HTMLElement, controlIndex?: number): HTMLElement {
+  const root = element.shadowRoot;
+  if (root === null) return element;
+  const exact = indexedEnabledTarget(root, controlIndex);
+  if (exact !== undefined) return exact;
+  return defaultFocusTarget(root, element);
+}
+
+function indexedEnabledTarget(
+  root: ShadowRoot,
+  controlIndex: number | undefined
+): HTMLElement | undefined {
+  if (controlIndex === undefined) return undefined;
+  const targets = root.querySelectorAll<HTMLElement>("input, select, textarea, button, a[href]");
+  return enabledTarget(targets.item(controlIndex));
+}
+
+function defaultFocusTarget(root: ShadowRoot, element: HTMLElement): HTMLElement {
+  const fallback = root.querySelector<HTMLElement>(
     "input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), a[href]"
   );
-  (target ?? element).focus();
+  if (fallback === null) return element;
+  return fallback;
+}
+
+function enabledTarget(target: HTMLElement | null): HTMLElement | undefined {
+  if (target === null) return undefined;
+  if (target.matches(":disabled")) return undefined;
+  return target;
 }

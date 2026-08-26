@@ -51,7 +51,7 @@ const validators: Readonly<Record<CatalogPropertyType, PropertyValidator>> = {
   [CatalogPropertyType.SearchResultsValue]: isSearchResultsValue,
   [CatalogPropertyType.StepId]: (value) => isTableIdentifier(value),
   [CatalogPropertyType.StepList]: isWorkflowStepList,
-  [CatalogPropertyType.String]: (value) => typeof value === "string",
+  [CatalogPropertyType.String]: isString,
   [CatalogPropertyType.StringArray]: isStringArray,
   [CatalogPropertyType.TableColumnList]: isTableColumnList,
   [CatalogPropertyType.TableRowList]: isTableRowList
@@ -106,9 +106,34 @@ function isStringArray(value: unknown): boolean {
   );
 }
 
-function isOptionList(value: unknown): boolean {
+function isString(value: unknown, descriptor: CatalogPropertyDescriptor): boolean {
+  if (typeof value !== "string") return false;
+  return withinLengthBounds(value.length, descriptor);
+}
+
+function isOptionList(value: unknown, descriptor: CatalogPropertyDescriptor): boolean {
   if (!Array.isArray(value)) return false;
-  return value.length <= MAXIMUM_COLLECTION_ITEMS && value.every(isChoiceOption);
+  if (!withinItemBounds(value.length, descriptor)) return false;
+  return value.every(isChoiceOption);
+}
+
+function withinLengthBounds(length: number, descriptor: CatalogPropertyDescriptor): boolean {
+  return length >= (descriptor.minimumLength ?? 0);
+}
+
+function withinItemBounds(length: number, descriptor: CatalogPropertyDescriptor): boolean {
+  const minimum = minimumItems(descriptor);
+  const maximum = maximumItems(descriptor);
+  if (length < minimum) return false;
+  return length <= maximum;
+}
+
+function minimumItems(descriptor: CatalogPropertyDescriptor): number {
+  return descriptor.minimumItems === undefined ? 0 : descriptor.minimumItems;
+}
+
+function maximumItems(descriptor: CatalogPropertyDescriptor): number {
+  return descriptor.maximumItems === undefined ? MAXIMUM_COLLECTION_ITEMS : descriptor.maximumItems;
 }
 
 function isMenuItemList(value: unknown): boolean {

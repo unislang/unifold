@@ -40,6 +40,7 @@ test("derives required, enum, attribute, and public snapshot schemas", async () 
   assert.equal(schemas.table.propertiesSchema.properties.columns.maxItems, 64);
   assert.equal(schemas.table.propertiesSchema.properties.rows.maxItems, 10_000);
   assertDataGridSchemas(schemas.dataGrid);
+  assertCheckboxGroupSchema(schemas.checkboxGroup);
   assertFileInputSchemas(schemas.fileInput);
   assertMultiSelectSchema(document);
   assertSearchResultsSchemas(schemas.searchResults);
@@ -56,6 +57,15 @@ function assertImageSchema(image) {
   assert.deepEqual(image.propertiesSchema.properties.fit.enum, ["contain", "cover"]);
   assert.deepEqual(image.propertiesSchema.properties.loading.enum, ["eager", "lazy"]);
   assert.equal(image.propertiesSchema.properties.width.minimum, 1);
+}
+
+function assertCheckboxGroupSchema(checkboxGroup) {
+  assert.deepEqual(checkboxGroup.propertiesSchema.required, ["label", "options"]);
+  assert.equal(checkboxGroup.propertiesSchema.properties.label.minLength, 1);
+  assert.equal(checkboxGroup.propertiesSchema.properties.options.minItems, 1);
+  assert.equal(checkboxGroup.propertiesSchema.properties.options.maxItems, 100);
+  assert.equal(checkboxGroup.control.valueSchema.maxItems, 10_000);
+  assert.equal(checkboxGroup.control.valueSchema.uniqueItems, true);
 }
 
 function assertNumberFieldSchema(numberField) {
@@ -103,6 +113,7 @@ function schemaDefinitions(document) {
     [
       "auditLog",
       "breadcrumb",
+      "checkboxGroup",
       "dataGrid",
       "dialog",
       "fileInput",

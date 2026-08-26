@@ -7,7 +7,6 @@ import {
   type UnifoldIrDocument
 } from "@unislang/unifold-ir";
 import { expect, it } from "vitest";
-
 import { StaticDomHydrationError, captureStaticDomHydration } from "./hydration.js";
 
 it("captures valid static values and focus without mutating the fallback DOM", () => {
@@ -17,7 +16,11 @@ it("captures valid static values and focus without mutating the fallback DOM", (
   input.value = "Grace";
   input.focus();
   const state = captureStaticDomHydration(irDocument(), container);
-  expect(state).toEqual({ focusedNodeId: "name", values: { name: "Grace", role: "admin" } });
+  expect(state).toEqual({
+    focusedControlIndex: 0,
+    focusedNodeId: "name",
+    values: { name: "Grace", role: "admin" }
+  });
   expect(container.querySelector("input")).toBe(input);
 });
 

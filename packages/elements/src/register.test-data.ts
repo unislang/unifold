@@ -2,6 +2,7 @@ import { CoreElementTag } from "@unislang/unifold-catalog";
 
 import { defineUnifoldAuditLog } from "./audit-log-entry.js";
 import { defineUnifoldBreadcrumb } from "./breadcrumb-entry.js";
+import { defineUnifoldCheckboxGroup } from "./checkbox-group-entry.js";
 import { defineUnifoldCombobox } from "./combobox-entry.js";
 import { defineUnifoldCard, defineUnifoldImage } from "./content-media-entry.js";
 import { defineUnifoldDataGrid } from "./data-grid-entry.js";
@@ -91,6 +92,7 @@ export function foundationTags(): readonly CoreElementTag[] {
     CoreElementTag.AuditLog,
     CoreElementTag.Breadcrumb,
     CoreElementTag.Card,
+    CoreElementTag.CheckboxGroup,
     CoreElementTag.Combobox,
     CoreElementTag.DataGrid,
     CoreElementTag.Dialog,
@@ -117,6 +119,7 @@ export function foundationTags(): readonly CoreElementTag[] {
 export function defineDeferredElements(registry: ElementRegistryPort): void {
   defineUnifoldAuditLog(registry);
   defineUnifoldBreadcrumb(registry);
+  defineUnifoldCheckboxGroup(registry);
   defineUnifoldCombobox(registry);
   defineUnifoldCard(registry);
   defineUnifoldImage(registry);

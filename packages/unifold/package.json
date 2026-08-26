@@ -46,6 +46,10 @@
       "types": "./dist/content-media.d.ts",
       "import": "./dist/content-media.js"
     },
+    "./checkbox-group": {
+      "types": "./dist/checkbox-group.d.ts",
+      "import": "./dist/checkbox-group.js"
+    },
     "./number-field": {
       "types": "./dist/number-field.d.ts",
       "import": "./dist/number-field.js"

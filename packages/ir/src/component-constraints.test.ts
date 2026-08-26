@@ -10,6 +10,7 @@ it("accepts declared scalar, array, and empty selections", () => {
   expect(validateChoice(CoreComponentType.Select, "ca")).toEqual([]);
   expect(validateChoice(CoreComponentType.Combobox, "ca")).toEqual([]);
   expect(validateChoice(CoreComponentType.MultiSelect, ["us", "ca"])).toEqual([]);
+  expect(validateChoice(CoreComponentType.CheckboxGroup, ["us", "ca"])).toEqual([]);
   expect(validateChoice(CoreComponentType.RadioGroup, "us")).toEqual([]);
   expect(validateChoice(CoreComponentType.Select, "")).toEqual([]);
 });
@@ -36,58 +37,74 @@ it("reports each selection that is absent from the option values", () => {
   ]);
 });
 
-it("rejects duplicate multi-value selections at the repeated entry", () => {
-  const diagnostics = validateChoice(CoreComponentType.MultiSelect, ["us", "ca", "us"]);
+it.each([CoreComponentType.CheckboxGroup, CoreComponentType.MultiSelect])(
+  "rejects duplicate %s selections at the repeated entry",
+  (componentType) => {
+    const diagnostics = validateChoice(componentType, ["us", "ca", "us"]);
 
-  expect(diagnostics).toEqual([
-    expect.objectContaining({
-      code: DiagnosticCode.DuplicateOptionSelection,
-      nodeId: "choice",
-      path: "/view/value/2"
-    })
-  ]);
-});
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        code: DiagnosticCode.DuplicateOptionSelection,
+        nodeId: "choice",
+        path: "/view/value/2"
+      })
+    ]);
+  }
+);
 
 it("defers malformed values to property validation", () => {
   expect(validateChoice(CoreComponentType.Select, 42, "invalid")).toEqual([]);
 });
 
-it("rejects children for an exact leaf component", () => {
-  const descriptor = getCoreDescriptor(CoreComponentType.Tooltip);
-  if (descriptor === undefined) throw new Error("Missing Tooltip descriptor.");
-  const diagnostics: CompilerDiagnostic[] = [];
-  validateComponentConstraints(
-    {
-      $children: [{ $comp: CoreComponentType.Text, content: "Hidden", id: "hidden" }],
-      $comp: CoreComponentType.Tooltip,
-      content: "Help",
-      id: "help",
-      label: "More information"
-    },
-    descriptor,
-    "/view",
-    diagnostics
+it("rejects a disabled CheckboxGroup selection", () => {
+  const diagnostics = validateChoice(
+    CoreComponentType.CheckboxGroup,
+    ["disabled"],
+    [{ disabled: true, label: "Disabled", value: "disabled" }]
   );
-
   expect(diagnostics).toEqual([
     expect.objectContaining({
-      code: DiagnosticCode.InvalidChildCount,
-      nodeId: "help",
-      path: "/view/$children"
+      code: DiagnosticCode.UnknownOptionSelection,
+      path: "/view/value/0"
     })
   ]);
 });
+
+it.each([CoreComponentType.CheckboxGroup, CoreComponentType.Tooltip])(
+  "rejects children for the exact %s leaf",
+  (componentType) => {
+    const descriptor = getCoreDescriptor(componentType);
+    if (descriptor === undefined) throw new Error(`Missing ${componentType} descriptor.`);
+    const diagnostics: CompilerDiagnostic[] = [];
+    validateComponentConstraints(
+      {
+        $children: [{ $comp: CoreComponentType.Text, content: "Hidden", id: "hidden" }],
+        $comp: componentType,
+        content: "Help",
+        id: "help",
+        label: "More information"
+      },
+      descriptor,
+      "/view",
+      diagnostics
+    );
+
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        code: DiagnosticCode.InvalidChildCount,
+        nodeId: "help",
+        path: "/view/$children"
+      })
+    ]);
+  }
+);
 
 it("has a validator for every enum-backed constraint kind", () => {
   expect(Object.values(CatalogConstraintKind)).toHaveLength(13);
 });
 
 function validateChoice(
-  type:
-    | CoreComponentType.Combobox
-    | CoreComponentType.Select
-    | CoreComponentType.MultiSelect
-    | CoreComponentType.RadioGroup,
+  type: CoreComponentType,
   value: unknown,
   options: unknown = validOptions()
 ): CompilerDiagnostic[] {

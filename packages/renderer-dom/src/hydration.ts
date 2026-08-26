@@ -5,6 +5,9 @@ import {
   type UnifoldIrNode
 } from "@unislang/unifold-ir";
 
+import { readStaticCheckboxGroupValue } from "./checkbox-group-hydration.js";
+import { isStaticChoiceComponent, isStaticValueComponent } from "./hydration-components.js";
+import { captureStaticHydrationFocus, type StaticHydrationFocusState } from "./hydration-focus.js";
 import { readStaticSearchFieldValue } from "./search-field-hydration.js";
 
 const DOCUMENT_ATTRIBUTE = "data-unifold-static-document";
@@ -12,8 +15,7 @@ const NODE_ATTRIBUTE = "data-unifold-static-node-id";
 const COMPONENT_ATTRIBUTE = "data-unifold-static-component";
 const CONTROL_ATTRIBUTE = "data-unifold-static-control";
 
-export interface StaticDomHydrationState {
-  readonly focusedNodeId?: string;
+export interface StaticDomHydrationState extends StaticHydrationFocusState {
   readonly values: Readonly<Record<string, JsonValue>>;
 }
 
@@ -24,11 +26,12 @@ export function captureStaticDomHydration(
   container: HTMLElement
 ): StaticDomHydrationState {
   const root = requireStaticRoot(container, document.documentId);
+  const focus = captureStaticHydrationFocus(root);
   const elements = staticNodeElements(root);
   validateNodeSequence(document, elements);
   validateNodeHierarchy(document, elements);
   return {
-    ...focusedNode(root),
+    ...focus,
     values: captureControlValues(document, elements)
   };
 }
@@ -102,7 +105,7 @@ function captureNodeValue(
 ): void {
   const id = requiredAttribute(element, NODE_ATTRIBUTE);
   const node = requireNode(document, id);
-  if (!valueComponents.has(node.componentType as CoreComponentType)) return;
+  if (!isStaticValueComponent(node.componentType)) return;
   const controls = staticControls(element, id);
   if (controls.length === 0) return;
   const value = readControlValue(node, controls);
@@ -120,6 +123,14 @@ function staticControls(element: HTMLElement, id: string): readonly HTMLElement[
 }
 
 function readControlValue(node: UnifoldIrNode, controls: readonly HTMLElement[]): JsonValue {
+  if (node.componentType === CoreComponentType.CheckboxGroup)
+    return readStaticCheckboxGroupValue(node, controls, () =>
+      hydrationError(`Static checkbox group is invalid: ${node.id}.`)
+    );
+  return readScalarOrRadioValue(node, controls);
+}
+
+function readScalarOrRadioValue(node: UnifoldIrNode, controls: readonly HTMLElement[]): JsonValue {
   if (controls.every(isRadioInput)) return selectedRadioValue(controls);
   if (controls.length !== 1) throw hydrationError("Static control is duplicated.");
   return scalarControlValue(node, controls[0] as HTMLElement);
@@ -201,10 +212,21 @@ function requiredScalarValue(control: HTMLElement): string {
 }
 
 function validateChoiceValue(node: UnifoldIrNode, value: JsonValue): void {
-  if (!choiceComponents.has(node.componentType as CoreComponentType)) return;
+  if (!isStaticChoiceComponent(node.componentType)) return;
   const allowed = declaredChoiceValues(node);
-  if (choiceValues(value).some((item) => isInvalidChoice(item, allowed)))
+  const choices = choiceValues(value);
+  if (invalidChoiceValues(choices, allowed))
     throw hydrationError(`Static choice value is invalid: ${node.id}.`);
+}
+
+function invalidChoiceValues(choices: readonly JsonValue[], allowed: ReadonlySet<string>): boolean {
+  if (hasDuplicateChoices(choices)) return true;
+  return choices.some((item) => isInvalidChoice(item, allowed));
+}
+
+function hasDuplicateChoices(values: readonly JsonValue[]): boolean {
+  const strings = values.filter((value): value is string => typeof value === "string");
+  return new Set(strings).size !== strings.length;
 }
 
 function choiceValues(value: JsonValue): readonly JsonValue[] {
@@ -216,27 +238,6 @@ function isInvalidChoice(value: JsonValue, allowed: ReadonlySet<string>): boolea
   if (value === "") return false;
   return !allowed.has(value);
 }
-
-const choiceComponents = new Set<CoreComponentType>([
-  CoreComponentType.Combobox,
-  CoreComponentType.MultiSelect,
-  CoreComponentType.RadioGroup,
-  CoreComponentType.Select,
-  CoreComponentType.Tabs
-]);
-
-const valueComponents = new Set<CoreComponentType>([
-  CoreComponentType.Checkbox,
-  CoreComponentType.Combobox,
-  CoreComponentType.MultiSelect,
-  CoreComponentType.NumberField,
-  CoreComponentType.RadioGroup,
-  CoreComponentType.SearchField,
-  CoreComponentType.Select,
-  CoreComponentType.Tabs,
-  CoreComponentType.TextArea,
-  CoreComponentType.TextField
-]);
 
 function declaredChoiceValues(node: UnifoldIrNode): ReadonlySet<string> {
   const component = node.componentType as CoreComponentType;
@@ -275,28 +276,6 @@ function stringList(value: JsonValue | undefined): readonly string[] {
 function isNonNullObject(value: JsonValue): value is Record<string, JsonValue> {
   if (value === null) return false;
   return typeof value === "object";
-}
-
-function focusedNode(root: HTMLElement): Pick<StaticDomHydrationState, "focusedNodeId"> {
-  const active = root.ownerDocument.activeElement;
-  if (active === null) return {};
-  return focusedNodeWithinRoot(root, active);
-}
-
-function focusedNodeWithinRoot(
-  root: HTMLElement,
-  active: Element
-): Pick<StaticDomHydrationState, "focusedNodeId"> {
-  const node = active.closest<HTMLElement>(`[${NODE_ATTRIBUTE}]`);
-  if (node === null) return {};
-  if (!staticNodeElements(root).includes(node)) return {};
-  return focusedNodeState(node);
-}
-
-function focusedNodeState(node: HTMLElement): Pick<StaticDomHydrationState, "focusedNodeId"> {
-  const id = node.getAttribute(NODE_ATTRIBUTE);
-  if (id === null) return {};
-  return { focusedNodeId: id };
 }
 
 function isCheckboxInput(control: HTMLElement): control is HTMLInputElement {

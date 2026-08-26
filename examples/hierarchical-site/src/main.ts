@@ -96,17 +96,19 @@ async function bootstrap(): Promise<void> {
 }
 
 export async function registerHierarchicalOptionalElements(): Promise<void> {
-  const [dialog, contentMedia, numberField, searchField] = await Promise.all([
+  const [dialog, contentMedia, numberField, searchField, checkboxGroup] = await Promise.all([
     import("@unislang/unifold/dialog"),
     import("@unislang/unifold/content-media"),
     import("@unislang/unifold/number-field"),
-    import("@unislang/unifold/search-field")
+    import("@unislang/unifold/search-field"),
+    import("@unislang/unifold/checkbox-group")
   ]);
   dialog.defineUnifoldDialog();
   contentMedia.defineUnifoldCard();
   contentMedia.defineUnifoldImage();
   numberField.defineUnifoldNumberField();
   searchField.defineUnifoldSearchField();
+  checkboxGroup.defineUnifoldCheckboxGroup();
 }
 
 function exampleTargets(

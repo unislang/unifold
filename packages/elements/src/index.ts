@@ -6,6 +6,7 @@ export type { UnifoldBreadcrumb } from "./breadcrumb.js";
 export { UnifoldButton } from "./button.js";
 export type { UnifoldCard } from "./card.js";
 export { UnifoldCheckbox } from "./checkbox.js";
+export type { UnifoldCheckboxGroup } from "./checkbox-group.js";
 export type { UnifoldCombobox } from "./combobox.js";
 export { UnifoldComposition } from "./composition.js";
 export type { UnifoldDataGrid } from "./data-grid.js";

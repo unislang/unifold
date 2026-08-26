@@ -60,6 +60,10 @@ export {
 export { isSafeResourceUrl, isSafeUrl } from "./url.js";
 export { cardDescriptor, imageDescriptor, MAXIMUM_CARD_CHILDREN } from "./content-media-catalog.js";
 export { breadcrumbDescriptor, MAXIMUM_BREADCRUMB_ITEMS } from "./breadcrumb-catalog.js";
+export {
+  MAXIMUM_CHECKBOX_GROUP_OPTIONS,
+  checkboxGroupDescriptor
+} from "./checkbox-group-catalog.js";
 export { dialogDescriptor, MAXIMUM_DIALOG_CHILDREN } from "./dialog-catalog.js";
 export {
   errorSummaryDescriptor,

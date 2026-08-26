@@ -9,10 +9,11 @@ The Playwright matrix verifies:
 
 - byte-exact served HTML and its SHA-256 manifest;
 - visible native content and one Schema.org JSON-LD graph with JavaScript disabled;
-- edited text, search, and finite numeric values plus focus migration into the normalized runtime;
+- edited text, search, finite numeric, and repeated checkbox-group values plus focus migration into
+  the normalized runtime;
 - an atomic JSON-LD ownership handoff with no duplicate publication;
 - one intent, command fact, and committed transaction for one interaction; and
-- non-mutating rejection of structural and semantic-owner tampering.
+- non-mutating rejection of structural, choice-option, and semantic-owner tampering.
 
 Run the complete Chromium, Firefox, and WebKit matrix from the repository root:
 

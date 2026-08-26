@@ -15,6 +15,7 @@ export enum ComponentAccessibilityPattern {
   ModalDialog = "modal-dialog",
   NativeButton = "native-button",
   NativeCheckbox = "native-checkbox",
+  NativeCheckboxGroup = "native-checkbox-group",
   NativeDataGrid = "native-data-grid",
   NativeFieldset = "native-fieldset",
   NativeFileInput = "native-file-input",

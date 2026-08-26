@@ -8,6 +8,7 @@ const deferredTags = new Set<CoreElementTag>([
   CoreElementTag.AuditLog,
   CoreElementTag.Breadcrumb,
   CoreElementTag.Card,
+  CoreElementTag.CheckboxGroup,
   CoreElementTag.Combobox,
   CoreElementTag.DataGrid,
   CoreElementTag.Dialog,

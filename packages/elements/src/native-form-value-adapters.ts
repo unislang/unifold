@@ -51,7 +51,7 @@ export function createStringArrayFormValueAdapter(
   return {
     clone: cloneStrings,
     equals: equalStrings,
-    isValueMissing: (value) => value.length === 0,
+    isValueMissing: (value) => enabledSelections(value, options()).length === 0,
     project: (value, name) =>
       projection(repeatedStrings(name, enabledSelections(value, options())), stringify(value)),
     restore: (state) => restoreStrings(state, options())

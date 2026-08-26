@@ -21,6 +21,9 @@ export default defineConfig({
       "@unislang/unifold-elements/combobox": fileURLToPath(
         new URL("../../packages/elements/src/combobox-entry.ts", import.meta.url)
       ),
+      "@unislang/unifold-elements/checkbox-group": fileURLToPath(
+        new URL("../../packages/elements/src/checkbox-group-entry.ts", import.meta.url)
+      ),
       "@unislang/unifold-elements/data-grid": fileURLToPath(
         new URL("../../packages/elements/src/data-grid-entry.ts", import.meta.url)
       ),

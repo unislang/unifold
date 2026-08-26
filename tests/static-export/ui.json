@@ -163,6 +163,19 @@
             "value": "Ada"
           },
           {
+            "$comp": "CheckboxGroup",
+            "id": "profile-topics",
+            "label": "Topics",
+            "name": "topics",
+            "options": [
+              { "label": "Product news", "value": "news" },
+              { "label": "Security alerts", "value": "security" },
+              { "disabled": true, "label": "Internal updates", "value": "internal" }
+            ],
+            "required": true,
+            "value": ["news"]
+          },
+          {
             "$comp": "Checkbox",
             "id": "newsletter",
             "label": "Receive product updates",

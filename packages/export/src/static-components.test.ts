@@ -6,6 +6,7 @@ it("exports every specialized static data-view renderer", () => {
   expect(Object.keys(staticComponents).sort()).toEqual([
     "renderStaticAuditLog",
     "renderStaticBreadcrumb",
+    "renderStaticCheckboxGroup",
     "renderStaticDataGrid",
     "renderStaticDialog",
     "renderStaticFileInput",

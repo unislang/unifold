@@ -175,20 +175,31 @@ function validateSelectionConstraint(
   const selections = readSelections(node[descriptor.selectionProperty], descriptor, path);
   if (options === undefined) return;
   if (selections === undefined) return;
-  reportUnknownSelections(options, selections, nodeId(node), diagnostics);
+  reportUnknownSelections(options, selections, descriptor, nodeId(node), diagnostics);
   reportDuplicateSelections(selections, nodeId(node), diagnostics);
 }
 
 function reportUnknownSelections(
   options: readonly ChoiceOption[],
   selections: readonly SelectionEntry[],
+  descriptor: CatalogSelectionInOptionsConstraint,
   id: string | undefined,
   diagnostics: CompilerDiagnostic[]
 ): void {
-  const values = new Set(options.map(({ value }) => value));
+  const values = new Set(
+    options.filter((option) => isSelectableOption(option, descriptor)).map(({ value }) => value)
+  );
   selections.forEach((selection) => {
     if (!values.has(selection.value)) addUnknownDiagnostic(selection, id, diagnostics);
   });
+}
+
+function isSelectableOption(
+  option: ChoiceOption,
+  descriptor: CatalogSelectionInOptionsConstraint
+): boolean {
+  if (descriptor.allowDisabledSelection === false) return option.disabled !== true;
+  return true;
 }
 
 function addUnknownDiagnostic(

@@ -25,6 +25,9 @@ export interface CatalogPropertyDescriptor {
   readonly defaultValue?: JsonValue;
   readonly enumValues?: readonly string[];
   readonly name: string;
+  readonly maximumItems?: number;
+  readonly minimumItems?: number;
+  readonly minimumLength?: number;
   readonly required: boolean;
   readonly valueType: CatalogPropertyType;
 }
@@ -85,6 +88,7 @@ export interface CatalogBreadcrumbDataConstraint {
 }
 
 export interface CatalogSelectionInOptionsConstraint {
+  readonly allowDisabledSelection?: boolean;
   readonly allowEmptySelection: boolean;
   readonly kind: CatalogConstraintKind.SelectionInOptions;
   readonly optionsProperty: string;

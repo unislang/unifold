@@ -6,6 +6,7 @@ import {
   type UnifoldHarness
 } from "@unislang/unifold-playwright";
 import { assertSelectiveUpdates } from "@unislang/unifold-testkit";
+import type { Locator } from "@playwright/test";
 
 test("executes rules, semantics, event routing, and selective projection", async ({
   page,
@@ -146,6 +147,28 @@ test("routes SearchField input through scalar canonical state", async ({ page, u
   await unifold.assertAccessibility();
 });
 
+test("routes CheckboxGroup selections through canonical repeated state", async ({
+  page,
+  unifold
+}) => {
+  await page.goto("/");
+  const host = page.getByTestId("contact-topics");
+  const news = page.getByLabel("Product news");
+  const security = page.getByLabel("Security alerts");
+  await expect(news).toBeChecked();
+  await expect(security).not.toBeChecked();
+  await security.check();
+  await expect
+    .poll(async () => checkboxGroupEventValue(await unifold.events()))
+    .toEqual(["news", "security"]);
+  await news.uncheck();
+  await expect
+    .poll(() => host.evaluate((element) => Reflect.get(element, "value")))
+    .toEqual(["security"]);
+  await expect.poll(() => repeatedFormValues(host, "topics")).toEqual(["security"]);
+  await unifold.assertAccessibility();
+});
+
 function numberFieldEventValue(events: Awaited<ReturnType<UnifoldHarness["events"]>>): unknown {
   const change = [...events]
     .reverse()
@@ -166,6 +189,27 @@ function searchFieldEventValue(events: Awaited<ReturnType<UnifoldHarness["events
         event.data.sourceNode?.id === "profile-search"
     )?.data.change;
   return isRecord(change) ? change["value"] : undefined;
+}
+
+function checkboxGroupEventValue(events: Awaited<ReturnType<UnifoldHarness["events"]>>): unknown {
+  const change = [...events]
+    .reverse()
+    .find(
+      (event) =>
+        event.type === "org.unifold.ui.control.input.v1" &&
+        event.data.sourceNode?.id === "contact-topics"
+    )?.data.change;
+  return isRecord(change) ? change["value"] : undefined;
+}
+
+async function repeatedFormValues(
+  host: Locator,
+  name: string
+): Promise<readonly FormDataEntryValue[]> {
+  return host.evaluate((element, fieldName) => {
+    const form = Reflect.get(element, "form") as HTMLFormElement | null;
+    return form === null ? [] : new FormData(form).getAll(fieldName);
+  }, name);
 }
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
