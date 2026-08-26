@@ -8,7 +8,12 @@ import {
   UiSchemaVersion,
   type JsonObject
 } from "@unislang/unifold-contracts";
-import type { UnifoldStepper, UnifoldTabs, UnifoldWizard } from "@unislang/unifold-elements";
+import type {
+  UnifoldMenuButton,
+  UnifoldStepper,
+  UnifoldTabs,
+  UnifoldWizard
+} from "@unislang/unifold-elements";
 import {
   mountUnifoldApplication,
   UnifoldApplicationMountStatus,
@@ -16,9 +21,10 @@ import {
 } from "@unislang/unifold";
 
 import { percentile } from "./profile-statistics.js";
+import { measureMenuActivation, workflowMenuNode } from "./workflow-menu-fixture.js";
 
 const WORKFLOW_STEP_COUNT = 100;
-export const WORKFLOW_BUTTON_LIMIT = 300;
+export const WORKFLOW_BUTTON_LIMIT = 401;
 const STARTUP_P95_LIMIT_MILLISECONDS = 1_000;
 const INTERACTION_P95_LIMIT_MILLISECONDS = 100;
 const PROFILE_SAMPLES = 20;
@@ -26,12 +32,16 @@ const PROFILE_SAMPLES = 20;
 interface MountedWorkflow {
   readonly application: UnifoldApplicationPort;
   readonly container: HTMLElement;
+  readonly menu: UnifoldMenuButton;
   readonly stepper: UnifoldStepper;
   readonly tabs: UnifoldTabs;
   readonly wizard: UnifoldWizard;
 }
 
 interface WorkflowInteraction {
+  readonly menuItemId: string;
+  readonly menuMilliseconds: number;
+  readonly menuTriggerFocused: boolean;
   readonly renderedButtons: number;
   readonly stepperMilliseconds: number;
   readonly stepperValue: string;
@@ -66,37 +76,53 @@ export async function mountWorkflow(): Promise<MountedWorkflow> {
     throw new Error(`Workflow mount failed: ${JSON.stringify(mounted.diagnostics)}`);
   }
   const stepper = requireElement<UnifoldStepper>(container, "unifold-stepper");
+  const menu = requireElement<UnifoldMenuButton>(container, "unifold-menu-button");
   const tabs = requireElement<UnifoldTabs>(container, "unifold-tabs");
   const wizard = requireElement<UnifoldWizard>(container, "unifold-wizard");
-  await Promise.all([stepper.updateComplete, tabs.updateComplete, wizard.updateComplete]);
-  return { application: mounted.application, container, stepper, tabs, wizard };
+  await Promise.all([
+    menu.updateComplete,
+    stepper.updateComplete,
+    tabs.updateComplete,
+    wizard.updateComplete
+  ]);
+  return { application: mounted.application, container, menu, stepper, tabs, wizard };
 }
 
 export async function exerciseWorkflow(mounted: MountedWorkflow): Promise<WorkflowInteraction> {
-  const { stepper, tabs, wizard } = mounted;
+  const { menu, stepper, tabs, wizard } = mounted;
   const target = WORKFLOW_STEP_COUNT - 1;
-  const stepperStarted = performance.now();
-  button(stepper, target).click();
-  await stepper.updateComplete;
-  const stepperMilliseconds = performance.now() - stepperStarted;
-  const wizardStarted = performance.now();
-  button(wizard, target).click();
-  await wizard.updateComplete;
-  const wizardMilliseconds = performance.now() - wizardStarted;
-  const tabStarted = performance.now();
-  tabButton(tabs, target).click();
-  await tabs.updateComplete;
+  const stepperMilliseconds = await clickAndMeasure(stepper, button(stepper, target));
+  const wizardMilliseconds = await clickAndMeasure(wizard, button(wizard, target));
+  const tabMilliseconds = await clickAndMeasure(tabs, tabButton(tabs, target));
+  const menuEvidence = await measureMenuActivation(menu, target);
   return {
-    renderedButtons: buttonCount(stepper) + buttonCount(wizard) + tabButtonCount(tabs),
+    menuItemId: menuEvidence.itemId,
+    menuMilliseconds: menuEvidence.milliseconds,
+    menuTriggerFocused: menuEvidence.triggerFocused,
+    renderedButtons:
+      (stepper.shadowRoot as ShadowRoot).querySelectorAll("[data-step-index]").length +
+      (wizard.shadowRoot as ShadowRoot).querySelectorAll("[data-step-index]").length +
+      (tabs.shadowRoot as ShadowRoot).querySelectorAll("[data-tab-index]").length +
+      menuEvidence.renderedButtons,
     stepperMilliseconds,
     stepperValue: stepper.value,
-    tabMilliseconds: performance.now() - tabStarted,
+    tabMilliseconds,
     tabValue: tabs.value,
     visibleTabPanels: visibleTabPanelCount(tabs),
     visiblePanels: [...wizard.children].filter((child) => !child.hasAttribute("hidden")).length,
     wizardMilliseconds,
     wizardValue: wizard.value
   };
+}
+
+async function clickAndMeasure(
+  element: UnifoldStepper | UnifoldTabs | UnifoldWizard,
+  control: HTMLButtonElement
+): Promise<number> {
+  const started = performance.now();
+  control.click();
+  await element.updateComplete;
+  return performance.now() - started;
 }
 
 export function disposeWorkflow(mounted: MountedWorkflow): void {
@@ -124,7 +150,7 @@ function workflowDocument(): JsonObject {
 function workflowView(): JsonObject {
   return {
     $comp: "Stack",
-    $children: [stepperNode(), wizardNode(), tabsNode()],
+    $children: [stepperNode(), wizardNode(), tabsNode(), workflowMenuNode(WORKFLOW_STEP_COUNT)],
     id: "workflow-root",
     label: "Workflow navigation"
   };
@@ -191,24 +217,26 @@ function performanceEvidence(
   interactions: readonly WorkflowInteraction[]
 ) {
   const startup = statistics(startupSamples);
-  const { stepperSelection, tabSelection, wizardSelection } = selectionStatistics(interactions);
+  const { menuSelection, stepperSelection, tabSelection, wizardSelection } =
+    selectionStatistics(interactions);
   const maximumRenderedButtons = Math.max(
     ...interactions.map(({ renderedButtons }) => renderedButtons)
   );
-  const exact = interactions.every(isExactInteraction);
   return {
     gates: workflowGates(
       startup,
       stepperSelection,
       wizardSelection,
       tabSelection,
+      menuSelection,
       maximumRenderedButtons,
-      exact
+      interactions.every(isExactInteraction)
     ),
     maximumRenderedButtons,
     sampleCount: PROFILE_SAMPLES,
     startup,
     stepCount: WORKFLOW_STEP_COUNT,
+    menuSelection,
     stepperSelection,
     tabSelection,
     wizardSelection
@@ -217,6 +245,7 @@ function performanceEvidence(
 
 function selectionStatistics(interactions: readonly WorkflowInteraction[]) {
   return {
+    menuSelection: statistics(interactions.map(({ menuMilliseconds }) => menuMilliseconds)),
     stepperSelection: statistics(
       interactions.map(({ stepperMilliseconds }) => stepperMilliseconds)
     ),
@@ -233,7 +262,9 @@ function isExactInteraction(interaction: WorkflowInteraction): boolean {
       interaction.wizardValue,
       interaction.visiblePanels,
       interaction.visibleTabPanels
-    ].join("|") === "step-099|tab-099|step-099|1|1"
+    ].join("|") === "step-099|tab-099|step-099|1|1" &&
+    interaction.menuItemId === "item-099" &&
+    interaction.menuTriggerFocused
   );
 }
 
@@ -242,6 +273,7 @@ function workflowGates(
   stepper: ReturnType<typeof statistics>,
   wizard: ReturnType<typeof statistics>,
   tabs: ReturnType<typeof statistics>,
+  menu: ReturnType<typeof statistics>,
   buttons: number,
   exact: boolean
 ) {
@@ -258,7 +290,8 @@ function workflowGates(
     },
     interactionGate("100-step Stepper selection", stepper.p95Milliseconds, "step-099", exact),
     interactionGate("100-panel Wizard selection", wizard.p95Milliseconds, "step-099", exact),
-    interactionGate("100-panel Tabs selection", tabs.p95Milliseconds, "tab-099", exact)
+    interactionGate("100-panel Tabs selection", tabs.p95Milliseconds, "tab-099", exact),
+    interactionGate("100-item MenuButton activation", menu.p95Milliseconds, "item-099", exact)
   ];
 }
 
@@ -299,19 +332,11 @@ function button(element: UnifoldStepper, index: number): HTMLButtonElement {
   );
 }
 
-function buttonCount(element: UnifoldStepper): number {
-  return element.shadowRoot?.querySelectorAll("[data-step-index]").length ?? 0;
-}
-
 function tabButton(element: UnifoldTabs, index: number): HTMLButtonElement {
   return requireElement<HTMLButtonElement>(
     element.shadowRoot as ShadowRoot,
     `[data-tab-index="${index}"]`
   );
-}
-
-function tabButtonCount(element: UnifoldTabs): number {
-  return element.shadowRoot?.querySelectorAll("[data-tab-index]").length ?? 0;
 }
 
 function visibleTabPanelCount(element: UnifoldTabs): number {

@@ -23,6 +23,7 @@ import {
 
 import { referenceAuditLogNode } from "./static-audit-log-reference.test-data.js";
 import { referenceSearchResultsNode } from "./static-search-results-reference.test-data.js";
+import { referenceMenuButton } from "./static-menu-reference.test-data.js";
 import { largeVirtualListNode } from "./static-virtual-list-reference.test-data.js";
 import {
   referenceStepperNode,
@@ -34,9 +35,7 @@ export function completeStaticDocument(): JsonObject {
   return documentWithView(referenceRoot());
 }
 
-export function largeVirtualListDocument(): JsonObject {
-  return documentWithView(largeVirtualListNode());
-}
+export const largeVirtualListDocument = (): JsonObject => documentWithView(largeVirtualListNode());
 
 export function classifiedVirtualListDocument(classification: DataClassification): JsonObject {
   return {
@@ -50,7 +49,7 @@ function referenceRoot(): JsonObject {
     $comp: "Composition",
     id: "root",
     label: "Reference",
-    $children: [referenceForm(), referenceDisclosure(), referenceTabsNode()]
+    $children: [referenceForm(), referenceDisclosure(), referenceMenuButton(), referenceTabsNode()]
   };
 }
 

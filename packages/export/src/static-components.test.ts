@@ -7,6 +7,7 @@ it("exports every specialized static data-view renderer", () => {
     "renderStaticAuditLog",
     "renderStaticDataGrid",
     "renderStaticMasterDetail",
+    "renderStaticMenuButton",
     "renderStaticSearchResults",
     "renderStaticStepper",
     "renderStaticTable",

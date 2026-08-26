@@ -1,6 +1,6 @@
 # Core components
 
-The implemented core catalog contains twenty-eight JSON-constructible Web Components. Every component has a
+The implemented core catalog contains twenty-nine JSON-constructible Web Components. Every component has a
 stable node ID, participates in the same canonical event stream, and receives selective state
 projection through the application runtime. The catalog descriptor is the authority for accepted
 properties; the IR compiler rejects unknown properties and values of the wrong type before render.
@@ -22,6 +22,7 @@ properties; the IR compiler rejects unknown properties and values of the wrong t
 | `Icon`          | `unifold-icon`           | none           | inline SVG                | none                                   |
 | `Link`          | `unifold-link`           | none           | anchor                    | `component.activated`                  |
 | `MasterDetail`  | `unifold-master-detail`  | string         | virtual listbox + region  | `control.input`, `control.blurred`     |
+| `MenuButton`    | `unifold-menu-button`    | none           | button + ARIA menu        | `component.activated`                  |
 | `MultiSelect`   | `unifold-multi-select`   | string array   | multiple select           | `control.input`, `control.blurred`     |
 | `RadioGroup`    | `unifold-radio-group`    | string         | fieldset and radio input  | `control.input`, `control.blurred`     |
 | `SearchResults` | `unifold-search-results` | object         | search input + listbox    | `control.input`, `control.blurred`     |
@@ -77,6 +78,28 @@ validated hydration marker and renders all escaped panels with only the selected
   "$children": [
     { "$comp": "Text", "id": "summary-panel", "content": "Summary" },
     { "$comp": "Text", "id": "activity-panel", "content": "Activity" }
+  ]
+}
+```
+
+`MenuButton` accepts 1 to 100 exact `{ "label", "value", "disabled"? }` action items. Values are
+unique registered action identifiers, not executable code. Its open state and roving-focus position
+remain interaction-local; selecting an enabled item emits one `component.activated` intent with
+`{ "itemId": value }` and does not create competing runtime state. Arrow Up/Down wrap across
+enabled items, Home/End reach boundaries, Escape closes and returns focus, Tab closes without
+trapping focus, and pointer dismissal closes without moving focus. The trigger exposes
+`aria-haspopup="menu"` and exact expanded/controls relationships; the popup uses labeled
+menu/menuitem semantics. Static export degrades to native `details`/`summary` with escaped action
+buttons.
+
+```json
+{
+  "$comp": "MenuButton",
+  "id": "account-actions",
+  "label": "Account actions",
+  "items": [
+    { "label": "Edit account", "value": "edit" },
+    { "label": "Archive account", "value": "archive" }
   ]
 }
 ```
@@ -297,12 +320,17 @@ For TypeScript integrations, use the named runtime vocabularies and option type 
 redeclaring literal unions:
 
 ```ts
-import { ButtonVariant, CoreComponentType, type ChoiceOption } from "@unislang/unifold-catalog";
+import {
+  ButtonVariant,
+  CoreComponentType,
+  type ChoiceOption,
+  type MenuItem
+} from "@unislang/unifold-catalog";
 ```
 
 ## Component-definition evidence pipeline
 
-All twenty-eight core elements participate in the executable `ComponentDefinition` pipeline. The
+All twenty-nine core elements participate in the executable `ComponentDefinition` pipeline. The
 elements build runs the official Custom Elements Manifest analyzer with its Lit plugin, validates
 the complete result against the official manifest JSON Schema, and writes
 `dist/custom-elements.json`. The generated manifest owns facts that can be derived from source:
@@ -330,7 +358,7 @@ accessibility certification.
 These controls intentionally prefer native browser semantics. They have automated unit and browser
 coverage, including keyboard and axe checks, but that is not a complete accessibility certification.
 Free-form autocomplete variants, validation projection for every future control, field grouping,
-overlays, menus, form-associated custom-element behavior,
+overlays, menu variants, form-associated custom-element behavior,
 localization, and the full browser/assistive-technology evidence matrix remain planned work. Do not
 infer support for an unregistered component or property from the long-term architecture catalog.
 

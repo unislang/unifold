@@ -19,6 +19,7 @@ export { UnifoldHeading } from "./heading.js";
 export { UnifoldIcon } from "./icon.js";
 export { UnifoldLink } from "./link.js";
 export { UnifoldMasterDetail } from "./master-detail.js";
+export { UnifoldMenuButton } from "./menu-button.js";
 export { UnifoldMultiSelect } from "./multi-select.js";
 export {
   defineUnifoldElements,

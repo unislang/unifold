@@ -47,6 +47,7 @@ export {
   TextFieldInputType
 } from "./enums.js";
 export { isSafeUrl } from "./url.js";
+export { MAXIMUM_MENU_ITEMS } from "./menu-catalog.js";
 export type {
   AuditLogEntry,
   CatalogAuditLogDataConstraint,
@@ -60,6 +61,7 @@ export type {
   CatalogTableDataConstraint,
   CatalogUniqueOptionValuesConstraint,
   ChoiceOption,
+  MenuItem,
   DataGridSort,
   DataGridValue,
   SearchResult,

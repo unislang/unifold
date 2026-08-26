@@ -2,7 +2,9 @@ import { getCoreDescriptor, type ChoiceOption } from "@unislang/unifold-catalog"
 import { CoreComponentType, DataClassification, type JsonValue } from "@unislang/unifold-contracts";
 import type { UnifoldIrDocument, UnifoldIrNode } from "@unislang/unifold-ir";
 import { escapeHtml } from "./html-escape.js";
+import { staticNodeClassification } from "./static-classification.js";
 import * as staticComponents from "./static-components.js";
+export { staticNodeClassification } from "./static-classification.js";
 type NodeRenderer = (context: RenderContext) => string;
 interface RenderContext {
   readonly childContent: readonly string[];
@@ -26,6 +28,7 @@ const renderers: Readonly<Record<CoreComponentType, NodeRenderer>> = {
   [CoreComponentType.Icon]: renderIcon,
   [CoreComponentType.Link]: renderLink,
   [CoreComponentType.MasterDetail]: staticComponents.renderStaticMasterDetail,
+  [CoreComponentType.MenuButton]: staticComponents.renderStaticMenuButton,
   [CoreComponentType.MultiSelect]: renderMultiSelect,
   [CoreComponentType.RadioGroup]: renderRadioGroup,
   [CoreComponentType.SearchResults]: staticComponents.renderStaticSearchResults,
@@ -43,16 +46,6 @@ const renderers: Readonly<Record<CoreComponentType, NodeRenderer>> = {
 
 export function renderStaticTree(document: UnifoldIrDocument): string {
   return renderNode(document, document.rootNodeId, true);
-}
-
-export function staticNodeClassification(
-  document: UnifoldIrDocument,
-  node: UnifoldIrNode
-): DataClassification {
-  const binding = node.binding;
-  if (binding === undefined) return DataClassification.Public;
-  const store = document.storesById[binding.store];
-  return store === undefined ? DataClassification.NeverExport : store.classification;
 }
 
 function renderNode(document: UnifoldIrDocument, id: string, root: boolean): string {

@@ -16,6 +16,7 @@ const NODE_KINDS: Readonly<Record<CoreComponentType, UiNodeKind>> = {
   [CoreComponentType.Icon]: UiNodeKind.Component,
   [CoreComponentType.Link]: UiNodeKind.Component,
   [CoreComponentType.MasterDetail]: UiNodeKind.Control,
+  [CoreComponentType.MenuButton]: UiNodeKind.Component,
   [CoreComponentType.MultiSelect]: UiNodeKind.Control,
   [CoreComponentType.RadioGroup]: UiNodeKind.Control,
   [CoreComponentType.SearchResults]: UiNodeKind.Control,

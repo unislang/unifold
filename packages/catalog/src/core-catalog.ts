@@ -31,6 +31,7 @@ import type { CatalogPropertyDescriptor, ComponentCatalog, ComponentDescriptor }
 import * as dataViews from "./data-view-catalog.js";
 import * as workflows from "./workflow-catalog.js";
 import { choiceConstraints, choiceProperties, comboboxDescriptor } from "./choice-catalog.js";
+import { menuButtonDescriptor } from "./menu-catalog.js";
 const property = (
   name: string,
   valueType: CatalogPropertyType,
@@ -226,6 +227,7 @@ const descriptors: Record<CoreComponentType, ComponentDescriptor> = {
     version: "1.0.0"
   },
   [CoreComponentType.MasterDetail]: dataViews.masterDetailDescriptor,
+  [CoreComponentType.MenuButton]: menuButtonDescriptor,
   [CoreComponentType.MultiSelect]: {
     componentType: CoreComponentType.MultiSelect,
     constraints: choiceConstraints,

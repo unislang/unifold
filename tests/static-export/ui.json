@@ -37,6 +37,16 @@
         "level": "1"
       },
       {
+        "$comp": "MenuButton",
+        "id": "account-actions",
+        "items": [
+          { "label": "Edit account", "value": "edit" },
+          { "disabled": true, "label": "Delete account", "value": "delete" },
+          { "label": "Archive account", "value": "archive" }
+        ],
+        "label": "Account actions"
+      },
+      {
         "$comp": "Form",
         "id": "form",
         "label": "Profile",

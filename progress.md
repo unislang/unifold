@@ -17,14 +17,13 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest implementation checkpoint: `8372fb4` (`test: prove composition migrations in browsers`)
+- Latest implementation checkpoint: `7bc981b` (`docs: record tabs implementation checkpoint`)
 - Verified implementation remote state: `origin/main` independently resolved to
-  `8372fb4aed72064395d5de7c2edf4454c118503e` after the implementation push; the progress-only
-  commit that records this evidence is pushed immediately afterward.
-- Working tree: architecture slice 4 identity, version migration, rollback, focus, measured
-  composition compilation, and the dedicated Chromium/WebKit migration journey are implemented,
-  fully validated, committed, and pushed as described below. The next interaction families remain;
-  Firefox evidence is still blocked before page creation by the external Windows runner defect.
+  `7bc981bc00d7ef615e3247db62d990fe0e7e15c0` before the MenuButton implementation commit.
+- Working tree: the bounded catalog-authoritative MenuButton slice is implemented and validated
+  across contract, catalog, IR, custom element, static export, reference host, browser, performance,
+  and package-consumer boundaries. It is ready for its implementation commit and push. Firefox
+  evidence remains blocked before page creation by the external Windows runner defect.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
@@ -32,34 +31,32 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 
 ## Last completed implementation slice
 
-The control-plane Fetch and resumable realtime transport slice is complete:
+The catalog-authoritative MenuButton slice is complete and awaiting its implementation commit:
 
-- Framework-neutral Fetch host/client adapters enforce exact operation shapes, bounded UTF-8 and
-  JSON bodies, stable HTTP/result mapping, cancellation, and redacted failures.
-- Realtime cursor advancement requires a validated contiguous tenant sequence, retains its cursor
-  on a gap, and requires an explicit reset after an authoritative reread.
-- The control-plane package's scoped typecheck and test run passed with 18 files and 47 tests.
-- The repository-wide quality run passed.
-- The repository-wide test run passed with 302 package test files and 740 tests, plus tooling,
-  script, and performance suites.
-- Coverage passed at 97.44% lines/statements, 97.37% functions, and 90.40% branches.
-- Build and formatting gates passed; the reference bundle was 175.14 KiB gzip against the
-  executable 180 KiB limit.
-- The benchmark report schema is 2.12.0 with 31/31 passing gates. The exact 1,000-operation
-  control-plane fixtures measured 95.78 ms p95 for Fetch reads against 2,000 ms and 6.01 ms p95
-  for realtime resume against 500 ms.
-- Chromium and WebKit matrices passed in the current managed environment. Firefox still fails
-  before page creation because of the documented elevated-Windows Playwright runner limitation;
-  Linux or non-elevated Windows CI must provide that release evidence.
+- Exact bounded action items flow through contracts, catalog metadata and sidecars, IR validation,
+  generated component metadata, the registered custom element, canonical activation events, and a
+  native `details`/`summary` static fallback with upgrade evidence.
+- Keyboard, pointer, outside-dismissal, disabled-item, roving-focus, Escape, Tab, hostile-text,
+  rejection/recovery, stable-identity, and axe journeys pass in Chromium and WebKit.
+- The complete package matrix passes 346 files and 892 tests. Coverage passes at 97.37%
+  lines/statements, 97.18% functions, and 90.15% branches; MenuButton itself has 100% line,
+  statement, and function coverage and 95.58% branch coverage.
+- The complete reference matrix passes 85 Chromium/WebKit cases with 3 intentional scale skips;
+  the static-export matrix passes 14/14. Firefox still fails before page creation with the known
+  managed Windows `_page` runner defect and therefore provides no component behavioral result.
+- Build, formatting, duplication, and the clean packed-consumer 3/3 lifecycle pass. The production
+  reference is 184,298 gzip bytes (179.98 KiB) against the executable 180 KiB ceiling.
+- Benchmark schema 2.20.0 passes 43/43 gates. Twenty exact samples measured the 401-button shared
+  navigation startup at 49.34/68.10/73.31 ms p50/p95/p99 and final MenuButton activation at
+  0.79/1.29/1.84 ms against its 100 ms p95 limit.
 
 These results describe the committed checkpoint. Re-run affected gates after every new slice and
 record new measurements rather than treating the numbers above as proof for later changes.
 
 ## Active slice
 
-Architecture slice 4 composition identity, explicit version migration, measured compilation, and
-the dedicated Chromium/WebKit migration/accessibility/event journey are implemented, fully
-validated, committed, and pushed. Continue with the next prioritized interaction families in
+The MenuButton interaction-family slice is ready to commit and push. After that checkpoint,
+continue with the next prioritized interaction families in
 [`docs/implementation-status.md`](./docs/implementation-status.md#next-architecture-slices).
 Production provisioning of slices 1 and 2 remains a separate external-environment release gate
 rather than unfinished local framework code.
@@ -334,15 +331,49 @@ The catalog-authoritative select-only Combobox slice is implemented, validated, 
   establishes a stronger dependency), retaining the same JSON-to-static/hydrated/runtime evidence
   and adding a representative benchmark only where scale or interaction latency is material.
 
+### 2026-08-26 bounded MenuButton checkpoint
+
+The catalog-authoritative MenuButton slice is implemented and fully validated, but not yet committed:
+
+- `MenuButton` and its 1-to-100 exact action-item contract flow through the shared component enum,
+  catalog descriptor and accessibility sidecar, catalog-derived IR validation, generated component
+  definitions and custom-elements manifest, registration, runtime rendering, and documentation.
+- `unifold-menu-button` implements the ARIA menu-button pattern with disabled trigger semantics,
+  registered menuitem identities, cyclic Arrow navigation, Home/End, Escape and Tab behavior,
+  outside-pointer dismissal, trigger-focus restoration, and one canonical
+  `ComponentActivated { itemId }` event with the exact stable component snapshot.
+- Static export emits a useful native `details`/`summary`/list/button fallback, preserves escaped
+  hostile text and disabled items, and upgrades to the interactive component without creating a
+  second state authority. Reference JSON and browser journeys cover rejection/recovery, stable host
+  identity, keyboard and pointer activation, canonical event provenance, and axe accessibility.
+- Full quality and test validation passes: 346 Vitest files/892 tests, 16 tooling tests, 8 generated
+  component-manifest tests, 1 theme test, 1 reference-script test, and 30 performance correctness
+  tests with 18 explicitly skipped profile cases. Coverage is 97.37% lines/statements, 97.18%
+  functions, and 90.15% branches.
+- The complete Chromium/WebKit reference matrix passes 85 cases with 3 intentional scale skips; the
+  Chromium/WebKit static-export matrix passes 14/14. Firefox fails before page creation with the
+  pre-existing managed Windows `browserContext.newPage` `_page` defect, so a repaired runner must
+  still supply that browser's release evidence.
+- The complete build and clean packed-consumer 3/3 lifecycle pass. The reference JavaScript closure
+  is 184,298 gzip bytes (179.98 KiB) against the executable 180 KiB limit. Repository formatting and
+  the 1.46% duplication threshold pass.
+- Fresh schema-2.20.0 benchmark evidence passes 43/43 gates. The exact 100-step/100-panel/100-item
+  fixture renders 401 buttons; startup is 49.34/68.10/73.31 ms p50/p95/p99 against 1,000 ms p95,
+  and MenuButton activation is 0.79/1.29/1.84 ms against 100 ms p95.
+- Next, commit this implementation, update this checkpoint with its feature SHA, commit the resumable
+  record, push both commits to `origin/main`, and independently verify the remote branch SHA. After
+  that, reconcile the remaining overlay/navigation inventory before selecting Tooltip, Popover, or
+  Dialog; retain the architecture's comparative native/Lion/Spectrum evidence gate before Dialog.
+
 ## Immediate resume procedure
 
 1. Read this file, `docs/implementation-status.md`, `docs/components.md`, and the interaction-family
    sections of the architecture plan for slice 4.
 2. Inspect `git status --short --branch` and preserve any post-checkpoint user changes.
-3. Confirm the bounded Combobox checkpoint is present on `origin/main`, then continue into the next
-   prioritized interaction family: begin with catalog-authoritative Tabs unless architecture
-   dependencies favor Menu/Dialog first. Free-form autocomplete, menus, overlays, navigation,
-   upload, and variable-height/two-dimensional virtualization remain open. Do not add subtree
+3. Confirm the MenuButton implementation and progress checkpoints are present on `origin/main`, then
+   reconcile the open overlay/navigation inventory before selecting Tooltip, Popover, or Dialog.
+   Free-form autocomplete, remaining menus and overlays, navigation, upload, and variable-height/
+   two-dimensional virtualization remain open. Do not add subtree
    caching unless the executable composition gates regress. Re-run the dedicated Firefox journeys
    when a working runner is available; do not treat the current pre-page failure as behavioral
    evidence.
@@ -458,3 +489,11 @@ silently waived.
   reconciling the open inventory in `docs/implementation-status.md`, then selecting the next
   catalog-authoritative interaction family with its prerequisite boundaries and the same complete
   contract/IR/runtime/static/browser/benchmark evidence path.
+- 2026-08-26: Implemented the bounded catalog-authoritative `MenuButton` end to end across contract,
+  catalog, IR, custom element, canonical events, static fallback/upgrade, reference JSON, browser,
+  and performance evidence. Full quality, 346-file/892-test package and coverage suites, build,
+  clean packed-consumer 3/3, schema-2.20.0 benchmark 43/43, reference Chromium/WebKit
+  85-pass/3-intentional-skip, and static Chromium/WebKit 14/14 matrices pass. The 100-item action
+  measured 0.79/1.29/1.84 ms p50/p95/p99, and the production reference remains under its executable
+  ceiling at 179.98 KiB gzip. The implementation and this resumable evidence record are ready to
+  commit and push; Firefox remains the known external pre-page runner limitation.

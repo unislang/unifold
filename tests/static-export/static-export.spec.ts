@@ -27,6 +27,10 @@ test.describe("without JavaScript", () => {
     await expect(page.getByRole("heading", { name: "Static profile" })).toBeVisible();
     await expect(page.getByLabel("Name")).toHaveValue("Ada Lovelace");
     await expect(page.getByRole("button", { name: "Save profile" })).toBeVisible();
+    await expect(page.getByText("Account actions", { exact: true })).toBeVisible();
+    await page.getByText("Account actions", { exact: true }).click();
+    await expect(page.getByRole("button", { name: "Archive account" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Delete account" })).toBeDisabled();
     await expect(page.locator(`[data-unifold-static-document="${documentId}"]`)).toHaveCount(1);
     await expect(page.locator("[data-unifold-node-id]")).toHaveCount(0);
     await expect(page.locator(semanticsSelector)).toHaveCount(1);
@@ -50,6 +54,19 @@ test("migrates edited state, focus, and JSON-LD in one safe upgrade", async ({ p
   await expect.poll(() => semanticName(page)).toBe("Grace Hopper");
   expect(await maxSemanticCount(page)).toBe(1);
   expect(errors).toEqual([]);
+});
+
+test("upgrades the static menu into one canonical keyboard action", async ({ page }) => {
+  await page.goto("/?upgrade=manual");
+  await loadUpgrade(page);
+  await invokeUpgrade(page);
+  await clearEvents(page);
+  const trigger = page.getByRole("button", { name: "Account actions" });
+  await trigger.press("ArrowUp");
+  await expect(page.getByRole("menuitem", { name: "Archive account" })).toBeFocused();
+  await page.getByRole("menuitem", { name: "Archive account" }).press("Enter");
+  await expect(trigger).toBeFocused();
+  expect(await eventTypes(page)).toEqual(["org.unifold.ui.component.activated.v1"]);
 });
 
 test("does not duplicate mounts or canonical events", async ({ page }) => {

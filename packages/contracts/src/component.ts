@@ -14,6 +14,7 @@ export enum CoreComponentType {
   Icon = "Icon",
   Link = "Link",
   MasterDetail = "MasterDetail",
+  MenuButton = "MenuButton",
   MultiSelect = "MultiSelect",
   RadioGroup = "RadioGroup",
   SearchResults = "SearchResults",

@@ -13,6 +13,7 @@ import {
 export const compositionNodeIds = {
   accordion: "profile-editor::help",
   accountTabs: "profile-editor::account-tabs",
+  accountActions: "profile-editor::account-actions",
   activityPanel: "profile-editor::activity-panel",
   biography: "profile-editor::biography",
   checkbox: "profile-editor::newsletter",

@@ -8,9 +8,10 @@ critical seam; it is not yet the full catalog or Studio product described by the
 - A pnpm monorepo with strict TypeScript, ESLint, Prettier, Knip, dependency-cruiser, jscpd,
   Changesets, and executable file/function/complexity policies.
 - A safe JSON document contract, validation diagnostics, normalized immutable IR, and a minimal
-  JsonUI-compatible profile for Accordion, Alert, AuditLog, Box, Button, Checkbox, Combobox, Composition, Form, Grid,
-  DataGrid, Heading, Icon, Link, MasterDetail, MultiSelect, RadioGroup, SearchResults, Select, Stack,
-  Stepper, Table, Text, TextArea, TextField, VirtualList, and Wizard. Catalog-backed property validation rejects unknown properties, invalid enum values,
+  JsonUI-compatible profile for Accordion, Alert, AuditLog, Box, Button, Checkbox, Combobox,
+  Composition, DataGrid, Form, Grid, Heading, Icon, Link, MasterDetail, MenuButton, MultiSelect,
+  RadioGroup, SearchResults, Select, Stack, Stepper, Tabs, Table, Text, TextArea, TextField,
+  VirtualList, and Wizard. Catalog-backed property validation rejects unknown properties, invalid enum values,
   malformed option, table, or audit lists, invalid string-array values, duplicate option values, duplicate
   table column/row or audit-entry identities, undeclared table cells, and selections absent from their declared
   options before rendering. Reusable enum-backed catalog constraint descriptors keep cross-property
@@ -25,7 +26,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
   Firefox, and WebKit. A behavioral case additionally compares binding and touched-validation
   outcomes and verifies Unifold's exact redacted canonical event chain in Chromium/WebKit. Its
   measured isolated production-profile cost is 5.88 kB minified/1.76 kB
-  gzip. The current complete reference is 177.38 KiB gzip against the executable 180 KiB Phase 1
+  gzip. The current complete reference is 179.98 KiB gzip against the executable 180 KiB Phase 1
   budget.
 - Typed `UiStoreDefinition` contracts and a Unifold `store`/`path` profile extension. The compiler
   validates unique definitions, enum-backed policy, embedded local-only Draft 2020-12 schemas,
@@ -87,7 +88,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
 - A Vercel AI SDK 7 provider-model boundary with schema-constrained patch proposals, RFC 8785 base
   fingerprints, RFC 6902 operations, stable-path and revision policy, risk enums, approval gating,
   compiler validation, and commit through the normal application coordinator.
-- Browser-safe portable JSON and static HTML exporters. Static HTML covers all twenty-eight core
+- Browser-safe portable JSON and static HTML exporters. Static HTML covers all twenty-nine core
   components with native no-JavaScript content, deterministic upgrade markers, public-data-only
   values, exactly one script-safe JSON-LD graph, and a versioned SHA-256 integrity manifest.
 - A versioned detached Ed25519 document envelope and JSON Schema, browser-safe signing helper, and
@@ -158,10 +159,11 @@ critical seam; it is not yet the full catalog or Studio product described by the
   collections; a bounded native Table with escaped scalar cells; a controlled native DataGrid with
   sorting and selection; a virtualized, responsive MasterDetail with escaped scalar fields; a
   controlled virtualized SearchResults with native search semantics and safe result URLs; shared
-  bounded Stepper navigation and a composed Wizard with stable authored panels; a read-only,
+  bounded Stepper and Tabs navigation, a composed Wizard with stable authored panels, and a bounded
+  ARIA MenuButton with registered action identifiers; a read-only,
   virtualized AuditLog with native list/time semantics; a Tailwind theme foundation;
   component metadata; a DOM renderer; and a JSON-defined reference form.
-- An experimental full-catalog `ComponentDefinition` pipeline for all twenty-eight core elements. The
+- An experimental full-catalog `ComponentDefinition` pipeline for all twenty-nine core elements. The
   official Custom Elements Manifest analyzer and schema derive and validate element API facts;
   enum-backed catalog sidecars supply behavior, accessibility, privacy, structured semantics,
   complete examples, and test evidence. The package publishes standard CEM and joined definition
@@ -169,7 +171,8 @@ critical seam; it is not yet the full catalog or Studio product described by the
   and live-event drift checks prove every catalog property is exposed and represented exactly in
   canonical snapshots.
 - The complete 15-component Phase 1 foundation release group, plus Composition, Combobox, MultiSelect,
-  Accordion, VirtualList, Table, DataGrid, MasterDetail, SearchResults, Stepper, Tabs, Wizard, and AuditLog components exercised by later interaction slices.
+  Accordion, VirtualList, Table, DataGrid, MasterDetail, SearchResults, Stepper, Tabs, MenuButton,
+  Wizard, and AuditLog components exercised by later interaction slices.
 - A pinned Schema.org 30.0 semantic graph contract carried through the typed document and IR,
   with public/visible committed-state bindings, typed composition-export bindings, an allowlisted
   starter vocabulary, deterministic script-safe JSON-LD, framework-owned mount/update/transaction/
@@ -228,8 +231,10 @@ critical seam; it is not yet the full catalog or Studio product described by the
    semantics, stable DOM identity, canonical event, and axe assertions in Chromium and WebKit;
    Firefox still fails before page creation on the managed Windows runner. The select-only Combobox
    path is now catalog-authoritative from JSON through static/interactive rendering, runtime events,
-   reset, keyboard, axe, and bounded 10k-option filtering evidence. Continue with free-form
-   autocomplete variants, menus, overlays, navigation, upload, and variable-height or
+   reset, keyboard, axe, and bounded 10k-option filtering evidence. Tabs and MenuButton are now
+   catalog-authoritative through static/interactive rendering, controlled or registered-action
+   events, focus, axe, rollback, and exact 100-item gates. Continue with free-form autocomplete
+   variants, menu variants, overlays, navigation, upload, and variable-height or
    two-dimensional virtualization while retaining Firefox as an external release gate. See
    [composition P0 follow-ups](./compositions.md#p0-hardening-follow-ups).
 5. Add stable-release evidence and generated documentation/test skeletons to the complete core
@@ -287,7 +292,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
   identity, and pre-render adapter rejection. The default runtime stream applies
   classification-aware public-safe disclosure.
 - Client-side validation and application coordination contribute materially to the reference bundle.
-  The current reference closure is 177.38 KiB gzip and remains below the executable 180 KiB gate,
+  The current reference closure is 179.98 KiB gzip and remains below the executable 180 KiB gate,
   which sums every emitted JavaScript chunk after each reference build. Preserve the `/validation`
   split and evaluate schema
   precompilation, build-time validation, or an explicit lazy authoring/compiler boundary before
@@ -324,18 +329,18 @@ critical seam; it is not yet the full catalog or Studio product described by the
   recovery evidence. The 10,000-result SearchResults startup, query, and selection measure 50.17,
   5.50, and 4.89 ms p95, render at most 15 options, and pass Chromium/WebKit search/listbox,
   canonical-state, accessibility, privacy, rollback, and recovery evidence. The 100-step shared
-  Stepper/Wizard workload starts in 37.20 ms p95, selects the final Stepper step in 4.89 ms p95,
-  swaps the distant Wizard panel in 3.76 ms p95, renders exactly 200 step buttons, and passes
-  Chromium/WebKit focus, completion, accessibility, rollback, host identity, and child-panel
-  identity evidence. The 10,000-entry AuditLog starts in 68.65 ms p95, scrolls to the exact distant
+  Stepper/Wizard/Tabs/MenuButton workload starts in 68.10 ms p95, selects the final Stepper,
+  Wizard, and Tabs entries in 1.82/5.49/5.36 ms p95, invokes the final declared menu item and restores
+  trigger focus in 1.29 ms p95, renders exactly 401 buttons, and passes Chromium/WebKit focus,
+  completion, canonical action, accessibility, rollback, host identity, and child-panel identity
+  evidence. The 10,000-entry AuditLog starts in 68.65 ms p95, scrolls to the exact distant
   window in 1.04 ms p95, renders at most 15 entries, and passes Chromium/WebKit list/time semantics,
   focus, accessibility, privacy, precise duplicate-ID rollback, recovery, and host-identity evidence.
   The 1,000-key data-source actor resolves the full cached set in 7.39 ms p95 with zero post-warm
   adapter calls and invalidates the exact tagged set in 0.81 ms p95; focused tests cover registered
   operations, paging/cache identity, retention, offline recovery, retries, conflicts, optimistic
   rollback, cross-context notifications, cancellation, timeout abort, and stale completion.
-  All forty timing
-  limits and the lifecycle limit are executable benchmark gates. Ratification still requires a provisioned,
+  All forty-three timing and lifecycle limits are executable benchmark gates. Ratification still requires a provisioned,
   versioned mid-tier runner.
   Full-document 10k structural reconciliation remains materially slower than leaf and bulk
   transactions. See [performance evidence](./performance.md).

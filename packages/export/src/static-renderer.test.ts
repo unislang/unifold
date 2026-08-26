@@ -28,6 +28,12 @@ it("renders every reference component as nested native fallback markup", () => {
   expect(staticNodeIds(html)).toEqual(prepared.document.renderOrder);
 });
 
+it("renders MenuButton as a native no-JavaScript disclosure", () => {
+  const html = renderStaticTree(prepareTestDocument(completeStaticDocument()).document);
+  expect(html).toContain("<summary>Account actions</summary>");
+  expect(html).toContain('<button type="button" disabled>Delete account</button>');
+});
+
 it("omits non-public bound values from native controls", () => {
   const prepared = prepareTestDocument(
     semanticDocument(DataClassification.Restricted, "classified-secret")

@@ -1,5 +1,6 @@
 import {
   CatalogPropertyType,
+  MAXIMUM_MENU_ITEMS,
   getCoreDescriptor,
   isSafeUrl,
   type CatalogPropertyDescriptor
@@ -25,6 +26,7 @@ const validators: Readonly<Record<CatalogPropertyType, PropertyValidator>> = {
   [CatalogPropertyType.Boolean]: (value) => typeof value === "boolean",
   [CatalogPropertyType.DataGridValue]: isDataGridValue,
   [CatalogPropertyType.Enum]: isEnumValue,
+  [CatalogPropertyType.MenuItemList]: isMenuItemList,
   [CatalogPropertyType.OptionList]: isOptionList,
   [CatalogPropertyType.PositiveInteger]: (value) =>
     typeof value === "number" && Number.isInteger(value) && value > 0,
@@ -89,6 +91,16 @@ function isStringArray(value: unknown): boolean {
 function isOptionList(value: unknown): boolean {
   if (!Array.isArray(value)) return false;
   return value.every(isChoiceOption);
+}
+
+function isMenuItemList(value: unknown): boolean {
+  if (!Array.isArray(value)) return false;
+  if (!isMenuItemCount(value.length)) return false;
+  return value.every(isChoiceOption);
+}
+
+function isMenuItemCount(count: number): boolean {
+  return count >= 1 && count <= MAXIMUM_MENU_ITEMS;
 }
 
 function isChoiceOption(value: unknown): boolean {

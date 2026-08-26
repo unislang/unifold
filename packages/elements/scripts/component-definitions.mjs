@@ -3,6 +3,7 @@ import {
   CatalogPropertyType,
   ComponentCapability,
   ComponentDefinitionSchemaVersion,
+  MAXIMUM_MENU_ITEMS,
   componentDefinitionSidecars,
   coreCatalog,
   getCoreDescriptor
@@ -54,6 +55,21 @@ const scalarSchemas = Object.freeze({
     },
     required: ["selectedRowIds"],
     type: "object"
+  },
+  [CatalogPropertyType.MenuItemList]: {
+    items: {
+      additionalProperties: false,
+      properties: {
+        disabled: { type: "boolean" },
+        label: { maxLength: 512, minLength: 1, type: "string" },
+        value: identifierSchema
+      },
+      required: ["label", "value"],
+      type: "object"
+    },
+    maxItems: MAXIMUM_MENU_ITEMS,
+    minItems: 1,
+    type: "array"
   },
   [CatalogPropertyType.OptionList]: {
     items: {

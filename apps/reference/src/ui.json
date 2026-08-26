@@ -64,7 +64,6 @@
                 "$comp": "TextField",
                 "id": "name",
                 "asyncValidators": ["name-available"],
-                "inputType": "text",
                 "label": { "$parameter": "fieldLabel" },
                 "name": "name",
                 "required": true,
@@ -74,7 +73,6 @@
               {
                 "$comp": "TextField",
                 "id": "confirm-name",
-                "inputType": "text",
                 "label": "Confirm name",
                 "name": "confirmName",
                 "testId": "confirm-name",
@@ -88,8 +86,7 @@
                 "placeholder": "Share a short biography",
                 "rows": 4,
                 "testId": "biography",
-                "value": "",
-                "wrap": "soft"
+                "value": ""
               },
               {
                 "$comp": "Checkbox",
@@ -182,9 +179,6 @@
                   {
                     "$comp": "Stack",
                     "id": "help-stack",
-                    "align": "stretch",
-                    "direction": "vertical",
-                    "gap": "md",
                     "$children": [
                       {
                         "$comp": "Icon",
@@ -198,23 +192,19 @@
                         "$comp": "Heading",
                         "id": "support-heading",
                         "content": "Support resources",
-                        "level": "3",
-                        "tone": "default"
+                        "level": "3"
                       },
                       {
                         "$comp": "Text",
                         "id": "support-copy",
                         "content": "Choose a support path or review the framework documentation.",
-                        "size": "md",
-                        "tone": "muted",
-                        "weight": "normal"
+                        "tone": "muted"
                       },
                       {
                         "$comp": "Alert",
                         "id": "support-alert",
                         "content": "Support requests include the current document revision.",
-                        "title": "Context preserved",
-                        "tone": "info"
+                        "title": "Context preserved"
                       },
                       {
                         "$comp": "Link",
@@ -232,14 +222,12 @@
                           {
                             "$comp": "Button",
                             "id": "contact-support",
-                            "action": "button",
                             "label": "Contact support",
                             "variant": "secondary"
                           },
                           {
                             "$comp": "Button",
                             "id": "read-documentation",
-                            "action": "button",
                             "label": "Read documentation",
                             "variant": "quiet"
                           }
@@ -253,11 +241,8 @@
           },
           {
             "$comp": "Tabs",
-            "activationMode": "automatic",
             "id": "account-tabs",
             "label": "Account sections",
-            "name": "accountSection",
-            "orientation": "horizontal",
             "tabs": [
               { "id": "summary", "label": "Summary" },
               { "disabled": true, "id": "billing", "label": "Billing" },
@@ -282,6 +267,18 @@
                 "id": "activity-panel"
               }
             ]
+          },
+          {
+            "$comp": "MenuButton",
+            "disabled": false,
+            "id": "account-actions",
+            "items": [
+              { "label": "Edit account", "value": "edit" },
+              { "disabled": true, "label": "Delete account", "value": "delete" },
+              { "label": "Archive account", "value": "archive" }
+            ],
+            "label": "Account actions",
+            "testId": "account-actions"
           }
         ]
       },
@@ -331,8 +328,7 @@
           "id": "submit",
           "action": "submit",
           "label": "Create greeting",
-          "testId": "submit",
-          "variant": "primary"
+          "testId": "submit"
         },
         {
           "$comp": "Button",

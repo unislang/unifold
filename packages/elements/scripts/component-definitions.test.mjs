@@ -39,6 +39,7 @@ test("derives required, enum, attribute, and public snapshot schemas", async () 
   assert.deepEqual(link.propertiesSchema.required, ["href"]);
   assert.deepEqual(link.attributesSchema.properties.href, { type: "string" });
   assert.deepEqual(table.propertiesSchema.required, ["caption", "columns", "rows"]);
+  assertMenuButtonSchemas(document);
   assertAuditLogSchemas(auditLog);
   assert.equal(table.propertiesSchema.properties.columns.maxItems, 64);
   assert.equal(table.propertiesSchema.properties.rows.maxItems, 10_000);
@@ -46,14 +47,7 @@ test("derives required, enum, attribute, and public snapshot schemas", async () 
   assertSearchResultsSchemas(searchResults);
   assertWorkflowSchemas(stepper, wizard);
   assert(link.publicSnapshotSchema.properties.testId === undefined);
-  assert.deepEqual(icon.propertiesSchema.properties.name.enum, [
-    "check",
-    "external-link",
-    "help",
-    "info",
-    "search",
-    "warning"
-  ]);
+  assertIconSchema(icon);
 });
 
 test("derives control adapters and enum-backed common capabilities", async () => {
@@ -94,6 +88,23 @@ function assertAuditLogSchemas(auditLog) {
   assert.equal(entries.maxItems, 10_000);
   assert.equal(entries.items.additionalProperties, false);
   assert.equal(entries.items.properties.timestamp.format, "date-time");
+}
+
+function assertMenuButtonSchemas(document) {
+  const menuButton = requireDefinition(document, CoreComponentType.MenuButton);
+  assert.deepEqual(menuButton.propertiesSchema.required, ["label", "items"]);
+  assert.equal(menuButton.propertiesSchema.properties.items.maxItems, 100);
+}
+
+function assertIconSchema(icon) {
+  assert.deepEqual(icon.propertiesSchema.properties.name.enum, [
+    "check",
+    "external-link",
+    "help",
+    "info",
+    "search",
+    "warning"
+  ]);
 }
 
 function assertDataGridSchemas(dataGrid) {

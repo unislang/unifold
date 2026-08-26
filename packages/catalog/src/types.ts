@@ -33,6 +33,8 @@ export interface ChoiceOption extends JsonObject {
   readonly value: string;
 }
 
+export type MenuItem = ChoiceOption;
+
 export interface AuditLogEntry extends JsonObject {
   readonly action: string;
   readonly actor: string;

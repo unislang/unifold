@@ -1,4 +1,6 @@
-import type { TabItem } from "@unislang/unifold-catalog";
+interface DisableableItem {
+  readonly disabled?: boolean;
+}
 
 const horizontalKeys: Readonly<Record<string, -1 | 1>> = {
   ArrowLeft: -1,
@@ -10,7 +12,7 @@ const verticalKeys: Readonly<Record<string, -1 | 1>> = {
 };
 
 export function keyboardTabIndex(
-  tabs: readonly TabItem[],
+  tabs: readonly DisableableItem[],
   activeIndex: number,
   key: string,
   vertical: boolean
@@ -22,7 +24,7 @@ export function keyboardTabIndex(
   return cyclicTabIndex(tabs, activeIndex, direction);
 }
 
-function boundaryForKey(tabs: readonly TabItem[], key: string): number | undefined {
+function boundaryForKey(tabs: readonly DisableableItem[], key: string): number | undefined {
   if (key === "Home") return boundaryTabIndex(tabs, false);
   if (key === "End") return boundaryTabIndex(tabs, true);
   return undefined;
@@ -33,13 +35,17 @@ function directionForKey(key: string, vertical: boolean): -1 | 1 | undefined {
   return horizontalKeys[key];
 }
 
-function boundaryTabIndex(tabs: readonly TabItem[], last: boolean): number {
+function boundaryTabIndex(tabs: readonly DisableableItem[], last: boolean): number {
   const enabled = enabledIndexes(tabs);
   const candidate = last ? enabled.at(-1) : enabled[0];
   return candidate ?? -1;
 }
 
-function cyclicTabIndex(tabs: readonly TabItem[], activeIndex: number, direction: -1 | 1): number {
+function cyclicTabIndex(
+  tabs: readonly DisableableItem[],
+  activeIndex: number,
+  direction: -1 | 1
+): number {
   const enabled = enabledIndexes(tabs);
   if (enabled.length === 0) return -1;
   const current = enabled.indexOf(activeIndex);
@@ -47,7 +53,7 @@ function cyclicTabIndex(tabs: readonly TabItem[], activeIndex: number, direction
   return enabled[(origin + enabled.length) % enabled.length] as number;
 }
 
-function enabledIndexes(tabs: readonly TabItem[]): readonly number[] {
+function enabledIndexes(tabs: readonly DisableableItem[]): readonly number[] {
   return tabs.flatMap((tab, index) => (tab.disabled === true ? [] : [index]));
 }
 

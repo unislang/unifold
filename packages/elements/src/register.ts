@@ -1,33 +1,6 @@
 import { CoreCatalogMajor, CoreElementTag, coreCatalog } from "@unislang/unifold-catalog";
 
-import { UnifoldAccordion } from "./accordion.js";
-import { UnifoldAlert } from "./alert.js";
-import { UnifoldAuditLog } from "./audit-log.js";
-import { UnifoldBox } from "./box.js";
-import { UnifoldButton } from "./button.js";
-import { UnifoldCheckbox } from "./checkbox.js";
-import { UnifoldCombobox } from "./combobox.js";
-import { UnifoldComposition } from "./composition.js";
-import { UnifoldDataGrid } from "./data-grid.js";
-import { UnifoldForm } from "./form.js";
-import { UnifoldGrid } from "./grid.js";
-import { UnifoldHeading } from "./heading.js";
-import { UnifoldIcon } from "./icon.js";
-import { UnifoldLink } from "./link.js";
-import { UnifoldMasterDetail } from "./master-detail.js";
-import { UnifoldMultiSelect } from "./multi-select.js";
-import { UnifoldRadioGroup } from "./radio-group.js";
-import { UnifoldSearchResults } from "./search-results.js";
-import { UnifoldSelect } from "./select.js";
-import { UnifoldStack } from "./stack.js";
-import { UnifoldStepper } from "./stepper.js";
-import { UnifoldTabs } from "./tabs.js";
-import { UnifoldTable } from "./table.js";
-import { UnifoldText } from "./text.js";
-import { UnifoldTextArea } from "./text-area.js";
-import { UnifoldTextField } from "./text-field.js";
-import { UnifoldVirtualList } from "./virtual-list.js";
-import { UnifoldWizard } from "./wizard.js";
+import { coreElementDefinitions } from "./core-element-definitions.js";
 import { ElementRegistrationDiagnosticCode, ElementRegistrationStatus } from "./enums.js";
 
 export const UNIFOLD_ELEMENT_DEFINITION = Symbol.for("org.unifold.element-definition");
@@ -77,44 +50,13 @@ interface DefinitionOutcome {
   readonly message?: string;
 }
 
-const definitions: readonly [CoreElementTag, CustomElementConstructor][] = [
-  [CoreElementTag.Accordion, UnifoldAccordion],
-  [CoreElementTag.Alert, UnifoldAlert],
-  [CoreElementTag.AuditLog, UnifoldAuditLog],
-  [CoreElementTag.Box, UnifoldBox],
-  [CoreElementTag.Button, UnifoldButton],
-  [CoreElementTag.Checkbox, UnifoldCheckbox],
-  [CoreElementTag.Combobox, UnifoldCombobox],
-  [CoreElementTag.Composition, UnifoldComposition],
-  [CoreElementTag.DataGrid, UnifoldDataGrid],
-  [CoreElementTag.Form, UnifoldForm],
-  [CoreElementTag.Grid, UnifoldGrid],
-  [CoreElementTag.Heading, UnifoldHeading],
-  [CoreElementTag.Icon, UnifoldIcon],
-  [CoreElementTag.Link, UnifoldLink],
-  [CoreElementTag.MasterDetail, UnifoldMasterDetail],
-  [CoreElementTag.MultiSelect, UnifoldMultiSelect],
-  [CoreElementTag.RadioGroup, UnifoldRadioGroup],
-  [CoreElementTag.SearchResults, UnifoldSearchResults],
-  [CoreElementTag.Select, UnifoldSelect],
-  [CoreElementTag.Stack, UnifoldStack],
-  [CoreElementTag.Stepper, UnifoldStepper],
-  [CoreElementTag.Tabs, UnifoldTabs],
-  [CoreElementTag.Table, UnifoldTable],
-  [CoreElementTag.Text, UnifoldText],
-  [CoreElementTag.TextArea, UnifoldTextArea],
-  [CoreElementTag.TextField, UnifoldTextField],
-  [CoreElementTag.VirtualList, UnifoldVirtualList],
-  [CoreElementTag.Wizard, UnifoldWizard]
-];
-
 const catalogIdentity = Object.freeze({
   catalogMajor: CoreCatalogMajor.Version1,
   catalogName: coreCatalog.name,
   catalogVersion: coreCatalog.version
 });
 
-definitions.forEach(([tagName, constructor]) => markDefinition(tagName, constructor));
+coreElementDefinitions.forEach(([tagName, constructor]) => markDefinition(tagName, constructor));
 
 export function defineUnifoldElements(
   registry: ElementRegistryPort | null = defaultElementRegistry()
@@ -156,7 +98,7 @@ export function readElementDefinition(
 function registrationDiagnostics(
   registry: ElementRegistryPort
 ): readonly ElementRegistrationDiagnostic[] {
-  return definitions.flatMap(([tagName, constructor]) => {
+  return coreElementDefinitions.flatMap(([tagName, constructor]) => {
     const diagnostic = definitionDiagnostic(registry, tagName, constructor);
     return diagnostic === undefined ? [] : [diagnostic];
   });
@@ -261,7 +203,7 @@ function catalogMismatchDiagnostic(
 }
 
 function defineMissing(registry: ElementRegistryPort): DefinitionOutcome {
-  const missing = definitions.filter(([tagName]) => registry.get(tagName) === undefined);
+  const missing = coreElementDefinitions.filter(([tagName]) => registry.get(tagName) === undefined);
   const definedTags: CoreElementTag[] = [];
   for (const [tagName, constructor] of missing) {
     try {
@@ -272,6 +214,10 @@ function defineMissing(registry: ElementRegistryPort): DefinitionOutcome {
     }
   }
   return { definedTags };
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "Unknown registry failure.";
 }
 
 function failedDefinition(outcome: DefinitionOutcome): RejectedElementsResult {
@@ -302,10 +248,6 @@ function registryUnavailableDiagnostic(): ElementRegistrationDiagnostic {
 
 function defaultElementRegistry(): ElementRegistryPort | null {
   return typeof customElements === "undefined" ? null : customElements;
-}
-
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : "Unknown registry failure.";
 }
 
 function markDefinition(tagName: CoreElementTag, constructor: CustomElementConstructor): void {

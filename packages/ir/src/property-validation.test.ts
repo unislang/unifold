@@ -169,6 +169,37 @@ it("rejects unsafe Link URLs before rendering", () => {
   );
 });
 
+it("accepts one hundred unique menu actions and rejects empty, oversized, or duplicate lists", () => {
+  const items = menuItems();
+  expect(menuDiagnostics(items)).toEqual([]);
+  expect(menuDiagnostics([])).toContainEqual(
+    expect.objectContaining({ code: DiagnosticCode.InvalidProperty, path: "/view/items" })
+  );
+  expect(menuDiagnostics([...items, { label: "Too many", value: "too-many" }])).toContainEqual(
+    expect.objectContaining({ code: DiagnosticCode.InvalidProperty, path: "/view/items" })
+  );
+  expect(menuDiagnostics([...items.slice(0, 1), ...items.slice(0, 1)])).toContainEqual(
+    expect.objectContaining({
+      code: DiagnosticCode.DuplicateOptionValue,
+      path: "/view/items/1/value"
+    })
+  );
+});
+
+function menuItems(): JsonObject[] {
+  return Array.from({ length: 100 }, (_, index) => ({
+    label: `Action ${index}`,
+    value: `action-${index}`
+  }));
+}
+
+function menuDiagnostics(items: readonly JsonObject[]) {
+  return validateUiDocument({
+    ...choiceDocument(),
+    view: { $comp: "MenuButton", id: "actions", items, label: "Actions" }
+  }).diagnostics;
+}
+
 it("rejects missing and unknown Icon names", () => {
   const document = choiceDocument();
   const missing = { ...document, view: { $comp: "Icon", id: "missing" } };

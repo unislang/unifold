@@ -11,6 +11,7 @@ import { auditLogSidecar } from "./audit-log-sidecar.js";
 import { comboboxSidecar } from "./combobox-sidecar.js";
 import { ComponentAccessibilityPattern, IconName } from "./enums.js";
 import { searchResultsSidecar } from "./search-results-sidecar.js";
+import { menuButtonSidecar } from "./menu-sidecar.js";
 import { stepperSidecar, tabsSidecar, wizardSidecar } from "./workflow-sidecars.js";
 import type { ComponentDefinitionSidecar } from "./types.js";
 
@@ -219,6 +220,7 @@ const sidecars: Readonly<Record<CoreComponentType, ComponentDefinitionSidecar>> 
       "value"
     ]
   }),
+  [CoreComponentType.MenuButton]: menuButtonSidecar,
   [CoreComponentType.MultiSelect]: definition({
     behaviors: ["Uses native multiple selection", "Emits complete string-array values"],
     browserScenarios: [
