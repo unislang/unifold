@@ -223,9 +223,11 @@ critical seam; it is not yet the full catalog or Studio product described by the
    preservation, DOM-focus migration, exact-snapshot rollback, and failed-compensation quarantine.
    Complete 500-instance and one-instance-revision compilation are independently gated at 100 ms
    p95; the schema-2.17.0 run measured 9.89 ms and 9.70 ms, so subtree caching is deferred pending
-   evidence. Add the dedicated cross-browser migration/accessibility/event journey, then continue
-   with combobox/autocomplete, menus, overlays, tabs, navigation, upload, and variable-height or
-   two-dimensional virtualization. See
+   evidence. The dedicated preservation/reset/rejection/recovery journey passes state, focus,
+   semantics, stable DOM identity, canonical event, and axe assertions in Chromium and WebKit;
+   Firefox still fails before page creation on the managed Windows runner. Continue with
+   combobox/autocomplete, menus, overlays, tabs, navigation, upload, and variable-height or
+   two-dimensional virtualization while retaining Firefox as an external release gate. See
    [composition P0 follow-ups](./compositions.md#p0-hardening-follow-ups).
 5. Add stable-release evidence and generated documentation/test skeletons to the complete core
    `ComponentDefinition` pipeline, then benchmark representative native/Lion/Spectrum patterns

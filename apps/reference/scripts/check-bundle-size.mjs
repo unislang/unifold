@@ -4,7 +4,11 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const REFERENCE_BUNDLE_LIMIT_BYTES = 180 * 1024;
-const FORBIDDEN_TEST_HOOKS = ["__unifoldStoreFixture", "__unifoldUpdateDocument"];
+const FORBIDDEN_TEST_HOOKS = [
+  "__unifoldMigrateProfile",
+  "__unifoldStoreFixture",
+  "__unifoldUpdateDocument"
+];
 const applicationRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 if (isMain()) {

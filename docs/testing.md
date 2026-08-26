@@ -135,6 +135,12 @@ missing/duplicate/malformed/incompatible policies before mutation, restore exact
 failure, and quarantine the application when renderer compensation also fails. The compilation
 profile expands 500 instances to exactly 1,001 nodes and separately recompiles a revision changing
 one instance; both paths enforce 100 ms p95 limits.
+The built-reference composition-migration journey uses real `ProfileEditor@1.0.0` successor edges.
+It proves mapped dirty-value and focus preservation, reset defaults without stale focus, stable
+unaffected DOM identity, missing-edge last-known-good rejection and recovery, semantic binding
+continuity, canonical successor event provenance, and axe checks. All four Chromium/WebKit cases
+pass. Both Firefox cases currently fail before page creation with the existing managed-Windows
+Playwright `_page` error and therefore remain an external-runner release gate.
 The lifecycle-memory profile first runs five public application cycles to establish bounded
 element-registration and renderer caches. It then runs twenty schema-valid 500-node
 mount/revision/dispose cycles, forcing garbage collection after each cycle and at the final

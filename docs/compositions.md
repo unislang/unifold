@@ -154,14 +154,19 @@ exports; it does not make generated node IDs a supported external API.
 - Complete 500-instance composition compilation and a revision changing one instance have separate
   correctness fixtures and executable 100 ms p95 regression gates. The schema-2.17.0 report records
   9.89 ms and 9.70 ms p95 respectively, so subtree-cache complexity is not currently justified.
+- The built reference application exercises reviewed preservation, reset-by-default, unreviewed
+  rejection and recovery, renamed-export focus/state/semantics, unaffected sibling DOM identity,
+  canonical event provenance, and axe checks in Chromium and WebKit.
 
 ## P0 hardening follow-ups
 
 Before compositions become a stable authoring or AI-editing boundary, complete these P0 items:
 
 1. Route AI-authored changes through schema-validated typed operations with policy checks, preview transactions, approval boundaries, undo, audit provenance, deterministic replay, and export from committed authored state.
-2. Add dedicated cross-browser migration, accessibility, and event-identity journeys before declaring
-   the composition contract stable; retain the complete-compilation gates and introduce subtree
-   compilation only if representative measurements exceed their budgets.
+2. Repeat the passing Chromium/WebKit migration journey on a provisioned Firefox runner before
+   declaring the composition contract stable. The current managed Windows runner fails before page
+   creation with Playwright's `_page` error, so it provides no Firefox behavior result. Retain the
+   complete-compilation gates and introduce subtree compilation only if representative measurements
+   exceed their budgets.
 
 Each item needs positive, negative, lifecycle, accessibility, event-identity, and browser coverage before the composition contract is declared stable.

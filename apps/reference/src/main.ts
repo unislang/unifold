@@ -1,10 +1,12 @@
 import "@unislang/unifold-theme/tokens.css";
 import {
+  UiCompositionUnmappedMigration,
   UnifoldApplicationMountStatus,
   UnifoldSemanticPublicationMode,
   createMachineCommandRegistry,
   defineUnifoldElements,
   mountUnifoldApplication,
+  type UiCompositionVersionMigration,
   type UnifoldApplicationPort,
   type UnifoldApplicationUpdateResult
 } from "@unislang/unifold";
@@ -30,12 +32,18 @@ import { installStoreFixtureHooks } from "./store-fixture.js";
 const host = requireElement<HTMLElement>("app");
 const application = requireApplication(mountReference(host));
 const testHooksEnabled = import.meta.env.MODE === "e2e";
+const profileMigrationVersions: Readonly<Record<ProfileMigrationMode, string>> = {
+  preserve: "2.0.0",
+  reset: "3.0.0",
+  unreviewed: "4.0.0"
+};
 
 function mountReference(
   container: HTMLElement,
   semanticPublication = UnifoldSemanticPublicationMode.Automatic
 ) {
   return mountUnifoldApplication(uiDefinition, container, {
+    compositionMigrations: profileCompositionMigrations(),
     machineCommands: profileMachineCommands(),
     runtime: {
       asyncValidatorRegistry: profileAsyncValidators(),
@@ -43,6 +51,22 @@ function mountReference(
     },
     semanticPublication
   });
+}
+
+function profileCompositionMigrations(): readonly UiCompositionVersionMigration[] {
+  return [profileCompositionMigration("2.0.0", true), profileCompositionMigration("3.0.0", false)];
+}
+
+function profileCompositionMigration(
+  version: string,
+  preserve: boolean
+): UiCompositionVersionMigration {
+  return {
+    from: { name: "ProfileEditor", version: "1.0.0" },
+    preserve: preserve ? [{ source: "name", target: "fullName" }] : [],
+    to: { name: "ProfileEditor", version },
+    unmapped: UiCompositionUnmappedMigration.Reset
+  };
 }
 
 function profileMachineCommands() {
@@ -149,8 +173,41 @@ function installPrototypeHooks(application: UnifoldApplicationPort): void {
   const target = window as unknown as PrototypeWindow;
   target.__unifoldAuthoredDocument = structuredClone(uiDefinition);
   target.__unifoldDefineElements = defineUnifoldElements;
+  target.__unifoldMigrateProfile = (mode) => migrateProfile(application, mode);
   target.__unifoldMountRealmCopy = mountRealmCopy;
   target.__unifoldUpdateDocument = (source) => application.update(source);
+}
+
+function migrateProfile(
+  application: UnifoldApplicationPort,
+  mode: ProfileMigrationMode
+): UnifoldApplicationUpdateResult {
+  const source = structuredClone(uiDefinition) as unknown as ProfileDocument;
+  const version = profileMigrationVersions[mode];
+  source.revision = `migration-${mode}`;
+  source.view.$version = version;
+  updateProfileDefinition(source.compositions[0], version);
+  source.semantics.entities[0].properties.name.exportName = "fullName";
+  return application.update(source);
+}
+
+function updateProfileDefinition(definition: ProfileDefinition, version: string): void {
+  definition.version = version;
+  const field = definition.template.$children[0].$children.find(({ id }) => id === "name");
+  if (field === undefined) throw new Error("Profile name definition is missing.");
+  field.id = "full-name";
+  field.label = "Full name";
+  field.value = "Successor default";
+  const selection = requireProfileExport(definition.exports, "name");
+  definition.exports["fullName"] = { ...selection, localId: "full-name" };
+  Reflect.deleteProperty(definition.exports, "name");
+  requireProfileExport(definition.exports, "setName").localId = "full-name";
+}
+
+function requireProfileExport(exports: Record<string, ProfileExport>, name: string): ProfileExport {
+  const descriptor = exports[name];
+  if (descriptor === undefined) throw new Error(`Profile export is missing: ${name}.`);
+  return descriptor;
 }
 
 function mountRealmCopy(): RealmCopyResult {
@@ -209,8 +266,37 @@ interface PrototypeWindow {
   __unifoldAuthoredDocument?: unknown;
   __unifoldCapturedEvents?: UiEvent[];
   __unifoldDefineElements?: typeof defineUnifoldElements;
+  __unifoldMigrateProfile?: (mode: ProfileMigrationMode) => UnifoldApplicationUpdateResult;
   __unifoldMountRealmCopy?: () => RealmCopyResult;
   __unifoldUpdateDocument?: (source: unknown) => UnifoldApplicationUpdateResult;
+}
+
+type ProfileMigrationMode = "preserve" | "reset" | "unreviewed";
+
+interface ProfileDocument {
+  readonly compositions: [ProfileDefinition];
+  revision: string;
+  readonly semantics: {
+    readonly entities: [{ readonly properties: { readonly name: { exportName: string } } }];
+  };
+  readonly view: { $version: string };
+}
+
+interface ProfileDefinition {
+  readonly exports: Record<string, ProfileExport>;
+  readonly template: { readonly $children: [{ readonly $children: ProfileField[] }] };
+  version: string;
+}
+
+interface ProfileExport {
+  localId: string;
+  readonly [property: string]: unknown;
+}
+
+interface ProfileField {
+  id: string;
+  label: unknown;
+  value: unknown;
 }
 
 interface RealmCopyResult {
