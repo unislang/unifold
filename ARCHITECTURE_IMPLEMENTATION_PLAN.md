@@ -58,6 +58,28 @@ The desired full-platform 1.0 stable catalog target is 45 components, subject to
 | Phase 2—22 interaction/content | Image, Card, NumberField, SearchField, CheckboxGroup, Switch, Combobox, MultiSelect, DateField, FileInput, Field, Fieldset, ErrorSummary, Accordion, Tabs, MenuButton, Tooltip, Popover, Dialog, Toast, Breadcrumb, Pagination |
 | Phase 3—8 enterprise | Table, DataGrid, VirtualList, MasterDetail, SearchResults, Wizard, Stepper, AuditLog |
 
+Implementation checkpoint (2026-08-26): all 45 named stable component families are present in the
+catalog, and the additional `Composition` structural host brings generated custom-element coverage
+to 46. This closes catalog-family implementation scope, not the 1.0 program: multi-user Studio,
+provisioned control-plane operations, manual browser/assistive-technology evidence, localization,
+packaging/release compatibility, pilot adoption, and the remaining acceptance register still gate
+stability. Toast and Pagination complete the Phase 2 list through the same JSON to IR to deferred Web
+Component to canonical event to XState/command to selective projection to static export and
+Playwright seams. The reference initial closure remains below its unchanged 184 KiB gzip gate after
+moving authored JSON and the reference validator adapter to explicit pre-mount resources; no
+catalog-completion budget exception was taken.
+
+Acceptance checkpoint (2026-08-26): the executable evidence register is maintained in
+`docs/acceptance-status.md`. It deliberately distinguishes family presence from complete 1.0
+proof: AC27 is proved, while the other criteria remain partial or missing until their full named
+environment and recovery matrices exist. The latest risk-reduction tranche adds a packaged
+`unifold validate`/`unifold generate starter` adoption path with a packed clean-consumer journey, a
+governed AI SDK provider boundary with signed manifests and atomic token/cost/time budgets, and
+per-application Schema.org publication ownership. Planned CLI migrate/test/export/doctor commands,
+real-provider golden tasks, whole-runtime multi-app isolation, the three fixed reference products,
+manual assistive-technology evidence, external pilots, public-registry release proof, and the Phase
+0 evidence-based delivery reforecast remain explicit gates.
+
 Other listed components may ship as experimental or post-1.0 extensions and cannot block GA. A component family enters a future stable target only with a named reference journey and owner.
 
 Explicit 1.0 non-goals are arbitrary model- or user-supplied JavaScript, a public unreviewed plugin marketplace, native mobile rendering, a general-purpose CMS, simultaneous rich-text CRDT editing, guaranteed search-engine rich results, a built-in domain backend, and request-time SSR. The framework provides contracts and reference adapters; product teams still own business services, content accuracy, authorization policy, translations, and deployment approval.
@@ -802,13 +824,20 @@ enum UiPatchRisk {
   ExternalEffect = 'external-effect'
 }
 
+enum UiPatchRequestedCheck {
+  Accessibility = 'accessibility',
+  Compiler = 'compiler',
+  StaticExport = 'static-export'
+}
+
 interface UiPatchProposal {
   proposalId: string;
+  baseHash: string;
   baseRevision: string;
   intentSummary: string;
   operations: JsonPatchOperation[];
   expectedOutcomes: string[];
-  requestedChecks: string[];
+  requestedChecks: UiPatchRequestedCheck[];
   risk: UiPatchRisk;
 }
 ```
@@ -1345,7 +1374,9 @@ escaping, last-known-good rollback, recovery, and stable host identity. An exact
 SearchResults starts in 47.36 ms p95, updates its query in 5.23 ms p95, selects in 4.66 ms p95,
 and renders at most 15 options; Chromium and WebKit prove native search/listbox semantics, polite
 status, controlled state, axe, hostile-text escaping, last-known-good rollback, recovery, and stable
-host identity. A shared exact 100-step Stepper/100-panel Wizard workload starts in 36.76 ms p95,
+host identity. The exact 100-SearchField, 100-CheckboxGroup/600-checkbox, and 100-Switch workloads
+project their exact final native values in 1.92, 3.28, and 1.20 ms p95 respectively against their
+100 ms limits. A shared exact 100-step Stepper/100-panel Wizard workload starts in 36.76 ms p95,
 selects its distant Stepper step in 4.09 ms p95, swaps its distant Wizard panel in 3.70 ms p95, and
 renders exactly 200 step buttons; Chromium and WebKit prove roving focus, linear disabled-step
 skipping, canonical state, completion, axe, hostile-text escaping, last-known-good rollback,
@@ -1373,8 +1404,9 @@ unchanged provisional 4 ms rule,
 1,000/100/100 ms/200-button workflow-navigation, 1,000/100 ms/200-entry AuditLog, 250/100 ms
 cached-data/invalidation, 1,000/100 ms collaboration-commit/rebase, 1,000/100 ms
 devtools-timeline/node-picker, and 2,000/500 ms control-plane Fetch-read/realtime-resume limits and
-strict 2% lifecycle-growth limit are executable benchmark gates. The unified schema-2.12.0 report
-currently emits 31/31 passing gates with
+strict 2% lifecycle-growth limit are executable benchmark gates. DateField, persistent Toast, and
+explicit Pagination workloads each add an exact 100-control/50-sample projection gate with a 100 ms
+p95 ceiling. The unified schema-2.34.0 report currently emits 59/59 passing gates with
 actual/limit/pass evidence. Developer-workstation timing remains descriptive; release ratification
 still requires the pinned mid-tier runner, and the table above is unchanged.
 

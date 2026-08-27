@@ -6,6 +6,40 @@
 - pnpm 10.15.1 or newer through Corepack
 - Git
 
+## Generate a starter
+
+With `@unislang/unifold-cli` installed from a reviewed package artifact, generate ordinary source
+files without running an installer on the user's behalf:
+
+```sh
+unifold generate starter my-unifold-app --no-install
+cd my-unifold-app
+pnpm install
+pnpm test
+pnpm typecheck
+pnpm build
+pnpm exec playwright install chromium
+pnpm test:e2e --project chromium
+```
+
+The starter is a hierarchical JSON-defined accessible form with a unified `events$` subscriber, an
+XState command, Schema.org publication, theme tokens, strict TypeScript, a restrictive CSP, and a
+Playwright accessibility/selective-update journey. Validate any authored document through the same
+public compiler used by application mounting:
+
+```sh
+unifold validate src/ui.json
+```
+
+The CLI supports `generate starter`, document `validate`, and pinned `module validate`, `module
+check`, and `module flatten` workflows. `module check` compares a freshly resolved graph, complete
+artifact integrity, and prepared-IR integrity with a committed lock without rewriting it. Module
+flattening emits deterministic runtime and lock artifacts only after the expanded document passes
+the public preparation boundary. The planned `migrate`, `test`, `export`, and `doctor` commands
+remain unimplemented and are not aliases for repository scripts.
+
+## Work in the repository
+
 Clone `https://github.com/unislang/unifold.git`, then run:
 
 ```sh
@@ -70,7 +104,7 @@ The E2E configuration builds and serves the reference application automatically.
 
 ## Current vertical slice
 
-Phase 0 deliberately proves the narrow end-to-end seam first: an authored JSON document expands reusable compositions, compiles to normalized IR, renders accessible Web Components, emits canonical events, updates normalized state atomically, reconciles revised JSON, and selectively refreshes only subscribed nodes. The initial composition contract and twenty-nine-component catalog are not presented as the complete framework vocabulary.
+Phase 0 deliberately proves the narrow end-to-end seam first: an authored JSON document expands reusable compositions, compiles to normalized IR, renders accessible Web Components, emits canonical events, updates normalized state atomically, reconciles revised JSON, and selectively refreshes only subscribed nodes. The catalog now contains all 45 named stable component families plus the `Composition` structural host; exhaustive acceptance evidence remains separate from family presence.
 
 For the hierarchy-oriented authoring form, run the executable example:
 
@@ -78,7 +112,10 @@ For the hierarchy-oriented authoring form, run the executable example:
 pnpm --filter @unislang/unifold-hierarchical-example dev
 ```
 
-Its [`ui.json`](../examples/hierarchical-site/src/ui.json) defines a complete nested page using
-`layoutType`, `variables`, `type`, `props`, `children`, and `events`. The companion Playwright
-workspace verifies derived rules, source-specific XState routing, selective projection, the unified
-event stream, Schema.org publication, and automated accessibility checks.
+Its [application module](../examples/hierarchical-site/src/modules/application.module.json) defines
+a complete nested page using `layoutType`, `variables`, `type`, `props`, `children`, and `events`.
+It imports the reviewed [layout resource](../examples/hierarchical-site/src/modules/layouts.module.json)
+by exact version, integrity, and namespace. Production and E2E builds run `unifold module check`
+against the committed lock before compilation. The companion Playwright workspace verifies derived
+rules, source-specific XState routing, selective projection, the unified event stream, Schema.org
+publication, and automated accessibility checks.

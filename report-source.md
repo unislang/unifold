@@ -206,3 +206,66 @@ release gates.
 Research covered the linked JsonUI site, repository, and package; Vercel AI SDK Core/UI; XState stable v5 and v6-alpha distinctions; Web Components and form participation; Lit composition/styling/SSR; Tailwind v4 source detection; WCAG 2.2 and ARIA APG; NN/g accessibility material; axe-core; CloudEvents; JSON Schema/Patch; trace context; and OWASP browser/LLM guidance.
 
 Research stopped after all consequential architecture claims had first-party or standards evidence, the naming ambiguity between JsonUI and `json-render` was resolved, version-sensitive choices were bounded, and additional searches were repeating rather than changing the recommended architecture. The unresolved product choices are explicitly listed in the implementation plan.
+
+## 2026-08-26 Toast accessibility contract update
+
+Audience and decision: component authors and framework consumers need one stable Toast contract that
+can enter the unified event/state path without weakening Unifold's WCAG 2.2 AA baseline. The focused
+research covers live-region urgency, focus, dismissal, and content-owned timing. It excludes a
+durable notification center, global user timing preferences, and action-bearing notifications; those
+require separate compositions and recovery behavior.
+
+The stable Toast is persistent and timer-free. A minimum timeout and a dismiss button are not enough:
+WCAG 2.2 Timing Adjustable explicitly uses a five-second toast as its example and permits that timing
+only when users can obtain the equivalent information by another means. Unifold does not yet have a
+catalog-authoritative durable notification center or user-level turn-off/adjust/extend policy, so a
+finite `duration` would make an accessibility claim the framework cannot prove. State/effects may
+remove a Toast only under an application policy that independently satisfies the criterion; the
+component itself never schedules removal.
+
+Advisory informational and success messages use an atomic `status` live region; important warning
+and error messages use an atomic `alert` live region. The live text is separate from any dismiss
+button so atomic announcement does not include the control label. Insertion never moves focus.
+Dismissal is an optional native-button intent that enters the canonical stream; the component does
+not mutate authoritative application state or require users to acknowledge an alert. An interaction
+that must interrupt work or acquire a response is an alert dialog, not a Toast.
+
+| Claim / contract decision | Primary evidence | Confidence | Remaining limitation |
+|---|---|---:|---|
+| Status messages must be exposed without receiving focus; advisory results/status use `role=status`, while warnings/errors can use `role=alert`. | [WCAG 2.2 Understanding SC 4.1.3](https://www.w3.org/WAI/WCAG22/Understanding/status-messages) | High | Automated DOM/axe evidence does not replace manual assistive-technology announcement testing. |
+| `status` is implicitly polite and atomic; `alert` is implicitly assertive and atomic and does not require focus. | [WAI-ARIA 1.2 status and alert roles](https://www.w3.org/TR/wai-aria/#status) | High | Announcement behavior can still vary by browser/assistive-technology combination. |
+| Alerts must not move keyboard focus, and auto-disappearing alerts are discouraged. | [ARIA Authoring Practices alert pattern](https://www.w3.org/WAI/ARIA/apg/patterns/alert/) | High | A focusable dismiss control needs ordinary native-button testing in addition to the alert pattern. |
+| A five-second toast is exempt from timing adjustment only when equivalent information remains available elsewhere. | [WCAG 2.2 Understanding SC 2.2.1](https://www.w3.org/WAI/WCAG22/Understanding/timing-adjustable.html) | High | A future timer requires a durable alternative or user-configurable turn-off/adjust/extend policy and new executable evidence. |
+
+The search stopped after the normative role, focus, and timing questions converged across WCAG,
+WAI-ARIA, and APG. Further generic toast-library guidance would be weaker than these primary sources
+and would not change the persistent, timer-free v1 decision.
+
+## 2026-08-26 Pagination accessibility contract update
+
+Audience and decision: component authors need a predictable navigation primitive, while application
+state and data-source actors—not a view-local page-window algorithm—remain authoritative. Pagination
+therefore accepts an explicit ordered JSON item list with stable identities, visible and accessible
+labels, finite item kinds, safe optional destinations, and current/disabled state. This keeps bounded
+and unbounded sets, localization, routing, and server-derived windows outside the dumb component.
+
+The rendered contract is a descriptively named `nav` landmark containing one unordered list. Exactly
+one page item is current and receives `aria-current="page"`; current pages may remain links because
+that is robust during both link-list and sequential navigation. Number-only visible labels require a
+descriptive accessible label such as “Page 10.” Previous and next are explicit authored items, and
+an overflow marker is noninteractive. Native links preserve no-JavaScript navigation. Items without
+a destination use native buttons whose trusted activation enters the unified event stream; disabled
+items are not interactive. Pagination never moves focus after activation because the destination or
+application state owns the resulting content and focus policy.
+
+| Claim / contract decision | Primary evidence | Confidence | Remaining limitation |
+|---|---|---:|---|
+| Pagination is a navigation landmark with a unique descriptive label and list semantics. | [U.S. Web Design System Pagination](https://designsystem.digital.gov/components/pagination/) | High | Landmark-label uniqueness depends on the consuming page and needs page-level tests. |
+| The current page is conveyed programmatically with `aria-current="page"`, not color alone. | [W3C ARIA26 technique](https://www.w3.org/WAI/WCAG21/Techniques/aria/ARIA26) | High | Visual contrast and forced-colors behavior still need rendered-theme evidence. |
+| Numeric page links need names that communicate link purpose, including when links are inspected out of surrounding visual context. | [WCAG 2.2 Understanding SC 2.4.4](https://www.w3.org/WAI/WCAG22/Understanding/link-purpose-in-context) | High | Localization remains authored data; the component must not synthesize English. |
+| Keyboard order must follow the logical visual sequence, expose roles/current value, avoid traps, and retain visible focus. | [USWDS Pagination accessibility tests](https://designsystem.digital.gov/components/pagination/accessibility-tests/) | High | Automated Playwright/axe checks do not replace the documented manual screen-reader matrix. |
+
+The search stopped once current-page semantics, landmark/list structure, link naming, keyboard order,
+and focus requirements converged. The implementation deliberately does not adopt USWDS's seven-slot
+windowing algorithm: explicit JSON items avoid duplicating data-source logic and support both bounded
+and unbounded application policies without creating a second state authority.

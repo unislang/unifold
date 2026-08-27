@@ -24,40 +24,84 @@ pnpm test:performance
 pnpm benchmark:selective
 pnpm typecheck
 pnpm quality
+pnpm quality:reexports
 pnpm exec playwright install --with-deps chromium firefox webkit
 pnpm test:jsonui-parity
 pnpm test:e2e
 pnpm test:e2e:host-parity
 pnpm test:e2e:reference
+pnpm test:e2e:studio
 pnpm test:e2e:static-export
 pnpm test:consumer
 ```
 
 The reference build sums the gzip size of the entry's complete static import closure and fails above
-184 KiB. Startup-required validation is in that closure. Optional component families are requested
-only after the application mounts; their emitted chunks are audited and reported separately as
-post-mount JavaScript.
+184 KiB. The authored JSON and reference-specific validator adapter are explicit pre-mount deferred
+resources; optional component families are requested only after the application mounts. All emitted
+JavaScript outside the static entry closure is audited and reported separately as deferred
+JavaScript.
+
+The Studio matrix builds the JSON-authored dogfood application before running its browser journeys.
+Its asset gate rejects browser bundles containing the server-only AI generator, provider-generation
+markers, or credential markers and caps combined JavaScript at 250 KiB gzip. Chromium, Firefox, and
+WebKit then prove request, isolated preview, unchanged live state, explicit apply, deterministic
+portable/static export, Schema.org output, keyboard operation, and axe checks.
 
 `pnpm test:consumer` is the release-artifact boundary: it installs packed packages outside the
 workspace, typechecks and bundles a public-API-only fixture, and runs its lifecycle in Chromium.
 See [Packaging and clean-consumer verification](./packaging.md).
 
-The 2026-08-26 local acceptance snapshot runs 442 package test files and 1,105 tests with zero
-failures. V8 coverage records 97.49% lines/statements, 97.01% functions, and 90.06% branches,
+The 2026-08-26 local acceptance snapshot runs 570 package test files and 1,491 tests with zero
+failures. V8 coverage records 97.61% lines/statements, 97.07% functions, and 90.10% branches,
 passing the executable 90% repository thresholds. The complete matrix also
-passes 16 tooling tests, 8 generated/CEM script tests, the theme/reference script tests, and 28
-performance correctness files/38 tests with the long-running profiles intentionally skipped there
-and run by `pnpm benchmark:selective`. These observations supplement, rather than replace, the
+passes 18 tooling tests, 9 generated/CEM script tests, the theme/reference script tests, and 37
+performance correctness files/47 tests with 31 long-running profile files intentionally skipped there
+and run by `pnpm benchmark:selective`; the benchmark report passes all 59/59 executable gates.
+These observations supplement, rather than replace, the
 executable coverage thresholds.
 
 The same snapshot passes 168 reference journeys across Chromium, Firefox, and WebKit with six
 intentional non-Chromium scale skips, plus 39/39 static no-JavaScript and upgrade journeys across
 all three engines. The hierarchical authoring example passes 9/9 and plain/React/Svelte/Vue host
 parity passes 12/12. Pinned upstream JSONUI parity passes 27/27 and the clean packed consumer passes
-3/3. The static matrix includes JSON-LD ownership/integrity, metadata-only FileInput upgrade, native
+5/5, including a packed CLI-generated starter that installs, validates, typechecks, unit tests,
+builds, and completes its production Chromium journey outside the monorepo. The static matrix
+includes JSON-LD ownership/integrity, metadata-only FileInput upgrade, native
 repeated form values, and form-structure semantics. Run the reference matrix with a bounded worker
 count when collecting release evidence so workstation saturation is not mistaken for application
 latency.
+
+The DateField/Studio integration adds independent all-engine evidence: hierarchical authoring
+passes 30/30, static export and guarded hydration pass 96/96, and governed Studio passes 24/24.
+DateField covers canonical input/blur, selective projection, native date-only `FormData`, required
+recovery, disabled-event rejection, JavaScript-free fallback, edited/focused upgrade, and strict
+type/range tamper rejection, including WebKit's date-input fallback behavior.
+The focused Pagination admission matrix passed 3/3 hierarchical and 12/12 static-export journeys
+across Chromium, Firefox, and WebKit. It covers keyboard focus continuity through XState-owned
+current-page projection, canonical linked activation, unaffected host identity, JavaScript-free
+safe links and text-only href-less items, exact current/disabled/overflow semantics, guarded
+upgrade, selector-safe identifiers, destination/order tamper rejection, and axe coverage.
+The current Studio checkpoint passes 16/16 and the static-export checkpoint passes 80/80 journeys
+in Chromium and WebKit. The static suite's NumberField locator uses exact accessible-name matching
+so pagination labels containing `page` cannot create false strict-mode matches. Toast covers
+polite/assertive live-region mapping, persistent
+no-JavaScript content, timer-free manual dismissal through the canonical stream and XState,
+renderer-backed focus restoration, selective identity, exact content validation, and fail-closed
+tamper rejection. The managed elevated Windows runner currently prevents Firefox from creating any
+page with Playwright's `_page` error before a test body runs; the same environment-specific failure
+is documented upstream in [Playwright issue 36594](https://github.com/microsoft/playwright/issues/36594).
+Studio includes unsafe-proposal rejection, stale-apply preservation, request cancellation and
+supersession, export-failure recovery, and browser-asset isolation as real browser journeys, not
+mocked policy assertions. Its port is environment-overridable so parallel CI jobs do not share a
+preview listener.
+
+The 2026-08-27 module-native checkpoint passes 577 Vitest files/1,522 tests, 22/22 tooling tests,
+37 performance files/47 active tests, and all 59 benchmark gates. Chromium passes 59/59 reference,
+12/12 hierarchical, and 8/8 Studio journeys. A bounded one-worker WebKit run passes 56 reference
+cases with three intentional scale skips, plus 12/12 hierarchical and 8/8 Studio journeys. The
+three-engine commands remain intentionally red on this managed runner because Firefox fails before
+page construction with the `_page` defect; that process failure is reported separately from the
+passing application assertions.
 
 ## Test placement
 
@@ -72,6 +116,10 @@ The `pnpm quality:tests` gate rejects missing, centralized, orphaned, or misname
 Dedicated suites under `tests/` are reserved for cross-package integration and Playwright E2E
 behavior. `pnpm typecheck` compiles both publishable source projects and every colocated test project;
 passing Vitest transformation alone is not sufficient.
+
+`pnpm quality:reexports` parses authored package, application, and example modules and rejects named
+or default import-then-local-export patterns. Feature modules expose owned behavior; intentional
+public export maps use direct `export ... from` declarations at package boundaries.
 
 The gate is aligned to the `.ts` package sources and registered `.mjs` script suites that the test
 commands execute. A new module format must extend test discovery and test-project typechecking in the
@@ -244,6 +292,9 @@ requires both exact counts and p95 projection at or below 100 ms; the current lo
 The numeric-control fixture mounts exactly 100 deferred `NumberField` hosts and updates every finite
 controlled value across 50 samples. Its gate requires the exact host count, the expected final
 native `valueAsNumber`, and p95 projection at or below 100 ms; the current local p95 is 1.85 ms.
+The search-control fixture mounts exactly 100 deferred `SearchField` hosts and updates every
+controlled query across 50 samples. Its gate requires the exact host count, final native value, and
+p95 projection at or below 100 ms; the current local p95 is 1.58 ms.
 The Chromium scale journey complements the Node suite by observing all 1,000 or 10,000 rendered
 hosts in one page-context pass. It requires one render-counter mutation, unchanged unrelated counts,
 retained element and shadow-input identity/focus, canonical event order, and an exact one-node commit.

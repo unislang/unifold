@@ -61,13 +61,24 @@ rejects malformed or unsafe sources, duplicate registrations and namespaces, mis
 integrity mismatches, cycles, undeclared composition namespace references, and aggregate graph or
 resource limits.
 
-Imported composition definitions and nested `$compose` references receive deterministic namespace
-paths before the ordinary composition expander runs. The resulting artifact contains the composed
-source, expanded `UiDocument`, document integrity, resolved dependency graph, namespaced typed
-resources, and source-map entries from flattened composition/view/resource pointers to exact module
-source IDs and pointers. Machine, rule, schema, token, message, semantics, and scenario resources
-remain inert JSON until their owning compiler explicitly admits them. See
+Imported composition definitions, `layout` resources, and nested `$compose` references receive
+deterministic namespace paths before the ordinary layout and composition expanders run. Layout
+resources are declarative reviewed definitions, not executable callbacks; exact lowered-node source
+entries identify either their module resource template or the root-document variable that supplied
+them. The resulting artifact contains the composed source, expanded `UiDocument`, resolved
+dependency graph, namespaced typed resources, and source-map entries from flattened
+composition/view/resource pointers to exact module source IDs and pointers. Its canonical SHA-256
+covers all five structures together, so provenance-only drift also invalidates the artifact lock;
+prepared IR has a separate integrity value. Machine, rule, schema, token, message, semantics, and
+scenario resources remain inert JSON until their owning compiler explicitly admits them. See
 [`@unislang/unifold-modules`](../packages/modules/README.md).
+
+Repository applications declare reviewed relative source lists in module-project manifests. Their
+production and E2E builds invoke the packaged `unifold module check` command, which re-resolves and
+prepares the project, validates its committed lock, and fails on entry, module graph, complete
+artifact, or IR drift without rewriting files. The primary reference and hierarchical example each
+own one lock; Studio owns independent control-surface and live-application locks over a shared
+presentation module.
 
 ## Hierarchical layout authoring boundary
 
@@ -306,8 +317,10 @@ without duplicating or competing with the normalized Unifold store.
 A JSON-authored `SemanticGraph` binds public assertions to the same committed node snapshots used
 for rendering, either by node ID or by a typed composition control-value export. The compiler rejects missing, invisible, non-public, or non-control bindings and
 unknown starter-vocabulary terms. It emits deterministic JSON-LD with the pinned Schema.org 30.0
-context. One document-head publisher owns and atomically replaces the light-DOM script after a
-successful transaction; semantic metadata is not inferred from clicks or accessibility markup.
+context. Each application runtime owns and atomically replaces its light-DOM script after a
+successful transaction. Independent owner IDs may coexist in one document, while duplicate scripts
+for the same owner fail closed; semantic metadata is not inferred from clicks or accessibility
+markup.
 
 ## Workflow machines
 

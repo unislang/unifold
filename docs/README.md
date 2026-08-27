@@ -23,5 +23,6 @@
 - [OSS decision register](oss-decisions.md)
 - [Implementation status](implementation-status.md)
 - [1.0 acceptance evidence audit](acceptance-audit.md)
+- [Concise 1.0 acceptance status](acceptance-status.md)
 
 Documentation is part of the public API. New public events, JSON fields, component behavior, commands, or packages require version-matched conceptual guidance, API reference updates, and executable examples.

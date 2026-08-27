@@ -1,17 +1,19 @@
 # Implementation status
 
-Unifold is at the Phase 0 vertical-slice milestone. The implementation proves the framework's
-critical seam; it is not yet the full catalog or Studio product described by the architecture plan.
+Unifold has implemented the architecture plan's named 45-component stable catalog plus the
+`Composition` structural host. The repository proves the critical runtime seams and one governed
+Studio workflow; it is not yet the multi-user, provisioned, manually audited enterprise product
+described by the complete 1.0 plan.
 
 ## Implemented
 
 - A pnpm monorepo with strict TypeScript, ESLint, Prettier, Knip, dependency-cruiser, jscpd,
   Changesets, and executable file/function/complexity policies.
 - A safe JSON document contract, validation diagnostics, normalized immutable IR, and a minimal
-  JsonUI-compatible profile for Accordion, Alert, AuditLog, Box, Breadcrumb, Button, Checkbox, Combobox,
-  Card, Composition, DataGrid, Dialog, ErrorSummary, Field, Fieldset, FileInput, Form, Grid, Heading, Icon, Image, Link, MasterDetail, MenuButton, MultiSelect,
-  NumberField, Popover, RadioGroup, SearchResults, Select, Stack, Stepper, Tabs, Table, Text, TextArea, TextField,
-  Tooltip, VirtualList, and Wizard. Catalog-backed property validation rejects unknown properties, invalid enum values,
+  JsonUI-compatible profile for Accordion, Alert, AuditLog, Box, Breadcrumb, Button, Checkbox, CheckboxGroup, Combobox,
+  Card, Composition, DataGrid, DateField, Dialog, ErrorSummary, Field, Fieldset, FileInput, Form, Grid, Heading, Icon, Image, Link, MasterDetail, MenuButton, MultiSelect,
+  NumberField, Pagination, Popover, RadioGroup, SearchField, SearchResults, Select, Stack, Stepper, Switch, Tabs, Table, Text, TextArea, TextField,
+  Toast, Tooltip, VirtualList, and Wizard. Catalog-backed property validation rejects unknown properties, invalid enum values,
   malformed option, table, or audit lists, invalid string-array values, duplicate option values, duplicate
   table column/row or audit-entry identities, undeclared table cells, and selections absent from their declared
   options before rendering. Reusable enum-backed catalog constraint descriptors keep cross-property
@@ -24,7 +26,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
   static export never serializes metadata or bytes and restored metadata truthfully requires
   reselection.
 - Native form interoperability through one reusable generic Lit controller over `ElementInternals`.
-  TextField, TextArea, NumberField, Select, RadioGroup, VirtualList, Checkbox, MultiSelect, and FileInput
+  TextField, TextArea, NumberField, DateField, Select, RadioGroup, VirtualList, Checkbox, MultiSelect, Switch, and FileInput
   participate in native ownership and `FormData`, disabled fieldsets, reset/state restoration, and
   validity while the Unifold runtime remains the only committed state authority. Scalar controls
   add IME de-duplication; boolean, repeated-string, and file codecs preserve native submission
@@ -34,6 +36,36 @@ critical seam; it is not yet the full catalog or Studio product described by the
   validity, static hydration, and browser admission. The Scratch-style `variables.fields` example
   authors its `type`/`props`/`events` shape and routes a numeric `onInput` value through the unified
   event fabric and XState owner scope.
+- A deferred native `SearchField` with required labeling, enum-backed autocomplete, and a shared
+  configurable query limit capped at 2,048 characters. IR compilation, SearchResults, native input
+  ingress, static export, and hydration enforce the same bound; oversized or wrong-type input fails
+  closed. Its Scratch-style hierarchy routes string input and Enter submission through the unified
+  stream, native form owner, and XState scope in Chromium, Firefox, and WebKit.
+- A deferred native `Switch` with a required accessible label, boolean canonical value, and one
+  native checkbox carrying `role="switch"`. It reuses the boolean form adapter for native checked
+  submission, required validity, disabled ownership, reset, and browser restoration while emitting
+  canonical input and blur intents through the unified stream. Its Scratch-style `type`/`props`/
+  `events` shape lowers through the ordinary compiler; static export preserves public state and
+  hydration rejects mismatched role, type, name, disabled, or required semantics while deliberately
+  migrating the native checked state so a pre-upgrade user edit is not lost.
+- A deferred native `DateField` with `""` or exact Gregorian `YYYY-MM-DD` canonical state and no
+  timezone conversion. One shared contract rejects impossible dates, reversed/out-of-range values,
+  invalid whole-day steps, and implicit multi-day step anchors across catalog, IR, native validity,
+  static export, and hydration. The Scratch-style example routes input/blur through the unified
+  stream and native form owner; disabled/readonly synthetic input is restored without emission.
+- A deferred persistent `Toast` with bounded required label/message text, enum-backed status and
+  visual variant, atomic polite/assertive live semantics, optional manual dismissal, and no timer
+  API. Its Scratch-style activated binding enters the unified stream, an XState transition projects
+  `visible: false`, and a renderer-backed focus request recovers to a stable action without updating
+  unrelated hosts. Static output remains visible without JavaScript and guarded hydration rejects
+  semantic or text drift.
+- A deferred explicit `Pagination` navigation with a required landmark label and authored ordered
+  items. Enum-backed page/previous/next/overflow kinds, unique stable identities, safe links,
+  exactly one enabled current page, directional edge ordering, and noninteractive disabled/overflow
+  entries are compiler invariants. The component renders native list/link/button semantics, emits
+  stable activation intent without owning current state, and leaves page-window calculation to the
+  application or data actor. Static output preserves safe links, converts href-less actions to
+  noninteractive text, and admits upgrade only after exact selector-safe structural validation.
 - Deferred `Card` and `Image` content/media primitives. `Card` preserves 1 to 100 authored children
   inside a native article; `Image` requires deliberate alternative text, a catalog-safe relative or
   HTTP(S) resource URL, and positive intrinsic dimensions. Both lower from the Scratch-compatible
@@ -55,8 +87,10 @@ critical seam; it is not yet the full catalog or Studio product described by the
   outcomes and verifies Unifold's exact redacted canonical event chain in Chromium, Firefox, and
   WebKit. Its
   measured isolated production-profile cost is 5.88 kB minified/1.76 kB
-  gzip. The current startup closure is 179.89 KiB gzip against the executable 180 KiB Phase 1
-  budget; required validation is included and optional families are audited post-mount.
+  gzip. The current startup closure is 188,135 gzip bytes (183.73 KiB) against the executable 184
+  KiB Phase 1 budget. The module artifact, reference validator adapter, and reviewed runtime options
+  load before mount as explicit deferred resources; optional families and diagnostic event output
+  load after mount, and all deferred chunks are audited together.
 - Typed `UiStoreDefinition` contracts and a Unifold `store`/`path` profile extension. The compiler
   validates unique definitions, enum-backed policy, embedded local-only Draft 2020-12 schemas,
   byte quotas, schema pointers, and catalog value types into immutable IR bindings. Trusted
@@ -74,15 +108,23 @@ critical seam; it is not yet the full catalog or Studio product described by the
 - Deterministic reusable JSON composition expansion with exact version pins, scalar structural
   parameters, declared slots, nested instances, namespaced IDs, typed exports, versioned manifests,
   per-node provenance, runtime composition handles, and diagnostics.
-- A strict `UiModule@1.0.0` contract and static resolver for source files that must remain below the
+- A strict `UiModule@1.0.0` contract and static resolver for source files that remain below the
   authored file limit. The resolver accepts only a host-constructed in-memory registry, verifies
   exact semantic versions and RFC 8785 SHA-256 import integrity, rejects duplicate modules,
   namespaces, resources, missing imports, cycles, unsafe or unbounded JSON, and undeclared
   composition references, and performs no fetch or package loading. It deterministically
-  namespaces imported compositions/resources, expands the selected document through the ordinary
-  composition engine, emits source-map entries to exact module source IDs/pointers, and proves
-  repeated artifact hash plus IR parity in its integration suite. Fixed reference apps and the CLI
-  still need migration to module sources before acceptance criterion 33 is complete.
+  namespaces imported compositions/resources and expands selected documents through the ordinary
+  layout and composition engines. Layout resources let reviewed modules supply Scratch-style
+  definitions without a parallel TypeScript registry; lowered nodes retain exact pointers to the
+  defining resource template or root-document variable. One canonical artifact integrity covers
+  the composed and expanded documents, resolved graph, resources, and source map; locks separately
+  pin prepared IR. The packaged CLI validates, flattens, and checks bounded local module projects.
+  The primary reference, hierarchical example, and both Studio surfaces resolve authored module
+  graphs before mount, and their production/E2E builds reuse `unifold module check` to reject drift
+  from committed locks. Studio keeps independent control-surface and live-application locks. CLI
+  tests prove deterministic flattened artifact/lock bytes and IR/hash parity, while the clean packed
+  starter consumes the flattened artifact through unit, typecheck, production-build, and Chromium
+  checks. This closes criterion 33's repository-controlled proof; final release reruns remain.
 - A hierarchy-oriented authoring layer compatible with the original Angular prototype's useful
   shape: exact `layoutType`/`layoutVersion`, typed `variables`, recursively nested
   `type`/`props`/`children`, safe structural references, boolean conditions, durable-key repetition,
@@ -92,11 +134,12 @@ critical seam; it is not yet the full catalog or Studio product described by the
   Enum-backed source-specific bindings are validated against catalog event capabilities and alias
   only XState input; canonical stream facts are not rewritten. The standalone hierarchical example
   passes unit, build, selective-update, workflow, Schema.org, canonical-stream, and axe checks in
-  Chromium and WebKit. A bounded immutable host-supplied registry supports reviewed external layout
-  modules without document-selected URLs or runtime I/O; exact version collisions, forged registry
-  objects, unsafe definitions, source provenance, mounted/async updates, and signed-load mounting
-  fail closed or pass through the same compiler boundary. Invalid revisions retain last-known-good
-  state and DOM, and 500-node layout compilation has an executable p95 regression gate.
+  Chromium and WebKit. Imported enum-backed `layout` resources and a bounded immutable host-supplied
+  registry support reviewed definitions without document-selected URLs or runtime I/O; exact
+  version collisions, forged registry objects, unsafe definitions, source provenance,
+  mounted/async updates, and signed-load mounting fail closed or pass through the same compiler
+  boundary. Invalid revisions retain last-known-good state and DOM, and 500-node layout compilation
+  has an executable p95 regression gate.
 - CloudEvents-shaped canonical UI events with node identity, correlation, causation, transaction,
   sequence, state revision, and classification-aware disclosure. Public ordinary facts may carry
   complete snapshots and changes; non-public and store-write facts retain source identity with
@@ -140,8 +183,38 @@ critical seam; it is not yet the full catalog or Studio product described by the
   different release in an iframe without partial registration, and mounts the packed facade after it.
 - A Vercel AI SDK 7 provider-model boundary with schema-constrained patch proposals, RFC 8785 base
   fingerprints, RFC 6902 operations, stable-path and revision policy, risk enums, approval gating,
-  compiler validation, and commit through the normal application coordinator.
-- Browser-safe portable JSON and static HTML exporters. Static HTML covers all thirty-nine core
+  compiler validation, and commit through the normal application coordinator. Provider context is
+  built from the generated `ComponentDefinitionDocument`, verifies exact catalog identity, is
+  byte/count bounded, rejects unknown components, and recursively omits sidecar-declared sensitive
+  properties. Framework-derived path/value risk can raise but never lower the model declaration, so
+  behavior, data, semantics, resource, and external-effect changes cannot self-label as presentation.
+  Proposal values have iterative byte/depth/value/string/prototype-key safety limits, existing stable
+  IDs survive ancestor patches, approved proposals can create the optional Schema.org root, and
+  enum-backed compiler/accessibility/static-export checks execute before acceptance. A synchronous
+  final base comparison prevents an async evaluation from overwriting a same-thread live edit.
+- A governed server generation path verifies strict canonical Ed25519 provider manifests, routes
+  only server-owned aliases through the AI SDK provider registry, rechecks validity/retirement on
+  every resolution, and denies `never-export` data. Exact BigInt micro-USD costing, a trusted
+  provider-specific upper-bound estimator, atomic tenant/user/request budget reservation and
+  settlement, bounded identity/trace inputs, explicit token/retry/timeout/cancellation controls,
+  normalized-usage enforcement, and redacted receipts tied to the verified manifest fail closed
+  around provider I/O. The arbitrary-model generator remains a documented low-level adapter rather
+  than the production path.
+- A browser-safe `@unislang/unifold-studio` XState session boundary for natural-language request,
+  complete proposal evaluation, deterministic diff, isolated disposable preview, explicit approval,
+  exact-base revalidation, atomic apply, and portable/static export. Superseded and cancelled results
+  cannot replace the current candidate. The provider generator is separated from the evaluation-only
+  browser subpath, and a build gate rejects generator/credential markers while holding the dedicated
+  Studio JavaScript to 250 KiB gzip (currently 240.60 KiB). The JSON-authored dogfood example uses
+  a clearly labelled deterministic proposal producer with the real policy/compiler evaluator; its
+  request/preview/apply/export, keyboard, axe, Schema.org static output, and browser-boundary journeys
+  pass 24/24 in Chromium, Firefox, and WebKit. Negative journeys prove unsafe proposals cannot open
+  or mutate preview/live applications, stale apply cannot overwrite an external edit, cancelled or
+  superseded work cannot install a late candidate, and export failure cannot produce a partial
+  artifact or mutate live state. Preview input is an explicit allowlist that excludes
+  host effects, guards, validators, renderer callbacks, and stores; stale bases fail before preview
+  or apply, failed evaluations dispose preview, and lifecycle updates use a polite live region.
+- Browser-safe portable JSON and static HTML exporters. Static HTML covers all forty-six core
   components with native no-JavaScript content, deterministic upgrade markers, public-data-only
   values, exactly one script-safe JSON-LD graph, and a versioned SHA-256 integrity manifest.
 - A versioned detached Ed25519 document envelope and JSON Schema, browser-safe signing helper, and
@@ -204,7 +277,7 @@ critical seam; it is not yet the full catalog or Studio product described by the
   cross-context tag invalidation. The same contract runs as an XState promise actor and is exported
   through the supported facade; identity, authorization, endpoints, and durable persistence remain
   trusted adapter concerns.
-- Accessible Lit Web Components, including native-backed checkbox, radio group, select, text-area,
+- Accessible Lit Web Components, including native-backed checkbox and switch, radio group, select, text-area,
   multi-select, and accordion controls; a bounded editable ARIA Combobox with select-only canonical
   value semantics; plus token-backed Box, Stack, and Grid structural primitives;
   escaped Text, native Heading, live-region Alert, and safe native Link content primitives; a
@@ -217,14 +290,14 @@ critical seam; it is not yet the full catalog or Studio product described by the
   JSON children, focus restoration, native top-layer enhancement, and static disclosure fallback; a read-only,
   virtualized AuditLog with native list/time semantics; a Tailwind theme foundation;
   component metadata; a DOM renderer; and a JSON-defined reference form.
-- An experimental full-catalog `ComponentDefinition` pipeline for all forty core elements. The
+- An experimental full-catalog `ComponentDefinition` pipeline for all forty-six core elements. The
   official Custom Elements Manifest analyzer and schema derive and validate element API facts;
   enum-backed catalog sidecars supply behavior, accessibility, privacy, structured semantics,
   complete examples, and test evidence. The package publishes standard CEM and joined definition
   artifacts with generated authoring, attribute, public-snapshot, and control schemas. Cross-source
   and live-event drift checks prove every catalog property is exposed and represented exactly in
   canonical snapshots.
-- The complete 15-component Phase 1 foundation release group, plus Card, Composition, Combobox, MultiSelect, NumberField,
+- The complete 15-component Phase 1 foundation release group, plus Card, Composition, Combobox, MultiSelect, NumberField, Pagination, SearchField, Switch, DateField, Toast,
   Accordion, VirtualList, Table, DataGrid, MasterDetail, SearchResults, Stepper, Tabs, MenuButton,
   Popover, Dialog, Breadcrumb, Tooltip, Wizard, AuditLog, Field, Fieldset, ErrorSummary, and Image components exercised by later
   interaction slices.
@@ -232,6 +305,9 @@ critical seam; it is not yet the full catalog or Studio product described by the
   with public/visible committed-state bindings, typed composition-export bindings, an allowlisted
   starter vocabulary, deterministic script-safe JSON-LD, framework-owned mount/update/transaction/
   disposal publication, last-known-good refresh, an executable JSON Schema, and browser parity.
+  Independent application owner IDs now coexist in one head while updates and disposal affect only
+  their own script; duplicate target-owner scripts and invalid refreshes fail without disturbing
+  another application's last-known-good graph.
 - Validated static-DOM upgrade mode that migrates public native control values and focus into the
   single normalized runtime before replacement, atomically adopts the exact exporter-owned JSON-LD
   publication, rejects structural, choice, missing, duplicate, or foreign-owner tampering without
@@ -251,13 +327,22 @@ critical seam; it is not yet the full catalog or Studio product described by the
 - Positive, negative, lifecycle, rollback, disposal, effect-failure, shadow-DOM, accessibility,
   aggregate-state, event-identity, and harness tests exceeding the 90%
   package-source coverage gate.
-- Colocated package unit tests with a one-test-file-per-source-module quality gate; cross-package
-  integration and Playwright E2E behavior remain in dedicated suites.
+- Exactly colocated unit tests across package, application, and example `src`/`scripts` trees, with
+  one test file per non-exempt source module. Exceptions are exact-path, reasoned, and rejected when
+  stale; cross-package integration and Playwright E2E behavior remain in dedicated suites.
+- A repository source-ownership gate that rejects importing a local binding and re-exporting that
+  binding from a feature module. Public package export maps remain the deliberate re-export
+  boundary; feature modules expose behavior they own.
 - Strict test-project typechecking for every colocated package suite in addition to Vitest runtime
   execution.
 - A computed seventeen-package clean-consumer proof that rejects workspace leakage and broken package
   artifacts, then typechecks, bundles, mounts, updates, and disposes the packed public facade in
   Chromium outside the monorepo.
+- A first `@unislang/unifold-cli` adopter surface with structured `validate` and `generate starter`
+  results. Validation calls the public compiler; generation refuses overwrite/path escape and emits
+  an ordinary hierarchical Vite project with an accessible form, unified event observation, XState
+  command, Schema.org graph, CSP/theme setup, strict TypeScript, colocated unit test, and Playwright
+  accessibility/selective-update journey. `migrate`, `test`, `export`, and `doctor` remain planned.
 - Package, architecture, onboarding, testing, and example documentation using public exports.
 
 ## Next architecture slices
@@ -302,13 +387,17 @@ critical seam; it is not yet the full catalog or Studio product described by the
    `ComponentDefinition` pipeline, then benchmark representative native/Lion/Spectrum patterns
    before choosing adapters for the complex component families.
 6. Expand Schema.org release-generated vocabulary and publication profiles, freshness and source
-   provenance, multi-application graph merging, static sidecars, and optional verified RDFa or
-   Microdata adapters. The initial JSON-LD binding/compiler/publisher slice is complete.
-7. Expand the initial AI boundary with signed provider capability manifests, budgets, streaming chat
-   progress, preview branches, undo/audit, conflict/rebase, adversarial evals, and approval tools.
-8. Build the visual Unifold Studio panes over the implemented devtools seam: chat, canvas
-   highlighting, schema/property editors, behavior graph, accessibility evidence, responsive
-   previews, collaboration, and embeddable/source-workspace export formats.
+   provenance, optional explicit graph aggregation, static sidecars, and optional verified RDFa or
+   Microdata adapters. Per-application JSON-LD ownership isolation is complete; whole-runtime
+   multi-tenant browser isolation remains an acceptance gap.
+7. Expand the guarded AI/Studio boundary with approved failover, partial-progress streaming that
+   never mutates a candidate, executable natural-language outcome assertions, durable actor
+   approvals/audit, collaboration branches, conflict/rebase, undo, and adversarial real-provider
+   evals. Signed provider capability manifests, token/cost/time budgets, compiler/accessibility/
+   static-export checks, and the bounded single-user request-to-export path are complete.
+8. Expand the JSON-authored Studio dogfood UI into visual panes for canvas highlighting,
+   schema/property editing, behavior graphs, accessibility evidence, responsive previews,
+   collaboration, and embeddable/source-workspace export formats.
 9. Add the optional Angular forms bridge and any measured thin framework adapters, then expand
    SSR/declarative shadow DOM, localization, RTL, design-token interchange, security hardening,
    observability, persistence, offline, and enterprise deployment. Plain DOM, React, Vue, and Svelte
@@ -351,9 +440,11 @@ critical seam; it is not yet the full catalog or Studio product described by the
   identity, and pre-render adapter rejection. The default runtime stream applies
   classification-aware public-safe disclosure.
 - Client-side validation and application coordination contribute materially to the reference bundle.
-  The current startup closure is 184,204 gzip bytes (179.89 KiB) and remains below the executable
-  180 KiB gate. It includes startup-required validation; optional component families load after
-  mount and are audited separately at 35,966 gzip bytes. Preserve the `/validation` boundary and evaluate schema
+  The current startup closure is 188,135 gzip bytes (183.73 KiB) and remains below the executable
+  184 KiB gate. The resolved module artifact, reference-specific validator adapter, and reviewed
+  runtime options load through explicit pre-mount resources; optional component families and
+  diagnostic event output load after mount, and combined deferred JavaScript is audited at 44,870
+  gzip bytes. Preserve the `/validation` boundary and evaluate schema
   precompilation, build-time validation, or an explicit lazy authoring/compiler boundary before
   setting production bundle budgets.
 - Valid dynamic option replacement, declarative dependency scheduling, localization, configurable
@@ -405,7 +496,8 @@ critical seam; it is not yet the full catalog or Studio product described by the
   32 ephemeral handles, and proves file bytes never enter canonical JSON. The exact
   100-Card/100-Image projection profile
   updates all alternative text across 50 samples and measures 3.57 ms p95 against 100 ms while
-  requiring exact host counts. All fifty-one timing and lifecycle limits are executable benchmark
+  requiring exact host counts. The exact 100-SearchField projection measures 0.59/1.38/4.66 ms
+  p50/p95/p99 across 50 samples against its 100 ms p95 limit. All fifty-three timing and lifecycle limits are executable benchmark
   gates. Ratification still requires a provisioned,
   versioned mid-tier runner.
   Full-document 10k structural reconciliation remains materially slower than leaf and bulk
