@@ -21,6 +21,9 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   `c9f46bf6b8c409b5c151907b9017dec8abe473df`
   (`feat: transfer focus after collection removal`) on
   `https://github.com/unislang/unifold.git`.
+- Latest local implementation checkpoint:
+  `9fe398069fb10d2c76430aab5c298e9c5bcf6b52`
+  (`feat: focus authored empty collections`); it is not yet published.
 - Latest published verification checkpoint:
   `e84e6bb93846a0c5e387054784dac213b650b8fc`
   (`docs: record mounted collection authority checkpoint`).
@@ -94,8 +97,8 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 
 ## 2026-08-27 authored empty-collection focus tranche
 
-- Status: locally implemented and release-gate verified; not yet committed or published. The overall
-  goal remains active.
+- Status: locally implemented, release-gate verified, and committed as
+  `9fe398069fb10d2c76430aab5c298e9c5bcf6b52`; not yet published. The overall goal remains active.
 - Scratch-style repeated nodes can declare `emptyFocusTarget` beside a named `collection`. Draft
   2020-12 schema dependencies require the collection/repeat/key tuple; parsing rejects unsafe or
   unscoped references; complete layout expansion resolves forward references and requires a stable,
