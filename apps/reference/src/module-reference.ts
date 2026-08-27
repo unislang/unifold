@@ -8,54 +8,36 @@ import {
   type UiModuleResolutionResult,
   type UiResolvedModuleArtifact
 } from "@unislang/unifold-modules";
-import type { JsonObject } from "@unislang/unifold-contracts";
 
 import applicationModule from "./modules/application.module.json" with { type: "json" };
+import profileModule from "./modules/profile.module.json" with { type: "json" };
+import scratchModule from "./modules/scratch.module.json" with { type: "json" };
 import sharedModule from "./modules/shared.module.json" with { type: "json" };
-import referenceDocument from "./ui.json" with { type: "json" };
 
 export async function resolveReferenceModuleArtifact(): Promise<UiResolvedModuleArtifact> {
-  return resolveApplicationArtifact(applicationModule, "src/modules/application.module.json");
+  return resolveApplicationArtifact([
+    { module: sharedModule, sourceId: "src/modules/shared.module.json" },
+    { module: scratchModule, sourceId: "src/modules/scratch.module.json" }
+  ]);
 }
 
 export async function resolveProductionReferenceArtifact(): Promise<UiResolvedModuleArtifact> {
-  return resolveApplicationArtifact(
-    applicationModuleWithDocument(referenceDocument),
-    "src/ui.json"
-  );
+  return resolveApplicationArtifact([
+    { module: profileModule, sourceId: "src/modules/profile.module.json" },
+    { module: applicationModule, sourceId: "src/modules/application.module.json" }
+  ]);
 }
 
 async function resolveApplicationArtifact(
-  source: unknown,
-  sourceId: string
+  sources: Parameters<typeof createUiModuleRegistry>[0]
 ): Promise<UiResolvedModuleArtifact> {
-  const registry = await createUiModuleRegistry([
-    { module: sharedModule, sourceId: "src/modules/shared.module.json" },
-    { module: source, sourceId }
-  ]);
+  const registry = await createUiModuleRegistry(sources);
   const resolution = await resolveUiModule(requireRegistry(registry), {
     exportName: "application",
     moduleId: "org.unifold.reference.application",
     version: "1.0.0"
   });
   return requireArtifact(resolution);
-}
-
-function applicationModuleWithDocument(document: JsonObject): unknown {
-  const compositions = Array.isArray(document["compositions"])
-    ? structuredClone(document["compositions"])
-    : [];
-  return {
-    ...applicationModule,
-    exports: {
-      ...applicationModule.exports,
-      compositions,
-      documents: applicationModule.exports.documents.map((item) => ({
-        ...item,
-        document: structuredClone(document)
-      }))
-    }
-  };
 }
 
 function requireRegistry(result: UiModuleRegistryResult): UiModuleRegistry {

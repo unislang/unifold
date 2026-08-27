@@ -13,10 +13,11 @@ Validation reads at most 2 MiB, parses JSON, and calls `prepareUnifoldDocument()
 `@unislang/unifold`. Failures are emitted as bounded JSON diagnostics with their original stage,
 code, and JSON Pointer.
 
-Validate or deterministically flatten a pinned `UiModule@1.0.0` project:
+Validate, check, or deterministically flatten a pinned `UiModule@1.0.0` project:
 
 ```sh
 unifold module validate modules.project.json
+unifold module check modules.project.json --lock dist/ui.module.lock.json
 unifold module flatten modules.project.json \
   --output dist/ui.module.json \
   --lock dist/ui.module.lock.json
@@ -27,6 +28,30 @@ versions, integrity hashes, namespaces, graph limits, and the selected export be
 expanded document through the public preparation boundary. Flattening refuses traversal,
 symlink-resolved escape, duplicate output paths, and overwrite; it emits deterministic runtime and
 lock artifacts with document and prepared-IR integrity evidence.
+
+Both advertised contracts are strict Draft 2020-12 JSON Schemas and are exported for editor,
+generator, and CI reuse:
+
+```text
+@unislang/unifold-cli/schemas/ui-module-project.schema.json
+@unislang/unifold-cli/schemas/ui-module-build.schema.json
+```
+
+The package compiles each schema once with Ajv in strict mode. Project loading and generated build
+output validation use those same validators, so runtime acceptance cannot silently drift from the
+published schema artifacts.
+
+Check a committed lock in CI without writing or updating it:
+
+```sh
+unifold module check modules.project.json --lock dist/ui.module.lock.json
+```
+
+Checking resolves and compiles the project through the same public module-project boundary, creates
+and validates the deterministic expected lock, then schema-validates and structurally compares the
+committed lock. The lock must be a bounded regular file whose physical path remains within the
+project root. Invalid, missing, escaping, or stale locks fail with nonzero CLI status; the command
+never repairs or replaces them.
 
 Validate a static UiModule project manifest without following runtime URLs:
 

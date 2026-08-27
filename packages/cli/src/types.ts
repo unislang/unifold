@@ -41,6 +41,13 @@ export interface ValidateModuleInvocation {
   readonly manifestPath: string;
 }
 
+export interface CheckModuleInvocation {
+  readonly action: UnifoldCliModuleAction.Check;
+  readonly command: UnifoldCliCommand.Module;
+  readonly lockPath: string;
+  readonly manifestPath: string;
+}
+
 export interface FlattenModuleInvocation {
   readonly action: UnifoldCliModuleAction.Flatten;
   readonly command: UnifoldCliCommand.Module;
@@ -50,6 +57,7 @@ export interface FlattenModuleInvocation {
 }
 
 export type UnifoldCliInvocation =
+  | CheckModuleInvocation
   | FlattenModuleInvocation
   | GenerateStarterInvocation
   | ValidateInvocation

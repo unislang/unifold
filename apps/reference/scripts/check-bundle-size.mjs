@@ -55,11 +55,16 @@ function initialManifestKeys(manifest) {
 function collectStaticImports(manifest, key, visited) {
   if (visited.has(key)) return;
   visited.add(key);
-  const record = manifest[key];
-  if (record === undefined) throw new Error(`Bundle manifest import is missing: ${key}.`);
+  const record = requireManifestRecord(manifest, key);
   (record.imports ?? []).forEach((dependency) =>
     collectStaticImports(manifest, dependency, visited)
   );
+}
+
+function requireManifestRecord(manifest, key) {
+  const record = manifest[key];
+  if (record === undefined) throw new Error(`Bundle manifest import is missing: ${key}.`);
+  return record;
 }
 
 function manifestFiles(manifest, keys) {

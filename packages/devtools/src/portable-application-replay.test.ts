@@ -6,6 +6,7 @@ import {
   createUiMachineActor,
   type UiMachineActor
 } from "@unislang/unifold-xstate";
+import type { AnySchema } from "ajv";
 import { Ajv2020 } from "ajv/dist/2020.js";
 import { readFile } from "node:fs/promises";
 import { expect, it } from "vitest";
@@ -64,7 +65,7 @@ it("detects machine, snapshot, and event drift against the portable oracle", asy
 it("validates the bounded record and rejects undeclared replay authority", async () => {
   const fixture = await fixtureJson();
   const schema = await jsonFile("../schemas/portable-application-replay.schema.json");
-  const validate = new Ajv2020({ allErrors: true, strict: true }).compile(schema);
+  const validate = new Ajv2020({ allErrors: true, strict: true }).compile(schema as AnySchema);
 
   expect(validate(fixture)).toBe(true);
   expect(validate({ ...fixture, network: "allowed" })).toBe(false);
@@ -79,16 +80,26 @@ it("fails closed when deterministic controls or mocked receipts drift", () => {
   const effects = createPortableReplayEffectPort([
     { capability: "allowed", input: { a: 1, b: 2 }, outcome: "completed", receipt: {} }
   ]);
-  effects.execute({
-    capability: "allowed",
-    input: { b: 2, a: 1 },
-    type: UiCommandType.EffectInvoke
-  });
+  effects.execute(
+    {
+      capability: "allowed",
+      input: { b: 2, a: 1 },
+      type: UiCommandType.EffectInvoke
+    },
+    executionContext()
+  );
   expect(effects.receipts).toHaveLength(1);
   expect(() =>
-    effects.execute({ capability: "other", input: {}, type: UiCommandType.EffectInvoke })
+    effects.execute(
+      { capability: "other", input: {}, type: UiCommandType.EffectInvoke },
+      executionContext()
+    )
   ).toThrow("exhausted mocked effect");
 });
+
+function executionContext() {
+  return { causationId: "effect", correlationId: "replay", transactionId: "effect-1" };
+}
 
 function runReplay(fixture: PortableReplayFixture): ReplayResult {
   const sequences = createPortableReplayControlPort(fixture.controls);

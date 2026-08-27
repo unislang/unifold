@@ -10,7 +10,7 @@ import { liveApplicationDocument } from "./documents.js";
 import { LocalMockPrompt, LocalMockProposalClient } from "./local-mock-proposal.js";
 
 it("creates a deterministic policy-valid proposal from the local prompt", async () => {
-  const document = liveApplicationDocument();
+  const document = await liveApplicationDocument();
   const client = new LocalMockProposalClient();
   const first = await client.propose(request(document, "  Make   it welcoming  "));
   const second = await client.propose(request(document, "Make it welcoming"));
@@ -26,22 +26,24 @@ it("honors cancellation without contacting a provider", async () => {
   const controller = new AbortController();
   controller.abort();
   const client = new LocalMockProposalClient();
-  await expect(
-    client.propose(request(liveApplicationDocument(), "Change it", controller))
-  ).rejects.toMatchObject({ name: "AbortError" });
+  const document = await liveApplicationDocument();
+  await expect(client.propose(request(document, "Change it", controller))).rejects.toMatchObject({
+    name: "AbortError"
+  });
 });
 
 it("aborts a delayed proposal before it can produce a candidate", async () => {
   const controller = new AbortController();
+  const document = await liveApplicationDocument();
   const pending = new LocalMockProposalClient().propose(
-    request(liveApplicationDocument(), LocalMockPrompt.Delayed, controller)
+    request(document, LocalMockPrompt.Delayed, controller)
   );
   controller.abort();
   await expect(pending).rejects.toMatchObject({ name: "AbortError" });
 });
 
 it("produces an unsafe identity proposal only for governed rejection evidence", async () => {
-  const document = liveApplicationDocument();
+  const document = await liveApplicationDocument();
   const proposal = await new LocalMockProposalClient().propose(
     request(document, LocalMockPrompt.RejectStableIdentity)
   );

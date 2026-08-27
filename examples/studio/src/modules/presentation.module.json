@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schemas.unifold.org/ui-module/1.0/schema.json",
+  "schemaVersion": "1.0.0",
+  "id": "org.unifold.studio.presentation",
+  "version": "1.0.0",
+  "imports": [],
+  "exports": {
+    "compositions": [
+      {
+        "contractVersion": "1.0.0",
+        "name": "SectionHeading",
+        "version": "1.0.0",
+        "parameters": {
+          "content": { "type": "string", "required": true },
+          "level": { "type": "string", "required": true }
+        },
+        "slots": [],
+        "template": {
+          "$comp": "Composition",
+          "id": "root",
+          "$children": [
+            {
+              "$comp": "Heading",
+              "id": "heading",
+              "content": { "$parameter": "content" },
+              "level": { "$parameter": "level" }
+            }
+          ]
+        },
+        "exports": {}
+      }
+    ],
+    "documents": [],
+    "resources": []
+  }
+}

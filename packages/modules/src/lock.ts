@@ -15,7 +15,11 @@ export function createUiModuleLock(
   return {
     $schema: UiModuleLockSchemaUri.Version1,
     artifactIntegrity: artifact.integrity,
-    entry: { ...entry },
+    entry: {
+      exportName: entry.exportName,
+      moduleId: entry.moduleId,
+      version: entry.version
+    },
     irIntegrity,
     modules: [...artifact.graph].sort(compareGraphEntries),
     schemaVersion: UiModuleLockSchemaVersion.Version1

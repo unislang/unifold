@@ -9,8 +9,7 @@
   "include": ["src/**/*.ts", "src/**/*.json"],
   "references": [
     { "path": "../../packages/unifold" },
-    { "path": "../../packages/compositions" },
-    { "path": "../../packages/contracts" },
+    { "path": "../../packages/cli" },
     { "path": "../../packages/events" },
     { "path": "../../packages/modules" },
     { "path": "../../packages/theme" }

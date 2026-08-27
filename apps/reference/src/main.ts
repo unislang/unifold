@@ -1,18 +1,14 @@
 import "@unislang/unifold-theme/tokens.css";
 import {
-  UiCompositionUnmappedMigration,
   ElementDefinitionPolicy,
   UnifoldApplicationMountStatus,
   UnifoldSemanticPublicationMode,
-  createMachineCommandRegistry,
   defineUnifoldElements,
   mountUnifoldApplication,
-  type UiCompositionVersionMigration,
   type UnifoldApplicationPort,
   type UnifoldApplicationUpdateResult
 } from "@unislang/unifold";
-import type { JsonValue } from "@unislang/unifold-contracts";
-import { UiCommandType, UiEventType, type UiEvent } from "@unislang/unifold-events";
+import type { JsonObject } from "@unislang/unifold-contracts";
 
 import type {
   ProfileDefinition,
@@ -25,7 +21,7 @@ import type {
 import "./reference.css";
 import { installStoreFixtureHooks } from "./store-fixture.js";
 
-type ReferenceUiDefinition = typeof import("./ui.json");
+type ReferenceUiDefinition = JsonObject & ProfileDocument;
 
 interface ReferenceModuleDocument {
   readonly definition: ReferenceUiDefinition;
@@ -35,6 +31,7 @@ interface ReferenceModuleDocument {
 let uiDefinition: ReferenceUiDefinition;
 let application: UnifoldApplicationPort;
 let profileValidation: typeof import("./profile-validation.js");
+let runtimeOptions: typeof import("./reference-runtime-options.js");
 const testHooksEnabled = import.meta.env.MODE === "e2e";
 const profileMigrationVersions: Readonly<Record<ProfileMigrationMode, string>> = {
   preserve: "2.0.0",
@@ -42,28 +39,56 @@ const profileMigrationVersions: Readonly<Record<ProfileMigrationMode, string>> =
   unreviewed: "4.0.0"
 };
 
-void Promise.all([loadReferenceDocument(), import("./profile-validation.js")])
+void Promise.all([
+  loadReferenceDocument(),
+  import("./profile-validation.js"),
+  import("./reference-runtime-options.js")
+])
   .then(startReference)
   .catch(reportComponentFamilyFailure);
 
 function startReference(
-  loaded: readonly [ReferenceModuleDocument, typeof import("./profile-validation.js")]
+  loaded: readonly [
+    ReferenceModuleDocument,
+    typeof import("./profile-validation.js"),
+    typeof import("./reference-runtime-options.js")
+  ]
 ): void {
-  const [source, validation] = loaded;
+  const [source, validation, options] = loaded;
   uiDefinition = source.definition;
   profileValidation = validation;
+  runtimeOptions = options;
   const host = requireElement<HTMLElement>("app");
   application = requireApplication(mountReference(host));
-  application.runtime.events$.subscribe(handleRuntimeEvent);
   if (testHooksEnabled) {
     document.documentElement.dataset["unifoldModuleIntegrity"] = source.integrity;
     installPrototypeHooks(application);
     installStoreFixtureHooks();
   }
-  void defineReferenceComponentFamilies(uiDefinition)
-    .then((families) => families.commitReferenceComponentFamilies(uiDefinition, application))
-    .then(() => reportComponentFamiliesReady(application))
+  void Promise.all([
+    synchronizeReferenceComponentFamilies(application),
+    installReferenceEventOutput(application)
+  ])
+    .then(([, resetEventCapture]) => {
+      if (testHooksEnabled) resetEventCapture();
+      reportComponentFamiliesReady(application);
+    })
     .catch(reportComponentFamilyFailure);
+}
+
+async function synchronizeReferenceComponentFamilies(
+  application: UnifoldApplicationPort
+): Promise<void> {
+  const families = await defineReferenceComponentFamilies(uiDefinition);
+  families.commitReferenceComponentFamilies(uiDefinition, application);
+}
+
+async function installReferenceEventOutput(
+  application: UnifoldApplicationPort
+): Promise<() => void> {
+  const output = await import("./reference-event-output.js");
+  output.installReferenceEventOutput(application, testHooksEnabled);
+  return output.resetReferenceEventCapture;
 }
 
 async function loadReferenceDocument(): Promise<ReferenceModuleDocument> {
@@ -90,14 +115,7 @@ function reportComponentFamilyFailure(error: unknown): void {
 
 function reportComponentFamiliesReady(application: UnifoldApplicationPort): void {
   refreshPrototypeDocument(application);
-  resetPrototypeEventCapture();
   document.documentElement.dataset["unifoldReadiness"] = "ready";
-}
-
-function resetPrototypeEventCapture(): void {
-  if (!testHooksEnabled) return;
-  const target = window as unknown as PrototypeWindow;
-  target.__unifoldCapturedEvents = [];
 }
 
 function mountReference(
@@ -105,68 +123,15 @@ function mountReference(
   semanticPublication = UnifoldSemanticPublicationMode.Automatic
 ) {
   return mountUnifoldApplication(uiDefinition, container, {
-    compositionMigrations: profileCompositionMigrations(),
+    compositionMigrations: runtimeOptions.referenceCompositionMigrations(),
     elementDefinitionPolicy: ElementDefinitionPolicy.AllowPending,
-    machineCommands: profileMachineCommands(),
+    machineCommands: runtimeOptions.referenceMachineCommands(),
     runtime: {
       asyncValidatorRegistry: profileValidation.profileAsyncValidators(),
       validatorRegistry: profileValidation.profileValidators()
     },
     semanticPublication
   });
-}
-
-function profileCompositionMigrations(): readonly UiCompositionVersionMigration[] {
-  return [profileCompositionMigration("2.0.0", true), profileCompositionMigration("3.0.0", false)];
-}
-
-function profileCompositionMigration(
-  version: string,
-  preserve: boolean
-): UiCompositionVersionMigration {
-  return {
-    from: { name: "ProfileEditor", version: "1.0.0" },
-    preserve: preserve ? [{ source: "name", target: "fullName" }] : [],
-    to: { name: "ProfileEditor", version },
-    unmapped: UiCompositionUnmappedMigration.Reset
-  };
-}
-
-function profileMachineCommands() {
-  const registry = createMachineCommandRegistry();
-  registry.register("show-submitted", () => submitLabelCommand("Submitted"));
-  registry.register("show-editing", () => submitLabelCommand("Create greeting"));
-  registry.register("show-layout-details", () => ({
-    id: "layout-status",
-    properties: { content: "Details open" },
-    type: UiCommandType.NodePatchProperties
-  }));
-  return registry;
-}
-
-function submitLabelCommand(label: string) {
-  return {
-    id: "profile-editor::slot:actions::submit",
-    properties: { label },
-    type: UiCommandType.NodePatchProperties
-  } as const;
-}
-
-function handleRuntimeEvent(event: UiEvent): void {
-  writeEvent(event);
-  captureRuntimeEvent(event);
-  showFormResult(event);
-}
-
-function showFormResult(event: UiEvent): void {
-  if (event.type !== UiEventType.FormSubmitted && event.type !== UiEventType.FormReset) return;
-  requireTestElement("submitted-value").textContent = readSubmittedValue(event.data.change);
-}
-
-function captureRuntimeEvent(event: UiEvent): void {
-  if (!testHooksEnabled) return;
-  const target = window as unknown as PrototypeWindow;
-  target.__unifoldCapturedEvents?.push(event);
 }
 
 function installPrototypeHooks(application: UnifoldApplicationPort): void {
@@ -226,20 +191,6 @@ function mountRealmCopy(): RealmCopyResult {
   return { childCount, status: result.status };
 }
 
-function writeEvent(event: UiEvent): void {
-  requireTestElement("event-log").textContent = JSON.stringify(event, null, 2);
-}
-
-function readSubmittedValue(change: JsonValue | undefined): string {
-  if (!isRecord(change)) return "";
-  const values = change["values"];
-  if (!isRecord(values)) return "";
-  return stringifyValue(values["name"]);
-}
-
-function stringifyValue(value: JsonValue | undefined): string {
-  return value === undefined ? "" : String(value);
-}
 function requireApplication(
   result: ReturnType<typeof mountUnifoldApplication>
 ): UnifoldApplicationPort {
@@ -252,15 +203,4 @@ function requireElement<T extends HTMLElement>(id: string): T {
   const element = document.getElementById(id);
   if (element === null) throw new Error(`Missing reference element: ${id}.`);
   return element as T;
-}
-function requireTestElement(id: string): HTMLElement {
-  const element = document.querySelector<HTMLElement>(`[data-testid="${id}"]`);
-  if (element === null) throw new Error(`Missing test element: ${id}.`);
-  return element;
-}
-
-function isRecord(value: JsonValue | undefined): value is Readonly<Record<string, JsonValue>> {
-  if (value === null) return false;
-  if (typeof value !== "object") return false;
-  return !Array.isArray(value);
 }

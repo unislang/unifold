@@ -1,0 +1,76 @@
+{
+  "$schema": "https://schemas.unifold.org/ui-module/1.0/schema.json",
+  "schemaVersion": "1.0.0",
+  "id": "org.unifold.studio.live",
+  "version": "1.0.0",
+  "imports": [
+    {
+      "moduleId": "org.unifold.studio.presentation",
+      "version": "1.0.0",
+      "integrity": "sha256-3ZOkhKxr2Uf9_-DuF3Z31yFLzCVpv9AUfigIa_5ta5w",
+      "namespace": "presentation"
+    }
+  ],
+  "exports": {
+    "compositions": [],
+    "documents": [
+      {
+        "name": "application",
+        "document": {
+          "$schema": "https://schemas.unifold.org/ui-document/1.0/schema.json",
+          "catalog": { "name": "unifold-core", "version": "1.0.0" },
+          "id": "studio-live-application",
+          "jsonUiProfile": {
+            "name": "unifold-jsonui",
+            "upstream": "5401b3d4900ca3032c108d6db00e8a819f4b28e9",
+            "version": "1.0.0"
+          },
+          "revision": "1",
+          "schemaVersion": "1.0.0",
+          "semantics": {
+            "contractVersion": "1.0.0",
+            "entities": [
+              {
+                "id": "urn:unifold:studio:prototype",
+                "properties": {
+                  "name": { "kind": "constant", "value": "Unifold Studio prototype" }
+                },
+                "type": "WebPage"
+              }
+            ],
+            "primaryEntity": "urn:unifold:studio:prototype",
+            "publication": { "mode": "public-page", "profile": "schema.org" },
+            "vocabulary": { "release": "30.0", "uri": "https://schema.org" }
+          },
+          "view": {
+            "$comp": "Stack",
+            "id": "prototype-page",
+            "label": "Prototype page",
+            "gap": "md",
+            "$children": [
+              {
+                "$compose": "presentation/SectionHeading",
+                "$version": "1.0.0",
+                "id": "prototype-heading",
+                "parameters": { "content": "Customer workspace", "level": "2" }
+              },
+              {
+                "$comp": "Text",
+                "id": "prototype-summary",
+                "content": "This is the currently applied experience."
+              },
+              {
+                "$comp": "Alert",
+                "id": "prototype-status",
+                "title": "Prototype status",
+                "content": "No generated proposal has been applied.",
+                "tone": "info"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "resources": []
+  }
+}

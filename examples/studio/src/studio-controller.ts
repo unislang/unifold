@@ -1,4 +1,5 @@
 import { evaluateUiPatchProposal } from "@unislang/unifold-ai/evaluation";
+import type { JsonObject } from "@unislang/unifold-contracts";
 import { ElementEventType } from "@unislang/unifold-elements";
 import { UiCommandType, type UiEvent } from "@unislang/unifold-events";
 import { UnifoldExportStatus } from "@unislang/unifold-export";
@@ -57,7 +58,8 @@ export class StudioDogfoodController {
     readonly controlApplication: UnifoldApplicationPort,
     readonly liveApplication: UnifoldApplicationPort,
     private readonly session: UnifoldStudioSession,
-    readonly moduleIntegrities: StudioModuleIntegrities
+    readonly moduleIntegrities: StudioModuleIntegrities,
+    private readonly liveDocument: JsonObject
   ) {
     this.actions.set(StudioControlId.Generate, () => this.generate());
     this.actions.set(StudioControlId.Cancel, () => Promise.resolve(this.cancel()));
@@ -107,7 +109,9 @@ export class StudioDogfoodController {
   }
 
   simulateExternalEdit(): void {
-    const result = this.liveApplication.update(externallyEditedApplicationDocument());
+    const result = this.liveApplication.update(
+      externallyEditedApplicationDocument(this.liveDocument)
+    );
     if (result.status !== UnifoldApplicationUpdateStatus.Applied) {
       throw new Error("The deterministic external edit was rejected.");
     }
@@ -193,10 +197,17 @@ export async function mountStudioDogfood(
     preview: createUnifoldStudioPreview(targets.preview),
     proposalClient
   });
-  return new StudioDogfoodController(targets, controls, live, session, {
-    controlSurface: artifacts.controlSurface.integrity,
-    liveApplication: artifacts.liveApplication.integrity
-  });
+  return new StudioDogfoodController(
+    targets,
+    controls,
+    live,
+    session,
+    {
+      controlSurface: artifacts.controlSurface.integrity,
+      liveApplication: artifacts.liveApplication.integrity
+    },
+    artifacts.liveApplication.composedDocument
+  );
 }
 
 function mountApplication(document: unknown, container: HTMLElement): UnifoldApplicationPort {

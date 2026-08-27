@@ -21,6 +21,7 @@ export enum UiModuleLockSchemaVersion {
 }
 
 export enum UiModuleResourceKind {
+  Layout = "layout",
   Machine = "machine",
   Message = "message",
   Rule = "rule",
@@ -41,6 +42,7 @@ export enum UiModuleDiagnosticCode {
   ImportIntegrityMismatch = "import-integrity-mismatch",
   ImportNotFound = "import-not-found",
   InvalidLock = "invalid-lock",
+  InvalidLayoutResource = "invalid-layout-resource",
   InvalidModule = "invalid-module",
   InvalidNamespaceReference = "invalid-namespace-reference",
   ModuleLimitExceeded = "module-limit-exceeded",

@@ -43,6 +43,36 @@ export function sharedModuleFixture(): UiModule {
   });
 }
 
+export function layoutModuleFixture(): UiModule {
+  return moduleFixture({
+    exports: {
+      compositions: [],
+      documents: [],
+      resources: [
+        {
+          id: "profile-page",
+          kind: UiModuleResourceKind.Layout,
+          value: layoutDefinitionFixture("profile-page", "Imported module layout")
+        }
+      ]
+    },
+    id: "org.example.layouts"
+  });
+}
+
+export function layoutDefinitionFixture(layoutType: string, message: string) {
+  return {
+    layoutType,
+    template: {
+      id: "message",
+      props: { content: "{{message}}" },
+      type: "Text"
+    },
+    variables: { message: { default: message, required: false, type: "string" } },
+    version: "1.0.0"
+  };
+}
+
 function documentFixture() {
   return {
     $schema: UiContractSchemaUri.Version1,

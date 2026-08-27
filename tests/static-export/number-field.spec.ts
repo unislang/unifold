@@ -5,7 +5,7 @@ test.describe("without JavaScript", () => {
 
   test("exports a bounded native NumberField fallback", async ({ page }) => {
     await page.goto("/");
-    const age = page.getByLabel("Age");
+    const age = page.getByLabel("Age", { exact: true });
     await expect(age).toHaveAttribute("type", "number");
     await expect(age).toHaveAttribute("min", "0");
     await expect(age).toHaveAttribute("max", "130");
@@ -17,11 +17,11 @@ test.describe("without JavaScript", () => {
 
 test("migrates an edited static NumberField as numeric canonical state", async ({ page }) => {
   await page.goto("/?upgrade=manual");
-  const fallback = page.getByLabel("Age");
+  const fallback = page.getByLabel("Age", { exact: true });
   await fallback.fill("42");
   await fallback.focus();
   await installUpgrade(page);
-  const age = page.getByLabel("Age");
+  const age = page.getByLabel("Age", { exact: true });
   await expect(age).toHaveValue("42");
   await expect(age).toBeFocused();
   await expect(page.locator('[data-unifold-node-id="age"]')).toHaveCount(1);
@@ -35,7 +35,7 @@ test("rejects an off-step static NumberField value without replacing the fallbac
   page
 }) => {
   await page.goto("/?upgrade=manual");
-  const fallback = page.getByLabel("Age");
+  const fallback = page.getByLabel("Age", { exact: true });
   await fallback.fill("42.5");
   await installUpgradeScript(page);
   const result = await page.evaluate(() => window.__unifoldUpgradeStatic());

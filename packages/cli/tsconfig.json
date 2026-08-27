@@ -8,7 +8,7 @@
     "tsBuildInfoFile": ".tsbuildinfo",
     "types": ["node"]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.json", "src/**/*.ts"],
   "exclude": ["src/**/*.test.ts", "src/**/*.test-data.ts"],
   "references": [{ "path": "../modules" }, { "path": "../unifold" }]
 }

@@ -79,7 +79,7 @@ test("renders nested Dialog JSON through the layoutType authoring pipeline", asy
   unifold
 }) => {
   await page.goto("/");
-  const host = page.getByTestId("account-review-dialog");
+  const host = nodeHost(page, "account-review-dialog");
   const trigger = host.getByRole("button", { name: "Review generated summary" });
   const dialog = host.getByRole("dialog", { name: "Review generated account summary" });
   await trigger.click();
@@ -99,10 +99,10 @@ test("renders nested Dialog JSON through the layoutType authoring pipeline", asy
 
 test("renders bounded Image and Card content with native semantics", async ({ page, unifold }) => {
   await page.goto("/");
-  const card = page.getByTestId("profile-card");
+  const card = nodeHost(page, "profile-card");
   await expect(card.locator("article")).toHaveAttribute("aria-label", "Profile media summary");
   await expect(card).toContainText("This card is authored entirely through nested layout JSON.");
-  const image = page.getByTestId("profile-image").locator("img");
+  const image = nodeHost(page, "profile-image").locator("img");
   await expect(image).toHaveAttribute("alt", "Blue and green geometric profile placeholder");
   await expect(image).toHaveAttribute("src", "/profile-placeholder.svg");
   await expect(image).toHaveAttribute("width", "320");
@@ -116,7 +116,7 @@ test("routes bounded NumberField input through numeric canonical state", async (
   unifold
 }) => {
   await page.goto("/");
-  const host = page.getByTestId("contact-age");
+  const host = nodeHost(page, "contact-age");
   const input = page.getByLabel("Age", { exact: true });
   await expect(input).toHaveAttribute("type", "number");
   await expect(input).toHaveAttribute("min", "0");
@@ -130,7 +130,7 @@ test("routes bounded NumberField input through numeric canonical state", async (
 
 test("routes SearchField input through scalar canonical state", async ({ page, unifold }) => {
   await page.goto("/");
-  const host = page.getByTestId("profile-search");
+  const host = nodeHost(page, "profile-search");
   const input = page.getByLabel("Search profiles");
   await expect(input).toHaveAttribute("type", "search");
   await expect(input).toHaveAttribute("autocomplete", "off");
@@ -153,7 +153,7 @@ test("routes CheckboxGroup selections through canonical repeated state", async (
   unifold
 }) => {
   await page.goto("/");
-  const host = page.getByTestId("contact-topics");
+  const host = nodeHost(page, "contact-topics");
   const news = page.getByLabel("Product news");
   const security = page.getByLabel("Security alerts");
   await expect(news).toBeChecked();
@@ -222,6 +222,10 @@ function eventTypeCount(
   type: string
 ): number {
   return events.filter((event) => event.type === type).length;
+}
+
+function nodeHost(page: Parameters<typeof readRenderBaseline>[0], nodeId: string): Locator {
+  return page.locator(`[data-unifold-node-id="${nodeId}"]`);
 }
 
 async function semanticName(page: Parameters<typeof readRenderBaseline>[0]) {

@@ -1,52 +1,159 @@
-import { lstat, realpath, rename, rm, writeFile } from "node:fs/promises";
+import { lstat, readFile, realpath, rename, rm, stat, writeFile } from "node:fs/promises";
 import { basename, dirname, isAbsolute, relative, resolve } from "node:path";
+import { isDeepStrictEqual } from "node:util";
 
 import {
   createUiModuleLock,
   validateUiModuleLock,
-  type UiModuleLock,
-  type UiResolvedModuleArtifact
+  type UiModuleDiagnostic,
+  type UiModuleLock
 } from "@unislang/unifold-modules";
 
 import {
   UnifoldCliDiagnosticCode,
   UnifoldCliModuleAction,
-  UnifoldCliModuleBuildSchemaUri,
   UnifoldCliModuleBuildSchemaVersion
 } from "./enums.js";
+import {
+  UI_MODULE_BUILD_SCHEMA,
+  validateUiModuleBuildArtifact,
+  type UiModuleBuildArtifact
+} from "./module-build-schema.js";
 import { resolveUiModuleProject, type ResolvedUiModuleProject } from "./module-project.js";
 import { cliFailure, cliSuccess } from "./result.js";
 import type {
+  CheckModuleInvocation,
   FlattenModuleInvocation,
+  UnifoldCliDiagnostic,
   UnifoldCliResult,
   ValidateModuleInvocation
 } from "./types.js";
 
-export const UI_MODULE_BUILD_SCHEMA = UnifoldCliModuleBuildSchemaUri.Version1;
-
-export interface UiModuleBuildArtifact {
-  readonly $schema: UnifoldCliModuleBuildSchemaUri.Version1;
-  readonly document: UiResolvedModuleArtifact["composedDocument"];
-  readonly entry: ResolvedUiModuleProject["entry"];
-  readonly integrity: string;
-  readonly irIntegrity: string;
-  readonly resources: UiResolvedModuleArtifact["resources"];
-  readonly schemaVersion: UnifoldCliModuleBuildSchemaVersion.Version1;
-  readonly sourceMap: UiResolvedModuleArtifact["sourceMap"];
-}
+const MAXIMUM_LOCK_BYTES = 1_048_576;
 
 export async function runUiModuleCommand(
-  invocation: FlattenModuleInvocation | ValidateModuleInvocation,
+  invocation: CheckModuleInvocation | FlattenModuleInvocation | ValidateModuleInvocation,
   cwd?: string
 ): Promise<UnifoldCliResult> {
   const resolved = await resolveUiModuleProject(invocation.manifestPath, cwd);
   if ("diagnostics" in resolved) {
     return cliFailure("UiModule project validation failed.", resolved.diagnostics);
   }
+  return runResolvedModuleCommand(resolved.project, invocation);
+}
+
+function runResolvedModuleCommand(
+  project: ResolvedUiModuleProject,
+  invocation: CheckModuleInvocation | FlattenModuleInvocation | ValidateModuleInvocation
+): Promise<UnifoldCliResult> {
   if (invocation.action === UnifoldCliModuleAction.Validate) {
-    return cliSuccess(validationMessage(resolved.project));
+    return Promise.resolve(cliSuccess(validationMessage(project)));
   }
-  return writeFlattenedProject(resolved.project, invocation);
+  if (invocation.action === UnifoldCliModuleAction.Check) {
+    return checkCommittedLock(project, invocation);
+  }
+  return writeFlattenedProject(project, invocation);
+}
+
+async function checkCommittedLock(
+  project: ResolvedUiModuleProject,
+  invocation: CheckModuleInvocation
+): Promise<UnifoldCliResult> {
+  try {
+    return await compareCommittedLock(project, invocation);
+  } catch (error) {
+    return unreadableLockResult(invocation.lockPath, error);
+  }
+}
+
+async function compareCommittedLock(
+  project: ResolvedUiModuleProject,
+  invocation: CheckModuleInvocation
+): Promise<UnifoldCliResult> {
+  const expected = expectedLock(project);
+  const committed = validateUiModuleLock(
+    await readCommittedLock(project.root, invocation.lockPath)
+  );
+  if (committed.lock === undefined)
+    return invalidLockResult(invocation.lockPath, committed.diagnostics);
+  if (!isDeepStrictEqual(committed.lock, expected)) return staleLockResult(invocation.lockPath);
+  return cliSuccess(`UiModule lock is current: ${invocation.lockPath}.`);
+}
+
+function expectedLock(project: ResolvedUiModuleProject): UiModuleLock {
+  const lock = createUiModuleLock(project.artifact, project.entry, project.irIntegrity);
+  requireValidLock(lock);
+  return lock;
+}
+
+async function readCommittedLock(root: string, input: string): Promise<unknown> {
+  requireSafeOutputInput(input);
+  const path = await realpath(resolve(root, input));
+  requireLockWithinRoot(root, path, input);
+  const metadata = await stat(path);
+  requireRegularLock(metadata.isFile(), input);
+  requireBoundedLock(metadata.size, input);
+  return parseJson(await readFile(path, "utf8"));
+}
+
+function requireLockWithinRoot(root: string, path: string, input: string): void {
+  if (!isWithin(root, path)) throw new Error(`Lock escapes the project root: ${input}.`);
+}
+
+function requireRegularLock(isFile: boolean, input: string): void {
+  if (!isFile) throw new Error(`Lock is not a regular file: ${input}.`);
+}
+
+function requireBoundedLock(size: number, input: string): void {
+  if (size > MAXIMUM_LOCK_BYTES) throw new Error(`Lock exceeds 1 MiB: ${input}.`);
+}
+
+function parseJson(content: string): unknown {
+  try {
+    return JSON.parse(content) as unknown;
+  } catch {
+    throw new Error("Lock is not valid JSON.");
+  }
+}
+
+function invalidLockResult(
+  lockPath: string,
+  diagnostics: readonly UiModuleDiagnostic[]
+): UnifoldCliResult {
+  return cliFailure(
+    "UiModule lock check failed.",
+    diagnostics.map((diagnostic) => lockDiagnostic(lockPath, diagnostic))
+  );
+}
+
+function lockDiagnostic(lockPath: string, diagnostic: UiModuleDiagnostic): UnifoldCliDiagnostic {
+  return {
+    code: UnifoldCliDiagnosticCode.ModuleLockInvalid,
+    message: diagnostic.message,
+    path: diagnostic.path,
+    sourceCode: diagnostic.code,
+    sourceId: lockPath
+  };
+}
+
+function staleLockResult(lockPath: string): UnifoldCliResult {
+  return cliFailure("UiModule lock check failed.", [
+    {
+      code: UnifoldCliDiagnosticCode.ModuleLockStale,
+      message: "Committed lock does not match the resolved module project.",
+      path: lockPath
+    }
+  ]);
+}
+
+function unreadableLockResult(lockPath: string, error: unknown): UnifoldCliResult {
+  return cliFailure("UiModule lock check failed.", [
+    {
+      code: UnifoldCliDiagnosticCode.ModuleLockInvalid,
+      message: errorMessage(error),
+      path: lockPath
+    }
+  ]);
 }
 
 async function writeFlattenedProject(
@@ -58,6 +165,7 @@ async function writeFlattenedProject(
     const lock = createUiModuleLock(project.artifact, project.entry, project.irIntegrity);
     requireValidLock(lock);
     const artifact = buildArtifact(project);
+    requireValidArtifact(artifact);
     await writePair(outputPath, artifact, lockPath, lock);
     return cliSuccess(`Flattened UiModule project to ${outputPath}; lock: ${lockPath}.`);
   } catch (error) {
@@ -68,6 +176,12 @@ async function writeFlattenedProject(
       }
     ]);
   }
+}
+
+function requireValidArtifact(artifact: UiModuleBuildArtifact): void {
+  const validation = validateUiModuleBuildArtifact(artifact);
+  if (validation.artifact === undefined)
+    throw new Error("Generated UiModule build artifact failed validation.");
 }
 
 function buildArtifact(project: ResolvedUiModuleProject): UiModuleBuildArtifact {
@@ -195,5 +309,5 @@ function validationMessage(project: ResolvedUiModuleProject): string {
 }
 
 function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : "Unable to write UiModule artifacts.";
+  return error instanceof Error ? error.message : "Unable to process UiModule artifacts.";
 }

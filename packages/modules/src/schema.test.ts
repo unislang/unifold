@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 
 import { expect, it } from "vitest";
 
-import { moduleFixture } from "./test-fixtures.test-data.js";
+import { layoutDefinitionFixture, moduleFixture } from "./test-fixtures.test-data.js";
 import { validateUiModule } from "./schema.js";
 import { UiModuleResourceKind, UiModuleSchemaUri, UiModuleSchemaVersion } from "./types.js";
 
@@ -27,3 +27,19 @@ it.each([
   const candidate = { ...moduleFixture(), ...extra };
   expect(validateUiModule(candidate, "fixture").diagnostics.length).toBeGreaterThan(0);
 });
+
+it("accepts a strict layout resource and rejects a malformed definition", () => {
+  const valid = moduleWithLayout(layoutDefinitionFixture("profile-page", "Profile"));
+  expect(validateUiModule(valid).module).toBeDefined();
+  const malformed = moduleWithLayout({ layoutType: "profile-page", version: "1.0.0" });
+  expect(validateUiModule(malformed).diagnostics.length).toBeGreaterThan(0);
+});
+
+function moduleWithLayout(value: unknown) {
+  return moduleFixture({
+    exports: {
+      ...moduleFixture().exports,
+      resources: [{ id: "profile-page", kind: UiModuleResourceKind.Layout, value: value as never }]
+    }
+  });
+}

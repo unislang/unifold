@@ -18,10 +18,21 @@ type InvocationParser = (
   parsed: ReturnType<typeof parseArgs>
 ) => ParseInvocationResult;
 
+type ModuleInvocationParser = (
+  manifestPath: string,
+  parsed: ReturnType<typeof parseArgs>
+) => ParseInvocationResult;
+
 const COMMAND_PARSERS: Readonly<Record<string, InvocationParser>> = {
   [UnifoldCliCommand.Generate]: generateInvocation,
   [UnifoldCliCommand.Module]: moduleInvocation,
   [UnifoldCliCommand.Validate]: validateInvocation
+};
+
+const MODULE_ACTION_PARSERS: Readonly<Record<UnifoldCliModuleAction, ModuleInvocationParser>> = {
+  [UnifoldCliModuleAction.Check]: checkModuleInvocation,
+  [UnifoldCliModuleAction.Flatten]: flattenModuleInvocation,
+  [UnifoldCliModuleAction.Validate]: validateModuleInvocation
 };
 
 export function parseUnifoldCliArguments(arguments_: readonly string[]): ParseInvocationResult {
@@ -107,11 +118,10 @@ function moduleInvocation(
   manifestPath: string | undefined,
   parsed: ReturnType<typeof parseArgs>
 ): ParseInvocationResult {
-  const common = moduleInvocationProblem(action, manifestPath, parsed);
+  const parsedAction = moduleAction(action);
+  const common = moduleInvocationProblem(parsedAction, manifestPath, parsed);
   if (common !== undefined) return invalidResult(common);
-  return action === UnifoldCliModuleAction.Validate
-    ? validateModuleInvocation(requiredValue(manifestPath), parsed)
-    : flattenModuleInvocation(requiredValue(manifestPath), parsed);
+  return MODULE_ACTION_PARSERS[requiredValue(parsedAction)](requiredValue(manifestPath), parsed);
 }
 
 function validateModuleInvocation(
@@ -129,19 +139,40 @@ function validateModuleInvocation(
   };
 }
 
+function checkModuleInvocation(
+  manifestPath: string,
+  parsed: ReturnType<typeof parseArgs>
+): ParseInvocationResult {
+  const lockPath = stringOption(parsed.values["lock"]);
+  const problem = firstProblem([
+    issue(parsed.values["output"] !== undefined, "Module checking does not accept --output."),
+    issue(lockPath === undefined, "Module checking requires --lock <json>.")
+  ]);
+  if (problem !== undefined) return invalidResult(problem);
+  return {
+    invocation: {
+      action: UnifoldCliModuleAction.Check,
+      command: UnifoldCliCommand.Module,
+      lockPath: requiredValue(lockPath),
+      manifestPath
+    }
+  };
+}
+
 function moduleInvocationProblem(
-  action: string | undefined,
+  action: UnifoldCliModuleAction | undefined,
   manifestPath: string | undefined,
   parsed: ReturnType<typeof parseArgs>
 ): string | undefined {
   return firstProblem([
-    issue(
-      action !== UnifoldCliModuleAction.Validate && action !== UnifoldCliModuleAction.Flatten,
-      "Usage: unifold module <validate|flatten> <manifest>."
-    ),
+    issue(action === undefined, "Usage: unifold module <validate|check|flatten> <manifest>."),
     issue(manifestPath === undefined, "A module manifest path is required."),
     issue(parsed.values["no-install"] !== undefined, "--no-install applies only to generation.")
   ]);
+}
+
+function moduleAction(value: string | undefined): UnifoldCliModuleAction | undefined {
+  return Object.values(UnifoldCliModuleAction).find((action) => action === value);
 }
 
 function flattenModuleInvocation(
@@ -184,7 +215,7 @@ function firstProblem(problems: readonly (string | undefined)[]): string | undef
   return problems.find((problem) => problem !== undefined);
 }
 
-function requiredValue(value: string | undefined): string {
+function requiredValue<T>(value: T | undefined): T {
   if (value === undefined) throw new Error("Required CLI argument is missing.");
   return value;
 }

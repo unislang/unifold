@@ -6,5 +6,5 @@
     "version": "1.0.0",
     "exportName": "application"
   },
-  "sources": ["shared.module.json", "application.module.json"]
+  "sources": ["profile.module.json", "application.module.json"]
 }

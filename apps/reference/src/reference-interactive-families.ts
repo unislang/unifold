@@ -19,12 +19,10 @@ export function registerReferenceInteractiveFamilies(
   families: InteractiveReferenceFamilies,
   document: ReferenceDocument
 ): void {
-  assertRegistered("Breadcrumb", families.breadcrumb.defineUnifoldBreadcrumb());
-  families.breadcrumb.appendReferenceBreadcrumb(document);
+  assertRegistered("Breadcrumb", families.breadcrumb.installReferenceBreadcrumb(document));
   assertRegistered("Dialog", families.dialog.installReferenceDialog(document));
   assertRegistered("MenuButton", families.menuButton.defineUnifoldMenuButton());
-  assertRegistered("Popover", families.popover.defineUnifoldPopover());
-  families.popover.appendReferencePopover(document);
+  assertRegistered("Popover", families.popover.installReferencePopover(document));
   assertRegistered("Tooltip", families.tooltip.defineUnifoldTooltip());
 }
 

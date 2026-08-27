@@ -24,6 +24,19 @@ it("captures the exact owned static sub-control without crossing a nested node",
   });
 });
 
+it("ignores absent and unowned focus while retaining a focused static node", () => {
+  document.body.innerHTML = `<main>
+    <button>Outside node</button>
+    <span data-unifold-static-node-id="status" tabindex="0">Status</span>
+  </main>`;
+  const root = requiredElement("main");
+  expect(captureStaticHydrationFocus(root)).toEqual({});
+  requiredElement("button").focus();
+  expect(captureStaticHydrationFocus(root)).toEqual({});
+  requiredElement("span").focus();
+  expect(captureStaticHydrationFocus(root)).toEqual({ focusedNodeId: "status" });
+});
+
 function requiredElement(selector: string): HTMLElement {
   const element = document.querySelector(selector);
   if (!(element instanceof HTMLElement)) throw new Error("Focus fixture is missing.");

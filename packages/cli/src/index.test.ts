@@ -8,6 +8,8 @@ it("exports the supported CLI library surface", () => {
   expect(cli.runUnifoldCli).toBeTypeOf("function");
   expect(cli.runUiModuleCommand).toBeTypeOf("function");
   expect(cli.resolveUiModuleProject).toBeTypeOf("function");
+  expect(cli.validateUiModuleBuildArtifact).toBeTypeOf("function");
+  expect(cli.validateUiModuleProjectManifest).toBeTypeOf("function");
   expect(cli.validateUnifoldDocument).toBeTypeOf("function");
   expect(cli.UnifoldCliStatus.Succeeded).toBe("succeeded");
 });

@@ -3,12 +3,15 @@ import {
   expandLayoutDocument,
   CompositionExpansionStatus,
   LayoutExpansionStatus,
-  type CompositionDiagnostic
+  type CompositionDiagnostic,
+  type LayoutExpansionResult
 } from "@unislang/unifold-compositions";
 import type { JsonObject } from "@unislang/unifold-contracts";
 
 import { resolveUiModuleGraph, type UiModuleGraphNode } from "./graph.js";
 import { uiModuleIntegrity } from "./integrity.js";
+import { resolvedResourceValue, resolveLayoutRegistry } from "./layout-resources.js";
+import { layoutDocumentSourceMap } from "./layout-source-map.js";
 import { namespaceUiModuleContents, qualifiedModuleName } from "./namespacing.js";
 import { uiModuleKey } from "./registry.js";
 import {
@@ -76,19 +79,19 @@ async function flattenAndExpand(
 ): Promise<UiModuleResolutionResult> {
   const flattened = flattenModules(nodes);
   const root = nodes.at(-1) as UiModuleGraphNode;
-  const rootContents = namespaceUiModuleContents(
-    root.registered.module,
-    "",
-    root.registered.sourceId
-  );
-  const authored = rootContents.rewriteDocument(rootDocument);
-  flattened.diagnostics.push(...rootContents.diagnostics);
-  const layout = expandedLayout(authored, root.registered.sourceId, layoutRegistry);
+  const authored = rewrittenRootDocument(root, rootDocument, flattened);
+  const layouts = resolveLayoutRegistry(nodes, layoutRegistry);
+  flattened.diagnostics.push(...layouts.diagnostics);
+  const layout = expandedLayout(authored, root.registered.sourceId, layouts.registry);
   flattened.diagnostics.push(...layout.diagnostics);
   if (flattened.diagnostics.length > 0) return rejected(...flattened.diagnostics);
-  flattened.sourceMap["/view"] = sourceLocation(
+  appendDocumentSourceMap(
+    flattened,
+    layout.document as JsonObject,
+    layout.sourcePointersByNodeId,
     root,
-    `/exports/documents/${documentIndex}/document/view`
+    documentIndex,
+    layouts.registrySources
   );
   const composedDocument = {
     ...(layout.document as JsonObject),
@@ -97,16 +100,64 @@ async function flattenAndExpand(
   return expandArtifact(composedDocument, nodes, flattened);
 }
 
+function rewrittenRootDocument(
+  root: UiModuleGraphNode,
+  document: JsonObject,
+  flattened: FlattenedModules
+): JsonObject {
+  const contents = namespaceUiModuleContents(root.registered.module, "", root.registered.sourceId);
+  flattened.diagnostics.push(...contents.diagnostics);
+  return contents.rewriteDocument(document);
+}
+
+function appendDocumentSourceMap(
+  flattened: FlattenedModules,
+  document: JsonObject,
+  sourcePointersByNodeId: Readonly<Record<string, string>> | undefined,
+  root: UiModuleGraphNode,
+  documentIndex: number,
+  registrySources: ReadonlyMap<number, UiModuleSourceLocation>
+): void {
+  const documentSource = sourceLocation(
+    root,
+    `/exports/documents/${String(documentIndex)}/document`
+  );
+  Object.assign(
+    flattened.sourceMap,
+    layoutDocumentSourceMap({
+      document,
+      documentSource,
+      registrySources,
+      ...(sourcePointersByNodeId === undefined ? {} : { sourcePointersByNodeId })
+    })
+  );
+}
+
+interface ExpandedLayoutResult {
+  readonly diagnostics: readonly UiModuleDiagnostic[];
+  readonly document?: JsonObject;
+  readonly sourcePointersByNodeId?: Readonly<Record<string, string>>;
+}
+
 function expandedLayout(
   authored: JsonObject,
   sourceId: string,
   registry: ResolveUiModuleOptions["layoutRegistry"]
-): { readonly diagnostics: readonly UiModuleDiagnostic[]; readonly document?: JsonObject } {
+): ExpandedLayoutResult {
   const expansion = expandLayoutWithRegistry(authored, registry);
   if (expansion.status === LayoutExpansionStatus.Invalid) {
     return { diagnostics: expansion.diagnostics.map((item) => layoutDiagnostic(item, sourceId)) };
   }
-  return { diagnostics: [], document: expansion.document ?? authored };
+  return successfulLayout(expansion, authored);
+}
+
+function successfulLayout(
+  expansion: LayoutExpansionResult,
+  authored: JsonObject
+): ExpandedLayoutResult {
+  const document = expansion.document ?? authored;
+  if (expansion.sourcePointersByNodeId === undefined) return { diagnostics: [], document };
+  return { diagnostics: [], document, sourcePointersByNodeId: expansion.sourcePointersByNodeId };
 }
 
 function expandLayoutWithRegistry(
@@ -172,7 +223,7 @@ function appendResource(
     state.diagnostics.push(rootDiagnostic(UiModuleDiagnosticCode.DuplicateResource));
     return;
   }
-  state.resources[key] = { ...resource, id: key };
+  state.resources[key] = { ...resource, id: key, value: resolvedResourceValue(resource, key) };
   state.sourceMap[`/resources/${pointerToken(key)}`] = sourceLocation(
     node,
     `/exports/resources/${index}`
@@ -186,23 +237,38 @@ async function expandArtifact(
 ): Promise<UiModuleResolutionResult> {
   const expansion = expandComposedUiDocument(composedDocument);
   if (expansion.status !== CompositionExpansionStatus.Valid || expansion.document === undefined) {
-    return rejected(
-      ...expansion.diagnostics.map(({ message, path }) => ({
-        code: UiModuleDiagnosticCode.CompositionInvalid,
-        message,
-        path
-      }))
-    );
+    return rejected(...compositionDiagnostics(expansion.diagnostics));
   }
-  const document = expansion.document;
+  return resolvedArtifact(composedDocument, expansion.document, nodes, flattened);
+}
+
+function compositionDiagnostics(
+  diagnostics: readonly CompositionDiagnostic[]
+): UiModuleDiagnostic[] {
+  return diagnostics.map(({ message, path }) => ({
+    code: UiModuleDiagnosticCode.CompositionInvalid,
+    message,
+    path
+  }));
+}
+
+async function resolvedArtifact(
+  composedDocument: JsonObject,
+  document: JsonObject,
+  nodes: readonly UiModuleGraphNode[],
+  flattened: FlattenedModules
+): Promise<UiModuleResolutionResult> {
+  const content = {
+    composedDocument,
+    document,
+    graph: nodes.map(graphEntry),
+    resources: flattened.resources,
+    sourceMap: flattened.sourceMap
+  };
   return {
     artifact: {
-      composedDocument,
-      document,
-      graph: nodes.map(graphEntry),
-      integrity: await uiModuleIntegrity(document),
-      resources: flattened.resources,
-      sourceMap: flattened.sourceMap
+      ...content,
+      integrity: await uiModuleIntegrity(content)
     },
     diagnostics: [],
     status: UiModuleResolutionStatus.Resolved

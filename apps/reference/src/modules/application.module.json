@@ -5,91 +5,117 @@
   "version": "1.0.0",
   "imports": [
     {
-      "moduleId": "org.unifold.reference.shared",
+      "moduleId": "org.unifold.reference.profile",
       "version": "1.0.0",
-      "integrity": "sha256-2pYoF29g2xRTYJzBdolRWkmaxBaOJFOn3BOchaudAe4",
-      "namespace": "shared"
+      "integrity": "sha256-YqH8tn_K_hGGNGPTe8RUDVkGjyImF7p6C5zDWmDoaVo",
+      "namespace": "profile"
     }
   ],
   "exports": {
     "compositions": [],
-    "resources": [],
     "documents": [
       {
         "name": "application",
         "document": {
-          "$schema": "https://schemas.unifold.org/layout-document/1.0/schema.json",
+          "$schema": "https://schemas.unifold.org/ui-document/1.0/schema.json",
           "schemaVersion": "1.0.0",
-          "id": "module-reference",
+          "id": "profile-reference",
           "revision": "revision-1",
-          "catalog": { "name": "unifold-core", "version": "1.0.0" },
-          "layoutType": "profile-form",
-          "layoutVersion": "1.0.0",
-          "variables": {
-            "heading": "Module-authored profile",
-            "fields": [
-              {
-                "id": "module-name",
-                "type": "TextField",
-                "props": {
-                  "label": "Your name",
-                  "name": "name",
-                  "required": true,
-                  "value": ""
-                },
-                "events": { "onInput": "NAME_CHANGED" }
-              },
-              {
-                "id": "module-submit",
-                "type": "Button",
-                "props": { "action": "submit", "label": "Save profile" }
-              }
-            ]
+          "jsonUiProfile": {
+            "name": "unifold-jsonui",
+            "version": "1.0.0",
+            "upstream": "5401b3d4900ca3032c108d6db00e8a819f4b28e9"
           },
-          "layouts": [
-            {
-              "layoutType": "profile-form",
-              "version": "1.0.0",
-              "variables": {
-                "heading": { "type": "string", "required": true },
-                "fields": { "type": "nodes", "required": true }
-              },
-              "template": {
-                "id": "module-page",
-                "type": "Stack",
-                "props": { "gap": "md" },
-                "children": [
-                  {
-                    "id": "module-heading",
-                    "type": "Heading",
-                    "props": { "content": "{{heading}}", "level": "1" }
-                  },
-                  {
-                    "id": "module-form",
-                    "type": "Form",
-                    "props": { "label": "Profile" },
-                    "children": "{{fields}}"
-                  }
-                ]
-              }
-            }
-          ],
+          "catalog": {
+            "name": "unifold-core",
+            "version": "1.0.0"
+          },
           "machines": [
             {
               "schemaVersion": "1.0.0",
-              "id": "module-profile-workflow",
+              "id": "profile-workflow",
               "version": "1.0.0",
-              "ownerId": "module-form",
+              "ownerId": "profile-editor",
               "initial": "editing",
               "states": {
                 "editing": {
-                  "on": { "NAME_CHANGED": { "target": "editing" } }
+                  "on": {
+                    "org.unifold.ui.form.submitted.v1": {
+                      "target": "submitted",
+                      "commands": ["show-submitted"]
+                    }
+                  }
+                },
+                "submitted": {
+                  "on": {
+                    "org.unifold.ui.control.input.v1": {
+                      "target": "editing",
+                      "commands": ["show-editing"]
+                    },
+                    "org.unifold.ui.form.reset.v1": {
+                      "target": "editing",
+                      "commands": ["show-editing"]
+                    }
+                  }
                 }
               }
             }
-          ]
+          ],
+          "semantics": {
+            "contractVersion": "1.0.0",
+            "vocabulary": {
+              "uri": "https://schema.org",
+              "release": "30.0"
+            },
+            "primaryEntity": "urn:unifold:person:current",
+            "entities": [
+              {
+                "id": "urn:unifold:person:current",
+                "type": "Person",
+                "properties": {
+                  "name": {
+                    "kind": "composition-export-control-value",
+                    "instanceId": "profile-editor",
+                    "exportName": "name"
+                  }
+                }
+              }
+            ],
+            "publication": {
+              "mode": "public-page",
+              "profile": "schema.org"
+            }
+          },
+          "view": {
+            "$compose": "profile/ProfileEditor",
+            "$version": "1.0.0",
+            "id": "profile-editor",
+            "parameters": {
+              "fieldLabel": "Your name"
+            },
+            "slots": {
+              "actions": [
+                {
+                  "$comp": "Button",
+                  "id": "submit",
+                  "action": "submit",
+                  "label": "Create greeting",
+                  "testId": "submit"
+                },
+                {
+                  "$comp": "Button",
+                  "id": "reset",
+                  "action": "reset",
+                  "label": "Reset profile",
+                  "testId": "reset",
+                  "variant": "secondary"
+                }
+              ]
+            }
+          }
         }
       }
-    ]
+    ],
+    "resources": []
   }
 }

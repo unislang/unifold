@@ -1,9 +1,11 @@
 # Unifold reference application
 
-This application resolves its statically bundled `src/ui.json` through the pinned two-module
-`UiModule@1.0.0` registry before mounting the resulting artifact through the public
-`@unislang/unifold` coordinator. The separate fixed Scratch-style module source under `src/modules`
-proves the intended `layoutType`, typed-variable, nested `type`/`props`/`events` authoring shape. The
+This application resolves the authored `application.module.json` and `profile.module.json` sources
+through a pinned, integrity-checked `UiModule@1.0.0` graph before mounting the namespaced artifact
+through the public `@unislang/unifold` coordinator. A committed lock binds the exact module graph,
+expanded document, and prepared IR; production and E2E builds reject source/lock drift. The separate
+fixed `scratch.module.json` source proves the intended `layoutType`, typed-variable, nested
+`type`/`props`/`events` authoring shape. The
 application records the canonical event stream and proves the Phase
 0 path from a JSON definition through accessible Web Components to form
 submission. Its composition also exercises text-area, checkbox, radio-group, select, combobox,

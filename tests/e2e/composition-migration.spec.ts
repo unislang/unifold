@@ -58,7 +58,7 @@ async function expectMigratedInput(
   const input = await requireMigratedInput(unifold, eventStart);
   expect(input.data.sourceNode).toMatchObject({ id: NEW_NODE_ID });
   expect(input.data.snapshot?.composition).toMatchObject({
-    definitionName: "ProfileEditor",
+    definitionName: "profile/ProfileEditor",
     definitionVersion: "2.0.0",
     instanceId: "profile-editor",
     localId: "full-name"

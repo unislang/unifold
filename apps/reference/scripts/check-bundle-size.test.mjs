@@ -9,6 +9,23 @@ import { checkReferenceBundle } from "./check-bundle-size.mjs";
 test("gates the initial import closure and audits deferred chunks separately", async (context) => {
   const root = await mkdtemp(join(tmpdir(), "unifold-reference-bundle-"));
   context.after(() => rm(root, { force: true, recursive: true }));
+  await writeBundleFixture(root);
+
+  const evidence = await checkReferenceBundle(root, 1_024);
+  assert.deepEqual(evidence.files, ["assets/entry.js", "assets/shared.js"]);
+  assert.deepEqual(evidence.deferredFiles, ["assets/lazy.js"]);
+  assert(evidence.gzipBytes > 0);
+  assert(evidence.deferredGzipBytes > 0);
+  await assert.rejects(() => checkReferenceBundle(root, evidence.gzipBytes - 1), /limit is/u);
+  await writeFile(
+    join(root, "assets", "lazy.js"),
+    "globalThis.__unifoldMigrateProfile = () => {};",
+    "utf8"
+  );
+  await assert.rejects(() => checkReferenceBundle(root, 1_024), /test hook/u);
+});
+
+async function writeBundleFixture(root) {
   await mkdir(join(root, ".vite"), { recursive: true });
   await mkdir(join(root, "assets"), { recursive: true });
   await Promise.all([
@@ -30,17 +47,4 @@ test("gates the initial import closure and audits deferred chunks separately", a
       "utf8"
     )
   ]);
-
-  const evidence = await checkReferenceBundle(root, 1_024);
-  assert.deepEqual(evidence.files, ["assets/entry.js", "assets/shared.js"]);
-  assert.deepEqual(evidence.deferredFiles, ["assets/lazy.js"]);
-  assert(evidence.gzipBytes > 0);
-  assert(evidence.deferredGzipBytes > 0);
-  await assert.rejects(() => checkReferenceBundle(root, evidence.gzipBytes - 1), /limit is/u);
-  await writeFile(
-    join(root, "assets", "lazy.js"),
-    "globalThis.__unifoldMigrateProfile = () => {};",
-    "utf8"
-  );
-  await assert.rejects(() => checkReferenceBundle(root, 1_024), /test hook/u);
-});
+}

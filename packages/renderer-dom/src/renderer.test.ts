@@ -35,8 +35,22 @@ async function restoresFocus(): Promise<void> {
   const { container, controller } = await renderTestDocument();
   await controller.restoreFocus("name");
   const name = requiredElement(controller.getElement("name"));
-  expect(name.shadowRoot?.activeElement).toBe(requiredInput(name));
+  expect(activeElement(name)).toBe(requiredInput(name));
+  requiredInput(name).blur();
+  await controller.restoreFocus("name", 0);
+  expect(activeElement(name)).toBe(requiredInput(name));
+  requiredInput(name).blur();
+  await controller.restoreFocus("name", 99);
+  expect(activeElement(name)).toBe(requiredInput(name));
+  requiredInput(name).disabled = true;
+  requiredInput(name).blur();
+  await controller.restoreFocus("name", 0);
+  expect(requiredInput(name).disabled).toBe(true);
   container.remove();
+}
+
+function activeElement(element: HTMLElement): Element | null | undefined {
+  return element.shadowRoot?.activeElement;
 }
 
 async function projectsSnapshot(): Promise<void> {

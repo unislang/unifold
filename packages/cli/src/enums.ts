@@ -5,6 +5,7 @@ export enum UnifoldCliCommand {
 }
 
 export enum UnifoldCliModuleAction {
+  Check = "check",
   Flatten = "flatten",
   Validate = "validate"
 }
@@ -34,7 +35,10 @@ export enum UnifoldCliDiagnosticCode {
   InputInvalid = "input-invalid",
   InputReadFailed = "input-read-failed",
   InvocationInvalid = "invocation-invalid",
+  ModuleBuildInvalid = "module-build-invalid",
   ModuleInvalid = "module-invalid",
+  ModuleLockInvalid = "module-lock-invalid",
+  ModuleLockStale = "module-lock-stale",
   ModuleManifestInvalid = "module-manifest-invalid",
   ModuleWriteFailed = "module-write-failed",
   StarterGenerationFailed = "starter-generation-failed",

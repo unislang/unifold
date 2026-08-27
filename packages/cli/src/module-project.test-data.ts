@@ -9,7 +9,7 @@ import {
   type UiModule
 } from "@unislang/unifold-modules";
 
-import { UI_MODULE_PROJECT_SCHEMA } from "./module-project.js";
+import { UI_MODULE_PROJECT_SCHEMA } from "./module-project-schema.js";
 
 export async function writeModuleProject(root: string, invalidIntegrity = false): Promise<void> {
   const sourceRoot = join(root, "modules");

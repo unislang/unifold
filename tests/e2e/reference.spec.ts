@@ -47,7 +47,7 @@ test("preserves the canonical event envelope through composition expansion", asy
   expect(event.data.sourceNode).toMatchObject({ id: compositionNodeIds.name });
   expect(snapshot.properties).toMatchObject({ label: "Your name" });
   expect(snapshot.composition).toMatchObject({
-    definitionName: "ProfileEditor",
+    definitionName: "profile/ProfileEditor",
     definitionVersion: "1.0.0",
     instanceId: compositionNodeIds.root,
     localId: "name"

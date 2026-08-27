@@ -8,11 +8,15 @@ interface ReferenceDocument {
   readonly semantics: { readonly entities: unknown[] };
 }
 
-export { defineUnifoldBreadcrumb };
-
-export function appendReferenceBreadcrumb(document: ReferenceDocument): void {
+function appendReferenceBreadcrumb(document: ReferenceDocument): void {
   const composition = document.compositions[0];
   if (composition === undefined) throw new Error("The reference ProfileEditor is missing.");
   composition.template.$children.push(breadcrumb);
   document.semantics.entities.push(...breadcrumbEntities);
+}
+
+export function installReferenceBreadcrumb(document: ReferenceDocument) {
+  const registration = defineUnifoldBreadcrumb();
+  appendReferenceBreadcrumb(document);
+  return registration;
 }

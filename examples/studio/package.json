@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -b && vite build --minify terser",
-    "build:e2e": "tsc -b && vite build --mode e2e --minify terser",
+    "build": "node scripts/check-modules.mjs && tsc -b && vite build --minify terser",
+    "build:e2e": "node scripts/check-modules.mjs && tsc -b && vite build --mode e2e --minify terser",
     "dev": "vite --host 127.0.0.1",
+    "modules:check": "node scripts/check-modules.mjs",
     "preview": "vite preview --host 127.0.0.1 --port 4184",
     "test": "vitest run --root ../.. --config examples/studio/vite.config.ts examples/studio",
     "typecheck": "tsc -b --pretty false"
@@ -23,6 +24,7 @@
     "@unislang/unifold-theme": "workspace:*"
   },
   "devDependencies": {
+    "@unislang/unifold-cli": "workspace:*",
     "happy-dom": "^20.0.10",
     "terser": "5.16.0",
     "typescript": "^5.9.2",

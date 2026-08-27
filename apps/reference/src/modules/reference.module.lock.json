@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schemas.unifold.org/ui-module-lock/1.0/schema.json",
+  "artifactIntegrity": "sha256-ei-7Vk7I2Qf_liRL2r5AzItgY0-4d_AV15jrH0mexas",
+  "entry": {
+    "exportName": "application",
+    "moduleId": "org.unifold.reference.application",
+    "version": "1.0.0"
+  },
+  "irIntegrity": "sha256-biAk7N_-uWUGrdxlTIXLVT58FZzEM7ZnzgTGZ28wDIs",
+  "modules": [
+    {
+      "integrity": "sha256-OLtrXmoHtYNFlZJZZaa6bimM15vShCMib4oOfdMSxUc",
+      "moduleId": "org.unifold.reference.application",
+      "namespace": "",
+      "sourceId": "src/modules/application.module.json",
+      "version": "1.0.0"
+    },
+    {
+      "integrity": "sha256-YqH8tn_K_hGGNGPTe8RUDVkGjyImF7p6C5zDWmDoaVo",
+      "moduleId": "org.unifold.reference.profile",
+      "namespace": "profile",
+      "sourceId": "src/modules/profile.module.json",
+      "version": "1.0.0"
+    }
+  ],
+  "schemaVersion": "1.0.0"
+}

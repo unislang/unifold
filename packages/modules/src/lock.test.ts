@@ -1,5 +1,7 @@
 import { expect, it } from "vitest";
 
+import { createTrustedLayoutDefinitionRegistry } from "@unislang/unifold-compositions";
+
 import { createUiModuleLock } from "./lock.js";
 import {
   UiModuleLockSchemaUri,
@@ -25,6 +27,14 @@ it("creates a deterministic exact-entry lock independent of registry insertion o
     "org.example.root",
     "org.example.shared"
   ]);
+});
+
+it("excludes the trusted in-memory layout registry from the portable lock entry", () => {
+  const selected = {
+    ...entry(),
+    layoutRegistry: createTrustedLayoutDefinitionRegistry([])
+  };
+  expect(createUiModuleLock(artifact([]), selected, integrity("ir")).entry).toEqual(entry());
 });
 
 function artifact(graph: readonly UiResolvedModuleGraphEntry[]): UiResolvedModuleArtifact {

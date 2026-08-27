@@ -42,6 +42,10 @@ it("guards disabled changes and emits one blur only after focus leaves the group
   disabledOption.checked = true;
   disabledOption.dispatchEvent(new Event("change", { bubbles: true }));
   expect(disabledOption.checked).toBe(false);
+  disabledOption.value = "missing";
+  disabledOption.checked = true;
+  disabledOption.dispatchEvent(new Event("change", { bubbles: true }));
+  expect(disabledOption.checked).toBe(false);
   requiredInput(inputs, 0).focus();
   requiredInput(inputs, 1).focus();
   await Promise.resolve();
@@ -57,7 +61,14 @@ it("guards disabled changes and emits one blur only after focus leaves the group
   disabledSecurity.dispatchEvent(new Event("change", { bubbles: true }));
   expect(disabledSecurity.checked).toBe(false);
   expect(group.formControlAnchor()).toBeInstanceOf(HTMLFieldSetElement);
+  verifyDetachedGroup();
 });
+
+function verifyDetachedGroup(): void {
+  const detached = new UnifoldCheckboxGroup();
+  expect(detached.form).toBeNull();
+  expect(detached.formControlAnchor()).toBeNull();
+}
 
 async function verifyLifecycle(): Promise<void> {
   const group = await mountedGroup("lifecycle");

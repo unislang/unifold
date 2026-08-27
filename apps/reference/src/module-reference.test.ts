@@ -6,7 +6,6 @@ import {
 } from "@unislang/unifold-modules";
 import { expect, it } from "vitest";
 
-import referenceDocument from "./ui.json" with { type: "json" };
 import {
   resolveProductionReferenceArtifact,
   resolveReferenceModuleArtifact
@@ -27,16 +26,24 @@ it("resolves the fixed Scratch-style reference modules with runtime and lock par
   expect(validateUiModuleLock(lock)).toMatchObject({ diagnostics: [], lock });
   expect(lock.modules).toHaveLength(2);
   expect(first.sourceMap["/view"]).toMatchObject({
-    sourceId: "src/modules/application.module.json"
+    sourceId: "src/modules/scratch.module.json"
   });
 });
 
 it("compiles the complete production reference document through UiModule", async () => {
   const artifact = await resolveProductionReferenceArtifact();
-  expect(artifact.composedDocument).toEqual(referenceDocument);
+  expect(artifact.composedDocument).toMatchObject({
+    id: "profile-reference",
+    view: { $compose: "profile/ProfileEditor", id: "profile-editor" }
+  });
+  expect(artifact.composedDocument["compositions"]).toMatchObject([
+    { name: "profile/ProfileEditor", version: "1.0.0" }
+  ]);
   expect(artifact.graph).toHaveLength(2);
   expect(artifact.integrity).toMatch(/^sha256-[A-Za-z0-9_-]{43}$/u);
-  expect(artifact.sourceMap["/view"]).toMatchObject({ sourceId: "src/ui.json" });
+  expect(artifact.sourceMap["/view"]).toMatchObject({
+    sourceId: "src/modules/application.module.json"
+  });
   expect(prepareUnifoldDocument(artifact.composedDocument).status).toBe(
     UnifoldPreparationStatus.Valid
   );

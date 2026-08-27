@@ -69,6 +69,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/theme
     devDependencies:
+      '@unislang/unifold-cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       terser:
         specifier: 5.16.0
         version: 5.16.0
@@ -87,12 +90,6 @@ importers:
       '@unislang/unifold-catalog':
         specifier: workspace:*
         version: link:../../packages/catalog
-      '@unislang/unifold-compositions':
-        specifier: workspace:*
-        version: link:../../packages/compositions
-      '@unislang/unifold-contracts':
-        specifier: workspace:*
-        version: link:../../packages/contracts
       '@unislang/unifold-events':
         specifier: workspace:*
         version: link:../../packages/events
@@ -103,6 +100,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/theme
     devDependencies:
+      '@unislang/unifold-cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       happy-dom:
         specifier: ^20.0.10
         version: 20.0.10
@@ -149,6 +149,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/theme
     devDependencies:
+      '@unislang/unifold-cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       happy-dom:
         specifier: ^20.0.10
         version: 20.0.10
@@ -230,6 +233,9 @@ importers:
       '@unislang/unifold-modules':
         specifier: workspace:*
         version: link:../modules
+      ajv:
+        specifier: 8.20.0
+        version: 8.20.0
     devDependencies:
       '@types/node':
         specifier: 24.3.0
@@ -992,6 +998,15 @@ importers:
         specifier: workspace:*
         version: link:../../packages/runtime
     devDependencies:
+      '@lion/ui':
+        specifier: 0.21.0
+        version: 0.21.0
+      '@spectrum-web-components/dialog':
+        specifier: 1.12.2
+        version: 1.12.2
+      '@spectrum-web-components/overlay':
+        specifier: 1.12.2
+        version: 1.12.2
       '@spectrum-web-components/table':
         specifier: 1.12.2
         version: 1.12.2
@@ -1115,6 +1130,9 @@ packages:
   '@bcoe/v8-coverage@1.0.2':
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
+
+  '@bundled-es-modules/message-format@6.2.4':
+    resolution: {integrity: sha512-NBaIEUCzSjLZjrsmSOh8PJLqQjSpXVuekIOuUT8tt4N/FdtAavWsC1YinIqIrbRnkBqV90OxgKzsxhFCzETQBw==}
 
   '@changesets/apply-release-plan@7.1.1':
     resolution: {integrity: sha512-9qPCm/rLx/xoOFXIHGB229+4GOL76S4MC+7tyOuTsR6+1jYlfFDQORdvwR5hDA6y4FL2BPt3qpbcQIS+dW85LA==}
@@ -1385,6 +1403,18 @@ packages:
     resolution: {integrity: sha512-Z5kJ+wU3oA7MMIqVR9tyZRtjYPr4OC004Q4Rw7pgOKUOKkJfZ3O24nz3WYfGRpMDNmcOi3TwQOmgm7B7Tpii0w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
+  '@floating-ui/core@1.8.0':
+    resolution: {integrity: sha512-0CIZ5itps/8x7BG8dEIhs53BvCUH2PCoogtakwRTut+Arm58sJooJ0AuZhLw2HJYIR5cMLNPBSS728sPho2khQ==}
+
+  '@floating-ui/dom@1.7.4':
+    resolution: {integrity: sha512-OOchDgh4F2CchOX94cRVqhvy7b3AFb+/rQXyswmzmGakRfkMgoWVjfnLWkRirfLEfuD4ysVW16eXzwt3jHIzKA==}
+
+  '@floating-ui/utils@0.2.10':
+    resolution: {integrity: sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==}
+
+  '@floating-ui/utils@0.2.12':
+    resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
+
   '@github/catalyst@1.8.1':
     resolution: {integrity: sha512-dnN4WWpbeuQvA17LvsGdlXEueJdBk9y+I+WO5pdNpoHNOXPsFcz3hJrq1iRmdsNgQOf4S8e83axtwIxvG62eWA==}
 
@@ -1474,6 +1504,9 @@ packages:
       react: ^18 || ^19
       react-dom: ^18 || ^19
 
+  '@lion/ui@0.21.0':
+    resolution: {integrity: sha512-abqjzWrbi/wqoq8cqt9AxVSB3xeg6vu0SjFjFmre4pBZ4q7Qmh6XI0RCtvCPdfZseBcd2tcmIk6D0zMv9S7gWA==}
+
   '@lit-labs/observers@2.0.2':
     resolution: {integrity: sha512-eZb5+W9Cb0e/Y5m1DNxBSGTvGB2TAVTGMnTxL/IzFhPQEcZIAHewW1eVBhN8W07A5tirRaAmmF6fGL1V20p3gQ==}
 
@@ -1519,6 +1552,12 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
+
+  '@open-wc/dedupe-mixin@2.0.1':
+    resolution: {integrity: sha512-+R4VxvceUxHAUJXJQipkkoV9fy10vNo+OnUnGKZnVmcwxMl460KLzytnUM4S35SI073R0yZQp9ra0MbPUwVcEA==}
+
+  '@open-wc/scoped-elements@3.0.10':
+    resolution: {integrity: sha512-esE95vxq6Y7w9/8H/oPvqN9QVR+ys3F9J2/ITyuTWnlSYaJueQmcS5CR5OybJMjjm9R5pmSoOe6Vau/O7J6d2g==}
 
   '@oxc-resolver/binding-android-arm-eabi@11.24.2':
     resolution: {integrity: sha512-y09e0L0SRI2OA2tUIrjBgoV3eH5hvUKXNkJqXmNo5V2WxIjyC7I7aJfRLMEVpA8yi95f90gFDvO0VMgrDw+vwA==}
@@ -1623,6 +1662,9 @@ packages:
     resolution: {integrity: sha512-DTcUc8qii+cpHvtOwggMtBRMjKZHXYWdw8syRYu2vtzuq4Wxphqq4NfCs5Zt44L6mA8rfDfj+PHnxFc/FeK6mQ==}
     engines: {node: '>=20'}
     hasBin: true
+
+  '@popperjs/core@2.11.8':
+    resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
 
   '@rollup/rollup-android-arm-eabi@4.62.5':
     resolution: {integrity: sha512-jfkGfTwhQpsiSckPF8r9bU3pn3vyd72NlWaO+TgEO6WPSDnUhXzrNYCHBMOYj0ACaUgjm6eERLF+XV9a6RstoA==}
@@ -1752,11 +1794,35 @@ packages:
   '@sagold/json-pointer@7.2.1':
     resolution: {integrity: sha512-8EX4r5Royl5M3qNPTh5W5njdOtRqbWgQfVv26DbzjGj2/55b60EqvbiqUIglzw7fADfY/Io6jDJxGNJHmC+g8g==}
 
+  '@spectrum-web-components/action-button@1.12.2':
+    resolution: {integrity: sha512-iH9gAJhbRAa4D8oxQSXYq8b9uXu7KIT7ZhpEdFYqk0AwMs+doIqLT0EDy9P90BI9nHRZvDWUnQ0pS+nkzbq+0g==}
+
+  '@spectrum-web-components/alert-dialog@1.12.2':
+    resolution: {integrity: sha512-RBSQEIlmmJ22VmNko7lgRddHV1xp4EUqwHnfXGFeHU3ox2BJteKggXADlTOAjHcnp1J/Z3896Jt/LKujzOXV/g==}
+
   '@spectrum-web-components/base@1.12.2':
     resolution: {integrity: sha512-7vB3182FqJzRevafUWlFRw/bfM4ZjC+Mmh5Fh0mDmVcP/SohUowrmHsQns1fsQPi+/O8iMP8XbtT7sAFp6ejkA==}
 
+  '@spectrum-web-components/button-group@1.12.2':
+    resolution: {integrity: sha512-Pg1+DONJPpDcr99yjaz+250oxyBKz22C6dbTZ1XBH6jcnWcX81vtWvCb5s7WUPc4cqG68De+CbevplPHDBkz4Q==}
+
+  '@spectrum-web-components/button@1.12.2':
+    resolution: {integrity: sha512-THab5wD0gzF4vOzUrQwvrNoHYk5fvtVHXNlY272YmEMaVGCP/mpqS2Kf5Pbd9sSNKhe5uRn9QRCVve+e4TZjCw==}
+
   '@spectrum-web-components/checkbox@1.12.2':
     resolution: {integrity: sha512-zXNYRwrdpuzXMBBzZUOkG06uELQQDF2C7xMxLCB1dsuLAswodi4yw2VvydsQ6mOmU46Zo8lmX3okEKzkSDU0/A==}
+
+  '@spectrum-web-components/clear-button@1.12.2':
+    resolution: {integrity: sha512-iTDs+FQJkHelR+f4Iz3JL+i5ltbI5XHpweFYLn6UgP+tO6hjZfIr1iw6bCaDs1MEHLIJez1a4mYl0aR6orKa6Q==}
+
+  '@spectrum-web-components/close-button@1.12.2':
+    resolution: {integrity: sha512-T1owl+MncqZTMapRZvwGI0IRzzYigzDpsGWR4yu4yc8MDD8D9k067KFZeh2Og1o5uzLNMT9jr6qUh795Xk6rtg==}
+
+  '@spectrum-web-components/dialog@1.12.2':
+    resolution: {integrity: sha512-Cxnq21HxlMfYqu3v+QUvJ9ENkp/o9TDSKzdimEWdRBX5PRgQaCDGPVgogCr/xqeyNeI9vp6YGRCcm2le9wG1jQ==}
+
+  '@spectrum-web-components/divider@1.12.2':
+    resolution: {integrity: sha512-SilrSo86s9EqcZGysE+j06QZ2LTDKFZYigiHhfsCsZP/cpcitJVdYg+BZ1S6UpuPvidjlpzTafQO4qu7mQfMnw==}
 
   '@spectrum-web-components/icon@1.12.2':
     resolution: {integrity: sha512-mvnP1wcjdRVQCV73Le0rKJ22EhPi2jb5xAktRaPdYQebH0yjqVV1EvRNB5ZQPLqVzzDz9UzBm2RzOoGDupu+Jg==}
@@ -1764,8 +1830,17 @@ packages:
   '@spectrum-web-components/icons-ui@1.12.2':
     resolution: {integrity: sha512-ibSFBD1gM6NkU+88g7QOPcee8E2JpClwiI/VZ/6EXbvOa/9QvQR23NfcYZIWHu8p3Wh7Lyas4MO+NdKlt6b09g==}
 
+  '@spectrum-web-components/icons-workflow@1.12.2':
+    resolution: {integrity: sha512-r8r5YhaCwlw8D839HIbqZ+G3J1H49/ibbnp4golnfa96u9oY0OTkQIrdpPefrDxgk4eLXAjwovCMQk7hCWtuNw==}
+
   '@spectrum-web-components/iconset@1.12.2':
     resolution: {integrity: sha512-s6BsY6VnZQOcTx8LfLixdu16g0QXr54wC4PiY7wKcgqkS+VJzo3Up02y7nUUcga38tDb2XcYHZU3rqKVagz6zQ==}
+
+  '@spectrum-web-components/modal@1.12.2':
+    resolution: {integrity: sha512-p5HfcR2V5KtsPuX3JPVOI6h2IHPv/tEN+8mXju551sf/jJDosa4F8Heg7xY39U9xhqg1nLEdP3vPGYo2ynJwzg==}
+
+  '@spectrum-web-components/overlay@1.12.2':
+    resolution: {integrity: sha512-yYGo8MtN6NJMDVU5e8fm6w3G4Gc7XZXaCWEtDXwJD3s3Pw9FZnWWraxbGlIRswBwCjR67RJ17pdG320fo0HhVA==}
 
   '@spectrum-web-components/progress-circle@1.12.2':
     resolution: {integrity: sha512-I7gAZM8gza/gDZ+tJuKcWF8lld4030GcJpLcySb1NTzBpJlnIItPuybBolSpSb+QzmFTAnlGJaRWTXPZkC8hwA==}
@@ -1776,8 +1851,17 @@ packages:
   '@spectrum-web-components/shared@1.12.2':
     resolution: {integrity: sha512-1vRimMtdKllujoFPbuDoPP0eSHZJfExWld2jeqboMKjzNTDvBfoOIN3ZOz7ClOVyrJOQDJSP2htCVfDBYl72Ug==}
 
+  '@spectrum-web-components/styles@1.12.2':
+    resolution: {integrity: sha512-6vYe/VEbjJ4VDcOSbjxEZaKatwRdxp6yLgEf+qtlo7YOSTAM2016kr6MaqV3EbKXBsVJP8qe9j2hoq29MLGqyA==}
+
   '@spectrum-web-components/table@1.12.2':
     resolution: {integrity: sha512-+ktIb2sdkfN/B8mAbhoqdciIiUZQF7IwCoCKc7+7coWoDCsFWHJFuM7sgyLuVDV/5liXoenF5qy+8DlHjDLpbQ==}
+
+  '@spectrum-web-components/theme@1.12.2':
+    resolution: {integrity: sha512-JWzjsTybXBevJpFlH3HRD+MbssGu2K3/8hv0THU1Wy7khSxNIvfsCAg1Twjt9qTr7BNgw5gfCdMoMDj0qD7Ilg==}
+
+  '@spectrum-web-components/underlay@1.12.2':
+    resolution: {integrity: sha512-YWGXxBkSg/oCBLYD83Rknlf58gCIee2YOtTTGyEpyGJEsK6Rd7P4s/JV+DjELKMpxFL9yG7P4hMoKGoXJvPQZA==}
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
@@ -2152,6 +2236,13 @@ packages:
 
   ast-v8-to-istanbul@0.3.12:
     resolution: {integrity: sha512-BRRC8VRZY2R4Z4lFIL35MwNXmwVqBityvOIwETtsCSwvjl0IdgFsy9NhdaA6j74nUdtJJlIypeRhpDam19Wq3g==}
+
+  autosize@6.0.1:
+    resolution: {integrity: sha512-f86EjiUKE6Xvczc4ioP1JBlWG7FKrE13qe/DxBCpe8GCipCq2nFw73aO8QEBKHfSbYGDN5eB9jXWKen7tspDqQ==}
+
+  awesome-phonenumber@7.8.0:
+    resolution: {integrity: sha512-zw23nvKt6gLGgCrKZ5Z7ZK0lm3k39/uZTw+cWp5tpiXVfEFSt9AEVFDzSycws76G64xOMrIVp2upYvJxwRgzvw==}
+    engines: {node: '>=18'}
 
   axe-core@4.13.0:
     resolution: {integrity: sha512-UzGt8zg7Ny8djbYMhxl2zuEevVa7r2gJjYY5Lwr1xM7+XU2nd6CkIWFTVcCIbAP63vSz71NaVyyuSk9lHKcy0A==}
@@ -2561,6 +2652,9 @@ packages:
   flatted@3.4.4:
     resolution: {integrity: sha512-5+ybhBZANEJxaH3X5evAFatUxLfEHSr7n6kYJ+1Qd0mUqr4eu9gIf6GDbWHf8RJijHrjjO8G+la14SlL2SeS1Q==}
 
+  focus-trap@7.6.5:
+    resolution: {integrity: sha512-7Ke1jyybbbPZyZXFxEftUtxFGLMpE2n6A+z//m4CRDlj0hW+o3iYSmh8nFlYMurOiJVDmJRilUQtJr08KfIxlg==}
+
   focus-visible@5.2.1:
     resolution: {integrity: sha512-8Bx950VD1bWTQJEH/AM6SpEk+SU55aVnp4Ujhuuxy3eMEBCRwBnTBnVXr9YAPvZL3/CNjCa8u4IWfNmEO53whA==}
 
@@ -2691,6 +2785,9 @@ packages:
   human-signals@1.1.1:
     resolution: {integrity: sha512-SEQu7vl8KjNL2eoGBLF3+wAjpsNfA9XMlXAYj/3EdaNfAlxKthD1xjEQfGOUhllCGGJVNY34bRr6lPINhNjyZw==}
     engines: {node: '>=8.12.0'}
+
+  ibantools@4.5.4:
+    resolution: {integrity: sha512-6jX1gh4aH6XH+o0ey+wtkMTzkcvsEta7DakIOZSng9voZYpMw3U+gK1+tZChk3aRcPcloEt0NOzksjaRZiqXbw==}
 
   iconv-lite@0.7.3:
     resolution: {integrity: sha512-IKXpvIzjnC9XTAUbVBcMfGS0EPaIXtW6v+zr+RRp+hqULEpo0owZax6wyRwPOJbWbzjYspQwusTsfVr0ifh4uQ==}
@@ -3311,6 +3408,9 @@ packages:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
 
+  singleton-manager@1.8.0:
+    resolution: {integrity: sha512-1M3qImeT5j74a/GtRwM8Q+JOMwhiNRE/uJtIu+U6LBgbRvl9reoeFbQ+ZALR0CwCqg2hhwmLAGZ9KuxefuIWlA==}
+
   sisteransi@1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
 
@@ -3402,6 +3502,9 @@ packages:
   svelte@5.56.10:
     resolution: {integrity: sha512-Lcxbj8I/KAbpY+VjtY4ENQBV0dDCipfGAhqb51XQZ67CIQqXgsv/8dPkbILaj4Fb6/b6JAEM/PIVbILXgDQy2g==}
     engines: {node: '>=18'}
+
+  tabbable@6.5.0:
+    resolution: {integrity: sha512-wieBHXygIm7OyQOu5hQlkk62/WyCFYGlWg7L6/ZCUZwx0o398Zkn4pVmMyfYhfMG8kGrj/Krt8eIk6UKC6VzwA==}
 
   tapable@2.3.3:
     resolution: {integrity: sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A==}
@@ -3511,14 +3614,6 @@ packages:
 
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
-
-  valibot@1.3.0:
-    resolution: {integrity: sha512-SItIaOFnWYho/AcRU5gOtyfkTsuDTC3tRv+jy4/py8xERPnvHdM+ybD1iIqWTATVWG1nZetOfwZKq5upBjSqzw==}
-    peerDependencies:
-      typescript: '>=5'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
 
   valid-url@1.0.9:
     resolution: {integrity: sha512-QQDsV8OnSf5Uc30CKSwG9lnhMPe6exHtTXLRYX8uMwKENy640pU+2BgBL0LRbDh/eYRahNCS7aewCx0wf3NYVA==}
@@ -3740,6 +3835,8 @@ snapshots:
       '@babel/helper-validator-identifier': 7.29.7
 
   '@bcoe/v8-coverage@1.0.2': {}
+
+  '@bundled-es-modules/message-format@6.2.4': {}
 
   '@changesets/apply-release-plan@7.1.1':
     dependencies:
@@ -4045,6 +4142,19 @@ snapshots:
       '@eslint/core': 0.15.2
       levn: 0.4.1
 
+  '@floating-ui/core@1.8.0':
+    dependencies:
+      '@floating-ui/utils': 0.2.12
+
+  '@floating-ui/dom@1.7.4':
+    dependencies:
+      '@floating-ui/core': 1.8.0
+      '@floating-ui/utils': 0.2.10
+
+  '@floating-ui/utils@0.2.10': {}
+
+  '@floating-ui/utils@0.2.12': {}
+
   '@github/catalyst@1.8.1': {}
 
   '@humanfs/core@0.19.2':
@@ -4160,6 +4270,18 @@ snapshots:
       react: 19.2.8
       react-dom: 19.2.8(react@19.2.8)
 
+  '@lion/ui@0.21.0':
+    dependencies:
+      '@bundled-es-modules/message-format': 6.2.4
+      '@open-wc/dedupe-mixin': 2.0.1
+      '@open-wc/scoped-elements': 3.0.10
+      '@popperjs/core': 2.11.8
+      autosize: 6.0.1
+      awesome-phonenumber: 7.8.0
+      ibantools: 4.5.4
+      lit: 3.3.3
+      singleton-manager: 1.8.0
+
   '@lit-labs/observers@2.0.2':
     dependencies:
       '@lit/reactive-element': 2.1.2
@@ -4214,6 +4336,13 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
+
+  '@open-wc/dedupe-mixin@2.0.1': {}
+
+  '@open-wc/scoped-elements@3.0.10':
+    dependencies:
+      '@open-wc/dedupe-mixin': 2.0.1
+      lit: 3.3.3
 
   '@oxc-resolver/binding-android-arm-eabi@11.24.2':
     optional: true
@@ -4282,6 +4411,8 @@ snapshots:
   '@playwright/test@1.62.1':
     dependencies:
       playwright: 1.62.1
+
+  '@popperjs/core@2.11.8': {}
 
   '@rollup/rollup-android-arm-eabi@4.62.5':
     optional: true
@@ -4360,9 +4491,43 @@ snapshots:
 
   '@sagold/json-pointer@7.2.1': {}
 
+  '@spectrum-web-components/action-button@1.12.2':
+    dependencies:
+      '@spectrum-web-components/base': 1.12.2
+      '@spectrum-web-components/button': 1.12.2
+      '@spectrum-web-components/icon': 1.12.2
+      '@spectrum-web-components/icons-ui': 1.12.2
+      '@spectrum-web-components/shared': 1.12.2
+
+  '@spectrum-web-components/alert-dialog@1.12.2':
+    dependencies:
+      '@lit-labs/observers': 2.0.2
+      '@spectrum-web-components/base': 1.12.2
+      '@spectrum-web-components/button': 1.12.2
+      '@spectrum-web-components/button-group': 1.12.2
+      '@spectrum-web-components/divider': 1.12.2
+      '@spectrum-web-components/icons-workflow': 1.12.2
+      '@spectrum-web-components/shared': 1.12.2
+
   '@spectrum-web-components/base@1.12.2':
     dependencies:
       lit: 3.3.3
+
+  '@spectrum-web-components/button-group@1.12.2':
+    dependencies:
+      '@spectrum-web-components/base': 1.12.2
+      '@spectrum-web-components/button': 1.12.2
+
+  '@spectrum-web-components/button@1.12.2':
+    dependencies:
+      '@spectrum-web-components/base': 1.12.2
+      '@spectrum-web-components/clear-button': 1.12.2
+      '@spectrum-web-components/close-button': 1.12.2
+      '@spectrum-web-components/icon': 1.12.2
+      '@spectrum-web-components/icons-ui': 1.12.2
+      '@spectrum-web-components/progress-circle': 1.12.2
+      '@spectrum-web-components/reactive-controllers': 1.12.2
+      '@spectrum-web-components/shared': 1.12.2
 
   '@spectrum-web-components/checkbox@1.12.2':
     dependencies:
@@ -4370,6 +4535,30 @@ snapshots:
       '@spectrum-web-components/icon': 1.12.2
       '@spectrum-web-components/icons-ui': 1.12.2
       '@spectrum-web-components/shared': 1.12.2
+
+  '@spectrum-web-components/clear-button@1.12.2':
+    dependencies:
+      '@spectrum-web-components/base': 1.12.2
+
+  '@spectrum-web-components/close-button@1.12.2':
+    dependencies:
+      '@spectrum-web-components/base': 1.12.2
+
+  '@spectrum-web-components/dialog@1.12.2':
+    dependencies:
+      '@spectrum-web-components/alert-dialog': 1.12.2
+      '@spectrum-web-components/base': 1.12.2
+      '@spectrum-web-components/button': 1.12.2
+      '@spectrum-web-components/button-group': 1.12.2
+      '@spectrum-web-components/divider': 1.12.2
+      '@spectrum-web-components/icons-workflow': 1.12.2
+      '@spectrum-web-components/modal': 1.12.2
+      '@spectrum-web-components/shared': 1.12.2
+      '@spectrum-web-components/underlay': 1.12.2
+
+  '@spectrum-web-components/divider@1.12.2':
+    dependencies:
+      '@spectrum-web-components/base': 1.12.2
 
   '@spectrum-web-components/icon@1.12.2':
     dependencies:
@@ -4383,9 +4572,29 @@ snapshots:
       '@spectrum-web-components/icon': 1.12.2
       '@spectrum-web-components/iconset': 1.12.2
 
+  '@spectrum-web-components/icons-workflow@1.12.2':
+    dependencies:
+      '@spectrum-web-components/base': 1.12.2
+      '@spectrum-web-components/icon': 1.12.2
+
   '@spectrum-web-components/iconset@1.12.2':
     dependencies:
       '@spectrum-web-components/base': 1.12.2
+
+  '@spectrum-web-components/modal@1.12.2':
+    dependencies:
+      '@spectrum-web-components/base': 1.12.2
+
+  '@spectrum-web-components/overlay@1.12.2':
+    dependencies:
+      '@floating-ui/dom': 1.7.4
+      '@floating-ui/utils': 0.2.10
+      '@spectrum-web-components/action-button': 1.12.2
+      '@spectrum-web-components/base': 1.12.2
+      '@spectrum-web-components/reactive-controllers': 1.12.2
+      '@spectrum-web-components/shared': 1.12.2
+      '@spectrum-web-components/theme': 1.12.2
+      focus-trap: 7.6.5
 
   '@spectrum-web-components/progress-circle@1.12.2':
     dependencies:
@@ -4405,6 +4614,11 @@ snapshots:
       '@spectrum-web-components/base': 1.12.2
       focus-visible: 5.2.1
 
+  '@spectrum-web-components/styles@1.12.2':
+    dependencies:
+      '@spectrum-web-components/base': 1.12.2
+      lit: 3.3.3
+
   '@spectrum-web-components/table@1.12.2':
     dependencies:
       '@lit-labs/observers': 2.0.2
@@ -4413,6 +4627,15 @@ snapshots:
       '@spectrum-web-components/checkbox': 1.12.2
       '@spectrum-web-components/icon': 1.12.2
       '@spectrum-web-components/icons-ui': 1.12.2
+
+  '@spectrum-web-components/theme@1.12.2':
+    dependencies:
+      '@spectrum-web-components/base': 1.12.2
+      '@spectrum-web-components/styles': 1.12.2
+
+  '@spectrum-web-components/underlay@1.12.2':
+    dependencies:
+      '@spectrum-web-components/base': 1.12.2
 
   '@standard-schema/spec@1.1.0': {}
 
@@ -4823,6 +5046,10 @@ snapshots:
       '@jridgewell/trace-mapping': 0.3.31
       estree-walker: 3.0.3
       js-tokens: 10.0.0
+
+  autosize@6.0.1: {}
+
+  awesome-phonenumber@7.8.0: {}
 
   axe-core@4.13.0: {}
 
@@ -5259,6 +5486,10 @@ snapshots:
 
   flatted@3.4.4: {}
 
+  focus-trap@7.6.5:
+    dependencies:
+      tabbable: 6.5.0
+
   focus-visible@5.2.1: {}
 
   foreground-child@3.3.1:
@@ -5405,6 +5636,8 @@ snapshots:
   human-id@4.2.1: {}
 
   human-signals@1.1.1: {}
+
+  ibantools@4.5.4: {}
 
   iconv-lite@0.7.3:
     dependencies:
@@ -6060,6 +6293,8 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
+  singleton-manager@1.8.0: {}
+
   sisteransi@1.0.5: {}
 
   slash@3.0.0: {}
@@ -6160,6 +6395,8 @@ snapshots:
     transitivePeerDependencies:
       - '@typescript-eslint/types'
 
+  tabbable@6.5.0: {}
+
   tapable@2.3.3: {}
 
   term-size@2.2.1: {}
@@ -6251,10 +6488,6 @@ snapshots:
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
-
-  valibot@1.3.0(typescript@5.9.2):
-    optionalDependencies:
-      typescript: 5.9.2
 
   valid-url@1.0.9: {}
 

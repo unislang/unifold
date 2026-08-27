@@ -1,21 +1,19 @@
-import type { JsonObject } from "@unislang/unifold-contracts";
 import {
   UiModuleRegistryStatus,
   UiModuleResolutionStatus,
-  createUiDocumentModule,
   createUiModuleRegistry,
   resolveUiModule,
+  type ResolveUiModuleOptions,
   type UiModuleRegistry,
   type UiResolvedModuleArtifact
 } from "@unislang/unifold-modules";
 
-import controlSurface from "./control-surface.json" with { type: "json" };
-import liveApplication from "./live-application.json" with { type: "json" };
+import controlModule from "./modules/control.module.json" with { type: "json" };
+import liveModule from "./modules/live.module.json" with { type: "json" };
+import presentationModule from "./modules/presentation.module.json" with { type: "json" };
 
-const moduleVersion = "1.0.0";
-const exportName = "application";
-const controlModuleId = "org.unifold.studio.control-surface";
-const liveModuleId = "org.unifold.studio.live-application";
+const controlEntry = entry("org.unifold.studio.control");
+const liveEntry = entry("org.unifold.studio.live");
 
 export interface StudioModuleArtifacts {
   readonly controlSurface: UiResolvedModuleArtifact;
@@ -28,34 +26,44 @@ export interface StudioModuleIntegrities {
 }
 
 export async function resolveStudioModuleArtifacts(): Promise<StudioModuleArtifacts> {
-  const registry = await createUiModuleRegistry([
-    moduleSource(controlModuleId, controlSurface as JsonObject, "src/control-surface.json"),
-    moduleSource(liveModuleId, liveApplication as JsonObject, "src/live-application.json")
+  const registry = requireRegistry(
+    await createUiModuleRegistry([
+      source(presentationModule, "src/modules/presentation.module.json"),
+      source(controlModule, "src/modules/control.module.json"),
+      source(liveModule, "src/modules/live.module.json")
+    ])
+  );
+  const [controlSurface, liveApplication] = await Promise.all([
+    resolveArtifact(registry, controlEntry),
+    resolveArtifact(registry, liveEntry)
   ]);
-  if (registry.status !== UiModuleRegistryStatus.Ready) {
-    throw new Error(`Studio UiModule registry failed: ${message(registry.diagnostics)}`);
-  }
-  const [control, live] = await Promise.all([
-    resolveArtifact(registry.registry, controlModuleId),
-    resolveArtifact(registry.registry, liveModuleId)
-  ]);
-  return { controlSurface: control, liveApplication: live };
+  return { controlSurface, liveApplication };
 }
 
-function moduleSource(moduleId: string, document: JsonObject, sourceId: string) {
-  return {
-    module: createUiDocumentModule({ document, exportName, moduleId, version: moduleVersion }),
-    sourceId
-  };
+function source(module: unknown, sourceId: string) {
+  return { module, sourceId };
+}
+
+function entry(moduleId: string): ResolveUiModuleOptions {
+  return { exportName: "application", moduleId, version: "1.0.0" };
+}
+
+function requireRegistry(
+  result: Awaited<ReturnType<typeof createUiModuleRegistry>>
+): UiModuleRegistry {
+  if (result.status === UiModuleRegistryStatus.Ready) return result.registry;
+  throw new Error(`Studio UiModule registry failed: ${message(result.diagnostics)}`);
 }
 
 async function resolveArtifact(
   registry: UiModuleRegistry,
-  moduleId: string
+  request: ResolveUiModuleOptions
 ): Promise<UiResolvedModuleArtifact> {
-  const result = await resolveUiModule(registry, { exportName, moduleId, version: moduleVersion });
-  if (result.status === UiModuleResolutionStatus.Resolved) return result.artifact;
-  throw new Error(`Studio UiModule resolution failed: ${message(result.diagnostics)}`);
+  const result = await resolveUiModule(registry, request);
+  if (result.status !== UiModuleResolutionStatus.Resolved) {
+    throw new Error(`Studio UiModule resolution failed: ${message(result.diagnostics)}`);
+  }
+  return result.artifact;
 }
 
 function message(diagnostics: readonly { readonly message: string }[]): string {

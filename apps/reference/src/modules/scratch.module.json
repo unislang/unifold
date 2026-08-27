@@ -1,0 +1,120 @@
+{
+  "$schema": "https://schemas.unifold.org/ui-module/1.0/schema.json",
+  "schemaVersion": "1.0.0",
+  "id": "org.unifold.reference.application",
+  "version": "1.0.0",
+  "imports": [
+    {
+      "moduleId": "org.unifold.reference.shared",
+      "version": "1.0.0",
+      "integrity": "sha256-2pYoF29g2xRTYJzBdolRWkmaxBaOJFOn3BOchaudAe4",
+      "namespace": "shared"
+    }
+  ],
+  "exports": {
+    "compositions": [],
+    "resources": [],
+    "documents": [
+      {
+        "name": "application",
+        "document": {
+          "$schema": "https://schemas.unifold.org/layout-document/1.0/schema.json",
+          "schemaVersion": "1.0.0",
+          "id": "module-reference",
+          "revision": "revision-1",
+          "catalog": {
+            "name": "unifold-core",
+            "version": "1.0.0"
+          },
+          "layoutType": "profile-form",
+          "layoutVersion": "1.0.0",
+          "variables": {
+            "heading": "Module-authored profile",
+            "fields": [
+              {
+                "id": "module-name",
+                "type": "TextField",
+                "props": {
+                  "label": "Your name",
+                  "name": "name",
+                  "required": true,
+                  "value": ""
+                },
+                "events": {
+                  "onInput": "NAME_CHANGED"
+                }
+              },
+              {
+                "id": "module-submit",
+                "type": "Button",
+                "props": {
+                  "action": "submit",
+                  "label": "Save profile"
+                }
+              }
+            ]
+          },
+          "layouts": [
+            {
+              "layoutType": "profile-form",
+              "version": "1.0.0",
+              "variables": {
+                "heading": {
+                  "type": "string",
+                  "required": true
+                },
+                "fields": {
+                  "type": "nodes",
+                  "required": true
+                }
+              },
+              "template": {
+                "id": "module-page",
+                "type": "Stack",
+                "props": {
+                  "gap": "md"
+                },
+                "children": [
+                  {
+                    "id": "module-heading",
+                    "type": "Heading",
+                    "props": {
+                      "content": "{{heading}}",
+                      "level": "1"
+                    }
+                  },
+                  {
+                    "id": "module-form",
+                    "type": "Form",
+                    "props": {
+                      "label": "Profile"
+                    },
+                    "children": "{{fields}}"
+                  }
+                ]
+              }
+            }
+          ],
+          "machines": [
+            {
+              "schemaVersion": "1.0.0",
+              "id": "module-profile-workflow",
+              "version": "1.0.0",
+              "ownerId": "module-form",
+              "initial": "editing",
+              "states": {
+                "editing": {
+                  "on": {
+                    "NAME_CHANGED": {
+                      "target": "editing"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

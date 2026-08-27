@@ -45,19 +45,103 @@
         "resources": {
           "type": "array",
           "maxItems": 256,
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["id", "kind", "value"],
-            "properties": {
-              "id": { "$ref": "#/$defs/exportName" },
-              "kind": {
-                "enum": ["machine", "message", "rule", "scenario", "schema", "semantics", "token"]
-              },
-              "value": { "$ref": "#/$defs/jsonValue" }
-            }
-          }
+          "items": { "$ref": "#/$defs/resource" }
         }
+      }
+    },
+    "resource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "value"],
+      "properties": {
+        "id": { "$ref": "#/$defs/exportName" },
+        "kind": {
+          "enum": [
+            "layout",
+            "machine",
+            "message",
+            "rule",
+            "scenario",
+            "schema",
+            "semantics",
+            "token"
+          ]
+        },
+        "value": { "$ref": "#/$defs/jsonValue" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "layout" } }, "required": ["kind"] },
+          "then": { "properties": { "value": { "$ref": "#/$defs/layoutDefinition" } } }
+        }
+      ]
+    },
+    "layoutDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["layoutType", "version", "variables", "template"],
+      "properties": {
+        "layoutType": { "$ref": "#/$defs/exportName" },
+        "version": { "$ref": "#/$defs/version" },
+        "variables": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/layoutVariableDefinition" }
+        },
+        "template": { "$ref": "#/$defs/layoutNode" }
+      }
+    },
+    "layoutVariableDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": { "enum": ["array", "boolean", "nodes", "number", "object", "string"] },
+        "required": { "type": "boolean" },
+        "default": true
+      }
+    },
+    "layoutReference": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^\\{\\{[A-Za-z][A-Za-z0-9_-]*(\\.[A-Za-z][A-Za-z0-9_-]*)*\\}\\}$"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$var"],
+          "properties": { "$var": { "type": "string" } }
+        }
+      ]
+    },
+    "layoutNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type"],
+      "properties": {
+        "id": {
+          "oneOf": [{ "$ref": "#/$defs/exportName" }, { "$ref": "#/$defs/layoutReference" }]
+        },
+        "type": {
+          "oneOf": [{ "$ref": "#/$defs/exportName" }, { "$ref": "#/$defs/layoutReference" }]
+        },
+        "props": { "type": "object" },
+        "children": {
+          "oneOf": [
+            { "type": "array", "items": { "$ref": "#/$defs/layoutNode" } },
+            { "$ref": "#/$defs/layoutReference" }
+          ]
+        },
+        "events": {
+          "type": "object",
+          "propertyNames": { "enum": ["onBlur", "onClick", "onInput", "onReset", "onSubmit"] },
+          "additionalProperties": { "$ref": "#/$defs/exportName" }
+        },
+        "if": {
+          "oneOf": [{ "type": "boolean" }, { "$ref": "#/$defs/layoutReference" }]
+        },
+        "for": { "type": "string", "maxLength": 512 },
+        "key": { "$ref": "#/$defs/exportName" }
       }
     },
     "import": {

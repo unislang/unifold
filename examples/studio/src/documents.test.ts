@@ -3,8 +3,8 @@ import { expect, it } from "vitest";
 
 import { StudioControlId, controlSurfaceDocument, liveApplicationDocument } from "./documents.js";
 
-it("authors the chat controls as one hierarchical JSON UI tree", () => {
-  const document = controlSurfaceDocument();
+it("resolves the chat controls as one hierarchical JSON UI tree", async () => {
+  const document = await controlSurfaceDocument();
   expect(requireNode(document, "studio-chat")["$comp"]).toBe(CoreComponentType.Stack);
   expect(requireNode(document, StudioControlId.Prompt)["$comp"]).toBe(CoreComponentType.TextArea);
   expect(actionIds(document)).toEqual([
@@ -17,12 +17,12 @@ it("authors the chat controls as one hierarchical JSON UI tree", () => {
   expect(requireNode(document, StudioControlId.Status)["$comp"]).toBe(CoreComponentType.Alert);
 });
 
-it("returns isolated authored documents for live and control applications", () => {
-  const first = controlSurfaceDocument();
-  const second = controlSurfaceDocument();
+it("returns isolated resolved documents for live and control applications", async () => {
+  const first = await controlSurfaceDocument();
+  const second = await controlSurfaceDocument();
   expect(first).not.toBe(second);
   expect(first["view"]).not.toBe(second["view"]);
-  expect(requireNode(liveApplicationDocument(), "prototype-summary")["content"]).toBe(
+  expect(requireNode(await liveApplicationDocument(), "prototype-summary")["content"]).toBe(
     "This is the currently applied experience."
   );
 });

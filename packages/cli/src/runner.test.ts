@@ -38,13 +38,26 @@ it("dispatches document validation", async () => {
   );
 });
 
-it("dispatches UiModule project validation", async () => {
+it("dispatches UiModule validation and lock checking", async () => {
   const { writeModuleProject } = await import("./module-project.test-data.js");
   await writeModuleProject(root);
-  const result = await runUnifoldCli(["module", "validate", "modules.project.json"], {
+  const validation = await runUnifoldCli(["module", "validate", "modules.project.json"], {
     cwd: root
   });
-  expect(result.status).toBe(UnifoldCliStatus.Succeeded);
+  expect(validation.status).toBe(UnifoldCliStatus.Succeeded);
+  await mkdir(join(root, "dist"));
+  const flatten = [
+    "module",
+    "flatten",
+    "modules.project.json",
+    "--output",
+    "dist/ui.json",
+    "--lock",
+    "dist/ui.lock.json"
+  ];
+  expect((await runUnifoldCli(flatten, { cwd: root })).status).toBe(UnifoldCliStatus.Succeeded);
+  const check = ["module", "check", "modules.project.json", "--lock", "dist/ui.lock.json"];
+  expect((await runUnifoldCli(check, { cwd: root })).status).toBe(UnifoldCliStatus.Succeeded);
 });
 
 it("returns a bounded invocation diagnostic", async () => {

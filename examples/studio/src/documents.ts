@@ -1,7 +1,6 @@
 import type { JsonObject } from "@unislang/unifold-contracts";
 
-import controlSurface from "./control-surface.json" with { type: "json" };
-import liveApplication from "./live-application.json" with { type: "json" };
+import { resolveStudioModuleArtifacts } from "./module-reference.js";
 
 export enum StudioControlId {
   Apply = "studio-apply",
@@ -13,21 +12,23 @@ export enum StudioControlId {
   Status = "studio-status"
 }
 
-export function controlSurfaceDocument(): JsonObject {
-  return structuredClone(controlSurface) as JsonObject;
+export async function controlSurfaceDocument(): Promise<JsonObject> {
+  const artifacts = await resolveStudioModuleArtifacts();
+  return cloneDocument(artifacts.controlSurface.composedDocument);
 }
 
-export function liveApplicationDocument(): JsonObject {
-  return structuredClone(liveApplication) as JsonObject;
+export async function liveApplicationDocument(): Promise<JsonObject> {
+  const artifacts = await resolveStudioModuleArtifacts();
+  return cloneDocument(artifacts.liveApplication.composedDocument);
 }
 
-export function externallyEditedApplicationDocument(): JsonObject {
-  const document = liveApplicationDocument();
-  const view = requireObject(document["view"]);
+export function externallyEditedApplicationDocument(document: JsonObject): JsonObject {
+  const copy = cloneDocument(document);
+  const view = requireObject(copy["view"]);
   const children = requireChildren(view["$children"]);
   const summary = requireObject(children[1]);
   return {
-    ...document,
+    ...copy,
     revision: "external-edit",
     view: {
       ...view,
@@ -40,15 +41,17 @@ export function externallyEditedApplicationDocument(): JsonObject {
   };
 }
 
+function cloneDocument(document: JsonObject): JsonObject {
+  return structuredClone(document);
+}
+
 function requireChildren(value: unknown): readonly JsonObject[] {
   if (!Array.isArray(value)) throw new TypeError("The Studio fixture requires view children.");
   return value.map(requireObject);
 }
 
 function requireObject(value: unknown): JsonObject {
-  if (!isObject(value)) {
-    throw new TypeError("The Studio fixture requires a JSON object.");
-  }
+  if (!isObject(value)) throw new TypeError("The Studio fixture requires a JSON object.");
   return value;
 }
 

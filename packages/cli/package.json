@@ -17,7 +17,9 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./schemas/ui-module-build.schema.json": "./dist/ui-module-build.schema.json",
+    "./schemas/ui-module-project.schema.json": "./dist/ui-module-project.schema.json"
   },
   "scripts": {
     "build": "tsc -b",
@@ -36,7 +38,8 @@
   },
   "dependencies": {
     "@unislang/unifold": "workspace:*",
-    "@unislang/unifold-modules": "workspace:*"
+    "@unislang/unifold-modules": "workspace:*",
+    "ajv": "8.20.0"
   },
   "devDependencies": {
     "@types/node": "24.3.0",

@@ -45,7 +45,7 @@ interface TopicControls {
 }
 
 function topicControls(page: Page): TopicControls {
-  const group = page.getByTestId(TOPICS_ID);
+  const group = page.locator(`[data-unifold-node-id="${TOPICS_ID}"]`);
   return {
     group,
     internal: group.getByRole("checkbox", { name: "Internal updates" }),

@@ -12,34 +12,22 @@ import {
   createUiModuleRegistry,
   resolveUiModule,
   uiModuleIntegrity,
-  type ResolveUiModuleOptions,
   type UiResolvedModuleArtifact
 } from "@unislang/unifold-modules";
 
+import { UnifoldCliDiagnosticCode } from "./enums.js";
 import {
-  UnifoldCliDiagnosticCode,
-  UnifoldCliModuleProjectSchemaUri,
-  UnifoldCliModuleProjectSchemaVersion
-} from "./enums.js";
+  validateUiModuleProjectManifest,
+  type UiModuleProjectManifest
+} from "./module-project-schema.js";
 import type { UnifoldCliDiagnostic } from "./types.js";
 
-export const UI_MODULE_PROJECT_SCHEMA = UnifoldCliModuleProjectSchemaUri.Version1;
 const MAXIMUM_MANIFEST_BYTES = 65_536;
 const MAXIMUM_SOURCE_BYTES = 1_048_576;
-const moduleIdPattern = /^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$/u;
-const versionPattern = /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/u;
-const exportPattern = /^[A-Za-z][A-Za-z0-9._-]*$/u;
-
-export interface UiModuleProjectManifest {
-  readonly $schema: UnifoldCliModuleProjectSchemaUri.Version1;
-  readonly entry: ResolveUiModuleOptions;
-  readonly schemaVersion: UnifoldCliModuleProjectSchemaVersion.Version1;
-  readonly sources: readonly string[];
-}
 
 export interface ResolvedUiModuleProject {
   readonly artifact: UiResolvedModuleArtifact;
-  readonly entry: ResolveUiModuleOptions;
+  readonly entry: UiModuleProjectManifest["entry"];
   readonly irIntegrity: string;
   readonly manifestPath: string;
   readonly root: string;
@@ -180,90 +168,10 @@ function requireFileSize(size: number | bigint, input: string, maximumBytes: num
 
 function parseManifest(content: string): UiModuleProjectManifest | undefined {
   try {
-    return manifestValue(JSON.parse(content) as unknown);
+    return validateUiModuleProjectManifest(JSON.parse(content) as unknown).manifest;
   } catch {
     return undefined;
   }
-}
-
-function manifestValue(value: unknown): UiModuleProjectManifest | undefined {
-  if (!isManifestObject(value)) return undefined;
-  const contents = manifestContents(value);
-  if (contents === undefined) return undefined;
-  return {
-    $schema: UnifoldCliModuleProjectSchemaUri.Version1,
-    ...contents,
-    schemaVersion: UnifoldCliModuleProjectSchemaVersion.Version1
-  };
-}
-
-function manifestContents(
-  value: Record<string, unknown>
-): Pick<UiModuleProjectManifest, "entry" | "sources"> | undefined {
-  const entry = entryValue(value["entry"]);
-  if (entry === undefined) return undefined;
-  const sources = sourceValues(value["sources"]);
-  if (sources === undefined) return undefined;
-  return { entry, sources };
-}
-
-function isManifestObject(value: unknown): value is Record<string, unknown> {
-  if (!isExactObject(value, ["$schema", "entry", "schemaVersion", "sources"])) return false;
-  return [
-    value["$schema"] === UI_MODULE_PROJECT_SCHEMA,
-    value["schemaVersion"] === UnifoldCliModuleProjectSchemaVersion.Version1
-  ].every(Boolean);
-}
-
-function entryValue(value: unknown): ResolveUiModuleOptions | undefined {
-  if (!isEntryObject(value)) return undefined;
-  return {
-    exportName: value["exportName"],
-    moduleId: value["moduleId"],
-    version: value["version"]
-  };
-}
-
-function isEntryObject(
-  value: unknown
-): value is Record<"exportName" | "moduleId" | "version", string> {
-  if (!isExactObject(value, ["exportName", "moduleId", "version"])) return false;
-  return [
-    isMatchingString(value["exportName"], exportPattern, 128),
-    isMatchingString(value["moduleId"], moduleIdPattern, 128),
-    isMatchingString(value["version"], versionPattern, 64)
-  ].every(Boolean);
-}
-
-function sourceValues(value: unknown): readonly string[] | undefined {
-  if (!isBoundedSourceArray(value)) return undefined;
-  if (!value.every(isSafeRelativePath)) return undefined;
-  return uniqueSources(value);
-}
-
-function isBoundedSourceArray(value: unknown): value is unknown[] {
-  if (!Array.isArray(value)) return false;
-  return value.length >= 1 && value.length <= 128;
-}
-
-function uniqueSources(value: readonly string[]): readonly string[] | undefined {
-  return new Set(value).size === value.length ? value : undefined;
-}
-
-function isExactObject(value: unknown, keys: readonly string[]): value is Record<string, unknown> {
-  if (!isRecord(value)) return false;
-  const actual = Object.keys(value);
-  return actual.length === keys.length && keys.every((key) => Object.hasOwn(value, key));
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  if (value === null) return false;
-  if (typeof value !== "object") return false;
-  return !Array.isArray(value);
-}
-
-function isMatchingString(value: unknown, pattern: RegExp, maximum: number): value is string {
-  return typeof value === "string" && value.length <= maximum && pattern.test(value);
 }
 
 function isSafeRelativePath(value: unknown): value is string {

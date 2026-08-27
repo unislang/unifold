@@ -1,0 +1,10 @@
+{
+  "$schema": "https://schemas.unifold.org/ui-module-project/1.0/schema.json",
+  "schemaVersion": "1.0.0",
+  "entry": {
+    "moduleId": "org.unifold.studio.control",
+    "version": "1.0.0",
+    "exportName": "application"
+  },
+  "sources": ["presentation.module.json", "control.module.json"]
+}

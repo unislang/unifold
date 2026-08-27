@@ -6,7 +6,8 @@ import { afterEach, beforeEach, expect, it } from "vitest";
 
 import { UnifoldCliDiagnosticCode, UnifoldCliModuleProjectSchemaVersion } from "./enums.js";
 import { writeModuleProject } from "./module-project.test-data.js";
-import { UI_MODULE_PROJECT_SCHEMA, resolveUiModuleProject } from "./module-project.js";
+import { resolveUiModuleProject } from "./module-project.js";
+import { UI_MODULE_PROJECT_SCHEMA } from "./module-project-schema.js";
 
 let root = "";
 

@@ -9,13 +9,8 @@ import {
 import { PaginationItemKind, type PaginationItem } from "@unislang/unifold-catalog";
 import { UiCommandType, type UiEvent } from "@unislang/unifold-events";
 
-import {
-  hierarchicalLayoutRegistry,
-  resolveHierarchicalModuleArtifact
-} from "./module-reference.js";
+import { resolveHierarchicalModuleArtifact } from "./module-reference.js";
 import "./example.css";
-
-const layoutRegistry = hierarchicalLayoutRegistry;
 
 export interface ExampleController {
   readonly application: UnifoldApplicationPort;
@@ -30,7 +25,6 @@ export async function mountHierarchicalExample(
 ): Promise<ExampleController> {
   const artifact = await resolveHierarchicalModuleArtifact();
   const result = mountUnifoldApplication(artifact.composedDocument, container, {
-    layoutRegistry,
     machineCommands: exampleCommands(),
     machineGuards: exampleGuards()
   });

@@ -12,7 +12,9 @@ const INVALID_INVOCATIONS = [
   { arguments_: ["generate", "other", "demo", "--no-install"] },
   { arguments_: ["validate", "one.json", "two.json"] },
   { arguments_: ["module", "flatten", "modules.json", "--output", "out.json"] },
-  { arguments_: ["module", "validate", "modules.json", "--lock", "lock.json"] }
+  { arguments_: ["module", "validate", "modules.json", "--lock", "lock.json"] },
+  { arguments_: ["module", "check", "modules.json"] },
+  { arguments_: ["module", "check", "modules.json", "--lock", "lock.json", "--output", "x"] }
 ] as const;
 
 describe("supported CLI argument parsing", () => {
@@ -34,7 +36,13 @@ describe("invalid CLI argument parsing", () => {
   });
 });
 
-it("parses module validation and flattening", () => {
+it("parses every module action", () => {
+  expectValidationInvocation();
+  expectCheckInvocation();
+  expectFlattenInvocation();
+});
+
+function expectValidationInvocation(): void {
   expect(parseUnifoldCliArguments(["module", "validate", "modules.json"])).toEqual({
     invocation: {
       action: UnifoldCliModuleAction.Validate,
@@ -42,6 +50,22 @@ it("parses module validation and flattening", () => {
       manifestPath: "modules.json"
     }
   });
+}
+
+function expectCheckInvocation(): void {
+  expect(
+    parseUnifoldCliArguments(["module", "check", "modules.json", "--lock", "dist/ui.lock.json"])
+  ).toEqual({
+    invocation: {
+      action: UnifoldCliModuleAction.Check,
+      command: UnifoldCliCommand.Module,
+      lockPath: "dist/ui.lock.json",
+      manifestPath: "modules.json"
+    }
+  });
+}
+
+function expectFlattenInvocation(): void {
   expect(
     parseUnifoldCliArguments([
       "module",
@@ -59,4 +83,4 @@ it("parses module validation and flattening", () => {
       outputPath: "dist/ui.json"
     }
   });
-});
+}
