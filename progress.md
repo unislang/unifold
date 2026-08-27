@@ -25,8 +25,10 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Latest published verification checkpoint:
   `cf136af0670e8dca421bf3e798e96c0f61e4955b`
   (`docs: record truthful focus checkpoint`).
-- Latest local checkpoint: `cf136af0670e8dca421bf3e798e96c0f61e4955b`; subsequent effect-lifecycle
-  identity and lifecycle-memory sampling work remains uncommitted.
+- Latest local implementation checkpoint:
+  `9c5922bec0737c8a3e53bc5f97fe587dfa1bdbc4`
+  (`feat: correlate effect lifecycles`); subsequent lifecycle-memory sampling work remains
+  uncommitted.
 - Publication verification: live `git ls-remote origin refs/heads/main` and local `HEAD` both
   resolved to `cf136af0670e8dca421bf3e798e96c0f61e4955b` after the push to
   `https://github.com/unislang/unifold.git`. The
@@ -70,8 +72,8 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 
 ## 2026-08-27 command-owned effect identity tranche
 
-- Status: implemented and release-gate verified in the active worktree; local checkpointing and
-  publication remain. The overall goal remains active.
+- Status: implemented, release-gate verified, and committed locally as
+  `9c5922bec0737c8a3e53bc5f97fe587dfa1bdbc4`; publication remains. The overall goal remains active.
 - Every post-commit command admitted to a configured effect port uses its command-event ID as one
   opaque CloudEvents `subject`. `EffectRequested` and its one normal `EffectCompleted` or
   `EffectFailed` terminal reuse that subject while retaining distinct event IDs. The command port
