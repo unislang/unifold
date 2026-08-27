@@ -18,8 +18,8 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
 - Latest implementation checkpoint:
-  `dae5b5acde1fbc2dc272aaea7510c5ae7b90c769`
-  (`feat: complete toast and pagination integration`) on
+  `c29ed6e5bc5e385cce7000063ba99094bae50ddb`
+  (`feat: add versioned UI module resolution`) on
   `https://github.com/unislang/unifold.git`.
 - Current local implementation: the `NumberField`, `SearchField`, `CheckboxGroup`, `Switch`, and
   `DateField`, `Toast`, and `Pagination` families are committed as implementation checkpoints.
@@ -136,6 +136,18 @@ component property, event, machine, and rule authoring context; durable actor id
 audit, and separation of duties; provider/model token, cost, time, retry, and signature policy;
 executable product outcome evaluators; collaboration/rebase/undo; and the full multi-turn design
 surface.
+
+## UiModule publication checkpoint
+
+- Implementation commit: `c29ed6e5bc5e385cce7000063ba99094bae50ddb`
+  (`feat: add versioned UI module resolution`) on `unifold/main`.
+- The push was independently verified after publication: local `HEAD`, local `origin/main`, and
+  `git ls-remote origin refs/heads/main` all resolved to the exact commit above.
+- Focused evidence is 9/9 test files and 26/26 tests, package ESLint, package source/test TypeScript,
+  package build, the 350-line authored-file gate, and colocated one-to-one test ownership.
+- Acceptance criterion 33 remains partial until fixed reference sources and CLI validate/flatten
+  flows consume the module contract and prove flattened IR/hash parity in clean preview/export
+  builds. Preserve the uncommitted AI/Studio/CLI/reference work while completing that integration.
 
 ## Toast and Pagination publication checkpoint
 
