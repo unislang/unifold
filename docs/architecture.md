@@ -233,9 +233,25 @@ Control input is an intent. Runtime commands commit atomically and then publish 
 run only after commit. A failed transaction publishes a sanitized rejection fact without exposing a
 partial state.
 
+All commands declared by one XState transition re-enter runtime as one ordered batch. State and
+effect commands therefore share one causal execution without manufacturing an effect-only state
+revision. Empty, effect-only, and normalized no-op batches publish no `TransactionCommitted` fact
+and neither advance nor retain a store revision. Production code outside `@unislang/unifold-runtime`
+cannot import the normalized reactivity package, making the runtime boundary the executable owner
+of UI state writes.
+
 Source-node and ancestor-scope handles are indexed views over those same fact objects. A form scope
 therefore observes descendant changes without a second Subject, and its aggregate snapshot is final
 at the first post-commit callback.
+
+Applications never share an implicit runtime singleton. A host that intentionally observes several
+applications must use `createUnifoldApplicationObserver` with explicit application and tenant
+identities plus an authorization callback. Authorization is reevaluated for every fact and fails
+closed; the observer forwards only the runtime's existing classification-aware event projection.
+Its output contains identity and event data only—never an application/runtime reference, command
+port, or snapshot resolver—and observer disposal does not dispose an observed application. Duplicate
+application identities, duplicate runtime references, unsafe identities, and more than 64 targets
+reject before subscription.
 
 Devtools are another explicit consumer of that same fabric. `@unislang/unifold-devtools` retains a
 finite deduplicated window, records exact eviction evidence, and reads an immutable runtime
@@ -329,7 +345,8 @@ indexed to one owning node and receives canonical events only when that owner ap
 scope. JSON transitions contain targets, trusted command IDs, and an optional named guard. Host code
 registers command factories that return typed `UiCommand` values and synchronous guard predicates
 that receive the canonical event plus read-only access to current normalized snapshots. Commands
-re-enter the normal transaction boundary with inherited correlation and explicit causation, so
+re-enter the normal transaction boundary as one transition batch with inherited correlation and
+explicit causation, so
 XState owns temporal state without becoming a second UI-value store.
 
 Unknown owners, states, properties, command IDs, or guard IDs reject before mount or update. Guard

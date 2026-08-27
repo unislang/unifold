@@ -9,6 +9,8 @@ export interface PrototypeWindow {
   __unifoldDefineElements?: typeof import("@unislang/unifold").defineUnifoldElements;
   __unifoldMigrateProfile?: (mode: ProfileMigrationMode) => UnifoldApplicationUpdateResult;
   __unifoldMountRealmCopy?: () => RealmCopyResult;
+  __unifoldBeginStateAuthorityTrace?: () => void;
+  __unifoldReadStateAuthorityTrace?: () => import("./reference-state-authority.js").ReferenceStateAuthorityObservation;
   __unifoldUpdateDocument?: (source: unknown) => UnifoldApplicationUpdateResult;
 }
 

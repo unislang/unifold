@@ -27,6 +27,7 @@ it("applies a derived initializer before exposing revision zero", verifyInitiali
 it("retains only configured transaction history", verifyTransactionRetention);
 it("reports escaped JSON pointer paths", verifyEscapedChangedPaths);
 it("invalidates affected nodes when routed errors change", verifyValidationRouting);
+it("does not create an authoritative revision for a no-op transaction", verifyNoOpTransaction);
 
 function verifiesAtomicCommit(): void {
   const store = new NormalizedNodeStore([controlNode("first", "A"), controlNode("second", "B")]);
@@ -127,6 +128,16 @@ function verifyValidationRouting(): void {
   });
   expect(removed.changedNodeIds).toEqual(["owner", "target"]);
   expect(store.getValidationErrors("target")).toEqual([]);
+}
+
+function verifyNoOpTransaction(): void {
+  const store = new NormalizedNodeStore([controlNode("field", "A")]);
+  const observed = vi.fn();
+  store.select(createSelector((state) => state.revision)).subscribe(observed);
+  const record = store.transact(transactionMetadata("no-op"), () => undefined);
+  expect(record).toMatchObject({ changedNodeIds: [], previousRevision: 0, revision: 0 });
+  expect(store.getTransaction(0)).toBeUndefined();
+  expect(observed).not.toHaveBeenCalled();
 }
 
 function assignRoutedError(node: Parameters<NodeRecipe>[0]): void {

@@ -95,6 +95,8 @@ export class NormalizedNodeStore implements UiNodeStore {
     const directIds = new Set(changedNodeIds(directPatches));
     const [candidate, derivedPatches] = deriveState(changed, directIds, this.aggregateValidator);
     const patches = [...directPatches, ...derivedPatches];
+    if (patches.length === 0)
+      return createRecord(metadata, previous.revision, previous.revision, patches);
     const ids = changedNodeIds(patches);
     const next = finalizeRevision(candidate, previous.revision + 1, ids);
     const record = createRecord(metadata, previous.revision, next.revision, patches);

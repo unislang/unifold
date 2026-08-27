@@ -4,7 +4,7 @@ import type { UiXStateEvent } from "./actor-router.js";
 import type { UiMachineCommandRegistry } from "./command-registry.js";
 
 export enum UiXStateImplementationName {
-  EmitCommand = "unifold.emitCommand",
+  EmitCommands = "unifold.emitCommands",
   EvaluateGuard = "unifold.evaluateGuard"
 }
 
@@ -14,9 +14,14 @@ export interface UiCommandActionParameters {
 
 export type UiCommandSink = (command: UiCommand) => void;
 export type UiCausedCommandSink = (command: UiCommand, cause: UiEvent) => void;
+export type UiCausedCommandsSink = (commands: readonly UiCommand[], cause: UiEvent) => void;
 
 export interface UiRegisteredCommandActionParameters {
   readonly commandId: string;
+}
+
+export interface UiRegisteredCommandsActionParameters {
+  readonly commandIds: readonly string[];
 }
 
 export function createCommandAction(sink: UiCommandSink) {
@@ -35,5 +40,21 @@ export function createRegisteredCommandAction(
   ): void => {
     const cause = actorArgs.event.uiEvent;
     sink(registry.create(parameters.commandId, cause), cause);
+  };
+}
+
+export function createRegisteredCommandsAction(
+  registry: UiMachineCommandRegistry,
+  sink: UiCausedCommandsSink
+) {
+  return (
+    actorArgs: { readonly event: UiXStateEvent },
+    parameters: UiRegisteredCommandsActionParameters
+  ): void => {
+    const cause = actorArgs.event.uiEvent;
+    sink(
+      parameters.commandIds.map((id) => registry.create(id, cause)),
+      cause
+    );
   };
 }

@@ -72,6 +72,27 @@ test("supports the complete workflow from the keyboard", async ({ page }) => {
   ).toBeVisible();
 });
 
+test("isolates duplicate live and preview identities and disposes only the preview", async ({
+  page
+}) => {
+  await page.goto("/");
+  const live = page.locator("#live-preview [data-unifold-node-id='prototype-page']");
+  await live.evaluate((element) => element.setAttribute("data-isolation-sentinel", "live"));
+  await generatePreview(page, "Prove same-page preview isolation");
+  const preview = page.locator("#isolated-preview [data-unifold-node-id='prototype-page']");
+  await expect(live).toHaveCount(1);
+  await expect(preview).toHaveCount(1);
+  await expect(live).toHaveAttribute("data-isolation-sentinel", "live");
+  await expect(preview).not.toHaveAttribute("data-isolation-sentinel", "live");
+  await page.getByRole("button", { name: "Cancel request" }).click();
+  await expect(preview).toHaveCount(0);
+  await expect(live).toHaveAttribute("data-isolation-sentinel", "live");
+  await page.getByLabel("Describe how the preview should change").fill("Control remains active");
+  await expect(page.getByLabel("Describe how the preview should change")).toHaveValue(
+    "Control remains active"
+  );
+});
+
 test("rejects an unsafe proposal without opening or mutating either application", async ({
   page
 }) => {

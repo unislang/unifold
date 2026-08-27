@@ -67,13 +67,25 @@ function startReference(
   }
   void Promise.all([
     synchronizeReferenceComponentFamilies(application),
-    installReferenceEventOutput(application)
+    installReferenceEventOutput(application),
+    installReferenceStateAuthorityOracle(application)
   ])
     .then(([, resetEventCapture]) => {
       if (testHooksEnabled) resetEventCapture();
       reportComponentFamiliesReady(application);
     })
     .catch(reportComponentFamilyFailure);
+}
+
+async function installReferenceStateAuthorityOracle(
+  application: UnifoldApplicationPort
+): Promise<void> {
+  if (!testHooksEnabled) return;
+  const module = await import("./reference-state-authority.js");
+  const oracle = module.createReferenceStateAuthorityOracle(application);
+  const target = window as unknown as PrototypeWindow;
+  target.__unifoldBeginStateAuthorityTrace = () => oracle.begin();
+  target.__unifoldReadStateAuthorityTrace = () => oracle.read();
 }
 
 async function synchronizeReferenceComponentFamilies(

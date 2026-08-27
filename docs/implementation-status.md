@@ -9,6 +9,11 @@ described by the complete 1.0 plan.
 
 - A pnpm monorepo with strict TypeScript, ESLint, Prettier, Knip, dependency-cruiser, jscpd,
   Changesets, and executable file/function/complexity policies.
+- Independent application runtimes with no implicit singleton and a bounded public observation
+  seam. Explicit application/tenant authorization is reevaluated per event, disclosure remains
+  classification-aware, and the read-only observation surface cannot issue commands or resolve
+  snapshots. Unit, Studio-browser, and 10-runtime performance evidence cover duplicate IDs,
+  streams, stores, actors, effects, telemetry, disposal, and fail-closed observation.
 - A safe JSON document contract, validation diagnostics, normalized immutable IR, and a minimal
   JsonUI-compatible profile for Accordion, Alert, AuditLog, Box, Breadcrumb, Button, Checkbox, CheckboxGroup, Combobox,
   Card, Composition, DataGrid, DateField, Dialog, ErrorSummary, Field, Fieldset, FileInput, Form, Grid, Heading, Icon, Image, Link, MasterDetail, MenuButton, MultiSelect,

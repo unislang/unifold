@@ -9,8 +9,8 @@ import { createActor, setup } from "xstate";
 import type { UiActorRef, UiXStateEvent } from "./actor-router.js";
 import {
   UiXStateImplementationName,
-  createRegisteredCommandAction,
-  type UiCausedCommandSink
+  createRegisteredCommandsAction,
+  type UiCausedCommandsSink
 } from "./command-action.js";
 import type { UiMachineCommandRegistry } from "./command-registry.js";
 import type { UiMachineGuardRegistry, UiMachineSnapshotReader } from "./guard-registry.js";
@@ -29,7 +29,7 @@ export interface UiMachineActor extends UiActorRef {
 export function createUiMachineActor(
   definition: UiMachineDefinition,
   registry: UiMachineCommandRegistry,
-  sink: UiCausedCommandSink,
+  sink: UiCausedCommandsSink,
   guards?: UiMachineGuardRegistry,
   snapshot: UiMachineSnapshotReader = () => undefined
 ): UiMachineActor {
@@ -50,13 +50,13 @@ export function createUiMachineActor(
 function createMachineLogic(
   definition: UiMachineDefinition,
   registry: UiMachineCommandRegistry,
-  sink: UiCausedCommandSink,
+  sink: UiCausedCommandsSink,
   guards: UiMachineGuardRegistry | undefined,
   snapshot: UiMachineSnapshotReader
 ) {
   const machineSetup = setup({
     actions: {
-      [UiXStateImplementationName.EmitCommand]: createRegisteredCommandAction(registry, sink)
+      [UiXStateImplementationName.EmitCommands]: createRegisteredCommandsAction(registry, sink)
     },
     guards: {
       [UiXStateImplementationName.EvaluateGuard]: (
@@ -91,13 +91,20 @@ function stateConfig(state: UiMachineStateDefinition) {
 
 function transitionConfig(transition: UiMachineTransitionDefinition) {
   return {
-    actions: (transition.commands ?? []).map((commandId) => ({
-      params: { commandId },
-      type: UiXStateImplementationName.EmitCommand as const
-    })),
+    actions: commandActions(transition.commands),
     ...(transition.guard === undefined ? {} : { guard: guardConfig(transition.guard) }),
     target: transition.target
   };
+}
+
+function commandActions(commandIds: readonly string[] | undefined) {
+  if (commandIds === undefined || commandIds.length === 0) return [];
+  return [
+    {
+      params: { commandIds },
+      type: UiXStateImplementationName.EmitCommands as const
+    }
+  ];
 }
 
 function guardConfig(id: string) {

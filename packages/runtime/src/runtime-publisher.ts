@@ -17,7 +17,7 @@ import { isMetadataOnly, projectIntent, projectSnapshot } from "./event-disclosu
 import type { RuntimeEventProjection } from "./event-disclosure.js";
 import { commandChange, commandType, createRuntimeEvent } from "./runtime-event.js";
 import type { RuntimeEventContext } from "./runtime-event.js";
-import { commandNodeId, rejectedRecord } from "./runtime-helpers.js";
+import { commandNodeId, rejectedRecord, transactionSourceId } from "./runtime-helpers.js";
 import type { UiExecutionContext } from "./types.js";
 
 interface RuntimePublisherOptions {
@@ -74,10 +74,15 @@ export class RuntimePublisher {
   transaction(
     context: Required<UiExecutionContext>,
     record: UiTransactionRecord,
-    before: readonly UiNodeSnapshot[]
+    before: readonly UiNodeSnapshot[],
+    commands: readonly UiCommand[] = []
   ): void {
+    if (record.revision === record.previousRevision) return;
     const relevant = transactionSnapshots(record.changedNodeIds, before, this.options.snapshots());
-    const snapshot = relevant[0];
+    const snapshot = transactionSnapshot(
+      transactionSourceId(commands, record.changedNodeIds),
+      relevant
+    );
     const classification = classificationOf(relevant);
     const projection = projectSnapshot(snapshot, { classification, revision: record.revision });
     this.emit(
@@ -169,6 +174,14 @@ export class RuntimePublisher {
     this.options.fabric.publish(event);
     this.options.actors.route(event);
   }
+}
+
+function transactionSnapshot(
+  sourceId: string | undefined,
+  snapshots: readonly UiNodeSnapshot[]
+): UiNodeSnapshot | undefined {
+  if (sourceId === undefined) return snapshots[0];
+  return snapshots.find(({ id }) => id === sourceId) ?? snapshots[0];
 }
 
 function commandProjection(

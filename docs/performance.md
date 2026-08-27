@@ -130,9 +130,9 @@ emits exactly 25 typed commands, and leaves every unrelated chain unchanged. Its
 p95 is below the provisional 4 ms target on the current workstation. The combined public-runtime
 fixture proves one commit spans the leaf edit, three synchronous validations (leaf, group, form),
 two ancestor aggregates, 20 transitive rule commands, and committed-revision selector delivery.
-Its current 1.25 ms p95 is below the provisional 8 ms target. All fifty-nine timing and lifecycle limits
+Its current 1.25 ms p95 is below the provisional 8 ms target. All sixty timing and lifecycle limits
 are executable benchmark gates and are included with actual/limit/pass fields in the
-schema-2.34.0 machine-readable report; the current run passes all 59/59.
+schema-2.35.0 machine-readable report; the current run passes all 60/60.
 The report also contains a 50-sample paired selection-overhead profile. It alternates measurement
 order for each update between identical 10,000-node stores with zero and 2,000 indexed selections,
 subtracts the paired timings, and takes each sample's five-edit median. This removes shared
@@ -315,6 +315,12 @@ Scratch-style 500-node root layout across 30 samples. The current workstation pr
 and 500 lowered nodes. The measurement includes schema admission, canonical module hashing,
 namespace/cycle/integrity checks, resource flattening, layout and composition expansion, source-map
 construction, and final expanded-document hashing.
+
+The application-observation fixture mounts 10 isolated runtimes assigned across 5 tenants, gives
+every runtime the same node identities, and commits 50 transactions per application. Thirty samples
+must produce exactly 1,000 uniquely identified and correctly attributed canonical events with the
+expected per-application telemetry source and correlation identity. The current workstation records
+61.07/71.32/82.37 ms p50/p95/p99 against the executable 250 ms p95 gate.
 
 Ratification still requires a provisioned, versioned mid-tier runner. Developer-workstation timing
 remains descriptive even though benchmark execution now rejects any provisional p95 limit or the

@@ -17,22 +17,24 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-27
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest implementation checkpoint:
-  `0a83e51f2dec4094d2d03e62b60e115b68dff69b`
-  (`feat: complete Scratch-style module-native applications`) on
+- Latest published checkpoint:
+  `4112e2b31ae4e63a6c3a9640a4f87bf6dcaaa70a`
+  (`docs: record Scratch-style module checkpoint`) on
   `https://github.com/unislang/unifold.git`.
 - Publication verification: live `git ls-remote origin refs/heads/main` resolved to
-  `0a83e51f2dec4094d2d03e62b60e115b68dff69b` immediately after the implementation push; local
+  `4112e2b31ae4e63a6c3a9640a4f87bf6dcaaa70a` immediately after the documentation push; local
   `HEAD` and `origin/main` matched exactly. The same push includes semantic owner isolation at
   `0b9d569` and repository source-ownership gates at `a6b4b60`.
 - Current local implementation: the `NumberField`, `SearchField`, `CheckboxGroup`, `Switch`, and
   `DateField`, `Toast`, and `Pagination` families are committed as implementation checkpoints. The
-  current scoped checkpoint adds the bounded adopter CLI/starter and Scratch-style module build
-  integration plus the governed AI provider boundary and Studio dogfood workflow. The
-  portable application replay oracle now pins document, machines, snapshot, clock/random controls,
-  events, and mocked effects. Multi-application semantic publication isolation, reference
-  feature-module cleanup, executable import-then-local-re-export prevention, and completed
-  reference/hierarchical/Studio module graphs are published on `unifold/main`.
+  current worktree adds canonical-write no-op suppression, transition-level XState batching,
+  causal transaction provenance, a runtime-only normalized-reactivity ownership rule, and an
+  instrumented reference-browser state-authority oracle. It also adds an explicitly authorized,
+  redacted, read-only cross-application observer; two-application isolation coverage; a 10-runtime/
+  5-tenant benchmark; and Studio live/preview disposal coverage. The bounded adopter CLI/starter,
+  Scratch-style module build integration, governed AI provider boundary, Studio dogfood workflow,
+  multi-application semantic isolation, exact test colocation, re-export prevention, and completed
+  reference/hierarchical/Studio module graphs remain published checkpoints on `unifold/main`.
 - Goal status: active. The named 45-component stable catalog is implemented; `Composition` is the
   additional structural host, producing 46 generated catalog elements. Broader Studio,
   control-plane, manual accessibility, packaging, and production-integration gates remain.
@@ -75,20 +77,33 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Semantic JSON-LD publication now scopes cardinality and replacement to the target owner. Distinct
   applications coexist; same-owner refresh is atomic; invalid refresh preserves the last-known-good
   graph; duplicate/adopted owner slots fail closed; and disposal removes only the owning graph.
-  Browser-level isolation of every runtime seam remains an AC34 gap.
-- The durable acceptance register classifies all 34 criteria conservatively: AC4, AC27, and AC33
-  are proved; AC10 and AC29 are missing; and the other 29 are partial. There are no known
+- Canonical state authority now has an executable control-ingress proof. Empty, effect-only, and
+  normalized no-op batches do not revise or retain store state; one XState transition executes its
+  state/effect commands as one causally linked batch; transaction provenance follows the causal
+  command target; and a Chromium oracle observes the exact same field event across application,
+  composition, form, and component views while proving one value write and zero unrelated renders.
+  Dependency-cruiser reserves production normalized-reactivity ownership to runtime. AC25 remains
+  partial until reconciliation, external-store, AI, and host-adapter sources use the same oracle.
+- Cross-application observation is bounded and separately authorized without merging runtime state
+  authorities. It rejects duplicate identities/runtimes, reauthorizes every event, preserves
+  classified disclosure, fails closed, and disposes independently. Same-document unit coverage
+  isolates duplicate node IDs, stores, actors, effects, streams, telemetry, and disposal; Studio
+  covers live/preview identity and preview-only disposal. The exact 10-runtime/1,000-event fan-in
+  profile records 61.07/71.32/82.37 ms p50/p95/p99 against a 250 ms p95 ceiling.
+- The durable acceptance register classifies all 34 criteria conservatively: AC4, AC27, AC33, and
+  AC34 are proved; AC10 and AC29 are missing; and the other 28 are partial. There are no known
   contradicted criteria after the semantic ownership correction.
-- The final local aggregate passes 577 Vitest files/1,522 tests, 22/22 tooling tests, 9/9 generated
+- The final local aggregate passes 579 Vitest files/1,531 tests, 22/22 tooling tests, 9/9 generated
   CEM checks, the theme script test, all three application module-check script suites, all workspace
   source/test TypeScript, lint, dependency boundaries, unused-code, file-size, exact colocated-test,
   import-then-local-re-export ownership, duplication, formatting, and build gates.
-  Dependency-cruiser validates 2,324 modules and 5,144 dependencies without violations.
+  Dependency-cruiser validates 2,328 modules and 5,159 dependencies without violations.
 - V8 coverage passes at 97.56% lines/statements, 97.04% functions, and 90.02% branches. The
-  performance-correctness suite passes 37 files/47 tests with 31 profile skips, and the full
-  benchmark report passes 59/59 gates. Fresh Chromium acceptance passes the primary reference
-  59/59, hierarchical example 12/12, and Studio 8/8. Bounded WebKit passes the primary reference
-  56 tests with three intentional scale skips, hierarchical 12/12, and Studio 8/8. The packed
+  performance-correctness suite passes 38 files/48 tests with 32 profile-file skips, and the full
+  schema-2.35.0 benchmark report passes 60/60 gates. Fresh Chromium acceptance passes the primary reference
+  60/60, hierarchical example 12/12, and Studio 9/9. Bounded WebKit passes the primary reference
+  56 tests with three intentional scale skips plus the focused state-authority journey,
+  hierarchical 12/12, and Studio 9/9. The packed
   external-consumer suite passes 5/5, including a generated starter and locked artifact. Firefox
   fails before page creation with the upstream Playwright `_page` defect, so it supplies no
   application assertion result for this tranche.
@@ -97,10 +112,10 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 
 ## Active slice
 
-The current slice closes module-native consumption while preserving the completed catalog and
-proving that AI/Studio and application effects continue to operate through governed framework seams
-rather than bypassing the JSON compiler, event fabric, state authority, renderer, or export
-boundary:
+The current slice makes the single-state-authority claim executable for control ingress and XState
+responses while preserving the completed catalog and module-native applications. It also retains
+the earlier proof that AI/Studio and application effects operate through governed framework seams
+rather than bypassing the JSON compiler, event fabric, state authority, renderer, or export boundary:
 
 - AI context is catalog-derived, bounded, and recursively redacted. Proposal values enforce byte,
   depth, value-count, string-length, finite-number, plain-object, cycle, shared-reference, and
@@ -164,22 +179,23 @@ boundary:
   binding. Feature modules expose owned operations; direct package export maps remain the deliberate
   public-boundary mechanism.
 
-Current aggregate evidence: Vitest passes 577 files/1,522 tests. V8 coverage is 97.56%
+Current aggregate evidence: Vitest passes 579 files/1,531 tests. V8 coverage is 97.56%
 statements/lines, 97.04% functions, and 90.02% branches against unchanged 90% thresholds. Tooling
-passes 22/22, generated CEM checks pass 9/9, and the performance-correctness suite passes 37
-files/47 tests with 31 opt-in profile files skipped there and executed by the benchmark runner.
+passes 22/22, generated CEM checks pass 9/9, and the performance-correctness suite passes 38
+files/48 tests with 32 opt-in profile files skipped there and executed by the benchmark runner.
 File length, colocated one-to-one tests, import/re-export ownership, lint, source/test typechecks,
-unused-code, and dependency boundaries pass; dependency-cruiser validates 2,324 modules and 5,144
+unused-code, and dependency boundaries pass; dependency-cruiser validates 2,328 modules and 5,159
 dependencies with no violations.
 CEM/definition generation covers 46 elements: the named 45 stable
 families plus the structural `Composition` host.
 
-The production reference build passes at 188,155 initial gzip bytes (183.75/184 KiB), with 46,142
+The production reference build passes at 188,275 initial gzip bytes (183.86/184 KiB), with 46,150
 deferred gzip bytes. The resolved module artifact, reference-specific validator adapter, and runtime
 options load as explicit pre-mount resources while optional component families and diagnostic output
-remain post-mount; the initial-closure budget was not raised. Studio builds at 240.60 KiB gzip
-against 250 KiB. Benchmark schema 2.34.0 passes
-59/59 gates. The exact 100-Toast profile records 0.75/6.65/7.52 ms and the exact 100-Pagination
+remain post-mount; the initial-closure budget was not raised. Studio builds at 240.73 KiB gzip
+against 250 KiB. Benchmark schema 2.35.0 passes 60/60 gates. The 10-runtime/5-tenant
+observation profile attributes exactly 1,000 events at 71.32 ms p95 against 250 ms. The exact
+100-Toast profile records 0.75/6.65/7.52 ms and the exact 100-Pagination
 profile records 2.05/7.48/11.51 ms p50/p95/p99 across 50 samples; both retain a 100 ms p95 ceiling.
 
 The UiModule package includes portable lock serialization and the complete artifact-integrity
@@ -189,21 +205,31 @@ reference sources, CLI workflow, all three module-native applications, clean pac
 execution, and 17-module performance gate are reconciled. AC33 is locally complete; the final
 release rerun remains.
 
-Fresh Chromium Playwright acceptance passes 59/59 primary-reference, 12/12 hierarchical, and 8/8
+Fresh Chromium Playwright acceptance passes 60/60 primary-reference, 12/12 hierarchical, and 9/9
 Studio journeys. Bounded WebKit passes 56 primary-reference cases with three intentional scale
-skips, plus 12/12 hierarchical and 8/8 Studio journeys. The clean packed-consumer boundary passes
+skips plus the focused state-authority journey, 12/12 hierarchical, and 9/9 Studio journeys. The
+clean packed-consumer boundary passes
 5/5 outside the monorepo. On this managed elevated Windows runner, Firefox currently fails inside
 `browserContext.newPage()` before test code with Playwright's `_page` error; this matches the
 upstream [elevated-terminal defect](https://github.com/microsoft/playwright/issues/36594) and is
-recorded as runner evidence, not an application assertion failure. The implementation is published
-through `0a83e51f2dec4094d2d03e62b60e115b68dff69b`; remaining documentation changes are the current
-checkpoint worktree.
+recorded as runner evidence, not an application assertion failure. The last published checkpoint is
+`4112e2b31ae4e63a6c3a9640a4f87bf6dcaaa70a`; the state-authority and application-isolation changes
+remain the current worktree until publication completes.
 
 Remaining AI/Studio gaps are explicit: real provider-host adapters and golden evaluations;
 provenance-bound third-party catalog manifests; complete component property, event, machine, and
 rule authoring context; durable actor identity, approval audit, and separation of duties;
 independently budgeted provider failover; executable product outcome evaluators;
 collaboration/rebase/undo; and the full multi-turn design surface.
+
+The next form-core slice is also explicit: add an enum-backed JSON control topology independent of
+visual wrappers, durable array/record commands, and a typed public control handle. That topology must
+remain inside the Scratch-style `layoutType`/typed-`variables`/nested `type`-`props`-`events`
+authoring contract documented in `scratch/angular-ui/DYNAMIC-UI-README.md`; normalized IR remains a
+compiler output, not a second public JSON format. Then prove
+group/array/record aggregation, non-cooperative stale async completion, native `FormData`, and
+composition migration together in one application journey. Until that evidence exists, AC19 stays
+partial.
 
 ## 2026-08-27 Scratch-style module-native publication checkpoint
 
@@ -971,7 +997,7 @@ pushed to `origin/main`, and independently verified at
    execution IR.
 2. Inspect `git status --short --branch` and preserve any post-checkpoint user changes.
 3. Confirm local `HEAD` and `refs/heads/main` from `git ls-remote origin` match. If the remote does
-   not contain `d0200123b041602efe910527915e70e2b024c948`, push `main` before implementing another
+   not contain `4112e2b31ae4e63a6c3a9640a4f87bf6dcaaa70a`, push `main` before implementing another
    slice. After any code change, rerun `pnpm.CMD quality`, `pnpm.CMD test`, and
    `pnpm.CMD test:coverage`, then inspect `git diff --check` before committing.
    Re-run dedicated Firefox journeys only on a working runner; do not treat the current pre-page
@@ -1015,6 +1041,18 @@ must remain explicit and cannot be silently waived. The current slice has comple
 behavioral evidence; rerun Firefox when the managed runner can create a page reliably.
 
 ## Session log
+
+- 2026-08-27: Implemented the state-authority and application-isolation tranche. Normalized no-op,
+  empty, and effect-only executions no longer manufacture committed state revisions; XState emits
+  each transition's commands as one causal runtime batch; transaction source provenance selects the
+  first command that actually changed state; and dependency-cruiser reserves production normalized
+  reactivity ownership to runtime. A Chromium/WebKit reference oracle proves one input write across
+  application, composition, form, component, XState, and selective-render views. The new bounded
+  application observer mounts two duplicate-ID applications and proves isolated stores, streams,
+  actors, effects, IDs, telemetry, authorization/redaction, and disposal. Studio passes 9/9 in
+  Chromium and WebKit, and benchmark schema 2.35.0 passes 60/60 with the new 10-runtime/5-tenant,
+  1,000-event gate at 71.32 ms p95. Repository quality, 579 files/1,531 tests, build, and the packed
+  consumer 5/5 pass. Implementation commit/push verification is the remaining publication step.
 
 - 2026-08-27: Closed AC33's repository-controlled module proof. The primary reference,
   hierarchical example, and both Studio surfaces now resolve genuine bounded `UiModule@1.0.0`

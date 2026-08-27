@@ -8,7 +8,12 @@ import {
   type UiTransactionRecord
 } from "@unislang/unifold-events";
 import type { UiCompositionInstanceManifest } from "@unislang/unifold-contracts";
-import { withValidatedControl, type UiValidatorRegistryPort } from "@unislang/unifold-forms";
+import {
+  createAsyncValidatorRegistry,
+  createValidatorRegistry,
+  withValidatedControl,
+  type UiValidatorRegistryPort
+} from "@unislang/unifold-forms";
 import type { AggregateControlValidator, NormalizedNodeStore } from "@unislang/unifold-reactivity";
 
 import type {
@@ -29,10 +34,26 @@ export function transactionMetadata(
   };
 }
 
+export function validatorRegistry(options: UnifoldRuntimeOptions): UiValidatorRegistryPort {
+  return options.validatorRegistry ?? createValidatorRegistry();
+}
+
+export function asyncValidatorRegistry(options: UnifoldRuntimeOptions) {
+  return options.asyncValidatorRegistry ?? createAsyncValidatorRegistry();
+}
+
 export function commandNodeId(command: UiCommand): UiNodeId | undefined {
   if ("id" in command) return command.id;
   if (command.type === UiCommandType.StructureInstantiate) return command.node.id;
   return undefined;
+}
+
+export function transactionSourceId(
+  commands: readonly UiCommand[],
+  changedNodeIds: readonly UiNodeId[]
+): UiNodeId | undefined {
+  const changed = new Set(changedNodeIds);
+  return commands.map(commandNodeId).find((id) => id !== undefined && changed.has(id));
 }
 
 export function rejectedRecord(
@@ -127,8 +148,4 @@ export function valueOrDefault(value: string | undefined, fallback: string): str
 
 function defaultId(): string {
   return globalThis.crypto.randomUUID();
-}
-
-export function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : "Unknown effect error";
 }

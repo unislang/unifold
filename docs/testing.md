@@ -56,7 +56,7 @@ failures. V8 coverage records 97.61% lines/statements, 97.07% functions, and 90.
 passing the executable 90% repository thresholds. The complete matrix also
 passes 18 tooling tests, 9 generated/CEM script tests, the theme/reference script tests, and 37
 performance correctness files/47 tests with 31 long-running profile files intentionally skipped there
-and run by `pnpm benchmark:selective`; the benchmark report passes all 59/59 executable gates.
+and run by `pnpm benchmark:selective`; the benchmark report passes all 60/60 executable gates.
 These observations supplement, rather than replace, the
 executable coverage thresholds.
 
@@ -95,13 +95,42 @@ supersession, export-failure recovery, and browser-asset isolation as real brows
 mocked policy assertions. Its port is environment-overridable so parallel CI jobs do not share a
 preview listener.
 
-The 2026-08-27 module-native checkpoint passes 577 Vitest files/1,522 tests, 22/22 tooling tests,
-37 performance files/47 active tests, and all 59 benchmark gates. Chromium passes 59/59 reference,
-12/12 hierarchical, and 8/8 Studio journeys. A bounded one-worker WebKit run passes 56 reference
-cases with three intentional scale skips, plus 12/12 hierarchical and 8/8 Studio journeys. The
+The 2026-08-27 state-authority and application-isolation checkpoint passes 579 Vitest files/1,531
+tests, 22/22 tooling tests, 38 performance files/48 active tests, and all 60 benchmark gates.
+Chromium passes 60/60 reference, 12/12 hierarchical, and 9/9 Studio journeys. A bounded one-worker
+WebKit run passes 56 reference cases with three intentional scale skips, plus the new focused
+state-authority journey, 12/12 hierarchical, and 9/9 Studio journeys. The
 three-engine commands remain intentionally red on this managed runner because Firefox fails before
 page construction with the `_page` defect; that process failure is reported separately from the
 passing application assertions.
+
+## State-authority proof
+
+Runtime unit tests require empty, effect-only, and normalized no-op batches to preserve the current
+revision and omit `TransactionCommitted`. The portable replay requires all commands declared by one
+XState transition to execute as one causal batch. Dependency-cruiser permits production imports of
+the normalized reactivity package only from runtime.
+
+The Chromium and WebKit state-authority journey subscribes to the application, composition, form, and
+component views of one field edit. It requires the exact same causal event objects, equal committed
+values, one notification at each scope, one value-writing transaction, one causally linked XState
+transaction, updates to the field and workflow-controlled button, and zero renders of an unrelated
+control. This is proof for control ingress and actor response; document reconciliation,
+external-store projection, AI commit, and host-adapter ingress remain explicit AC25 work.
+
+## Application-isolation proof
+
+The facade observer suite mounts two genuine applications that deliberately reuse node ID `name`.
+It proves separate stores, runtime streams, owning actors, effect ports, event-ID factories,
+telemetry sources/correlation, and lifecycle disposal. Cross-application observation requires
+explicit application/tenant identities and per-event authorization; denial and policy errors fail
+closed, and an internal event remains metadata-only with no snapshot. The observation value exposes
+only `applicationId`, `tenantId`, and the already-redacted event.
+
+The Studio journey mounts live and preview documents with the same node identity, cancels only the
+preview, and requires the live host identity and sentinel state to survive. The normalized profile
+then processes exactly 1,000 attributed events across 10 runtimes and 5 tenants in 71.32 ms p95
+against a 250 ms gate.
 
 ## Test placement
 

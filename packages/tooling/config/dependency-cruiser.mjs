@@ -38,6 +38,16 @@ const forbidden = [
     severity: "error",
     from: { path: "^packages/(events|reactivity|runtime|xstate)/" },
     to: { path: "^packages/(renderer-dom|elements|angular|studio)/" }
+  },
+  {
+    name: "runtime-owns-normalized-reactivity",
+    severity: "error",
+    comment: "Only the runtime may own the production normalized node store and event fabric.",
+    from: {
+      path: "^(packages/(?!(?:runtime|reactivity)/)|apps/|examples/)",
+      pathNot: "[.](?:spec|test|test-data)[.](?:js|mjs|cjs|jsx|ts|mts|cts|tsx)$"
+    },
+    to: { path: "^packages/reactivity/" }
   }
 ];
 

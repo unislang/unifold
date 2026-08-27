@@ -44,6 +44,10 @@ const dateFieldPath = resolve(resultDirectory, "date-field-performance.raw.json"
 const toastPath = resolve(resultDirectory, "toast-performance.raw.json");
 const paginationPath = resolve(resultDirectory, "pagination-performance.raw.json");
 const uiModulePath = resolve(resultDirectory, "ui-module-performance.raw.json");
+const applicationObservationPath = resolve(
+  resultDirectory,
+  "application-observation-performance.raw.json"
+);
 const finalPath = resolve(resultDirectory, "selective-rendering.json");
 const profileRuns = [
   ["performance-profile.test.ts", "UNIFOLD_PERFORMANCE_PROFILE_OUTPUT", profilePath],
@@ -86,7 +90,12 @@ const profileRuns = [
   ["date-field-profile.test.ts", "UNIFOLD_DATE_FIELD_OUTPUT", dateFieldPath],
   ["toast-profile.test.ts", "UNIFOLD_TOAST_OUTPUT", toastPath],
   ["pagination-profile.test.ts", "UNIFOLD_PAGINATION_OUTPUT", paginationPath],
-  ["ui-module-resolution-profile.test.ts", "UNIFOLD_UI_MODULE_OUTPUT", uiModulePath]
+  ["ui-module-resolution-profile.test.ts", "UNIFOLD_UI_MODULE_OUTPUT", uiModulePath],
+  [
+    "application-observation-profile.test.ts",
+    "UNIFOLD_APPLICATION_OBSERVATION_OUTPUT",
+    applicationObservationPath
+  ]
 ];
 
 await mkdir(resultDirectory, { recursive: true });
@@ -126,6 +135,9 @@ const dateFieldPerformance = JSON.parse(await readFile(dateFieldPath, "utf8"));
 const toastPerformance = JSON.parse(await readFile(toastPath, "utf8"));
 const paginationPerformance = JSON.parse(await readFile(paginationPath, "utf8"));
 const uiModulePerformance = JSON.parse(await readFile(uiModulePath, "utf8"));
+const applicationObservationPerformance = JSON.parse(
+  await readFile(applicationObservationPath, "utf8")
+);
 const profile = {
   ...measuredProfile,
   gates: [
@@ -157,7 +169,8 @@ const profile = {
     dateFieldPerformance.gate,
     toastPerformance.gate,
     paginationPerformance.gate,
-    uiModulePerformance.gate
+    uiModulePerformance.gate,
+    applicationObservationPerformance.gate
   ],
   asyncStorePerformance,
   comboboxFilter,
@@ -179,6 +192,7 @@ const profile = {
   toastPerformance,
   paginationPerformance,
   uiModulePerformance,
+  applicationObservationPerformance,
   dataActorPerformance,
   lifecycleMemory,
   dataGridPerformance,
@@ -193,7 +207,7 @@ const report = {
   environment: environmentMetadata(),
   generatedAt: new Date().toISOString(),
   profile,
-  schemaVersion: "2.34.0"
+  schemaVersion: "2.35.0"
 };
 await writeFile(finalPath, `${JSON.stringify(report, null, 2)}\n`);
 process.stdout.write(`Benchmark report: ${finalPath}\n`);

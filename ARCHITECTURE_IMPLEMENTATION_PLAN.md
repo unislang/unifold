@@ -1406,7 +1406,7 @@ cached-data/invalidation, 1,000/100 ms collaboration-commit/rebase, 1,000/100 ms
 devtools-timeline/node-picker, and 2,000/500 ms control-plane Fetch-read/realtime-resume limits and
 strict 2% lifecycle-growth limit are executable benchmark gates. DateField, persistent Toast, and
 explicit Pagination workloads each add an exact 100-control/50-sample projection gate with a 100 ms
-p95 ceiling. The unified schema-2.34.0 report currently emits 59/59 passing gates with
+p95 ceiling. The unified schema-2.35.0 report currently emits 60/60 passing gates with
 actual/limit/pass evidence. Developer-workstation timing remains descriptive; release ratification
 still requires the pinned mid-tier runner, and the table above is unchanged.
 

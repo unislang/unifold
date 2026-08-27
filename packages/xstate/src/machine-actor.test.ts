@@ -8,12 +8,7 @@ import { createMachineGuardRegistry } from "./guard-registry.js";
 import { createUiMachineActor } from "./machine-actor.js";
 
 it("routes a canonical event through XState and emits a registered typed command", () => {
-  const registry = createMachineCommandRegistry();
-  registry.register("show-saved", () => ({
-    id: "save",
-    properties: { label: "Saved" },
-    type: UiCommandType.NodePatchProperties
-  }));
+  const registry = registeredCommands();
   const sink = vi.fn();
   const actor = createUiMachineActor(
     machineDefinition(),
@@ -27,7 +22,13 @@ it("routes a canonical event through XState and emits a registered typed command
   actor.send({ type: event.type, uiEvent: event });
 
   expect(actor.state).toBe("saved");
-  expect(sink).toHaveBeenCalledWith(expect.objectContaining({ id: "save" }), event);
+  expect(sink).toHaveBeenCalledWith(
+    [
+      expect.objectContaining({ id: "save" }),
+      expect.objectContaining({ capability: "audit.save" })
+    ],
+    event
+  );
   actor.stop();
 });
 
@@ -86,7 +87,10 @@ function machineDefinition() {
     states: {
       editing: {
         on: {
-          [UiEventType.FormSubmitted]: { commands: ["show-saved"], target: "saved" }
+          [UiEventType.FormSubmitted]: {
+            commands: ["show-saved", "audit-save"],
+            target: "saved"
+          }
         }
       },
       saved: {}
@@ -120,6 +124,11 @@ function registeredCommands() {
     id: "save",
     properties: { label: "Saved" },
     type: UiCommandType.NodePatchProperties
+  }));
+  registry.register("audit-save", () => ({
+    capability: "audit.save",
+    input: {},
+    type: UiCommandType.EffectInvoke
   }));
   return registry;
 }

@@ -10,12 +10,7 @@ import type {
   UiCompositionInstanceManifest,
   UiDerivedRuleDefinition
 } from "@unislang/unifold-contracts";
-import {
-  createAsyncValidatorRegistry,
-  createValidatorRegistry,
-  withValidatedControl,
-  type UiValidatorRegistryPort
-} from "@unislang/unifold-forms";
+import { withValidatedControl, type UiValidatorRegistryPort } from "@unislang/unifold-forms";
 import {
   createEventFabric,
   type UiEventFabricController,
@@ -41,12 +36,14 @@ import {
   initialCompositions,
   initialNodes,
   initialStoreBindings,
+  asyncValidatorRegistry,
   resolveIdFactory,
   resolveNow,
   runtimeInspection,
   runtimeSource,
   transactionMetadata,
   unchangedRecord,
+  validatorRegistry,
   valueOrCreate,
   valueOrDefault
 } from "./runtime-helpers.js";
@@ -253,7 +250,7 @@ export class UnifoldRuntime {
     executedCommands.forEach((command) =>
       this.publisher.command(command, context, record, snapshots)
     );
-    this.publisher.transaction(context, record, snapshots);
+    this.publisher.transaction(context, record, snapshots, commands);
     commands.forEach((command) => this.publisher.formResult(command, context, record));
     this.runEffects(
       executedCommands.filter((command) => !isStateCommand(command)),
@@ -268,9 +265,15 @@ export class UnifoldRuntime {
     commands: readonly UiCommand[],
     context: Required<UiRuntimeExecutionContext>
   ): RuntimeTransactionResult {
+    const stateCommands = commands.filter(isStateCommand);
+    if (stateCommands.length === 0) {
+      return {
+        derivedCommands: [],
+        record: unchangedRecord(context, this.store.revision, this.now())
+      };
+    }
     let derivedCommands: readonly UiCommand[] = [];
     const record = this.store.transact(transactionMetadata(context, this.now()), (draft) => {
-      const stateCommands = commands.filter(isStateCommand);
       const dependencies = this.ruleDependencies(stateCommands, draft);
       stateCommands.forEach((command) => applyStateCommand(draft, command, this.validators));
       if (this.rules !== undefined) {
@@ -336,12 +339,4 @@ export class UnifoldRuntime {
       throw new Error("The Unifold runtime is disposed.");
     }
   }
-}
-
-function validatorRegistry(options: UnifoldRuntimeOptions): UiValidatorRegistryPort {
-  return options.validatorRegistry ?? createValidatorRegistry();
-}
-
-function asyncValidatorRegistry(options: UnifoldRuntimeOptions) {
-  return options.asyncValidatorRegistry ?? createAsyncValidatorRegistry();
 }

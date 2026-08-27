@@ -31,6 +31,10 @@
       "entry": ["src/main.{ts,tsx}!"],
       "project": ["src/**/*.{ts,tsx}"]
     },
+    "apps/reference": {
+      "entry": ["src/main.ts!", "src/reference-state-authority.ts!"],
+      "project": ["src/**/*.ts"]
+    },
     "examples/*": {
       "entry": ["src/**/*.ts"],
       "project": ["src/**/*.{ts,tsx}"]

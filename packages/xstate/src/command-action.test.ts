@@ -1,7 +1,7 @@
 import { UiCommandType } from "@unislang/unifold-events";
 import { expect, it, vi } from "vitest";
 
-import { createCommandAction } from "./command-action.js";
+import { createCommandAction, createRegisteredCommandsAction } from "./command-action.js";
 import { createMachineCommandRegistry } from "./command-registry.js";
 import { exampleEvent } from "./effect-actor.test-data.js";
 import { createRegisteredCommandAction } from "./command-action.js";
@@ -25,4 +25,23 @@ it("resolves portable command IDs and retains the causing event", () => {
   action({ event: { type: cause.type, uiEvent: cause } }, { commandId: "reset" });
 
   expect(sink).toHaveBeenCalledWith({ type: UiCommandType.FormReset, id: "form" }, cause);
+});
+
+it("resolves one transition command batch against one causing event", () => {
+  const registry = createMachineCommandRegistry();
+  registry.register("reset", () => ({ type: UiCommandType.FormReset, id: "form" }));
+  registry.register("focus", () => ({ type: UiCommandType.FocusRequest, id: "field" }));
+  const sink = vi.fn();
+  const action = createRegisteredCommandsAction(registry, sink);
+  const cause = exampleEvent(UiEventType.FormSubmitted);
+
+  action({ event: { type: cause.type, uiEvent: cause } }, { commandIds: ["reset", "focus"] });
+
+  expect(sink).toHaveBeenCalledWith(
+    [
+      { type: UiCommandType.FormReset, id: "form" },
+      { type: UiCommandType.FocusRequest, id: "field" }
+    ],
+    cause
+  );
 });

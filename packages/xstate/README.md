@@ -14,8 +14,10 @@ runtime, scheduler, retry engine, or cancellation system.
 - `UiMachineGuardRegistry` maps portable guard IDs to bounded synchronous predicates over canonical
   events and read-only normalized snapshots. Predicate failures deny the transition.
 
-Register `createCommandAction` under
-`UiXStateImplementationName.EmitCommand` in an XState `setup(...)` definition.
+The application coordinator registers batched portable transition commands under
+`UiXStateImplementationName.EmitCommands`, so every transition reaches the runtime in one atomic
+transaction. Hosts can register `createCommandAction` directly when adapting a single trusted
+command sink outside the document-driven coordinator.
 Register guard predicates through `createMachineGuardRegistry()` and reference only their names in
 portable transitions. Effects remain named capabilities; portable JSON never embeds executable code.
 

@@ -118,7 +118,7 @@
   ],
   "expected": {
     "documentRevision": "revision-1",
-    "runtimeRevision": 2,
+    "runtimeRevision": 1,
     "runtimeStatus": "disposed",
     "machineVersions": { "profile-workflow": "1.0.0" },
     "machineStates": { "profile-workflow": "saved" },
@@ -165,51 +165,36 @@
       [
         "event-3",
         "2026-08-26T12:00:00.002Z",
-        "org.unifold.ui.transaction.committed.v1",
+        "org.unifold.ui.command.applied.v1",
         3,
+        1,
+        "transaction-1"
+      ],
+      [
+        "transaction-4",
+        "2026-08-26T12:00:00.003Z",
+        "org.unifold.ui.transaction.committed.v1",
+        4,
         1,
         "transaction-1"
       ],
       [
         "event-5",
         "2026-08-26T12:00:00.004Z",
-        "org.unifold.ui.command.applied.v1",
-        4,
-        2,
-        "transaction-4"
+        "org.unifold.ui.effect.requested.v1",
+        5,
+        1,
+        "transaction-1"
       ],
       [
         "event-6",
         "2026-08-26T12:00:00.005Z",
-        "org.unifold.ui.transaction.committed.v1",
-        5,
-        2,
-        "transaction-4"
-      ],
-      [
-        "event-7",
-        "2026-08-26T12:00:00.006Z",
-        "org.unifold.ui.effect.requested.v1",
-        6,
-        2,
-        "transaction-4"
-      ],
-      [
-        "event-8",
-        "2026-08-26T12:00:00.007Z",
         "org.unifold.ui.effect.completed.v1",
-        7,
-        2,
-        "transaction-4"
+        6,
+        1,
+        "transaction-1"
       ],
-      [
-        "dispose-event",
-        "2026-08-26T12:00:00.009Z",
-        "org.unifold.ui.runtime.disposed.v1",
-        8,
-        2,
-        "dispose-transaction"
-      ]
+      ["event-8", "2026-08-26T12:00:00.007Z", "org.unifold.ui.runtime.disposed.v1", 7, 1, "event-7"]
     ],
     "effectReceipts": [
       {
@@ -218,6 +203,6 @@
         "receipt": { "provider": "fixture", "receiptId": "save-1" }
       }
     ],
-    "consumed": { "clock": 10, "events": 1, "mockedEffects": 1, "randomness": 10 }
+    "consumed": { "clock": 8, "events": 1, "mockedEffects": 1, "randomness": 8 }
   }
 }

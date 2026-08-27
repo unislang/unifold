@@ -36,7 +36,7 @@ describe("UnifoldRuntime scope views", () => {
 });
 
 it("publishes one terminal event and rejects disposed operations", verifyRuntimeDisposal);
-it("supports empty defaults, explicit context, and custom sources", verifyRuntimeDefaults);
+it("keeps empty execution read-only and preserves custom sources", verifyRuntimeDefaults);
 it("exposes one immutable read-only inspection snapshot", verifyRuntimeInspection);
 it("cancels superseded async validation and rejects stale completion", verifyAsyncValidation);
 
@@ -225,13 +225,12 @@ function verifyRuntimeDefaults(): void {
   });
   const facts: UiEvent[] = [];
   runtime.events$.subscribe((event) => facts.push(event));
-  runtime.execute([], {
-    causationId: "cause",
-    correlationId: "correlation",
-    transactionId: "transaction"
-  });
-  expect(facts[0]).toMatchObject({ source: "urn:test:runtime", transactionid: "transaction" });
-  expect(runtime.select(createSelector((state) => state.revision)).get()).toBe(1);
+  const record = runtime.execute([]);
+  expect(record).toMatchObject({ changedNodeIds: [], previousRevision: 0, revision: 0 });
+  expect(facts).toEqual([]);
+  expect(runtime.select(createSelector((state) => state.revision)).get()).toBe(0);
+  runtime.dispose();
+  expect(facts[0]).toMatchObject({ source: "urn:test:runtime" });
 }
 
 function expectDisposedOperations(runtime: UnifoldRuntime): void {

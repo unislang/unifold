@@ -136,8 +136,8 @@ function replayActors(
 ): readonly RegisteredActor[] {
   const commands = replayCommands(fixture.mockedEffects[0]);
   return fixture.machines.map((definition) => {
-    const actor = createUiMachineActor(definition, commands, (command, cause) => {
-      runtime.execute([command], {
+    const actor = createUiMachineActor(definition, commands, (batch, cause) => {
+      runtime.execute(batch, {
         causationId: cause.id,
         correlationId: cause.correlationid
       });

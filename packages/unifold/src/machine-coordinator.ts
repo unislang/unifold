@@ -98,7 +98,7 @@ export class UiMachineCoordinator {
     return createUiMachineActor(
       definition,
       this.registry,
-      (command, cause) => executeCausedCommand(this.runtime, command, cause),
+      (commands, cause) => executeCausedCommands(this.runtime, commands, cause),
       this.guards,
       (id) => runtimeSnapshot(this.runtime, id)
     );
@@ -178,8 +178,12 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "Invalid machine configuration.";
 }
 
-function executeCausedCommand(runtime: UnifoldRuntime, command: UiCommand, cause: UiEvent): void {
-  runtime.execute([command], {
+function executeCausedCommands(
+  runtime: UnifoldRuntime,
+  commands: readonly UiCommand[],
+  cause: UiEvent
+): void {
+  runtime.execute(commands, {
     causationId: cause.id,
     correlationId: cause.correlationid
   });

@@ -2,7 +2,6 @@ import {
   UiCommandType,
   UiEventPhase,
   UiEventType,
-  UiTransactionStatus,
   UiValidationCancellationReason,
   type UiCommand,
   type UiEvent
@@ -30,7 +29,8 @@ it("reports completed and failed post-commit effects", () => {
   });
   expect(JSON.stringify(events)).not.toContain("offline");
   expect(JSON.stringify(events)).not.toContain("unavailable");
-  expect(runtime.getTransaction(1)?.status).toBe(UiTransactionStatus.Committed);
+  expect(runtime.revision).toBe(0);
+  expect(events.some(({ type }) => type === UiEventType.TransactionCommitted)).toBe(false);
 });
 
 it("exposes async validation lifecycle identity and failure details", () => {
@@ -69,7 +69,6 @@ function expectedEffectSequence(): UiEventType[] {
     UiEventType.CommandApplied,
     UiEventType.CommandApplied,
     UiEventType.CommandApplied,
-    UiEventType.TransactionCommitted,
     UiEventType.EffectRequested,
     UiEventType.EffectCompleted,
     UiEventType.EffectRequested,

@@ -76,6 +76,25 @@ it("uses the maximum descendant classification for form disclosure", () => {
   expect(JSON.stringify(events[0])).not.toContain("aggregate");
 });
 
+it("projects a transaction from its causal command target", () => {
+  const form = controlNode("form", "aggregate");
+  const field = controlNode("field", "Ada", "form");
+  const events: UiEvent[] = [];
+  const publisher = publisherFor([form, field], events);
+  publisher.transaction(
+    executionContext(),
+    transaction(["form", "field"]),
+    [form, field],
+    [{ id: "field", type: UiCommandType.ControlSetValue, value: "Ada" }]
+  );
+  expect(events[0]).toMatchObject({
+    data: {
+      change: { changedNodeIds: ["form", "field"] },
+      sourceNode: { id: "field", scopePath: ["form", "field"] }
+    }
+  });
+});
+
 function transaction(changedNodeIds: readonly string[] = ["field"]) {
   return {
     changedNodeIds,
