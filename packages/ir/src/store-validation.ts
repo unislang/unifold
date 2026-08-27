@@ -11,8 +11,8 @@ import {
   type UiStoreDefinition
 } from "@unislang/unifold-contracts";
 import type { SchemaNode } from "json-schema-library";
-import { gte, valid } from "semver";
-
+import gte from "semver/functions/gte.js";
+import valid from "semver/functions/valid.js";
 import { errorDiagnostic } from "./diagnostics.js";
 import { DiagnosticCode } from "./enums.js";
 import { isPlainObject } from "./json-safety.js";

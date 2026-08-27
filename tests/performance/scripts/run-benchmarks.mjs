@@ -48,6 +48,7 @@ const applicationObservationPath = resolve(
   resultDirectory,
   "application-observation-performance.raw.json"
 );
+const mountedCollectionPath = resolve(resultDirectory, "mounted-authored-collection.raw.json");
 const finalPath = resolve(resultDirectory, "selective-rendering.json");
 const profileRuns = [
   ["performance-profile.test.ts", "UNIFOLD_PERFORMANCE_PROFILE_OUTPUT", profilePath],
@@ -95,6 +96,11 @@ const profileRuns = [
     "application-observation-profile.test.ts",
     "UNIFOLD_APPLICATION_OBSERVATION_OUTPUT",
     applicationObservationPath
+  ],
+  [
+    "mounted-authored-collection-profile.test.ts",
+    "UNIFOLD_MOUNTED_COLLECTION_OUTPUT",
+    mountedCollectionPath
   ]
 ];
 
@@ -138,6 +144,7 @@ const uiModulePerformance = JSON.parse(await readFile(uiModulePath, "utf8"));
 const applicationObservationPerformance = JSON.parse(
   await readFile(applicationObservationPath, "utf8")
 );
+const mountedCollectionPerformance = JSON.parse(await readFile(mountedCollectionPath, "utf8"));
 const profile = {
   ...measuredProfile,
   gates: [
@@ -170,7 +177,8 @@ const profile = {
     toastPerformance.gate,
     paginationPerformance.gate,
     uiModulePerformance.gate,
-    applicationObservationPerformance.gate
+    applicationObservationPerformance.gate,
+    mountedCollectionPerformance.gate
   ],
   asyncStorePerformance,
   comboboxFilter,
@@ -193,6 +201,7 @@ const profile = {
   paginationPerformance,
   uiModulePerformance,
   applicationObservationPerformance,
+  mountedCollectionPerformance,
   dataActorPerformance,
   lifecycleMemory,
   dataGridPerformance,
@@ -207,7 +216,7 @@ const report = {
   environment: environmentMetadata(),
   generatedAt: new Date().toISOString(),
   profile,
-  schemaVersion: "2.36.0"
+  schemaVersion: "2.37.0"
 };
 await writeFile(finalPath, `${JSON.stringify(report, null, 2)}\n`);
 process.stdout.write(`Benchmark report: ${finalPath}\n`);

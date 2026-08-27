@@ -127,20 +127,32 @@ it("resolves an exact imported module layout and composes its host registry", as
   });
   expect(result.status).toBe(UiModuleResolutionStatus.Resolved);
   if (result.status !== UiModuleResolutionStatus.Resolved) return;
-  expect(result.artifact.document["view"]).toMatchObject({
+  expectImportedLayoutArtifact(result.artifact);
+});
+
+function expectImportedLayoutArtifact(artifact: UiResolvedModuleArtifact): void {
+  expect(artifact.document["view"]).toMatchObject({
     $comp: "Text",
     content: "Scratch-style module application",
     id: "message"
   });
-  expect(result.artifact.resources["shared/layout/profile-page"]).toMatchObject({
+  expect(artifact.authoredDocument).toMatchObject({
+    layoutType: "shared/layout/profile-page",
+    variables: { message: "Scratch-style module application" }
+  });
+  expect(artifact.layoutDefinitions).toMatchObject([
+    { layoutType: "host-page" },
+    { layoutType: "shared/layout/profile-page" }
+  ]);
+  expect(artifact.resources["shared/layout/profile-page"]).toMatchObject({
     value: { layoutType: "shared/layout/profile-page", version: "1.0.0" }
   });
-  expect(result.artifact.sourceMap["/view"]).toMatchObject({
+  expect(artifact.sourceMap["/view"]).toMatchObject({
     moduleId: "org.example.layouts",
     pointer: "/exports/resources/0/value/template",
     sourceId: "layouts.module.json"
   });
-});
+}
 
 it("maps variable-supplied layout nodes to the exact root document value", async () => {
   const layouts = variableNodeLayoutModule();

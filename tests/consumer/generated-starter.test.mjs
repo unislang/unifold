@@ -74,7 +74,7 @@ async function compileStarterModule(host) {
   );
   await consumeModuleArtifact(app);
   await assertModuleArtifacts(app);
-  await writeFile(join(app, "verify-module.mjs"), moduleVerifierSource());
+  await writeFile(join(app, "verify-module.mjs"), MODULE_VERIFIER_SOURCE);
 }
 
 async function writeModuleProject(app, definition) {
@@ -105,7 +105,7 @@ async function consumeModuleArtifact(app) {
   const source = await readFile(path, "utf8");
   const original = 'import definition from "./ui.json" with { type: "json" };';
   const replacement =
-    'import artifact from "./ui.module.json" with { type: "json" };\n\nconst definition = artifact.document;';
+    'import artifact from "./ui.module.json" with { type: "json" };\n\nconst definition = artifact.resolvedArtifact.document;';
   const updated = source.replace(original, replacement);
   assert.notEqual(updated, source, "The generated starter import did not match the template.");
   assert.doesNotMatch(
@@ -119,19 +119,18 @@ async function consumeModuleArtifact(app) {
 async function assertModuleArtifacts(app) {
   const artifact = JSON.parse(await readFile(join(app, "src", "ui.module.json"), "utf8"));
   const lock = JSON.parse(await readFile(join(app, "src", "ui.module.lock.json"), "utf8"));
-  assert.equal(artifact.document.id, "unifold-starter");
-  assert.equal(artifact.document.view.$comp, "Stack");
-  assert.match(artifact.integrity, /^sha256-[A-Za-z0-9_-]{43}$/u);
-  assert.equal(lock.artifactIntegrity, artifact.integrity);
+  assert.equal(artifact.resolvedArtifact.document.id, "unifold-starter");
+  assert.equal(artifact.resolvedArtifact.document.view.$comp, "Stack");
+  assert.match(artifact.resolvedArtifact.integrity, /^sha256-[A-Za-z0-9_-]{43}$/u);
+  assert.equal(lock.artifactIntegrity, artifact.resolvedArtifact.integrity);
   assert.equal(lock.modules.length, 1);
 }
 
-function moduleVerifierSource() {
-  return `import assert from "node:assert/strict";
+const MODULE_VERIFIER_SOURCE = `import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { createPortableJsonExport, createStaticHtmlExport, UnifoldExportStatus } from "@unislang/unifold-export";
 import { prepareUnifoldDocument, UnifoldPreparationStatus } from "@unislang/unifold";
-import { uiModuleIntegrity, validateUiModuleLock } from "@unislang/unifold-modules";
+import { createUiModuleApplicationInput, uiModuleIntegrity, validateUiModuleLock } from "@unislang/unifold-modules";
 
 const artifactText = await readFile(new URL("./src/ui.module.json", import.meta.url), "utf8");
 const lockText = await readFile(new URL("./src/ui.module.lock.json", import.meta.url), "utf8");
@@ -139,22 +138,26 @@ assert.equal(artifactText, await readFile(new URL("./modules/repeat/ui.module.js
 assert.equal(lockText, await readFile(new URL("./modules/repeat/ui.module.lock.json", import.meta.url), "utf8"));
 const artifact = JSON.parse(artifactText);
 const lock = JSON.parse(lockText);
+const resolved = artifact.resolvedArtifact;
 assert.deepEqual(validateUiModuleLock(lock).diagnostics, []);
-assert.equal(artifact.integrity, lock.artifactIntegrity);
+assert.equal(resolved.integrity, lock.artifactIntegrity);
 assert.equal(artifact.irIntegrity, lock.irIntegrity);
-const preparation = prepareUnifoldDocument(artifact.document);
+const { integrity, ...content } = resolved;
+assert.equal(await uiModuleIntegrity(content), integrity);
+const preparation = prepareUnifoldDocument(resolved.document);
 assert.equal(preparation.status, UnifoldPreparationStatus.Valid);
 assert(preparation.prepared);
 assert.equal(await uiModuleIntegrity(preparation.prepared.document), lock.irIntegrity);
-const portable = await createPortableJsonExport(artifact.document);
-const staticHtml = await createStaticHtmlExport(artifact.document);
+const input = await createUiModuleApplicationInput(resolved, lock.artifactIntegrity);
+assert.equal(prepareUnifoldDocument(input.document, { layoutRegistry: input.layoutRegistry }).status, UnifoldPreparationStatus.Valid);
+const portable = await createPortableJsonExport(resolved.document);
+const staticHtml = await createStaticHtmlExport(resolved.document);
 assert.equal(portable.status, UnifoldExportStatus.Exported);
 assert.equal(staticHtml.status, UnifoldExportStatus.Exported);
-assert.deepEqual(JSON.parse(portable.output.content), artifact.document);
+assert.deepEqual(JSON.parse(portable.output.content), resolved.document);
 assert.match(staticHtml.output.content, /Profile starter/u);
 assert.match(staticHtml.output.content, /data-unifold-static-component="TextField"/u);
 `;
-}
 
 function starterModule(document) {
   return {

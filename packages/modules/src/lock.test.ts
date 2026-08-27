@@ -39,10 +39,12 @@ it("excludes the trusted in-memory layout registry from the portable lock entry"
 
 function artifact(graph: readonly UiResolvedModuleGraphEntry[]): UiResolvedModuleArtifact {
   return {
+    authoredDocument: {},
     composedDocument: {},
     document: {},
     graph,
     integrity: "sha256-artifact",
+    layoutDefinitions: [],
     resources: {},
     sourceMap: {}
   };

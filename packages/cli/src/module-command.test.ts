@@ -3,7 +3,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { UnifoldPreparationStatus, prepareUnifoldDocument } from "@unislang/unifold";
-import { uiModuleIntegrity, validateUiModuleLock } from "@unislang/unifold-modules";
+import {
+  createUiModuleApplicationInput,
+  uiModuleIntegrity,
+  validateUiModuleLock
+} from "@unislang/unifold-modules";
 import { afterEach, beforeEach, expect, it } from "vitest";
 
 import {
@@ -12,7 +16,7 @@ import {
   UnifoldCliModuleAction,
   UnifoldCliStatus
 } from "./enums.js";
-import { UI_MODULE_BUILD_SCHEMA } from "./module-build-schema.js";
+import { UI_MODULE_BUILD_SCHEMA, validateUiModuleBuildArtifact } from "./module-build-schema.js";
 import { runUiModuleCommand } from "./module-command.js";
 import { writeModuleProject } from "./module-project.test-data.js";
 
@@ -54,10 +58,19 @@ it("writes a deterministic runtime artifact and validated lock with IR parity", 
   const lock = await readJson(join(root, "dist", "ui.module.lock.json"));
   expect(artifact["$schema"]).toBe(UI_MODULE_BUILD_SCHEMA);
   expect(validateUiModuleLock(lock).diagnostics).toEqual([]);
-  const preparation = prepareUnifoldDocument(artifact["document"]);
+  const validated = validateUiModuleBuildArtifact(artifact).artifact;
+  if (validated === undefined) throw new Error("Expected validated build artifact.");
+  const preparation = prepareUnifoldDocument(validated.resolvedArtifact.document);
   expect(preparation.status).toBe(UnifoldPreparationStatus.Valid);
   expect(await uiModuleIntegrity(requirePrepared(preparation).document)).toBe(lock["irIntegrity"]);
-  expect(artifact["integrity"]).toBe(lock["artifactIntegrity"]);
+  expect(validated.resolvedArtifact.integrity).toBe(lock["artifactIntegrity"]);
+  const input = await createUiModuleApplicationInput(
+    validated.resolvedArtifact,
+    lock["artifactIntegrity"] as string
+  );
+  expect(
+    prepareUnifoldDocument(input.document, { layoutRegistry: input.layoutRegistry }).status
+  ).toBe(UnifoldPreparationStatus.Valid);
 });
 
 it("checks a current committed lock without writing", async () => {

@@ -81,6 +81,17 @@ async function flattenAndExpand(
   const root = nodes.at(-1) as UiModuleGraphNode;
   const authored = rewrittenRootDocument(root, rootDocument, flattened);
   const layouts = resolveLayoutRegistry(nodes, layoutRegistry);
+  return expandFlattenedDocument(nodes, root, authored, documentIndex, flattened, layouts);
+}
+
+async function expandFlattenedDocument(
+  nodes: readonly UiModuleGraphNode[],
+  root: UiModuleGraphNode,
+  authored: JsonObject,
+  documentIndex: number,
+  flattened: FlattenedModules,
+  layouts: ReturnType<typeof resolveLayoutRegistry>
+): Promise<UiModuleResolutionResult> {
   flattened.diagnostics.push(...layouts.diagnostics);
   const layout = expandedLayout(authored, root.registered.sourceId, layouts.registry);
   flattened.diagnostics.push(...layout.diagnostics);
@@ -97,7 +108,11 @@ async function flattenAndExpand(
     ...(layout.document as JsonObject),
     compositions: flattened.compositions
   };
-  return expandArtifact(composedDocument, nodes, flattened);
+  return expandArtifact(authored, composedDocument, snapshotLayouts(layouts), nodes, flattened);
+}
+
+function snapshotLayouts(layouts: ReturnType<typeof resolveLayoutRegistry>): readonly JsonObject[] {
+  return layouts.registry === undefined ? [] : layouts.registry.snapshot();
 }
 
 function rewrittenRootDocument(
@@ -231,7 +246,9 @@ function appendResource(
 }
 
 async function expandArtifact(
+  authoredDocument: JsonObject,
   composedDocument: JsonObject,
+  layoutDefinitions: readonly JsonObject[],
   nodes: readonly UiModuleGraphNode[],
   flattened: FlattenedModules
 ): Promise<UiModuleResolutionResult> {
@@ -239,7 +256,14 @@ async function expandArtifact(
   if (expansion.status !== CompositionExpansionStatus.Valid || expansion.document === undefined) {
     return rejected(...compositionDiagnostics(expansion.diagnostics));
   }
-  return resolvedArtifact(composedDocument, expansion.document, nodes, flattened);
+  return resolvedArtifact(
+    authoredDocument,
+    composedDocument,
+    expansion.document,
+    layoutDefinitions,
+    nodes,
+    flattened
+  );
 }
 
 function compositionDiagnostics(
@@ -253,15 +277,19 @@ function compositionDiagnostics(
 }
 
 async function resolvedArtifact(
+  authoredDocument: JsonObject,
   composedDocument: JsonObject,
   document: JsonObject,
+  layoutDefinitions: readonly JsonObject[],
   nodes: readonly UiModuleGraphNode[],
   flattened: FlattenedModules
 ): Promise<UiModuleResolutionResult> {
   const content = {
+    authoredDocument,
     composedDocument,
     document,
     graph: nodes.map(graphEntry),
+    layoutDefinitions,
     resources: flattened.resources,
     sourceMap: flattened.sourceMap
   };

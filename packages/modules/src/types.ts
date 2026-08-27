@@ -128,12 +128,19 @@ export interface UiResolvedModuleResource extends JsonObject {
 }
 
 export interface UiResolvedModuleArtifact {
+  readonly authoredDocument: JsonObject;
   readonly composedDocument: JsonObject;
   readonly document: JsonObject;
   readonly graph: readonly UiResolvedModuleGraphEntry[];
   readonly integrity: string;
+  readonly layoutDefinitions: readonly JsonObject[];
   readonly resources: Readonly<Record<string, UiResolvedModuleResource>>;
   readonly sourceMap: Readonly<Record<string, UiModuleSourceLocation>>;
+}
+
+export interface UiModuleApplicationInput {
+  readonly document: JsonObject;
+  readonly layoutRegistry: TrustedLayoutDefinitionRegistry;
 }
 
 export interface UiModuleLockEntry extends JsonObject {

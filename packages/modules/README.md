@@ -42,15 +42,17 @@ kind: `profile-page` imported as `shared` is selected by the exact
 one bounded immutable snapshot; missing, malformed, ambiguous, or mismatched definitions fail
 closed without lookup or network I/O.
 
-A resolved artifact contains the expanded `UiDocument`, its deterministic integrity, the composed
-pre-expansion build artifact, the resolved module graph, namespaced opaque resources, and source-map
-entries back to reviewed module source IDs/pointers. Re-resolving the same registry is deterministic
-and performs no I/O.
+A resolved artifact contains the original rewritten Scratch-style authored document, the composed
+and expanded `UiDocument` forms, the exact trusted layout-definition snapshot, its deterministic
+integrity, the resolved module graph, namespaced opaque resources, and source-map entries back to
+reviewed module source IDs/pointers. Re-resolving the same registry is deterministic and performs no
+I/O.
 
-Artifact integrity is one canonical SHA-256 over the complete reproducibility payload: composed and
-expanded documents, the exact graph, resolved resources, and source map. Any change to module layout
-provenance or another artifact member therefore invalidates the lock. Locks created by an older
-resolver must be regenerated after adopting this contract.
+Artifact integrity is one canonical SHA-256 over the complete reproducibility payload: authored,
+composed, and expanded documents; trusted layout definitions; the exact graph; resolved resources;
+and source map. Any change to module authoring, layout authority, provenance, or another artifact
+member therefore invalidates the lock. Locks created by an older resolver must be regenerated after
+adopting this contract.
 
 Lowered layout nodes retain node-level provenance. Template-authored nodes point to the exact local
 layout definition or imported `layout` resource value; nodes supplied through a root document
@@ -64,11 +66,18 @@ source retains the higher-level layout vocabulary. `createUiModuleLock()` record
 sorted dependency graph, expanded-document integrity, and separately computed IR integrity; locks
 can be admitted with `validateUiModuleLock()` and its published Draft 2020-12 schema.
 
+The SHA-256 lock detects artifact drift; it is not a digital signature or signer-authorization
+claim. The lock must arrive through trusted reviewed configuration. When authored JSON originates
+outside that boundary, verify its existing Ed25519 document envelope with `loadUnifoldDocument()`
+before wrapping the verified document with `createUiDocumentModule()`.
+
 Normalized `collectionBehaviors@1.0.0` survives composed and expanded module artifacts and compiles
-to IR `1.1.0`. It is a safe execution projection only. The artifact does not retain the original
-layout variables or compiler-private source pointers required to authorize
-`applyCollectionOperation()`, so module-authored structural mutation remains unsupported and must
-not be inferred from the behavior map.
+to IR `1.1.0`. Call `createUiModuleApplicationInput(artifact, lock.artifactIntegrity)` to verify both
+the trusted lock pin and the complete artifact payload, defensively clone the retained authored
+document, and restore its trusted layout registry for ordinary preparation and mounting. The
+compiler then derives private collection pointers again; raw pointers are never serialized or
+accepted as authored authority. Non-empty repeats retain canonical escaped durable-key IDs across
+module resolution and mounted insert/remove operations.
 
 The first contract exports complete documents, composition definitions, and bounded typed opaque
 resources for layouts, machines, rules, schemas, tokens, messages, semantics, and scenarios. Layout

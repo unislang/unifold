@@ -4,7 +4,7 @@ import {
   type UiStoreDefinition
 } from "@unislang/unifold-contracts";
 import { compileSchema, draft2020, type JsonSchema } from "json-schema-library";
-import { satisfies } from "semver";
+import satisfies from "semver/functions/satisfies.js";
 
 import { StoreInputStatus } from "./enums.js";
 import { isJsonSafe } from "./json-safety.js";

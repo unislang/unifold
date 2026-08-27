@@ -1,6 +1,6 @@
 {
   "$schema": "https://schemas.unifold.org/ui-module-lock/1.0/schema.json",
-  "artifactIntegrity": "sha256-wdgtS-CWeMmZgPv_GWLfOXwpAnsutbc2mS8BVkZWtfc",
+  "artifactIntegrity": "sha256-7pm01ISH2MRY4y3Y9dA_3T0YO_C5Hy_CzJFxPtuibJo",
   "entry": {
     "exportName": "application",
     "moduleId": "org.unifold.studio.live",

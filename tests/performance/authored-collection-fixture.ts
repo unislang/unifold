@@ -25,6 +25,13 @@ export function createAuthoredCollectionHarness(): AuthoredCollectionHarness {
   };
 }
 
+export function createAuthoredCollectionDocument(
+  itemCount = AUTHORED_COLLECTION_ITEM_COUNT,
+  revision = "1"
+): JsonObject {
+  return collectionDocument(itemCount, revision);
+}
+
 export function compileAuthoredCollection(
   harness: AuthoredCollectionHarness
 ): UnifoldPreparationResult {

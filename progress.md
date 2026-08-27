@@ -17,15 +17,15 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-27
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest published implementation checkpoint:
-  `0c3930fab7f17272d773f289114ceb6dc7935987`
-  (`feat: coordinate atomic application updates`) on `https://github.com/unislang/unifold.git`.
-- Latest local checkpoint: `73f46c3` (`fix: harden atomic application commits`); this audit
-  follow-up is intentionally not yet published.
+- Latest published checkpoint: `949682204b556720689a5056eeb9cf7c7ab98143`
+  (`docs: record atomic update publication`) on `https://github.com/unislang/unifold.git`.
+- Latest local checkpoint: `fc0657c` (`docs: record atomic hardening checkpoint`), following
+  `73f46c3` (`fix: harden atomic application commits`). The module-authority tranche described below
+  is implemented and validated in the current worktree but not yet committed or published.
 - Publication verification: after the implementation push, live
   `git ls-remote origin refs/heads/main` resolved exactly to
-  `0c3930fab7f17272d773f289114ceb6dc7935987`. This progress-only follow-up records that evidence and
-  the remaining gates. The history also includes runtime isolation at
+  `949682204b556720689a5056eeb9cf7c7ab98143`. This record will be refreshed after the current push;
+  the history also includes runtime isolation at
   `5a9795e`, semantic owner isolation at `0b9d569`, and repository source-ownership gates at
   `a6b4b60`.
 - Current implementation: the Scratch-style public JSON contract supports explicit logical control
@@ -40,8 +40,12 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   member through the canonical post-commit focus effect. A named repeat may now declare a validated
   `emptyFocusTarget`; final-member removal transfers focus to that stable authored destination
   without making empty layout hosts focusable. Hierarchical repeated members namespace their root
-  and every descendant by durable key. The latest local checkpoint promotes that safe fallback policy
-  through closed `collectionBehaviors@1.0.0`, canonical IR `1.1.0`, resolved module artifacts, and
+  and every descendant by durable key. Resolved modules now retain the rewritten Scratch-style
+  authored document and trusted layout definitions under one integrity; the verified application
+  input boundary restores both without serializing private mutation pointers. Non-empty module
+  collections preserve escaped durable-key identity through mounted mutation. The latest local
+  checkpoint promotes that safe fallback policy through closed `collectionBehaviors@1.0.0`, canonical
+  IR `1.1.0`, resolved module artifacts, and
   application focus selection. Private source-pointer/key mutation authority remains only in the
   prepared document. The published checkpoint makes DOM focus settlement truthful: the renderer
   returns an enum result, verifies deepest composed focus after accepted pending definitions and
@@ -62,6 +66,39 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - 1.0 traceability register: [`docs/acceptance-audit.md`](./docs/acceptance-audit.md)
 - Concise 34-criterion evidence register:
   [`docs/acceptance-status.md`](./docs/acceptance-status.md)
+
+## 2026-08-27 module-authored collection authority tranche
+
+- Status: implemented and locally validated; commit/publication is the next action. The overall
+  architecture goal remains active.
+- `UiResolvedModuleArtifact` now retains the rewritten authored document and exact trusted layout
+  definitions. Its canonical integrity covers both alongside composed/expanded documents, graph,
+  resources, and source map. `createUiModuleApplicationInput()` requires the trusted lock pin,
+  recomputes the payload integrity, rejects stale or tampered artifacts, and returns defensive
+  authoring plus a trusted registry for ordinary preparation/mounting.
+- CLI build artifact schema `2.0.0` embeds the complete resolved artifact. Strict Draft 2020-12
+  validation requires every graph, document, registry, resource, and source-map member. Reference,
+  hierarchical, and Studio artifact locks were regenerated; prepared-IR hashes remain unchanged.
+- Reference integration mounts a non-empty Scratch repeat from verified module authoring, proves
+  initial key `a/b` becomes canonical `item::a%2Fb`, inserts `c::d` as `item::c%3A%3Ad`, and checks
+  exact authored revision/variables. Unit tests also prove defensive cloning and stale/tampered lock
+  rejection.
+- Selective benchmark schema `2.37.0` passes 64/64 gates. Its new mounted 500-item authored
+  collection profile runs 20 alternating insert/remove samples with exact revision, logical-child,
+  IR-node, and identity assertions; this run measured 67.92/75.45/83.04 ms p50/p95/p99 against the
+  unchanged 250 ms p95 gate.
+- Direct semver function imports remove unused barrel code from the Studio closure. All 40 production
+  builds pass, and the unchanged exact aggregate JavaScript gzip gate passes at 255,281 bytes
+  (249.30 KiB), 719 bytes below its 250 KiB ceiling. Provider-generation and credential markers
+  remain absent.
+- `pnpm quality` passes through lint, production/test TypeScript, dependency analysis, and unused
+  code after the final enum-coverage follow-up. Root unit/script/performance tests and the complete
+  selective benchmark pass. The reference initial closure is 165,725 gzip bytes against 190 KiB,
+  and every generated module-lock check passes. The clean packed-consumer suite passes 5/5 outside
+  the monorepo after the sandbox-blocked dependency fetch was rerun with network access. Next: update
+  this checkpoint with exact commits, then push and verify `origin/main`. Remaining AC19 work is
+  exact control provenance and aggregate-shape migration, rendered composition mount evidence,
+  wrapper-refactor identity/focus/rollback, and schema-derived handle typing.
 
 ## 2026-08-27 atomic application-update tranche
 

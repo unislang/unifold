@@ -40,13 +40,14 @@ JSON.
 
 ## Module and compatibility boundary
 
-Resolved modules preserve `collectionBehaviors` in both composed and expanded artifacts, so safe
-focus policy survives artifact integrity checks and recompiles into IR. A module's normalized
-artifact does not preserve its original layout variables or private source pointers, however, so it
-is not yet a self-contained mutation authority for `applyCollectionOperation()`. Module-hosted
-non-empty repeats also require identity rewriting to keep generated logical member IDs aligned with
-escaped visual IDs. Both are explicit follow-up requirements; the current module proof covers a
-valid initially empty collection and does not claim module-authored structural mutation.
+Resolved modules preserve `collectionBehaviors`, the rewritten Scratch-style authored document, and
+the exact trusted layout-definition snapshot under one artifact integrity. The
+`createUiModuleApplicationInput()` boundary requires the committed lock pin, recomputes that
+integrity, returns a defensive authored clone plus trusted registry, and lets ordinary preparation
+derive compiler-private mutation pointers again. Module-hosted non-empty repeats therefore preserve
+escaped durable-key identity through mounted insert/remove operations without serializing raw
+pointers or trusting normalized behavior as write authority. Focused integration evidence covers
+keys containing both `/` and `::`.
 
 IR `1.0.0` remains sufficient for existing render-only fixtures. The compiler now emits IR `1.1.0`
 because the additive `collectionBehaviorsById` field changes the derived execution artifact. Hosts

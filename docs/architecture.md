@@ -65,12 +65,14 @@ Imported composition definitions, `layout` resources, and nested `$compose` refe
 deterministic namespace paths before the ordinary layout and composition expanders run. Layout
 resources are declarative reviewed definitions, not executable callbacks; exact lowered-node source
 entries identify either their module resource template or the root-document variable that supplied
-them. The resulting artifact contains the composed source, expanded `UiDocument`, resolved
-dependency graph, namespaced typed resources, and source-map entries from flattened
-composition/view/resource pointers to exact module source IDs and pointers. Its canonical SHA-256
-covers all five structures together, so provenance-only drift also invalidates the artifact lock;
-prepared IR has a separate integrity value. Machine, rule, schema, token, message, semantics, and
-scenario resources remain inert JSON until their owning compiler explicitly admits them. See
+them. The resulting artifact contains the rewritten authored document, exact trusted layout
+snapshot, composed source, expanded `UiDocument`, resolved dependency graph, namespaced typed
+resources, and source-map entries from flattened composition/view/resource pointers to exact module
+source IDs and pointers. Its canonical SHA-256 covers the complete payload, so authoring,
+layout-authority, or provenance-only drift invalidates the artifact lock; prepared IR has a separate
+integrity value. The lock is a trusted integrity pin, not a digital signature or signer identity.
+Machine, rule, schema, token, message, semantics, and scenario resources remain inert JSON until
+their owning compiler explicitly admits them. See
 [`@unislang/unifold-modules`](../packages/modules/README.md).
 
 Repository applications declare reviewed relative source lists in module-project manifests. Their
@@ -182,14 +184,17 @@ than claiming cancellation.
 Layout lowering publishes this safe policy as closed `collectionBehaviors@1.0.0`; IR `1.1.0`
 canonicalizes it by collection ID, and application focus selection consumes that IR rather than the
 private prepared-document sidecar. Source pointers, key properties, and declaration pointers remain
-compiler-private mutation authority. Resolved module artifacts preserve the safe behavior projection,
-but do not yet preserve enough original layout state to authorize structural mutation.
+compiler-private mutation authority. Resolved module artifacts now retain the rewritten authored
+document and trusted layout definitions under their lock-covered integrity. The verified module
+application-input boundary restores those inputs, and ordinary preparation privately re-derives the
+mutation authority without exposing raw pointers.
 Invalid authored input rejects before commit. Valid structural candidates use an exact normalized
 savepoint and runtime publication outbox: renderer, Schema.org publication, and atomic XState actor
 replacement must all succeed before canonical facts, effects, store writes, or validation can
 escape. Chromium and WebKit failure/retry journeys prove prior state, DOM identity, focus, semantic
-graph, revision, and sequence continuity with no candidate or compensation facts. Representative large authored
-collection end-to-end mutation performance remains broader than the 500-item compile/revision gates. Composition control declarations currently
+graph, revision, and sequence continuity with no candidate or compensation facts. Selective
+benchmark schema `2.37.0` adds a mounted 500-item authored-collection mutation gate: 20 exact
+insert/remove samples measured 75.45 ms p95 against 250 ms. Composition control declarations currently
 reuse visual-node provenance by ID rather than publishing exact `/controls/nodes/N` source records,
 and migration compatibility does not yet compare logical aggregate shape. Live wrapper-refactor
 identity/focus/rollback also remains open.

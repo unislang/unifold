@@ -11,17 +11,14 @@ import type { ResolvedUiModuleProject } from "./module-project.js";
 import type { UnifoldCliDiagnostic } from "./types.js";
 import schema from "./ui-module-build.schema.json" with { type: "json" };
 
-export const UI_MODULE_BUILD_SCHEMA = UnifoldCliModuleBuildSchemaUri.Version1;
+export const UI_MODULE_BUILD_SCHEMA = UnifoldCliModuleBuildSchemaUri.Version2;
 
 export interface UiModuleBuildArtifact {
-  readonly $schema: UnifoldCliModuleBuildSchemaUri.Version1;
-  readonly document: UiResolvedModuleArtifact["composedDocument"];
+  readonly $schema: UnifoldCliModuleBuildSchemaUri.Version2;
   readonly entry: ResolvedUiModuleProject["entry"];
-  readonly integrity: string;
   readonly irIntegrity: string;
-  readonly resources: UiResolvedModuleArtifact["resources"];
-  readonly schemaVersion: UnifoldCliModuleBuildSchemaVersion.Version1;
-  readonly sourceMap: UiResolvedModuleArtifact["sourceMap"];
+  readonly resolvedArtifact: UiResolvedModuleArtifact;
+  readonly schemaVersion: UnifoldCliModuleBuildSchemaVersion.Version2;
 }
 
 export interface ValidateUiModuleBuildArtifactResult {

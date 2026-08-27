@@ -124,8 +124,11 @@ described by the complete 1.0 plan.
   layout and composition engines. Layout resources let reviewed modules supply Scratch-style
   definitions without a parallel TypeScript registry; lowered nodes retain exact pointers to the
   defining resource template or root-document variable. One canonical artifact integrity covers
-  the composed and expanded documents, resolved graph, resources, and source map; locks separately
-  pin prepared IR. The packaged CLI validates, flattens, and checks bounded local module projects.
+  the rewritten Scratch-style authored document, trusted layout definitions, composed and expanded
+  documents, resolved graph, resources, and source map; locks separately pin prepared IR. The
+  packaged CLI validates, flattens, and checks bounded local module projects. Its build artifact
+  `2.0.0` embeds the full resolved artifact, and `createUiModuleApplicationInput()` verifies the
+  trusted lock and payload before returning a defensive authored clone plus registry for mounting.
   The primary reference, hierarchical example, and both Studio surfaces resolve authored module
   graphs before mount, and their production/E2E builds reuse `unifold module check` to reject drift
   from committed locks. Studio keeps independent control-surface and live-application locks. CLI
@@ -177,7 +180,8 @@ described by the complete 1.0 plan.
   and surviving focus, causal structural metadata, and zero late events from a non-cooperative
   validator after its control is removed. Frozen mounted runtime/renderer capabilities deny raw
   structural mutation, while trusted host correlation/causation remains outside authored JSON.
-  Schema 2.36.0 gates 500-item initial/revision compilation. Focused-member removal now transfers to
+  Schema 2.37.0 gates 500-item initial/revision compilation plus exact mounted mutation and passes
+  64/64; 20 mounted insert/remove samples measured 75.45 ms p95 against 250 ms. Focused-member removal now transfers to
   the next or previous member through one post-commit canonical focus effect with Chromium/WebKit
   and nested composed-control evidence. An optional validated `emptyFocusTarget` now transfers final
   removal to a distinct stable focus-capable authored node and preserves structural-to-focus causal
@@ -198,10 +202,12 @@ described by the complete 1.0 plan.
   Exact application-update savepoints now keep tentative state, records, selections, canonical
   facts, XState routing, effects, store writes, and validation private until keyed DOM, Schema.org,
   and atomic machine replacement all succeed. Failure restores the prior revision and event sequence;
-  Chromium/WebKit failure/retry journeys verify no ghost or compensation facts. Module-authored
-  collection mutation and non-empty repeat identity rewriting, end-to-end authored-collection mutation
-  performance, exact composition-control provenance/migration shape, a rendered composition mount,
-  wrapper-refactor identity/focus/rollback, and schema-derived handle types remain incomplete.
+  Chromium/WebKit failure/retry journeys verify no ghost or compensation facts. Lock-verified
+  module application input now mounts the retained Scratch-style authoring and trusted registry;
+  integration tests prove non-empty repeat keys containing `/` and `::` retain escaped canonical
+  identity across structural mutation. Exact composition-control provenance/migration shape, a
+  rendered composition mount, wrapper-refactor identity/focus/rollback, and schema-derived handle
+  types remain incomplete.
 - A versioned data-only workflow-machine contract compiled to live XState v5 actors, scope-indexed
   canonical event routing, trusted typed-command factories, causal runtime transactions,
   bounded trusted named guards over canonical events and current normalized snapshots, fail-closed
@@ -259,7 +265,7 @@ described by the complete 1.0 plan.
   exact-base revalidation, atomic apply, and portable/static export. Superseded and cancelled results
   cannot replace the current candidate. The provider generator is separated from the evaluation-only
   browser subpath, and a build gate rejects generator/credential markers while holding the dedicated
-  Studio JavaScript to 250 KiB gzip (currently 240.60 KiB). The JSON-authored dogfood example uses
+  Studio JavaScript to 250 KiB gzip (currently 255,281 bytes / 249.30 KiB). The JSON-authored dogfood example uses
   a clearly labelled deterministic proposal producer with the real policy/compiler evaluator; its
   request/preview/apply/export, keyboard, axe, Schema.org static output, and browser-boundary journeys
   pass 24/24 in Chromium, Firefox, and WebKit. Negative journeys prove unsafe proposals cannot open

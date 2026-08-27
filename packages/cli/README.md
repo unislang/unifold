@@ -75,9 +75,12 @@ unifold module flatten modules.project.json \
 ```
 
 Flattening writes both files through private sibling staging paths and refuses traversal, symlink
-escape, identical targets, or overwrite. The artifact retains the canonical composed document for
-ordinary `mountUnifoldApplication()` use, its expanded-document integrity, IR integrity, namespaced
-resources, and source map. The validated lock records the exact entry and sorted module graph.
+escape, identical targets, or overwrite. Build artifact `2.0.0` contains one complete resolved
+artifact without duplicating its documents or metadata: lock-covered Scratch-style authoring,
+trusted layout definitions, composed and expanded documents, namespaced resources, graph, and
+source map. A host passes `resolvedArtifact` and the lock's `artifactIntegrity` to
+`createUiModuleApplicationInput()` before ordinary preparation or mounting. The validated lock also
+records the exact entry, prepared-IR integrity, and sorted module graph.
 
 Generate a deterministic vanilla TypeScript/Vite starter below the current directory:
 

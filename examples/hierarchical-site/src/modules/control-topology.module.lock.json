@@ -1,6 +1,6 @@
 {
   "$schema": "https://schemas.unifold.org/ui-module-lock/1.0/schema.json",
-  "artifactIntegrity": "sha256-HLSDL46jU18CMrB5DkANxqyAksCQEQ50XRZruknkFOc",
+  "artifactIntegrity": "sha256-N5dsGkUCOZBshUaTO5NzE6OxOo0iLMbCoxj9MBzpY4A",
   "entry": {
     "exportName": "application",
     "moduleId": "org.unifold.examples.control-topology",

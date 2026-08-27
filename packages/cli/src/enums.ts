@@ -19,11 +19,13 @@ export enum UnifoldCliModuleProjectSchemaVersion {
 }
 
 export enum UnifoldCliModuleBuildSchemaUri {
-  Version1 = "https://schemas.unifold.org/ui-module-build/1.0/schema.json"
+  Version1 = "https://schemas.unifold.org/ui-module-build/1.0/schema.json",
+  Version2 = "https://schemas.unifold.org/ui-module-build/2.0/schema.json"
 }
 
 export enum UnifoldCliModuleBuildSchemaVersion {
-  Version1 = "1.0.0"
+  Version1 = "1.0.0",
+  Version2 = "2.0.0"
 }
 
 export enum UnifoldCliGenerator {

@@ -120,11 +120,14 @@ identity and focus on a surviving control, requires causal operation metadata, r
 last-known-good state after an invalid insert, and proves a removed control's non-cooperative async
 validator emits no late event.
 
-The 2026-08-27 mounted-authority follow-up passes 603 root Vitest files/1,605 tests, 22 tooling
-tests, all generated/module-lock scripts, and 39 performance-correctness files/50 active tests.
-Selective benchmark schema 2.36.0 passes 63/63 gates; the new 500-item authored collection initial
-and revision compiles measure 5.33 ms and 5.34 ms p95 against 150 ms. All 40 builds pass, and the
-focused collection journey passes 2/2 across Chromium and WebKit.
+The 2026-08-27 module-authority follow-up preserves lock-covered Scratch-style authoring and trusted
+layout definitions through the portable build artifact. Unit and reference integration tests reject
+stale/tampered artifacts and mount a non-empty collection whose `/` and `::` keys retain escaped
+canonical identity across insertion. Selective benchmark schema 2.37.0 passes 64/64 gates; the new
+500-item mounted authored-collection gate measures 75.45 ms p95 against 250 ms while checking exact
+authored revision, logical-child count, IR-node count, and durable-key identity. The clean packed
+consumer passes 5/5 while loading the CLI v2 artifact and verifying its lock through the installed
+public module API outside the monorepo.
 
 ## State-authority proof
 
@@ -423,10 +426,10 @@ reconciliation transaction. Unit tests now inject runtime, renderer, semantic pu
 replacement failures around the coordinated savepoint. Chromium and WebKit journeys inject renderer
 and JSON-LD publication failures, then prove exact prior revision/state/value/host/focus/semantics,
 zero candidate or compensation facts, sequence-contiguous retry, commit-before-publication ordering,
-and axe results. Remaining work includes end-to-end collection mutation performance beyond the
-500-item compile/revision gates. Remaining AC19 work also includes exact composition-control provenance,
-aggregate-shape migration, a rendered composition mount, wrapper-refactor identity/focus/rollback,
-and schema-derived handle typing.
+and axe results. Module application tests additionally verify lock-pinned authoring restoration,
+tamper rejection, non-empty escaped repeat identity, and mounted structural mutation. Remaining
+AC19 work includes exact composition-control provenance, aggregate-shape migration, a rendered
+composition mount, wrapper-refactor identity/focus/rollback, and schema-derived handle typing.
 The three-browser suite also drives a Standard Schema-compatible form-level name-confirmation rule through
 invalid submission, affected-node metadata, correction, error removal, and valid resubmission.
 It then changes only the source field and proves the unchanged affected field gains and loses its

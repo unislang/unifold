@@ -187,13 +187,10 @@ function requireValidArtifact(artifact: UiModuleBuildArtifact): void {
 function buildArtifact(project: ResolvedUiModuleProject): UiModuleBuildArtifact {
   return {
     $schema: UI_MODULE_BUILD_SCHEMA,
-    document: project.artifact.composedDocument,
     entry: project.entry,
-    integrity: project.artifact.integrity,
     irIntegrity: project.irIntegrity,
-    resources: project.artifact.resources,
-    schemaVersion: UnifoldCliModuleBuildSchemaVersion.Version1,
-    sourceMap: project.artifact.sourceMap
+    resolvedArtifact: project.artifact,
+    schemaVersion: UnifoldCliModuleBuildSchemaVersion.Version2
   };
 }
 

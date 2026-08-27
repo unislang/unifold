@@ -15,7 +15,7 @@ it("keeps the exported build schema and enum-backed contract aligned", async () 
   const packageJson = await jsonFile("../package.json");
   const schemaText = JSON.stringify(schema);
   expect(schema["$id"]).toBe(UI_MODULE_BUILD_SCHEMA);
-  expect(schemaText).toContain(UnifoldCliModuleBuildSchemaVersion.Version1);
+  expect(schemaText).toContain(UnifoldCliModuleBuildSchemaVersion.Version2);
   Object.values(UiModuleResourceKind).forEach((kind) => expect(schemaText).toContain(kind));
   expect(packageJson["exports"]).toMatchObject({
     "./schemas/ui-module-build.schema.json": "./dist/ui-module-build.schema.json"
@@ -25,8 +25,9 @@ it("keeps the exported build schema and enum-backed contract aligned", async () 
 
 it.each([
   ["unknown property", { ...buildArtifact(), sourceUrl: "https://example.invalid" }],
-  ["invalid integrity", { ...buildArtifact(), integrity: "latest" }],
-  ["unsafe document key", { ...buildArtifact(), document: { constructor: "unsafe" } }],
+  ["invalid integrity", buildWithResolved({ integrity: "latest" })],
+  ["unsafe document key", buildWithResolved({ authoredDocument: { constructor: "unsafe" } })],
+  ["incomplete resolved artifact", { ...buildArtifact(), resolvedArtifact: {} }],
   ["unknown resource kind", buildWithResourceKind("other")]
 ])("rejects a build artifact with an %s", (_label, value) => {
   expect(validateUiModuleBuildArtifact(value)).toMatchObject({
@@ -39,25 +40,49 @@ it.each([
 function buildArtifact(): UiModuleBuildArtifact {
   return {
     $schema: UI_MODULE_BUILD_SCHEMA,
-    document: { id: "application" },
     entry: {
       exportName: "application",
       moduleId: "org.example.application",
       version: "1.0.0"
     },
-    integrity: integrity("a"),
     irIntegrity: integrity("b"),
+    resolvedArtifact: resolvedArtifact(),
+    schemaVersion: UnifoldCliModuleBuildSchemaVersion.Version2
+  };
+}
+
+function resolvedArtifact(): UiModuleBuildArtifact["resolvedArtifact"] {
+  return {
+    authoredDocument: {},
+    composedDocument: {},
+    document: {},
+    graph: [
+      {
+        integrity: integrity("c"),
+        moduleId: "org.example.application",
+        namespace: "",
+        sourceId: "application.module.json",
+        version: "1.0.0"
+      }
+    ],
+    integrity: integrity("a"),
+    layoutDefinitions: [],
     resources: {},
-    schemaVersion: UnifoldCliModuleBuildSchemaVersion.Version1,
     sourceMap: {}
   };
 }
 
+function buildWithResolved(
+  changed: Partial<UiModuleBuildArtifact["resolvedArtifact"]>
+): UiModuleBuildArtifact {
+  return { ...buildArtifact(), resolvedArtifact: { ...resolvedArtifact(), ...changed } };
+}
+
 function buildWithResourceKind(kind: string): unknown {
-  return {
-    ...buildArtifact(),
-    resources: { "message/welcome": { id: "message/welcome", kind, value: "Welcome" } }
-  };
+  const resources = { "message/welcome": { id: "message/welcome", kind, value: "Welcome" } };
+  return buildWithResolved({
+    resources: resources as UiModuleBuildArtifact["resolvedArtifact"]["resources"]
+  });
 }
 
 function integrity(character: string): string {

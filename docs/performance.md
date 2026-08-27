@@ -130,9 +130,9 @@ emits exactly 25 typed commands, and leaves every unrelated chain unchanged. Its
 p95 is below the provisional 4 ms target on the current workstation. The combined public-runtime
 fixture proves one commit spans the leaf edit, three synchronous validations (leaf, group, form),
 two ancestor aggregates, 20 transitive rule commands, and committed-revision selector delivery.
-Its current 1.25 ms p95 is below the provisional 8 ms target. All sixty-three timing and lifecycle limits
+Its current 1.25 ms p95 is below the provisional 8 ms target. All sixty-four timing and lifecycle limits
 are executable benchmark gates and are included with actual/limit/pass fields in the
-schema-2.36.0 machine-readable report; the current run passes all 63/63. The composition-topology
+schema-2.37.0 machine-readable report; the current run passes all 64/64. The composition-topology
 campaign adds a full 10,000-node aggregate-disabled cascade: it measured 539.04 ms p95 against a
 1,000 ms off-interaction-path limit while deterministic correctness requires every logical
 descendant to change exactly once and independently disabled descendants to remain disabled.
@@ -144,9 +144,10 @@ enforcing the provisional 5 ms p95 gate. The latest paired profile measured 2.07
 subscription gate passes on this workstation.
 
 The Scratch-style authored-collection profile compiles an explicit logical Array plus 500 generated
-member controls. Initial and one-item revision compilation measure 5.33 ms and 5.34 ms p95 against
-separate 150 ms ceilings. These gates cover bounded public-JSON lowering and topology generation;
-end-to-end mounted insert/move/remove latency remains a separate open measurement.
+member controls. Initial and one-item revision compilation remain separately gated at 150 ms. The
+new mounted application profile alternates revision-checked insert/remove operations for 20 samples,
+requires exact authored revision, logical-child, IR-node, and durable-key identity after every
+operation, and measures 67.92/75.45/83.04 ms p50/p95/p99 against a 250 ms p95 ceiling.
 
 Dialog foundation selection is recorded separately in
 `benchmark-results/dialog-foundation.json`. Its 20-sample native/Lion/Spectrum comparison selected
