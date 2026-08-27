@@ -92,7 +92,7 @@ described by the complete 1.0 plan.
   outcomes and verifies Unifold's exact redacted canonical event chain in Chromium, Firefox, and
   WebKit. Its
   measured isolated production-profile cost is 5.88 kB minified/1.76 kB
-  gzip. The current startup closure is 162,130 gzip bytes (158.33 KiB) against the executable 190
+  gzip. The current startup closure is 162,117 gzip bytes (158.32 KiB) against the executable 190
   KiB Phase 1 budget. Composition and semantic validation now share the already-required
   `json-schema-library` engine instead of statically shipping a second AJV engine. The module
   artifact, reference validator adapter, and reviewed runtime options
@@ -464,13 +464,13 @@ described by the complete 1.0 plan.
   identity, and pre-render adapter rejection. The default runtime stream applies
   classification-aware public-safe disclosure.
 - Client-side validation and application coordination contribute materially to the reference bundle.
-  The current startup closure is 162,130 gzip bytes (158.33 KiB) and remains below the executable
+  The current startup closure is 162,117 gzip bytes (158.32 KiB) and remains below the executable
   190 KiB gate. Consolidating composition and semantic Draft 2020-12 validation onto the existing
   `json-schema-library` removed 77 duplicate AJV/fast-uri modules from the static closure while
   preserving exact diagnostic mapping and explicit unsafe-key/prototype rejection. The resolved
   module artifact, reference-specific validator adapter, and reviewed
   runtime options load through explicit pre-mount resources; optional component families and
-  diagnostic event output load after mount, and combined deferred JavaScript is audited at 84,968
+  diagnostic event output load after mount, and combined deferred JavaScript is audited at 84,979
   gzip bytes. Preserve the `/validation` boundary and evaluate schema
   precompilation, build-time validation, or an explicit lazy authoring/compiler boundary before
   setting production bundle budgets.

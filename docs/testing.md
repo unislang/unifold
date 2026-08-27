@@ -36,13 +36,13 @@ pnpm test:consumer
 ```
 
 The reference build sums the gzip size of the entry's complete static import closure and fails above
-190 KiB. The current closure is 162,130 gzip bytes after composition and semantic validation were
+190 KiB. The current closure is 162,117 gzip bytes after composition and semantic validation were
 consolidated onto the already-required `json-schema-library`; the gate was not widened for
 composition-local topology or aggregate-disabled propagation. The authored JSON,
 reference-specific validator adapter, AJV-using module resolver, and reviewed runtime options are
 explicit pre-mount deferred resources; optional component families are requested only after the
 application mounts. All emitted JavaScript outside the static entry closure is audited and reported
-separately as deferred JavaScript (84,968 gzip bytes in the current production build).
+separately as deferred JavaScript (84,979 gzip bytes in the current production build).
 
 The Studio matrix builds the JSON-authored dogfood application before running its browser journeys.
 Its asset gate rejects browser bundles containing the server-only AI generator, provider-generation
@@ -107,12 +107,12 @@ three-engine commands remain intentionally red on this managed runner because Fi
 page construction with the `_page` defect; that process failure is reported separately from the
 passing application assertions.
 
-The 2026-08-27 composition-topology checkpoint passes 598 Vitest files/1,585 tests, 22 tooling
+The 2026-08-27 composition-topology checkpoint passes 598 Vitest files/1,588 tests, 22 tooling
 tests, all generated/module-lock scripts, and 38 performance-correctness files/49 active tests.
 The full schema-2.35.0 benchmark report passes 61/61 gates, including the exact 10,000-node
 aggregate-disabled cascade and 500-instance composed document compilation/revision workloads.
-`pnpm quality` validates 2,400 modules and 5,369 dependencies with zero violations, and all 40
-production builds pass. The reference initial closure is 162,130 gzip bytes against its unchanged
+`pnpm quality` validates 2,400 modules and 5,368 dependencies with zero violations, and all 40
+production builds pass. The reference initial closure is 162,117 gzip bytes against its unchanged
 190 KiB gate.
 
 The focused Chromium authored-collection journey passes 1/1. It compiles a named Scratch repeat,

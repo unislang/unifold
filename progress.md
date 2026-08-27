@@ -160,7 +160,7 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   capability modules and revealed a redundant 77-module AJV/fast-uri validation engine while IR
   already used `json-schema-library`. Composition and semantics now share that existing Draft
   2020-12 engine, preserve diagnostic paths/keywords, and explicitly reject unsafe keys and mutated
-  prototypes. The fresh production build is 162,130 initial gzip bytes plus 84,968 deferred, and
+  prototypes. The fresh production build is 162,117 initial gzip bytes plus 84,979 deferred, and
   total transfer is also lower; the gate was not widened or bypassed through artificial lazy loading.
 - Fresh Chromium evidence passes the primary reference 61/61, including the authored collection
   lifecycle and dynamically isolated synchronous/async store fixtures, and the hierarchical example
