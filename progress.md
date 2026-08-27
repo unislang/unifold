@@ -18,13 +18,12 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
 - Latest implementation checkpoint:
-  `de915dbadacf9d3f046e67cf9670458c159ae068`
-  (`feat: consume verified UI module artifacts`) on
+  `f2b5dc2766f2997974816ec33cb5b0fa99cce2f6`
+  (`feat: resolve hierarchical JSON through UI modules`) on
   `https://github.com/unislang/unifold.git`.
-- Publication verification: local `HEAD`, local `origin/main`, and live
-  `git ls-remote origin refs/heads/main` all resolved to
-  `de915dbadacf9d3f046e67cf9670458c159ae068` after the push. The other named local tranches remain
-  unstaged and preserved.
+- Publication verification: live `git ls-remote origin refs/heads/main` resolved to
+  `f2b5dc2766f2997974816ec33cb5b0fa99cce2f6` immediately after the implementation push. The other
+  named local tranches remain unstaged and preserved.
 - Current local implementation: the `NumberField`, `SearchField`, `CheckboxGroup`, `Switch`, and
   `DateField`, `Toast`, and `Pagination` families are committed as implementation checkpoints. The
   current scoped checkpoint adds the bounded adopter CLI/starter and Scratch-style module build
@@ -981,6 +980,22 @@ must remain explicit and cannot be silently waived. The current slice has comple
 behavioral evidence; rerun Firefox when the managed runner can create a page reliably.
 
 ## Session log
+
+- 2026-08-26: Began the next AC33 module-consumption slice. Added a reusable strict
+  `createUiDocumentModule()` envelope, carried the existing immutable trusted layout registry
+  through `resolveUiModule()`, and proved missing-registry rejection plus deterministic external
+  Scratch-layout resolution. The hierarchical application now retains `src/ui.json` as the
+  human-authored `layoutType`/typed-`variables`/nested-node source, resolves it as exact module
+  `org.unifold.examples.hierarchical-contact@1.0.0` before mount, and exposes artifact integrity in
+  E2E mode. Focused module/example typecheck, eight tests, scoped lint, the production example
+  build, 28-file/87-test modules/CLI/reference coverage, all 12 hierarchical Chromium journeys,
+  formatting, and the complete repository quality gate pass. The existing exact 17-module/500-node
+  profile now exercises the external registry seam and passes at 7.99 ms p95 against its 250 ms
+  limit across 30 samples. The browser run also corrected the hierarchical NumberField locator to
+  require the exact `Age` accessible name. The scoped implementation is committed as
+  `f2b5dc2766f2997974816ec33cb5b0fa99cce2f6`, pushed to
+  `https://github.com/unislang/unifold.git`, and independently resolved at live `refs/heads/main`.
+  Studio module adoption remains next.
 
 - 2026-08-26: Published the catalog-authoritative `Switch` as
   `7ce580b11ede8846c87eedd15b98634d3475313c` (`feat: add native JSON switch`) and independently
