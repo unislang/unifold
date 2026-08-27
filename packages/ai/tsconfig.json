@@ -8,5 +8,10 @@
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.test.ts", "src/**/*.test-data.ts"],
-  "references": [{ "path": "../contracts" }, { "path": "../export" }, { "path": "../unifold" }]
+  "references": [
+    { "path": "../catalog" },
+    { "path": "../contracts" },
+    { "path": "../export" },
+    { "path": "../unifold" }
+  ]
 }

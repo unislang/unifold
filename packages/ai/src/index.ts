@@ -1,7 +1,14 @@
 export { canonicalJson, fingerprintJson } from "./fingerprint.js";
+export * from "./budget.js";
+export * from "./context.js";
 export { commitUiPatchProposal } from "./commit.js";
 export { generateUiPatchProposal } from "./generator.js";
+export { generateGovernedUiPatchProposal } from "./governed-generation.js";
+export * from "./governed-generation-types.js";
 export { proposalPolicyDiagnostics } from "./policy.js";
+export * from "./provider-manifest.js";
+export * from "./provider-registry.js";
+export { classifyUiPatchRisk, effectiveUiPatchRisk } from "./risk.js";
 export { evaluateUiPatchProposal } from "./proposal.js";
 export { uiPatchProposalSchema } from "./schema.js";
 export * from "./types.js";

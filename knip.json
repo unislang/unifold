@@ -72,6 +72,10 @@
     "tests/static-export": {
       "entry": ["*.config.ts", "*.spec.ts", "scripts/*.mjs", "src/upgrade.ts"],
       "project": ["**/*.{ts,mjs}"]
+    },
+    "tests/studio": {
+      "entry": ["*.config.ts", "*.spec.ts", "*.mjs", "scripts/*.mjs"],
+      "project": ["**/*.{ts,mjs}"]
     }
   }
 }

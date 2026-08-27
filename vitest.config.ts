@@ -161,6 +161,9 @@ export default defineConfig({
       "@unislang/unifold/pagination": fileURLToPath(
         new URL("./packages/unifold/src/pagination.ts", import.meta.url)
       ),
+      "@unislang/unifold-ai/evaluation": fileURLToPath(
+        new URL("./packages/ai/src/evaluation.ts", import.meta.url)
+      ),
       "@unislang/unifold-ai": packageSource("ai"),
       "@unislang/unifold-catalog": packageSource("catalog"),
       "@unislang/unifold-compositions": packageSource("compositions"),
@@ -179,6 +182,7 @@ export default defineConfig({
       "@unislang/unifold-runtime": packageSource("runtime"),
       "@unislang/unifold-rules": packageSource("rules"),
       "@unislang/unifold-semantics": packageSource("semantics"),
+      "@unislang/unifold-studio": packageSource("studio"),
       "@unislang/unifold-testkit": packageSource("testkit"),
       "@unislang/unifold-theme": packageSource("theme"),
       "@unislang/unifold": packageSource("unifold"),

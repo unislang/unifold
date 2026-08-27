@@ -119,6 +119,52 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.3.0)(happy-dom@20.0.10)(jiti@2.7.0)(terser@5.16.0)
 
+  examples/studio:
+    dependencies:
+      '@unislang/unifold':
+        specifier: workspace:*
+        version: link:../../packages/unifold
+      '@unislang/unifold-ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
+      '@unislang/unifold-contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@unislang/unifold-elements':
+        specifier: workspace:*
+        version: link:../../packages/elements
+      '@unislang/unifold-events':
+        specifier: workspace:*
+        version: link:../../packages/events
+      '@unislang/unifold-export':
+        specifier: workspace:*
+        version: link:../../packages/export
+      '@unislang/unifold-modules':
+        specifier: workspace:*
+        version: link:../../packages/modules
+      '@unislang/unifold-studio':
+        specifier: workspace:*
+        version: link:../../packages/studio
+      '@unislang/unifold-theme':
+        specifier: workspace:*
+        version: link:../../packages/theme
+    devDependencies:
+      happy-dom:
+        specifier: ^20.0.10
+        version: 20.0.10
+      terser:
+        specifier: 5.16.0
+        version: 5.16.0
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
+      vite:
+        specifier: ^7.1.3
+        version: 7.3.6(@types/node@24.3.0)(jiti@2.7.0)(terser@5.16.0)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@24.3.0)(happy-dom@20.0.10)(jiti@2.7.0)(terser@5.16.0)
+
   examples/test-scenario:
     dependencies:
       '@unislang/unifold-events':
@@ -137,6 +183,9 @@ importers:
       '@unislang/unifold':
         specifier: workspace:*
         version: link:../unifold
+      '@unislang/unifold-catalog':
+        specifier: workspace:*
+        version: link:../catalog
       '@unislang/unifold-contracts':
         specifier: workspace:*
         version: link:../contracts
@@ -614,6 +663,37 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.3.0)(happy-dom@20.11.6)(jiti@2.7.0)(terser@5.16.0)
 
+  packages/studio:
+    dependencies:
+      '@unislang/unifold':
+        specifier: workspace:*
+        version: link:../unifold
+      '@unislang/unifold-ai':
+        specifier: workspace:*
+        version: link:../ai
+      '@unislang/unifold-contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@unislang/unifold-devtools':
+        specifier: workspace:*
+        version: link:../devtools
+      '@unislang/unifold-export':
+        specifier: workspace:*
+        version: link:../export
+      xstate:
+        specifier: ^5.20.2
+        version: 5.32.5
+    devDependencies:
+      happy-dom:
+        specifier: ^20.0.10
+        version: 20.0.10
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@24.3.0)(happy-dom@20.0.10)(jiti@2.7.0)(terser@5.16.0)
+
   packages/testkit:
     dependencies:
       '@unislang/unifold-contracts':
@@ -964,6 +1044,22 @@ importers:
       vitest:
         specifier: 3.2.4
         version: 3.2.4(@types/node@24.3.0)(happy-dom@20.11.6)(jiti@2.7.0)(terser@5.16.0)
+
+  tests/studio:
+    dependencies:
+      '@unislang/unifold-playwright':
+        specifier: workspace:*
+        version: link:../../packages/playwright
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.55.0
+        version: 1.62.1
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
+      vite:
+        specifier: 7.3.6
+        version: 7.3.6(@types/node@24.3.0)(jiti@2.7.0)(terser@5.16.0)
 
 packages:
 

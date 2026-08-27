@@ -1,0 +1,99 @@
+{
+  "$schema": "https://schemas.unifold.org/ui-document/1.0/schema.json",
+  "catalog": { "name": "unifold-core", "version": "1.0.0" },
+  "compositions": [],
+  "id": "studio-control-surface",
+  "jsonUiProfile": {
+    "name": "unifold-jsonui",
+    "upstream": "5401b3d4900ca3032c108d6db00e8a819f4b28e9",
+    "version": "1.0.0"
+  },
+  "revision": "1",
+  "schemaVersion": "1.0.0",
+  "view": {
+    "$comp": "Stack",
+    "id": "studio-chat",
+    "label": "Studio chat",
+    "gap": "md",
+    "$children": [
+      {
+        "$comp": "Heading",
+        "id": "studio-chat-heading",
+        "content": "Design request",
+        "level": "2"
+      },
+      {
+        "$comp": "Alert",
+        "id": "studio-mock-notice",
+        "title": "Local mock",
+        "content": "Deterministic demonstration only. No credentials, provider, or browser AI SDK is used.",
+        "tone": "info"
+      },
+      {
+        "$comp": "TextArea",
+        "id": "studio-prompt",
+        "label": "Describe how the preview should change",
+        "name": "prompt",
+        "placeholder": "For example: make the summary concise and welcoming",
+        "rows": 5,
+        "testId": "studio-prompt",
+        "value": "",
+        "wrap": "soft"
+      },
+      {
+        "$comp": "Stack",
+        "id": "studio-actions",
+        "direction": "horizontal",
+        "gap": "sm",
+        "$children": [
+          {
+            "$comp": "Button",
+            "id": "studio-generate",
+            "label": "Generate",
+            "testId": "studio-generate"
+          },
+          {
+            "$comp": "Button",
+            "id": "studio-cancel",
+            "disabled": true,
+            "label": "Cancel request",
+            "testId": "studio-cancel",
+            "variant": "secondary"
+          },
+          {
+            "$comp": "Button",
+            "id": "studio-apply",
+            "disabled": true,
+            "label": "Apply",
+            "testId": "studio-apply",
+            "variant": "secondary"
+          },
+          {
+            "$comp": "Button",
+            "id": "studio-external-edit",
+            "disabled": true,
+            "label": "Simulate external edit",
+            "testId": "studio-external-edit",
+            "variant": "secondary"
+          },
+          {
+            "$comp": "Button",
+            "id": "studio-export",
+            "disabled": false,
+            "label": "Export",
+            "testId": "studio-export",
+            "variant": "secondary"
+          }
+        ]
+      },
+      {
+        "$comp": "Alert",
+        "id": "studio-status",
+        "content": "Ready for a deterministic local request.",
+        "title": "Studio status",
+        "tone": "info",
+        "testId": "studio-status"
+      }
+    ]
+  }
+}

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A JSON-authored Unifold Studio workflow with isolated preview and export."
+    />
+    <title>Unifold Studio dogfood example</title>
+  </head>
+  <body>
+    <main class="studio-shell">
+      <header class="studio-header">
+        <p class="eyebrow">Unifold Studio dogfood</p>
+        <h1>Describe, preview, apply, and export</h1>
+        <p>
+          The control surface and both application states use the same hierarchical JSON UI model.
+        </p>
+      </header>
+      <section class="panel controls" aria-label="Studio chat controls">
+        <div id="studio-controls"></div>
+      </section>
+      <section class="panel" aria-labelledby="live-heading">
+        <h2 id="live-heading">Live application</h2>
+        <div id="live-preview"></div>
+      </section>
+      <section class="panel" aria-labelledby="proposal-heading">
+        <h2 id="proposal-heading">Isolated proposal preview</h2>
+        <div id="isolated-preview"><p>Generate a proposal to open an isolated preview.</p></div>
+      </section>
+      <section class="panel" aria-labelledby="diff-heading">
+        <h2 id="diff-heading">Validated document diff</h2>
+        <pre id="proposal-diff" tabindex="0">No proposal diff yet.</pre>
+      </section>
+      <section class="panel exports" aria-labelledby="export-heading">
+        <h2 id="export-heading">Portable and static exports</h2>
+        <div id="export-output"><p>Apply a proposal before exporting.</p></div>
+      </section>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

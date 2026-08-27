@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "skipLibCheck": true,
+    "tsBuildInfoFile": ".tsbuildinfo"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test-data.ts"],
+  "references": [
+    { "path": "../ai" },
+    { "path": "../contracts" },
+    { "path": "../devtools" },
+    { "path": "../export" },
+    { "path": "../unifold" }
+  ]
+}

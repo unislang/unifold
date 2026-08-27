@@ -1,0 +1,32 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["vite/client"],
+    "paths": {
+      "@unislang/unifold": ["../../packages/unifold/src/index.ts"],
+      "@unislang/unifold-ai": ["../../packages/ai/src/index.ts"],
+      "@unislang/unifold-ai/evaluation": ["../../packages/ai/src/evaluation.ts"],
+      "@unislang/unifold-contracts": ["../../packages/contracts/src/index.ts"],
+      "@unislang/unifold-elements": ["../../packages/elements/src/index.ts"],
+      "@unislang/unifold-events": ["../../packages/events/src/index.ts"],
+      "@unislang/unifold-export": ["../../packages/export/src/index.ts"],
+      "@unislang/unifold-modules": ["../../packages/modules/src/index.ts"],
+      "@unislang/unifold-studio": ["../../packages/studio/src/index.ts"]
+    },
+    "skipLibCheck": true,
+    "tsBuildInfoFile": "node_modules/.cache/studio-example.tsbuildinfo"
+  },
+  "include": ["src/**/*.ts", "src/**/*.json"],
+  "references": [
+    { "path": "../../packages/ai" },
+    { "path": "../../packages/contracts" },
+    { "path": "../../packages/elements" },
+    { "path": "../../packages/events" },
+    { "path": "../../packages/export" },
+    { "path": "../../packages/modules" },
+    { "path": "../../packages/studio" },
+    { "path": "../../packages/theme" },
+    { "path": "../../packages/unifold" }
+  ]
+}

@@ -19,6 +19,7 @@
     { "path": "./packages/runtime" },
     { "path": "./packages/rules" },
     { "path": "./packages/semantics" },
+    { "path": "./packages/studio" },
     { "path": "./packages/unifold" },
     { "path": "./packages/xstate" }
   ]

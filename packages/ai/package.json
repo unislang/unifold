@@ -13,6 +13,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./evaluation": {
+      "types": "./dist/evaluation.d.ts",
+      "import": "./dist/evaluation.js"
     }
   },
   "scripts": {
@@ -32,6 +36,7 @@
   },
   "dependencies": {
     "@unislang/unifold": "workspace:*",
+    "@unislang/unifold-catalog": "workspace:*",
     "@unislang/unifold-contracts": "workspace:*",
     "@unislang/unifold-export": "workspace:*",
     "ai": "7.0.78",

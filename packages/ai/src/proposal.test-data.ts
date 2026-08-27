@@ -1,4 +1,5 @@
 import {
+  CoreComponentType,
   JsonUiProfileName,
   JsonUiProfileVersion,
   JsonUiUpstreamRevision,
@@ -6,9 +7,22 @@ import {
   UiSchemaVersion,
   type JsonObject
 } from "@unislang/unifold-contracts";
+import {
+  ComponentDefinitionSchemaVersion,
+  coreCatalog,
+  getComponentDefinitionSidecar,
+  getCoreDescriptor,
+  type ComponentDefinition,
+  type ComponentDefinitionDocument
+} from "@unislang/unifold-catalog";
 
 import { fingerprintJson } from "./fingerprint.js";
-import { JsonPatchOperationType, UiPatchRisk, type UiPatchProposal } from "./types.js";
+import {
+  JsonPatchOperationType,
+  UiPatchRequestedCheck,
+  UiPatchRisk,
+  type UiPatchProposal
+} from "./types.js";
 
 export function aiTestDocument(): JsonObject {
   return {
@@ -32,6 +46,34 @@ export function aiTestDocument(): JsonObject {
   };
 }
 
+export function aiTestComponentDefinitions(): ComponentDefinitionDocument {
+  return {
+    catalog: { name: coreCatalog.name, version: coreCatalog.version },
+    definitions: [
+      testComponentDefinition(CoreComponentType.Form),
+      testComponentDefinition(CoreComponentType.TextField)
+    ],
+    schemaVersion: ComponentDefinitionSchemaVersion.Version1
+  };
+}
+
+function testComponentDefinition(componentType: CoreComponentType): ComponentDefinition {
+  const catalogDescriptor = getCoreDescriptor(componentType);
+  const sidecar = getComponentDefinitionSidecar(componentType);
+  if (catalogDescriptor === undefined || sidecar === undefined) throw new Error("Missing fixture.");
+  return {
+    ...sidecar,
+    attributesSchema: {},
+    catalogDescriptor,
+    commonCapabilities: [],
+    customElement: {},
+    propertiesSchema: {},
+    publicSnapshotSchema: {},
+    tagName: catalogDescriptor.tagName,
+    version: catalogDescriptor.version
+  };
+}
+
 export async function aiTestProposal(
   risk: UiPatchRisk = UiPatchRisk.Presentation
 ): Promise<UiPatchProposal> {
@@ -50,7 +92,7 @@ export async function aiTestProposal(
       }
     ],
     proposalId: "proposal-1",
-    requestedChecks: ["accessibility"],
+    requestedChecks: [UiPatchRequestedCheck.Accessibility],
     risk
   };
 }

@@ -1,4 +1,6 @@
 import {
+  AI_MUTABLE_ROOTS,
+  AI_SUPPORTED_OPERATIONS,
   JsonPatchOperationType,
   UiPatchApprovalStatus,
   UiPatchDiagnosticCode,
@@ -6,15 +8,10 @@ import {
   type UiPatchDiagnostic,
   type UiPatchProposal
 } from "./types.js";
+import { effectiveUiPatchRisk } from "./risk.js";
 
-const mutableRoots = ["/compositions", "/revision", "/semantics", "/view"];
 const unsafeTokens = new Set(["__proto__", "constructor", "prototype"]);
-const supportedOperations = new Set([
-  JsonPatchOperationType.Add,
-  JsonPatchOperationType.Remove,
-  JsonPatchOperationType.Replace,
-  JsonPatchOperationType.Test
-]);
+const supportedOperations = new Set<JsonPatchOperationType>(AI_SUPPORTED_OPERATIONS);
 
 export function proposalPolicyDiagnostics(
   proposal: UiPatchProposal,
@@ -25,7 +22,7 @@ export function proposalPolicyDiagnostics(
   return [
     ...baseDiagnostics(proposal, revision, hash),
     ...operationDiagnostics(proposal),
-    ...approvalDiagnostics(proposal, approval)
+    ...approvalDiagnostics(effectiveUiPatchRisk(proposal), approval)
   ];
 }
 
@@ -59,7 +56,7 @@ function inspectOperation(operation: UiPatchProposal["operations"][number], inde
   const path = `/operations/${index}`;
   return [
     ...unsupportedOperation(operation.op, path),
-    ...forbiddenPath(operation.path, path),
+    ...forbiddenPath(operation.op, operation.path, path),
     ...unsupportedFrom(operation.from, path)
   ];
 }
@@ -69,10 +66,16 @@ function unsupportedOperation(op: JsonPatchOperationType, path: string): UiPatch
   return [diagnostic(UiPatchDiagnosticCode.UnsupportedOperation, path)];
 }
 
-function forbiddenPath(value: string, path: string): UiPatchDiagnostic[] {
-  const safe = [isMutablePath(value), !hasUnsafeToken(value), !targetsStableId(value)].every(
-    Boolean
-  );
+function forbiddenPath(
+  operation: JsonPatchOperationType,
+  value: string,
+  path: string
+): UiPatchDiagnostic[] {
+  const safe = [
+    isMutablePath(operation, value),
+    !hasUnsafeToken(value),
+    !targetsStableId(value)
+  ].every(Boolean);
   if (safe) return [];
   return [diagnostic(UiPatchDiagnosticCode.ForbiddenPath, `${path}/path`)];
 }
@@ -83,10 +86,10 @@ function unsupportedFrom(from: string | undefined, path: string): UiPatchDiagnos
 }
 
 function approvalDiagnostics(
-  proposal: UiPatchProposal,
+  risk: UiPatchRisk,
   approval: UiPatchApprovalStatus
 ): readonly UiPatchDiagnostic[] {
-  if (proposal.risk === UiPatchRisk.Presentation) return [];
+  if (risk === UiPatchRisk.Presentation) return [];
   if (approval === UiPatchApprovalStatus.Approved) return [];
   return [diagnostic(UiPatchDiagnosticCode.ApprovalRequired, "/risk")];
 }
@@ -114,9 +117,10 @@ function isRevisionChange(
   return JSON.stringify(actual) === JSON.stringify(expected);
 }
 
-function isMutablePath(path: string): boolean {
+function isMutablePath(operation: JsonPatchOperationType, path: string): boolean {
   if (path === "/revision") return true;
-  return mutableRoots.some((root) => root !== "/revision" && path.startsWith(`${root}/`));
+  if (path === "/semantics") return operation === JsonPatchOperationType.Add;
+  return AI_MUTABLE_ROOTS.some((root) => root !== "/revision" && path.startsWith(`${root}/`));
 }
 
 function hasUnsafeToken(path: string): boolean {
