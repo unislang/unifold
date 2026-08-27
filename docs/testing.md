@@ -266,9 +266,11 @@ remain intentionally limited to Chromium, so the complete three-engine reference
 explicit scale skips rather than silently waiving component behavior.
 The lifecycle-memory profile first runs five public application cycles to establish bounded
 element-registration and renderer caches. It then runs twenty schema-valid 500-node
-mount/revision/dispose cycles, forcing garbage collection after each cycle and at the final
-measurement. Retained heap growth must remain strictly below 2% of the post-warm-up baseline; the
-report includes every post-cycle sample, retained bytes, percentage growth, and peak heap.
+mount/revision/dispose cycles. Samples cross a quiescent task boundary and combine synchronous major
+collection with a full-heap query against a repository-owned sentinel, so completed async jobs are
+not mistaken for retained application state. Retained heap growth must remain strictly below 2% of
+the equivalently settled post-warm-up baseline; the report includes every post-cycle sample,
+retained bytes, percentage growth, and peak heap.
 The large-collection fixture compiles and mounts an exact schema-valid 10,000-option `VirtualList`
 through the public application facade for twenty startup samples. Its combined gate requires p95
 startup at or below 1,000 ms and no more than 200 rendered option rows. Unit and Chromium journeys

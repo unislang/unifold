@@ -24,6 +24,41 @@ Read [CONTRIBUTING.md](./CONTRIBUTING.md) before changing a public contract. The
 The current durable-format matrix and exact rejection/migration policy are documented in
 [Version compatibility](./docs/compatibility.md).
 
+## JSON authoring model
+
+The supported public authoring shape follows the original
+[`scratch/angular-ui/DYNAMIC-UI-README.md`](./scratch/angular-ui/DYNAMIC-UI-README.md) intent: an
+application selects an exact `layoutType`/`layoutVersion`, supplies typed `variables`, and describes
+nested UI with stable `id`, `type`, `props`, `children`, and named `events` fields.
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "id": "contact-page",
+  "revision": "revision-1",
+  "catalog": { "name": "unifold-core", "version": "1.0.0" },
+  "layoutType": "form-section",
+  "layoutVersion": "1.0.0",
+  "variables": {
+    "heading": "Contact form",
+    "fields": [
+      {
+        "id": "name",
+        "type": "TextField",
+        "props": { "label": "Name", "required": true },
+        "events": { "onInput": "FORM_FIELD_CHANGE" }
+      }
+    ]
+  }
+}
+```
+
+Unifold validates and lowers this hierarchy to normalized execution IR. XState actors, observable
+state projections, canonical events, and effect lifecycle identities are derived runtime machinery;
+they are not an alternate JSON authoring format. Persist and export the authored JSON. See
+[Layout-oriented JSON authoring](./docs/layout-authoring.md) for layouts, definitions, controls,
+repeats, trust boundaries, and executable acceptance gates.
+
 Reusable JSON structures are authored as exact-version compositions with structural parameters,
 declared slots, typed exports, and provenance, then expanded into the same IR/event/state path as
 direct nodes. See [Reusable JSON compositions](./docs/compositions.md) for the executable contract

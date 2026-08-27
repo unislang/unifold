@@ -4,6 +4,7 @@ import {
   UiEventPhase,
   type UiEvent,
   type UiEventData,
+  type UiEventDisclosure,
   type UiEventSourceNode,
   type UiNodeSnapshot
 } from "@unislang/unifold-events";
@@ -19,16 +20,17 @@ export function projectNode(snapshot: UiNodeSnapshot): DevtoolsNodeInspection {
 
 export function projectTimelineEvent(event: UiEvent): UiEvent {
   const clone = structuredClone(event);
+  const disclosure = clone.data.disclosure;
   const data =
-    clone.data.disclosure?.mode === UiEventDisclosureMode.MetadataOnly
-      ? metadataOnlyData(clone.data)
+    disclosure?.mode === UiEventDisclosureMode.MetadataOnly
+      ? metadataOnlyData(clone.data, disclosure)
       : clone.data;
   return freezeValue({ ...clone, data }) as UiEvent;
 }
 
-function metadataOnlyData(data: UiEventData): UiEventData {
+function metadataOnlyData(data: UiEventData, disclosure: UiEventDisclosure): UiEventData {
   return {
-    ...(data.disclosure === undefined ? {} : { disclosure: data.disclosure }),
+    disclosure,
     phase: data.phase,
     runtime: data.runtime,
     ...effectMetadata(data),

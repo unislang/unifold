@@ -166,6 +166,30 @@ it("projects a transaction from its causal command target", () => {
   });
 });
 
+it("falls back to the changed snapshot when a causal target is absent", () => {
+  const events: UiEvent[] = [];
+  const field = controlNode("field", "Ada");
+  const publisher = publisherFor([field], events);
+  publisher.transaction(
+    executionContext(),
+    transaction(["field"]),
+    [field],
+    [{ id: "other", type: UiCommandType.ControlSetValue, value: "Grace" }]
+  );
+  expect(events[0]).toMatchObject({ data: { sourceNode: { id: "field" } } });
+});
+
+it("rejects a form result whose authoritative snapshot is missing", () => {
+  const publisher = publisherFor([], []);
+  expect(() =>
+    publisher.formResult(
+      { id: "missing", type: UiCommandType.FormSubmit },
+      executionContext(),
+      transaction()
+    )
+  ).toThrow("Runtime snapshot is missing");
+});
+
 function transaction(changedNodeIds: readonly string[] = ["field"]) {
   return {
     changedNodeIds,

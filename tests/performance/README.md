@@ -132,9 +132,10 @@ controlled values, and exactly one visible Wizard panel.
 
 A separate Happy DOM worker exercises the public application boundary with a schema-valid 500-node
 document. Five warm-up cycles exclude bounded registration and renderer caches; twenty measured
-mount/revision/dispose cycles then force garbage collection and must retain less than 2% over the
-post-warm-up baseline. The report records every post-cycle heap sample alongside retained bytes,
-percentage growth, peak heap, and the executable gate result.
+mount/revision/dispose cycles then cross a task boundary and force a synchronous major/full-heap
+collection through a repository-owned query sentinel. Retained heap must remain less than 2% over
+the equivalently settled post-warm-up baseline. The report records every post-cycle heap sample
+alongside retained bytes, percentage growth, peak heap, and the executable gate result.
 
 The selective topology is one component root, component groups of up to 100 controls, and leaf
 controls, with every fifth node selected. Separate 100-control and 10,000-node aggregate graphs use

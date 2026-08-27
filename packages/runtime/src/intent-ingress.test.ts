@@ -59,6 +59,29 @@ it("publishes a public-safe projection while returning the accepted private inte
   expect((events[0] as UiEvent).data.snapshot).toBeUndefined();
 });
 
+it("rejects intent without a known source snapshot", () => {
+  const runtime = new UnifoldRuntime({
+    documentId: "test",
+    initialNodes: [controlNode("field", "A")]
+  });
+  const missingSource = intent("missing-source", UiEventPhase.Intent, "test");
+  const sourceLessData = { ...missingSource.data };
+  Reflect.deleteProperty(sourceLessData, "sourceNode");
+  expect(() => runtime.ingestIntent({ ...missingSource, data: sourceLessData })).toThrow(
+    "source node is missing"
+  );
+  const unknownSource = intent("unknown-source", UiEventPhase.Intent, "test");
+  expect(() =>
+    runtime.ingestIntent({
+      ...unknownSource,
+      data: {
+        ...unknownSource.data,
+        sourceNode: { ...requireSource(unknownSource), id: "unknown" }
+      }
+    })
+  ).toThrow("source node is unknown");
+});
+
 function intent(id: string, phase: UiEventPhase, documentId: string): UiEvent {
   return createUiEvent({
     data: {
@@ -83,4 +106,10 @@ function intent(id: string, phase: UiEventPhase, documentId: string): UiEvent {
     staterevision: 0,
     transactionid: "transaction"
   });
+}
+
+function requireSource(event: UiEvent) {
+  const source = event.data.sourceNode;
+  if (source === undefined) throw new Error("Intent fixture source is missing.");
+  return source;
 }

@@ -3,6 +3,7 @@ import {
   UiCommandType,
   UiEventPhase,
   UiEventType,
+  UiTransactionStatus,
   UiValidationCancellationReason,
   type UiCommand,
   type UiEvent
@@ -10,7 +11,7 @@ import {
 import { expect, it, vi } from "vitest";
 
 import { UnifoldRuntime } from "./index.js";
-import { commandChange, commandType } from "./runtime-event.js";
+import { commandChange, commandType, createRuntimeEvent } from "./runtime-event.js";
 import { controlNode } from "./runtime.test-data.js";
 
 it("reports completed and failed post-commit effects", () => {
@@ -73,6 +74,35 @@ it("publishes collection reconciliation metadata without duplicating item values
     },
     commandType: UiCommandType.StructureReconcile
   });
+});
+
+it("omits absent optional CloudEvents extensions", () => {
+  const emitted = createRuntimeEvent(
+    UiEventType.CommandApplied,
+    {
+      correlationId: "correlation",
+      documentId: "test",
+      id: "event-1",
+      sequence: 1,
+      source: "urn:test",
+      time: "2026-08-24T00:00:00.000Z",
+      transactionId: "transaction"
+    },
+    {
+      changedNodeIds: [],
+      changedPaths: [],
+      correlationId: "correlation",
+      id: "transaction",
+      previousRevision: 0,
+      revision: 0,
+      status: UiTransactionStatus.Committed,
+      timestamp: "2026-08-24T00:00:00.000Z"
+    },
+    {}
+  );
+  expect(emitted).not.toHaveProperty("causationid");
+  expect(emitted).not.toHaveProperty("dataschema");
+  expect(emitted).not.toHaveProperty("subject");
 });
 
 function rejectSelectedEffects(command: UiCommand): void {

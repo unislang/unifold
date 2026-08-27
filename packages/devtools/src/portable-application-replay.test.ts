@@ -103,6 +103,58 @@ it("fails closed when deterministic controls or mocked receipts drift", () => {
   ).toThrow("exhausted mocked effect");
 });
 
+it("rejects mismatched and failed mocked effects without admitting other commands", () => {
+  const effect = mockedEffect();
+  const nonEffectPort = createPortableReplayEffectPort([effect]);
+  nonEffectPort.execute(
+    { id: "field", type: UiCommandType.ControlSetValue, value: "ignored" },
+    executionContext()
+  );
+  expect(nonEffectPort.count).toBe(0);
+  expect(() => executeMockedEffect(effect, { capability: "other" })).toThrow("capability drift");
+  expect(() => executeMockedEffect(effect, { input: { a: 2 } })).toThrow("input drift");
+  expect(() =>
+    executeMockedEffect({ ...effect, outcome: DevtoolsMockEffectOutcome.Failed })
+  ).toThrow("Explicit mocked effect failure");
+});
+
+function mockedEffect(): DevtoolsMockEffect {
+  return {
+    capability: "allowed",
+    input: { a: 1 },
+    outcome: DevtoolsMockEffectOutcome.Completed,
+    receipt: {}
+  };
+}
+
+function executeMockedEffect(
+  effect: DevtoolsMockEffect,
+  change: Partial<Pick<DevtoolsMockEffect, "capability" | "input">> = {}
+): void {
+  createPortableReplayEffectPort([effect]).execute(
+    {
+      capability: changedCapability(effect, change),
+      input: changedInput(effect, change),
+      type: UiCommandType.EffectInvoke
+    },
+    executionContext()
+  );
+}
+
+function changedCapability(
+  effect: DevtoolsMockEffect,
+  change: Partial<Pick<DevtoolsMockEffect, "capability">>
+): string {
+  return change.capability ?? effect.capability;
+}
+
+function changedInput(
+  effect: DevtoolsMockEffect,
+  change: Partial<Pick<DevtoolsMockEffect, "input">>
+): JsonObject {
+  return change.input ?? effect.input;
+}
+
 function executionContext() {
   return {
     causationId: "effect",

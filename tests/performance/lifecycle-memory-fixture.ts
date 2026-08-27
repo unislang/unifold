@@ -3,6 +3,7 @@ import {
   UnifoldApplicationMountStatus,
   UnifoldApplicationUpdateStatus
 } from "@unislang/unifold";
+import { queryObjects } from "node:v8";
 
 import { createCompilationDocument } from "./document-compilation-fixture.js";
 
@@ -12,9 +13,14 @@ const LIFECYCLE_MEMORY_LIMIT_PERCENT = 2;
 export const LIFECYCLE_MEMORY_NODE_COUNT = 500;
 const LIFECYCLE_MEMORY_WARMUP_CYCLES = 5;
 
+class LifecycleHeapSentinel {
+  readonly kind = "unifold-lifecycle-heap-sentinel";
+}
+
 export async function measureLifecycleMemory() {
   const collect = garbageCollector();
   await runLifecycleCycles(LIFECYCLE_MEMORY_WARMUP_CYCLES);
+  await taskBoundary();
   collect();
   const baselineHeapBytes = process.memoryUsage().heapUsed;
   let peakHeapBytes = baselineHeapBytes;
@@ -24,6 +30,7 @@ export async function measureLifecycleMemory() {
     collect();
     postCycleHeapBytes.push(process.memoryUsage().heapUsed);
   });
+  await taskBoundary();
   collect();
   const finalHeapBytes = process.memoryUsage().heapUsed;
   const retainedHeapBytes = Math.max(0, finalHeapBytes - baselineHeapBytes);
@@ -103,10 +110,22 @@ function lifecycleEvidence(
 function garbageCollector(): () => void {
   const candidate = Reflect.get(globalThis, "gc") as unknown;
   if (typeof candidate !== "function") throw new Error("The profile requires --expose-gc.");
-  return candidate as () => void;
+  const collect = candidate as (options: {
+    readonly execution: string;
+    readonly type: string;
+  }) => void;
+  return () => {
+    collect({ execution: "sync", type: "major" });
+    void queryObjects(LifecycleHeapSentinel, { format: "count" });
+  };
 }
 
 async function settleDom(): Promise<void> {
   await Promise.resolve();
   await Promise.resolve();
+  await taskBoundary();
+}
+
+async function taskBoundary(): Promise<void> {
+  await new Promise<void>((resolve) => setTimeout(resolve, 0));
 }

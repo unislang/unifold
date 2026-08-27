@@ -1,4 +1,4 @@
-import { DataClassification } from "@unislang/unifold-contracts";
+import { DataClassification, type JsonValue } from "@unislang/unifold-contracts";
 import { UiCommandType, UiEventDisclosureMode, UiEventPhase } from "@unislang/unifold-events";
 import { expect, it } from "vitest";
 
@@ -42,6 +42,40 @@ it("retains only safe effect identity metadata in restricted timelines", () => {
   });
   expect(JSON.stringify(projected)).not.toContain("provider-secret");
 });
+
+const malformedEffectChanges = [
+  [undefined, undefined],
+  [null, undefined],
+  ["provider-secret", undefined],
+  [{ targetId: "save" }, undefined],
+  [{ commandType: UiCommandType.FocusRequest }, { commandType: UiCommandType.FocusRequest }]
+] satisfies readonly (readonly [JsonValue | undefined, JsonValue | undefined])[];
+
+it.each(malformedEffectChanges)(
+  "drops malformed or absent restricted effect changes",
+  (change, expected) => {
+    const candidate = event(1);
+    const projected = projectTimelineEvent({
+      ...candidate,
+      data: {
+        ...optionalChange(change),
+        disclosure: {
+          classification: DataClassification.Restricted,
+          mode: UiEventDisclosureMode.MetadataOnly,
+          snapshotRevision: 1
+        },
+        phase: UiEventPhase.Effect,
+        runtime: candidate.data.runtime
+      }
+    });
+    expect(projected.data.change).toEqual(expected);
+    expect(projected.data.sourceNode).toBeUndefined();
+  }
+);
+
+function optionalChange(change: JsonValue | undefined) {
+  return change === undefined ? {} : { change };
+}
 
 it("defensively strips value-bearing fields from metadata-only events", () => {
   const candidate = event(1);

@@ -32,38 +32,25 @@ function collectionEvents(): readonly UiEvent[] {
   const operation = event(1, UiEventType.CommandApplied, {
     change: { collectionOperation: { type: UiCollectionOperationType.Insert } }
   });
-  const focus = event(
-    2,
-    UiEventType.CommandApplied,
-    {
-      change: { commandType: "focus.request" },
-      sourceNode: { id: "field::a" }
-    },
-    "effect-1"
-  );
-  const requested = event(
-    3,
-    UiEventType.EffectRequested,
-    {
-      change: { commandType: "focus.request" },
-      phase: "effect",
-      sourceNode: { id: "field::a" }
-    },
-    "effect-1"
-  );
-  const completed = event(
-    4,
-    UiEventType.EffectCompleted,
-    {
-      change: { commandType: "focus.request" },
-      phase: "effect",
-      sourceNode: { id: "field::a" }
-    },
-    "effect-1"
-  );
+  const focus = focusEvent(2, UiEventType.CommandApplied);
+  const requested = focusEvent(3, UiEventType.EffectRequested);
+  const completed = focusEvent(4, UiEventType.EffectCompleted);
   const committed = event(5, UiEventType.TransactionCommitted);
   const late = event(6, UiEventType.ValidationCompleted, { sourceNode: { id: "field::c" } });
   return [operation, focus, requested, completed, committed, late];
+}
+
+function focusEvent(sequence: number, type: UiEventType): UiEvent {
+  return event(
+    sequence,
+    type,
+    {
+      change: { commandType: "focus.request" },
+      ...(type === UiEventType.CommandApplied ? {} : { phase: "effect" }),
+      sourceNode: { id: "field::a" }
+    },
+    "effect-1"
+  );
 }
 
 function event(sequence: number, type: UiEventType, data: object = {}, subject?: string): UiEvent {
