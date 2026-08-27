@@ -229,6 +229,13 @@ The public artifact is `UiDocument`, not the runtime’s internal component tree
     ],
     "publication": { "mode": "public-page", "profile": "schema.org" }
   },
+  "controls": {
+    "contractVersion": "1.0.0",
+    "nodes": [
+      { "id": "customer-form", "kind": "form" },
+      { "id": "customer-email", "kind": "control", "parentId": "customer-form", "key": "email" }
+    ]
+  },
   "view": {
     "$comp": "Form",
     "id": "customer-form",
@@ -626,11 +633,13 @@ The lifecycle is therefore `intent → accepted/rejected → state transaction �
 
 `UiControl`, `UiGroup`, `UiArray`, and `UiRecord` mirror the useful Angular control shapes without coupling components to Angular. A group derives value, raw value, status, errors, dirty/pristine, touched, and pending state from its children. Ancestors are recalculated only along changed parent paths, and all fact events publish after the full transaction commits; reading a parent snapshot from a leaf event therefore never returns a half-updated value.
 
+Visual and logical edges are independent indexes. Snapshots retain visual `parentId`/`scopePath` plus logical `controlParentId`, ordered `controlChildIds`, and durable `controlKey`; no renderer or form algorithm may infer one graph from the other when explicit topology is present. Native `FormData` stays a flat ordered multimap driven by component `name`, while normalized Group/Record/Array values use logical keys and parents. The mapping is documented and tested explicitly.
+
 Validators are registered pure functions with input schemas and stable IDs. Cross-field validators declare exact dependency selectors. Asynchronous validators are invoked XState actors with debounce policy, cancellation, timeout, cache policy, and input revision; an older result cannot overwrite newer input. Validation errors use stable codes, message keys, parameters, severity, and affected IDs. `updateOn` controls whether tentative DOM input becomes model state on input, blur, or submit.
 
 Every value-bearing custom element implements a framework `ControlAdapter` contract comparable in purpose to a form value accessor: read/write value, disabled/readonly/required state, focus/touched notification, native validity/form callbacks, reset/restore, autofill/composition handling, and canonical intent emission. Use native controls and `ElementInternals` where possible. Implement shared registration, selection subscription, emission, abort, and disconnect cleanup as a reusable [Lit reactive controller](https://lit.dev/docs/composition/controllers/) rather than duplicating lifecycle code or forcing a deep component base class. The adapter cannot choose its own global state.
 
-Dynamic arrays and records add/remove/move children transactionally using durable keys. Submit first commits any `updateOn: 'submit'` values, marks configured controls touched, settles or cancels validation according to policy, emits one form submission intent with the form revision, and routes an effect only when its guard accepts the resulting status. Reset restores the declared initial snapshot and cancels stale validators/effects.
+Dynamic arrays and records add/remove/move children transactionally using durable keys. A public structural operation names a compiled template/composition plus key and parameters, updates authored structure, recompiles, and reconciles runtime and DOM in one authority path; accepting an arbitrary snapshot into normalized state is only an internal/headless seam. Submit first commits any `updateOn: 'submit'` values, marks configured controls touched, settles or cancels validation according to policy, emits one form submission intent with the form revision, and routes an effect only when its guard accepts the resulting status. Reset restores the declared initial snapshot and cancels stale validators/effects. Aggregate disabled state distinguishes authored/own disabled from effective ancestor-disabled state and must cascade canonical interactivity, validation cancellation, normalized value omission/raw retention, renderer projection, and browser successful-control behavior consistently.
 
 ### Reusable static and dynamic compositions
 
@@ -643,7 +652,7 @@ interface CompositionDefinition {
   parametersSchema: JsonSchema;
   slots: SlotDefinition[];
   template: JsonUiNode;
-  controls?: ControlTreeDefinition;
+  controls?: UiControlTopologyDefinition;
   rules: DerivedRule[];
   machine?: RegisteredMachineTemplateRef;
   exports: {

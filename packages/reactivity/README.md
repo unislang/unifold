@@ -19,10 +19,11 @@ The package adds Unifold-specific behavior:
 - completion and deregistration of indexed selections when a structural transaction removes one of
   their declared node dependencies.
 
-Aggregate object keys use a child's declared `name` when present and otherwise its stable node ID.
+Aggregate object keys prefer explicit `controlKey`, then a child's declared `name`, and finally its
+stable node ID. Explicit `controlChildren` ordering is independent from visual child ordering.
 Disabled descendants are omitted from `value` and retained in `rawValue`. Nested aggregates are
-computed deepest-first inside the same Immer transaction, so ancestor reads cannot observe a
-partially updated child tree.
+computed by logical depth inside the same Immer transaction, so visual depth cannot leave an
+ancestor with a partially updated child tree.
 
 The 1,000- and 10,000-node correctness and timing harness is documented in
 [`docs/performance.md`](../../docs/performance.md). It keeps exact dependency wake-up assertions

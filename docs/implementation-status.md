@@ -154,6 +154,14 @@ described by the complete 1.0 plan.
   adapters, and selective changed-node projection. Node-indexed selections, incremental ancestor
   aggregation, and changed-owner validation routing have deterministic 1k/10k correctness tests and
   an environment-tagged Vitest benchmark harness.
+- A closed document-global `controls@1.0.0` topology separates visual and logical edges through
+  contracts, IR, snapshots, normalized storage, submit/reset, rules, disclosure, and live
+  `runtime.control<T>()` handles. The locked hierarchical example and current Chromium/WebKit journey
+  prove
+  nested values through unrelated wrappers, logical event scope, XState, flat/repeated native
+  `FormData`, submit/reset, schema.org, selective projection, and axe. Composition-local topology
+  namespacing, authored/rendered collection edits, aggregate disabled cascading, and schema-derived
+  handle types remain incomplete.
 - A versioned data-only workflow-machine contract compiled to live XState v5 actors, scope-indexed
   canonical event routing, trusted typed-command factories, causal runtime transactions,
   bounded trusted named guards over canonical events and current normalized snapshots, fail-closed

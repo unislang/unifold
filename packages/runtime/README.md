@@ -43,6 +43,12 @@ events may include full data, while non-public events retain source identity and
 omit snapshots and value-bearing changes. A direct runtime snapshot read during a scope callback
 still exposes the complete committed aggregate revision and is a deliberate privileged operation.
 
+`control<T>(id)` is the live control view over that same store. Its synchronous `value`, `rawValue`,
+`status`, `errors`, and `snapshot` getters remain current; matching observables begin with the current
+fact and continue with indexed changes. `setValue`, `markTouched`, `setDisabled`, and `reset` execute
+canonical commands, and `dispose()` releases the handle-owned selections. The generic is supplied by
+the caller today; schema-generated control typing remains future tooling work.
+
 Transaction disclosure uses the most restrictive classification among changed nodes before and
 after commit. Form results use the most restrictive classification in the form scope. Derived
 `store.write` facts are always metadata-only, and runtime failure facts never publish raw exception
@@ -75,6 +81,11 @@ Structural instantiate/remove commands share the normal atomic transaction and e
 successful removal completes indexed selections owned by the removed node and removes its actor
 registrations before later facts are routed. The DOM renderer uses the same durable IDs for keyed
 subtree reconciliation.
+
+Logical collection insert/move/remove commands currently mutate normalized membership from trusted
+snapshots. They do not compile authored JSON or create/remove rendered hosts, so consumers must not
+treat them as the finished dynamic-collection API. The packaged completion will name a compiled
+template/composition and reconcile authored structure, runtime, and DOM together.
 
 `StructureReconcile` is the whole-graph structural command used by the application coordinator. It
 validates the candidate topology before mutation, adds and removes nodes atomically, rebuilds parent

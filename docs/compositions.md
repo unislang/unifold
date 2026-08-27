@@ -130,6 +130,12 @@ state and focus from IDs produced by the pre-codec implementation; ambiguous ali
 the legacy grammar, while IR and runtime still reject malformed or reused aliases rather than
 guessing.
 
+Explicit control topology is currently document-global. Composition expansion does not yet
+namespace composition-local control IDs or parent references, attach controls through slots, or
+publish logical controls through composition exports. Reusable form compositions must not claim
+wrapper-refactor-stable logical ownership until those authored references share the visual identity
+codec and have integrity/source-map/migration coverage.
+
 Do not treat the expanded document as the editable source. Store and export authored JSON, then
 regenerate expanded JSON deterministically. Provenance supports diagnostics and stable public
 exports; it does not make generated node IDs a supported external API.

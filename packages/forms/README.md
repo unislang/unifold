@@ -29,6 +29,12 @@ promise actors. Each run stores an authoritative request ID on the control, publ
 started/completed/cancelled/failed lifecycle facts, and commits only while that request is current.
 A new applicable value aborts the prior actor; synchronous failures skip async work.
 
+Current aggregate disablement is not full Angular-style cascading. Disabling an aggregate marks and
+omits that aggregate at its parent, but does not yet project an effective disabled/interactivity cause
+into every logical descendant snapshot. Native `Fieldset` browser behavior can disable successful
+controls independently. Consumers requiring aggregate disable must wait for the canonical cascade
+contract rather than infer normalized state from browser `FormData`.
+
 Validator results are normalized with their authoritative owner ID. The runtime derives
 `affectedIds` routes transactionally, allowing aggregate-owned issues to invalidate and project on
 unchanged target controls without copying errors into those controls.

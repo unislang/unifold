@@ -367,6 +367,14 @@ boundary. The same three-engine matrix covers form reassociation, ancestor field
 reset, callback restoration origins, IME de-duplication, file-handle revocation, and canonical-event
 privacy. Static-upgrade coverage edits the no-JavaScript controls before definition and proves
 value, focus, repeated-entry, and exactly-once event preservation after upgrade.
+The Chromium/WebKit hierarchical control-topology journey is the executable contract for the second graph. It
+asserts nested Form/Group/Array/Record snapshots while leaf visual parents remain wrappers, verifies
+logical ancestors in the same canonical event scope, drives an XState transition, compares the
+nested value with exact ordered/repeated native `FormData` pairs, submits and resets, refreshes the
+schema.org graph, checks leaf-only DOM projection, and runs axe. Do not use `Object.fromEntries` for
+native-form assertions because it destroys repeated keys. Remaining AC19 browser work is composition
+namespacing/refactoring, rendered collection lifecycle, effective-disabled propagation,
+non-cooperative aggregate async completion, identity/focus/rollback, and last-known-good recovery.
 The three-browser suite also drives a Standard Schema-compatible form-level name-confirmation rule through
 invalid submission, affected-node metadata, correction, error removal, and valid resubmission.
 It then changes only the source field and proves the unchanged affected field gains and loses its

@@ -261,11 +261,11 @@ nested Escape, focus containment, and teardown tests, but neither replaces the n
 canonical event fabric. They remain development-only measurements and are absent from published
 runtime packages.
 
-## Derived JSON rules: candidate evaluation
+## Derived JSON rules: accepted bounded interpreter
 
 | Field                 | Decision                                                                                |
 | --------------------- | --------------------------------------------------------------------------------------- |
-| Status                | Candidate identified; not accepted or installed until the bounded profile is executable |
+| Status                | Accepted behind Unifold's bounded synchronous interpreter profile                       |
 | Candidate             | `json-logic-engine@5.0.7`, MIT, zero runtime dependencies                               |
 | Purpose               | Evaluate portable pure JSON rules without implementing an expression language           |
 | Required Unifold seam | Operator allowlist, declared reads, dependency DAG, cycle/budget checks, typed commands |
@@ -274,20 +274,40 @@ runtime packages.
 | Review date           | 2026-08-25                                                                              |
 | Fallback              | Keep derived rules unsupported rather than ship an unbounded or second state authority  |
 
-The maintained [JSON Logic Engine](https://github.com/json-logic/json-logic-engine) provides modern
-ESM/CJS packaging, TypeScript declarations, interpreter and compiled modes, and a JSON-Logic-compatible
-operator vocabulary. It is a stronger current candidate than implementing an evaluator or adopting
-the older `json-logic-js` package. Unifold has not accepted it yet: the library intentionally exposes
-async evaluation, custom operations, extended operators, and function compilation, while portable
-Unifold rules require a small synchronous allowlist, strict CSP compatibility, bounded AST depth and
-work, and compile-time proof that every read was declared. The initial integration must use the
-interpreter unless the compiled path is proven free of dynamic-code CSP requirements.
+The maintained [JSON Logic Engine](https://github.com/json-logic/json-logic-engine) supplies the
+interpreter and compatible operator behavior so Unifold does not implement an expression language.
+The production rules package admits only the reviewed synchronous allowlist, validates declared
+reads, builds its own dependency DAG, rejects cycles and over-budget inputs, and emits typed commands.
+Async evaluation, arbitrary custom operations, and dynamic function compilation are outside the
+portable profile. Replacement must preserve the executable rule corpus and dependency evidence.
 
 The 1,000-rule performance gate remains open until that real dependency graph exists. Benchmarking
 1,000 RxJS selectors or calling the candidate directly would not prove dependency extraction,
 topological once-only evaluation, cycle rejection, command budgets, or same-transaction behavior.
-Acceptance requires upstream compatibility corpus evidence, malicious/deep-input cases, measured
-bundle cost, a replacement port, and an explicit operator/version profile.
+Upgrades require upstream compatibility corpus evidence, malicious/deep-input cases, measured bundle
+cost, the replacement port, and an exact operator/version profile.
+
+## Client runtime and forms authority
+
+| Field               | Decision                                                                                        |
+| ------------------- | ----------------------------------------------------------------------------------------------- |
+| Status              | Accepted composed OSS boundaries; Unifold normalized snapshots remain the only value authority  |
+| Adopted libraries   | RxJS, Immer, XState v5, Lit, Ajv, Standard Schema adapters, Playwright, axe, Tailwind v4 bridge |
+| Browser primitive   | Native controls plus `ElementInternals` and ordered `FormData`                                  |
+| Compared form cores | TanStack Form and Lion form system                                                              |
+| Rejection reason    | Both introduce competing form/store ownership when used as the framework core                   |
+| Owner               | Runtime, reactivity, forms, elements, renderer, and test maintainers                            |
+| Conformance         | Focused store/form suites, native-form matrix, topology Playwright journey, bundle/perf gates   |
+| Review cadence      | Exact dependency upgrades only with conformance, accessibility, browser, and bundle evidence    |
+| Fallback            | Replace one adapter behind its port; never fork a second canonical store                        |
+
+RxJS owns multicast delivery and indexed observables; Immer owns immutable transactional drafts;
+XState owns temporal workflows and effects; Lit owns Web Component projection; Ajv owns JSON Schema
+validation; Standard Schema permits third-party validators without adopting their stores;
+Playwright and axe own browser automation and automated accessibility checks; Tailwind emits host
+theme CSS without becoming component state. TanStack Form and Lion remain useful interoperability
+references, but their internal form stores would duplicate Unifold's normalized authority. This
+boundary reuses their lessons without importing a second value lifecycle.
 
 ## Icon data: Lucide
 

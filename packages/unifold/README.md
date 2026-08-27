@@ -19,6 +19,12 @@ Updates are admitted only after composition and IR validation plus renderer pref
 `structure.reconcile` transaction migrates compatible dirty control state and atomically replaces the
 composition manifest. Rejected inputs retain the last-known-good document, state, and DOM.
 
+An authored document may declare `controls@1.0.0` independently from its hierarchical visual tree.
+Enum-backed Form, Group, Array, Record, and Control definitions target stable rendered IDs and carry
+logical parents, ordered children, and durable keys into IR/runtime snapshots. The current authoring
+boundary is document-global; composition-local topology namespacing and rendered structural
+collection edits remain future acceptance work.
+
 For static HTML produced by `@unislang/unifold-export`, select
 `mountMode: UnifoldApplicationMountMode.UpgradeStatic`. The coordinator validates the complete
 document/node/component hierarchy before mutation, captures only supported native value controls,

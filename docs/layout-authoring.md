@@ -65,6 +65,10 @@ the existing versioned composition and IR contracts; renderers never interpret a
   node names an aggregate `parentId` and a durable sibling-unique `key`; every target must be a
   compatible visual node. Unknown fields, versions, targets, duplicate IDs/keys, cycles, incompatible
   kinds, incomplete coverage, and more than 10,000 nodes reject with exact source pointers.
+- Every explicit topology entry currently targets a rendered node. Roots must target `Form`, nested
+  forms are rejected, and every rendered Form/value control must be covered when topology is present.
+  Source order under an Array defines normalized order; the durable topology `key` is independent
+  from the native submission `name`, which continues to drive flat ordered `FormData` entries.
 - `{ "$var": "name" }` is the canonical typed reference. The bounded compatibility grammar also
   recognizes an exact `{{name}}` or `{{item.property}}` reference without `eval`; mixed executable
   expressions, prototype keys, calls, operators, and unresolved paths are rejected.
@@ -76,6 +80,10 @@ the existing versioned composition and IR contracts; renderers never interpret a
   emitter, or create a second public event stream.
 - XState commands remain trusted names registered by host code. Variables, props, event names, and
   machine definitions cannot contain functions, scripts, provider credentials, or arbitrary URLs.
+
+Composition-local topology namespacing and rendered collection insert/move/remove remain acceptance
+work. Until those seams compile and reconcile authored JSON, document-global topology is the only
+supported authoring boundary and runtime collection commands are headless primitives.
 
 ## Trusted external definitions
 
