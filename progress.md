@@ -18,19 +18,20 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
 - Latest implementation checkpoint:
-  `b3dded194af6fe7c300af4030909554c694f97c9`
-  (`feat: add governed AI Studio workflow`) on
+  `315cc1f7faa7b347d4ab1ade05120931cf6cc545`
+  (`feat: add portable application replay oracle`) on
   `https://github.com/unislang/unifold.git`.
 - Publication verification: live `git ls-remote origin refs/heads/main` resolved to
-  `b3dded194af6fe7c300af4030909554c694f97c9` immediately after the implementation push. The other
+  `315cc1f7faa7b347d4ab1ade05120931cf6cc545` immediately after the implementation push. The other
   named local tranches remain unstaged and preserved.
 - Current local implementation: the `NumberField`, `SearchField`, `CheckboxGroup`, `Switch`, and
   `DateField`, `Toast`, and `Pagination` families are committed as implementation checkpoints. The
   current scoped checkpoint adds the bounded adopter CLI/starter and Scratch-style module build
   integration plus the governed AI provider boundary and Studio dogfood workflow. The
-  multi-application semantic publication isolation, reference feature-module cleanup, executable
-  import-then-local-re-export prevention, and newer module-sharding work remain local and must be
-  preserved.
+  portable application replay oracle now pins document, machines, snapshot, clock/random controls,
+  events, and mocked effects. Multi-application semantic publication isolation, reference
+  feature-module cleanup, executable import-then-local-re-export prevention, and newer
+  module-sharding work remain local and must be preserved.
 - Goal status: active. The named 45-component stable catalog is implemented; `Composition` is the
   additional structural host, producing 46 generated catalog elements. Broader Studio,
   control-plane, manual accessibility, packaging, and production-integration gates remain.
@@ -73,9 +74,9 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   applications coexist; same-owner refresh is atomic; invalid refresh preserves the last-known-good
   graph; duplicate/adopted owner slots fail closed; and disposal removes only the owning graph.
   Browser-level isolation of every runtime seam remains an AC34 gap.
-- The durable acceptance register classifies all 34 criteria conservatively: AC27 is proved, AC10
-  and AC29 are missing, and the other 31 are partial. There are no known contradicted criteria after
-  the semantic ownership correction.
+- The durable acceptance register classifies all 34 criteria conservatively: AC4 and AC27 are
+  proved, AC10 and AC29 are missing, and the other 30 are partial. There are no known contradicted
+  criteria after the semantic ownership correction.
 - Repository verification passes 566 Vitest files/1,485 tests, 18/18 tooling tests, 9/9 generated
   CEM checks, all workspace source/test TypeScript, lint, dependency boundaries, unused-code,
   file-size, exact colocated-test, direct-re-export ownership, duplication, formatting, and build
@@ -981,6 +982,21 @@ must remain explicit and cannot be silently waived. The current slice has comple
 behavioral evidence; rerun Firefox when the managed runner can create a page reliably.
 
 ## Session log
+
+- 2026-08-26: Published the portable application replay oracle as
+  `315cc1f7faa7b347d4ab1ade05120931cf6cc545`. Its publishable JSON fixture and strict schema pin one
+  authored document, exact machine versions, normalized initial snapshot, ten finite clock and ten
+  finite random-ID values, a canonical intent, an explicit mocked-effect receipt, and the complete
+  expected snapshot/machine/event/effect result. The cross-package test drives the real runtime and
+  XState adapter twice without wall-clock, random, network, or provider access and rejects machine,
+  initial-snapshot, event, extra-authority, and exhausted-control drift. The devtools package passes
+  build, typecheck, scoped lint/format, and 10 files/23 tests; repository file length, colocated-test,
+  and dependency boundaries pass over 2,312 modules/5,114 dependencies. Full repository quality
+  reaches the separate in-progress module tranche and is currently red on its 32-line
+  `expandArtifact()` function; unused-code likewise reports only three symbols/dependencies in that
+  tranche. The replay implementation is committed and pushed to
+  `https://github.com/unislang/unifold.git`; live `refs/heads/main`, local `HEAD`, and `origin/main`
+  all resolved to the exact commit immediately after publication.
 
 - 2026-08-26: Published the governed AI and Studio workflow as
   `b3dded194af6fe7c300af4030909554c694f97c9` (`feat: add governed AI Studio workflow`). The Studio
