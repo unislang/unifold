@@ -8,27 +8,27 @@ const testSuffixes = [...supportedTestSuffixes, ...unsupportedTestSuffixes];
 const ignoredDirectories = new Set(["coverage", "dist", "node_modules"]);
 const moduleDirectories = ["src", "scripts"];
 
-async function listFiles(targetPath, packagePath = targetPath) {
+async function listFiles(targetPath, projectPath = targetPath) {
   const target = await stat(targetPath);
   if (!target.isDirectory()) {
     return [targetPath];
   }
   const entries = await readdir(targetPath, { withFileTypes: true });
   const nested = await Promise.all(
-    entries.map((entry) => listEntry(packagePath, targetPath, entry))
+    entries.map((entry) => listEntry(projectPath, targetPath, entry))
   );
   return nested.flat();
 }
 
-function listEntry(packagePath, parentPath, entry) {
-  if (entry.isDirectory() && isIgnoredRootDirectory(packagePath, parentPath, entry.name)) {
+function listEntry(projectPath, parentPath, entry) {
+  if (entry.isDirectory() && isIgnoredRootDirectory(projectPath, parentPath, entry.name)) {
     return [];
   }
-  return listFiles(resolve(parentPath, entry.name), packagePath);
+  return listFiles(resolve(parentPath, entry.name), projectPath);
 }
 
-function isIgnoredRootDirectory(packagePath, parentPath, name) {
-  return parentPath === packagePath && ignoredDirectories.has(name);
+function isIgnoredRootDirectory(projectPath, parentPath, name) {
+  return parentPath === projectPath && ignoredDirectories.has(name);
 }
 
 function testSuffix(filePath) {
@@ -62,9 +62,9 @@ function isAuthoredModule(filePath) {
   return testSuffix(filePath) === undefined && !isDeclaration(filePath);
 }
 
-function isSourceModule(packagePath, filePath) {
+function isSourceModule(projectPath, filePath) {
   return (
-    moduleDirectories.some((name) => !isOutside(resolve(packagePath, name), filePath)) &&
+    moduleDirectories.some((name) => !isOutside(resolve(projectPath, name), filePath)) &&
     sourceExtensions.includes(extname(filePath)) &&
     isAuthoredModule(filePath)
   );
@@ -75,8 +75,8 @@ function isOutside(parentPath, nestedPath) {
   return path === ".." || path.startsWith(`..${sep}`) || isAbsolute(path);
 }
 
-function outsideSourceViolation(packagePath, testPath) {
-  if (moduleDirectories.some((name) => !isOutside(resolve(packagePath, name), testPath))) {
+function outsideSourceViolation(projectPath, testPath) {
+  if (moduleDirectories.some((name) => !isOutside(resolve(projectPath, name), testPath))) {
     return undefined;
   }
   return { kind: "not-colocated", testPath };
@@ -92,8 +92,8 @@ async function missingSourceViolation(testPath, suffix) {
   }
 }
 
-async function inspectTest(packagePath, testPath) {
-  const outsideViolation = outsideSourceViolation(packagePath, testPath);
+async function inspectTest(projectPath, testPath) {
+  const outsideViolation = outsideSourceViolation(projectPath, testPath);
   if (outsideViolation !== undefined) {
     return outsideViolation;
   }
@@ -120,20 +120,28 @@ async function missingTestViolation(sourcePath) {
   }
 }
 
-export async function findColocationViolations(packagePaths) {
-  const nestedFiles = await Promise.all(packagePaths.map((packagePath) => listFiles(packagePath)));
+export async function findColocationViolations(projectPaths, exemptSourcePaths = []) {
+  const nestedFiles = await Promise.all(projectPaths.map((projectPath) => listFiles(projectPath)));
   const files = nestedFiles.flat();
   const tests = files.filter((filePath) => testSuffix(filePath) !== undefined);
-  const packagesByTest = tests.map((testPath) =>
-    packagePaths.find((packagePath) => !isOutside(packagePath, testPath))
+  const projectsByTest = tests.map((testPath) =>
+    projectPaths.find((projectPath) => !isOutside(projectPath, testPath))
   );
   const testInspections = await Promise.all(
-    tests.map((testPath, index) => inspectTest(packagesByTest[index], testPath))
+    tests.map((testPath, index) => inspectTest(projectsByTest[index], testPath))
   );
+  const exemptions = new Set(exemptSourcePaths.map((filePath) => resolve(filePath)));
   const sources = files.filter((filePath) => {
-    const packagePath = packagePaths.find((path) => !isOutside(path, filePath));
-    return isSourceModule(packagePath, filePath) && !isTestSupport(filePath);
+    const owner = projectPaths.find((path) => !isOutside(path, filePath));
+    return isSourceModule(owner, filePath) && !isTestSupport(filePath);
   });
-  const sourceInspections = await Promise.all(sources.map(missingTestViolation));
-  return [...testInspections, ...sourceInspections].filter((violation) => violation !== undefined);
+  const sourcePaths = new Set(sources.map((filePath) => resolve(filePath)));
+  const staleExemptions = [...exemptions]
+    .filter((filePath) => !sourcePaths.has(filePath))
+    .map((sourcePath) => ({ kind: "stale-exemption", sourcePath }));
+  const inspectedSources = sources.filter((filePath) => !exemptions.has(resolve(filePath)));
+  const sourceInspections = await Promise.all(inspectedSources.map(missingTestViolation));
+  return [...testInspections, ...sourceInspections, ...staleExemptions].filter(
+    (violation) => violation !== undefined
+  );
 }

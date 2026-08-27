@@ -25,6 +25,13 @@ Packages are ESM and use NodeNext module resolution. Relative imports in TypeScr
 
 Do not deep-import another package's `src` directory. Add a deliberate public export or narrow the dependency instead.
 
+Package, application, and example feature modules must not import an API only to re-export that
+local binding, either by name or as the default export (for example,
+`import { defineWidget } from "owner"; export { defineWidget };`). Consumers import the owning public
+package directly. A feature module may expose a meaningfully owned operation that combines the
+dependency with feature behavior; package entry points may continue to declare their intentional
+direct public export map.
+
 ## Required checks
 
 Run these before requesting review:
@@ -33,6 +40,7 @@ Run these before requesting review:
 pnpm format:check
 pnpm quality:files
 pnpm quality:tests
+pnpm quality:reexports
 pnpm lint
 pnpm typecheck
 pnpm quality:deps

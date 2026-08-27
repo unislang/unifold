@@ -13,7 +13,8 @@
   ],
   "bin": {
     "unifold-check-colocated-tests": "./bin/check-colocated-tests.mjs",
-    "unifold-check-file-lines": "./bin/check-file-lines.mjs"
+    "unifold-check-file-lines": "./bin/check-file-lines.mjs",
+    "unifold-check-import-reexports": "./bin/check-import-reexports.mjs"
   },
   "exports": {
     "./dependency-cruiser": "./config/dependency-cruiser.mjs",
@@ -21,7 +22,8 @@
     "./prettier": "./config/prettier.mjs",
     "./typescript": "./config/tsconfig.base.json",
     "./colocated-tests": "./src/colocated-tests.mjs",
-    "./file-lines": "./src/file-lines.mjs"
+    "./file-lines": "./src/file-lines.mjs",
+    "./import-reexports": "./src/import-reexports.mjs"
   },
   "scripts": {
     "test": "node --test src/*.test.mjs"

@@ -83,6 +83,23 @@ test("allows named test-data support without a recursive test requirement", asyn
   assert.deepEqual(await findColocationViolations([packagePath]), []);
 });
 
+test("allows only the exact source paths supplied by repository policy", async () => {
+  const packagePath = await createPackage();
+  const exempt = join(packagePath, "src", "bootstrap.ts");
+  await createFile(exempt);
+  await createFile(join(packagePath, "src", "nested-bootstrap.ts"));
+  const violations = await findColocationViolations([packagePath], [exempt]);
+  assert.equal(violations.length, 1);
+  assert.equal(violations[0]?.sourcePath, join(packagePath, "src", "nested-bootstrap.ts"));
+});
+
+test("rejects stale source exemption paths", async () => {
+  const packagePath = await createPackage();
+  const missing = join(packagePath, "src", "removed.ts");
+  const violations = await findColocationViolations([packagePath], [missing]);
+  assert.deepEqual(violations, [{ kind: "stale-exemption", sourcePath: missing }]);
+});
+
 test("does not exempt a source that only contains the test-data marker", async () => {
   const packagePath = await createPackage();
   await createFile(join(packagePath, "src", "feature.test-data.generated.ts"));
