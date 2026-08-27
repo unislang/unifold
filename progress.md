@@ -18,18 +18,15 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
 - Latest published implementation checkpoint:
-  `c9f46bf6b8c409b5c151907b9017dec8abe473df`
-  (`feat: transfer focus after collection removal`) on
-  `https://github.com/unislang/unifold.git`.
-- Latest local implementation checkpoint:
   `9fe398069fb10d2c76430aab5c298e9c5bcf6b52`
-  (`feat: focus authored empty collections`); it is not yet published.
+  (`feat: focus authored empty collections`) on
+  `https://github.com/unislang/unifold.git`.
 - Latest published verification checkpoint:
-  `e84e6bb93846a0c5e387054784dac213b650b8fc`
-  (`docs: record mounted collection authority checkpoint`).
+  `0e7a549c61e6425379491e515bbf56fec334beac`
+  (`docs: record empty collection focus checkpoint`).
 - Publication verification: live `git ls-remote origin refs/heads/main` resolved to
-  `c9f46bf6b8c409b5c151907b9017dec8abe473df`; local `HEAD` and `origin/main` matched that
-  implementation checkpoint before this progress-only follow-up. The history also includes runtime isolation at
+  `0e7a549c61e6425379491e515bbf56fec334beac`; local `HEAD` and `origin/main` matched that
+  verification checkpoint before this progress-only follow-up. The history also includes runtime isolation at
   `5a9795e`, semantic owner isolation at `0b9d569`, and repository source-ownership gates at
   `a6b4b60`.
 - Current implementation: the Scratch-style public JSON contract supports explicit logical control
@@ -97,8 +94,10 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 
 ## 2026-08-27 authored empty-collection focus tranche
 
-- Status: locally implemented, release-gate verified, and committed as
-  `9fe398069fb10d2c76430aab5c298e9c5bcf6b52`; not yet published. The overall goal remains active.
+- Status: implemented and release-gate verified as
+  `9fe398069fb10d2c76430aab5c298e9c5bcf6b52`, with verification record
+  `0e7a549c61e6425379491e515bbf56fec334beac`; both are pushed and independently verified on live
+  `unifold/main`. The overall goal remains active.
 - Scratch-style repeated nodes can declare `emptyFocusTarget` beside a named `collection`. Draft
   2020-12 schema dependencies require the collection/repeat/key tuple; parsing rejects unsafe or
   unscoped references; complete layout expansion resolves forward references and requires a stable,
