@@ -1,8 +1,27 @@
 import { UiCollectionOperationType } from "@unislang/unifold-contracts";
-import { UiEventType, type UiEvent } from "@unislang/unifold-events";
+import { UiCommandType, UiEventType, type UiEvent } from "@unislang/unifold-events";
 
 export function collectionOperationTypes(events: readonly UiEvent[]): UiCollectionOperationType[] {
   return events.flatMap((event) => optionalOperationType(eventCollectionOperationType(event)));
+}
+
+export function focusRequestIds(events: readonly UiEvent[]): string[] {
+  return events.flatMap(focusRequestId);
+}
+
+function focusRequestId(event: UiEvent): readonly string[] {
+  if (event.type !== UiEventType.CommandApplied) return [];
+  if (!isFocusRequest(record(event.data.change))) return [];
+  return optionalSourceId(event);
+}
+
+function isFocusRequest(change: Readonly<Record<string, unknown>> | undefined): boolean {
+  if (change === undefined) return false;
+  return change["commandType"] === UiCommandType.FocusRequest;
+}
+
+function optionalSourceId(event: UiEvent): readonly string[] {
+  return event.data.sourceNode === undefined ? [] : [event.data.sourceNode.id];
 }
 
 export function operationEventsAreCausal(events: readonly UiEvent[]): boolean {
@@ -49,9 +68,21 @@ function optionalOperationType(
 }
 
 function hasCausalTransaction(operation: UiEvent, events: readonly UiEvent[]): boolean {
-  const transaction = events.find(({ sequence }) => sequence === operation.sequence + 1);
-  if (transaction?.type !== UiEventType.TransactionCommitted) return false;
-  return sameEventContext(operation, transaction);
+  const operationIndex = events.indexOf(operation);
+  const following = events.slice(operationIndex + 1);
+  const transaction = following.find(isTransactionCommitted);
+  if (transaction === undefined || !sameEventContext(operation, transaction)) return false;
+  return precedingEvents(following, transaction).every((event) =>
+    sameEventContext(operation, event)
+  );
+}
+
+function isTransactionCommitted(event: UiEvent): boolean {
+  return event.type === UiEventType.TransactionCommitted;
+}
+
+function precedingEvents(events: readonly UiEvent[], target: UiEvent): readonly UiEvent[] {
+  return events.slice(0, events.indexOf(target));
 }
 
 function sameEventContext(left: UiEvent, right: UiEvent): boolean {

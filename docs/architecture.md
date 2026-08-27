@@ -157,8 +157,12 @@ Collection operations accept optional trusted correlation and causation IDs outs
 transaction IDs remain runtime-owned.
 
 The remaining limits are explicit. Array-fragment mounting still needs an authored order contract.
-The browser proof preserves focus on a surviving item but does not define where focus moves when the
-focused item is removed. Invalid authored input rejects before commit; post-runtime renderer failure,
+Focused-member removal now resolves the removed root from logical `controlChildIds`, moves to the
+member at the removed index or the preceding member when the removed member was last, and issues one
+canonical `focus.request` only after renderer, machine, and semantic commit succeed. The DOM resolver
+finds the first enabled composed control through nested layout hosts and does not fabricate a focus
+stop on an empty container. An authored empty-collection fallback reference remains to be specified.
+Invalid authored input rejects before commit; post-runtime renderer failure,
 compensation, and unified-event atomicity still need browser proof. Representative large authored
 collection end-to-end mutation performance remains broader than the 500-item compile/revision gates. Composition control declarations currently
 reuse visual-node provenance by ID rather than publishing exact `/controls/nodes/N` source records,

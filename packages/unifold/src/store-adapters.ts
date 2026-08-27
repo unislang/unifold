@@ -39,6 +39,17 @@ export function prepareApplicationStores(
   return { bindings: writableBindings(document), values };
 }
 
+export function prepareUpdatedStores(
+  document: UnifoldIrDocument,
+  adapters: UiStoreAdapterRegistry
+): PreparedApplicationStores | Error {
+  try {
+    return prepareApplicationStores(document, adapters);
+  } catch (error) {
+    return error instanceof Error ? error : new Error("Unknown store preparation failure.");
+  }
+}
+
 export function applyStoreSnapshot(
   document: UnifoldIrDocument,
   node: UnifoldIrNode,

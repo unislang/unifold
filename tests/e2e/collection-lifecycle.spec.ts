@@ -7,6 +7,7 @@ interface CollectionObservation {
   readonly alphaValue: unknown;
   readonly authoredKeys: readonly string[];
   readonly focusedId?: string;
+  readonly focusRequestIds: readonly string[];
   readonly lateRemovedEvents: number;
   readonly operationEventsCausal: boolean;
   readonly operationEventsOriginated: boolean;
@@ -41,9 +42,12 @@ test("reconciles authored collections by durable key and drops stale async work"
   expect(await callHook(page, "insert")).toBe(UnifoldApplicationUpdateStatus.Applied);
   await assertObservation(page, ["a", "c", "b"], ["field::a", "field::c", "field::b"]);
   await page.getByLabel("Gamma").fill("taken");
-  await page.getByLabel("Alpha").focus();
+  await page.getByLabel("Gamma").focus();
   expect(await callHook(page, "move")).toBe(UnifoldApplicationUpdateStatus.Applied);
+  expect((await observe(page)).focusedId).toBe("field::c");
   expect(await callHook(page, "remove")).toBe(UnifoldApplicationUpdateStatus.Applied);
+  await expect(page.getByLabel("Gamma")).toHaveCount(0);
+  await expect(page.getByLabel("Alpha")).toBeFocused();
   await page.waitForTimeout(400);
   await assertFinalObservation(page);
   expect(await callHook(page, "reject")).toBe(UnifoldApplicationUpdateStatus.Rejected);
@@ -78,6 +82,7 @@ async function assertFinalObservation(page: ScenarioPage): Promise<void> {
     alphaValue: "Edited",
     authoredKeys: ["b", "a"],
     focusedId: "field::a",
+    focusRequestIds: ["field::a"],
     lateRemovedEvents: 0,
     operationEventsCausal: true,
     operationEventsOriginated: true,

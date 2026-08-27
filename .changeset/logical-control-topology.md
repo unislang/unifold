@@ -26,3 +26,8 @@ last-known-good rejection, retained value/host/focus, causal structural events, 
 validation from a removed control. Extend the locked hierarchical example across nested values,
 native `FormData`, aggregate disable/restore, XState, Schema.org, selective projection,
 submit/reset, and accessibility.
+
+Transfer focus deterministically when a focused authored member is removed: prefer the next member,
+then the previous member, resolve nested enabled controls through composed layout hosts, and publish
+one canonical focus effect with trusted operation lineage after successful UI commit. Do not create
+an artificial focus stop when the collection becomes empty.

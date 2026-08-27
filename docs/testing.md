@@ -398,7 +398,8 @@ for native-form assertions because it destroys repeated keys.
 The dedicated authored-collection lifecycle passed in the prior full Chromium reference matrix and
 passes the current focused Chromium/WebKit 2/2 rerun. It mounts a named repeat, inserts at index one, moves by durable key, removes the inserted
 control, and rejects an invalid successor at the last-known-good authored revision. Assertions cover
-exact authored/rendered order, retained edited value and host identity, focus on a surviving control,
+exact authored/rendered order, retained edited value and host identity, next/previous focus transfer
+when the focused control is removed,
 causal insert/move/remove command-to-transaction metadata, and zero late events from a deliberately
 non-cooperative validator after its control is removed. The lifecycle also asserts logical aggregate
 values, trusted operation correlation/causation, and denial of a raw mounted `structure.remove`
@@ -406,7 +407,9 @@ attempt without revision or host-identity change. Focused type and runtime tests
 structural command families are absent from the mounted port and retained by the headless runtime;
 the mounted renderer exposes lookup only. The clean packed-consumer 5/5 suite repeats the raw
 structural denial against installed tarballs before continuing ordinary interaction and authored
-update. Remaining work includes focused-item fallback, post-runtime
+update. The focused Chromium/WebKit journey also asserts the removed native input disappears, the
+adjacent native input is focused, and exactly one canonical focus-request target appears in the
+public event observation. Remaining work includes an explicit authored empty-collection fallback, post-runtime
 renderer rollback/event atomicity, and end-to-end collection mutation performance beyond the
 500-item compile/revision gates. Remaining AC19 work also includes exact composition-control provenance,
 aggregate-shape migration, a rendered composition mount, wrapper-refactor identity/focus/rollback,

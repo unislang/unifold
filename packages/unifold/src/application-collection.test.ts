@@ -24,7 +24,7 @@ import {
 it("compiles and renders durable collection insert, move, and remove operations", async () => {
   const fixture = await mountedEditedCollection();
   assertInsertedCollection(fixture);
-  assertMovedAndRemovedCollection(fixture);
+  await assertMovedAndRemovedCollection(fixture);
   assertCollectionEvidence(fixture);
   fixture.subscription.unsubscribe();
   fixture.application.dispose();
@@ -50,9 +50,9 @@ async function mountedEditedCollection() {
 type CollectionFixture = Awaited<ReturnType<typeof mountedEditedCollection>>;
 
 function assertInsertedCollection(fixture: CollectionFixture): void {
-  expect(fixture.application.applyCollectionOperation(insertOperation()).status).toBe(
-    UnifoldApplicationUpdateStatus.Applied
-  );
+  const result = fixture.application.applyCollectionOperation(insertOperation());
+  expect(result.diagnostics).toEqual([]);
+  expect(result.status).toBe(UnifoldApplicationUpdateStatus.Applied);
   expect(fixture.application.renderer.getElement("field::a")).toBe(fixture.alpha);
   expect(controlValue(fixture, "field::a")).toBe("Edited");
   expect(fixture.alpha.shadowRoot?.activeElement).toBe(fixture.input);
@@ -64,17 +64,23 @@ function controlValue(fixture: CollectionFixture, id: string): unknown {
   return fixture.application.runtime.getSnapshot(id).control?.value;
 }
 
-function assertMovedAndRemovedCollection(fixture: CollectionFixture): void {
+async function assertMovedAndRemovedCollection(fixture: CollectionFixture): Promise<void> {
   expect(fixture.application.applyCollectionOperation(moveOperation()).status).toBe(
     UnifoldApplicationUpdateStatus.Applied
   );
   expect(renderedIds(fixture.container)).toEqual(["field::b", "field::a", "field::c"]);
   expect(controlValue(fixture, "items")).toEqual(["Beta", "Edited", "Gamma"]);
-  expect(fixture.application.applyCollectionOperation(removeOperation()).status).toBe(
-    UnifoldApplicationUpdateStatus.Applied
-  );
+  const gamma = requireElement(fixture.application, "field::c");
+  await updateComplete(gamma);
+  requireInput(gamma).focus();
+  const removed = fixture.application.applyCollectionOperation(removeOperation(), {
+    causationId: "collection-remove",
+    correlationId: "collection-journey"
+  });
+  expect(removed.status).toBe(UnifoldApplicationUpdateStatus.Applied);
   expect(renderedIds(fixture.container)).toEqual(["field::b", "field::a"]);
   expect(controlValue(fixture, "items")).toEqual(["Beta", "Edited"]);
+  expect(fixture.alpha.shadowRoot?.activeElement).toBe(fixture.input);
 }
 
 function assertCollectionEvidence(fixture: CollectionFixture): void {
@@ -84,9 +90,16 @@ function assertCollectionEvidence(fixture: CollectionFixture): void {
     { id: "a", label: "Alpha" }
   ]);
   expect(structuralEvents(fixture.events)).toHaveLength(3);
+  expect(focusEvents(fixture.events)).toMatchObject([
+    {
+      causationid: "collection-remove",
+      correlationid: "collection-journey",
+      data: { sourceNode: { id: "field::a" } }
+    }
+  ]);
   expect(
     fixture.events.filter(({ type }) => type === UiEventType.TransactionCommitted)
-  ).toHaveLength(4);
+  ).toHaveLength(5);
 }
 
 it("retains last-known-good authored, runtime, and DOM state after rejection", () => {
@@ -307,6 +320,14 @@ function structuralEvents(events: readonly UiEvent[]): readonly UiEvent[] {
     (event) =>
       event.type === UiEventType.CommandApplied &&
       commandTypeOf(event) === UiCommandType.StructureReconcile
+  );
+}
+
+function focusEvents(events: readonly UiEvent[]): readonly UiEvent[] {
+  return events.filter(
+    (event) =>
+      event.type === UiEventType.CommandApplied &&
+      commandTypeOf(event) === UiCommandType.FocusRequest
   );
 }
 

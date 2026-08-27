@@ -29,7 +29,8 @@ import {
   UiStoreConfigurationError,
   applyStoreSnapshot,
   createMemoryStoreAdapter,
-  prepareApplicationStores
+  prepareApplicationStores,
+  prepareUpdatedStores
 } from "./store-adapters.js";
 import { createStoreCommandPort } from "./store-command-port.js";
 import { workflowStoreDocument } from "./workflow-store.test-data.js";
@@ -55,6 +56,19 @@ it("loads, validates, resolves, classifies, and writes through trusted adapters"
   );
   expect(adapter.snapshot()).toEqual({ name: "Grace" });
   expect(stores.values["customer"]).toEqual({ name: "Grace" });
+});
+
+it("normalizes non-Error failures while preparing replacement stores", () => {
+  const storesById = new Proxy(
+    {},
+    {
+      ownKeys: () => {
+        throw "private registry detail";
+      }
+    }
+  );
+  const result = prepareUpdatedStores({ ...compiledDocument(), storesById }, {});
+  expect(result).toEqual(new Error("Unknown store preparation failure."));
 });
 
 it("hydrates and writes a bound MasterDetail selection", async () => {

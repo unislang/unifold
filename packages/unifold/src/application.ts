@@ -11,20 +11,25 @@ import {
   type UiCompositionVersionMigration
 } from "./composition-migrations.js";
 import { ApplicationCollectionCoordinator } from "./application-collection.js";
+import {
+  collectionExecutionContext,
+  collectionFocusTarget,
+  focusedNodeId,
+  restoreApplicationFocus,
+  restoreFocus
+} from "./application-focus.js";
 import { createApplicationRenderer } from "./application-renderer.js";
 import { createApplicationRuntime } from "./application-runtime.js";
 import type { UnifoldCollectionOperation } from "./authored-collection.js";
 import {
   appliedUpdate,
   asError,
-  captureRuntimeSnapshots,
+  captureApplicationUpdateCheckpoint,
   elementRegistrationDiagnostic,
   errorDiagnostic,
   executePreparedReconciliation,
   firstDiagnostic,
-  focusedNodeId,
   isApplicationDiagnostic,
-  migratedFocusedNodeId,
   machineConfigurationDiagnostic,
   prepareApplicationUpdate,
   prepareCompositionMigration,
@@ -36,15 +41,15 @@ import {
   requirePrepared,
   rollbackResultDiagnostic,
   reverseMigrationPlan,
-  restoreFocus,
   semanticConfigurationDiagnostic,
   structuralUpdateDiagnostic,
-  updateFailureStage
+  updateFailureStage,
+  type ApplicationUpdateCheckpoint
 } from "./application-update.js";
 import { commandForEvent, eventExecutionContext } from "./event-command.js";
 import { createUiMachineCoordinator, type UiMachineCoordinator } from "./machine-coordinator.js";
 import { UiSemanticCoordinator } from "./semantic-coordinator.js";
-import { prepareApplicationStores, type PreparedApplicationStores } from "./store-adapters.js";
+import { prepareUpdatedStores, type PreparedApplicationStores } from "./store-adapters.js";
 import type { StoreCommandController } from "./store-command-port.js";
 import {
   UnifoldApplicationDiagnosticStage,
@@ -153,7 +158,7 @@ export class UnifoldApplication {
     next: PreparedUnifoldDocument,
     migration: UiCompositionMigrationPlan
   ): UnifoldApplicationUpdateResult {
-    const stores = this.prepareStores(next.document);
+    const stores = prepareUpdatedStores(next.document, this.storeAdapters);
     if (stores instanceof Error) {
       return rejectedUpdate(this.#engine.revision, [
         errorDiagnostic(stores, UnifoldApplicationDiagnosticStage.Store)
@@ -162,13 +167,6 @@ export class UnifoldApplication {
     const diagnostic = this.configurationDiagnostic(next.document, stores);
     if (diagnostic !== undefined) return rejectedUpdate(this.#engine.revision, [diagnostic]);
     return this.commitPrepared(next, stores, migration);
-  }
-  private prepareStores(document: UnifoldIrDocument): PreparedApplicationStores | Error {
-    try {
-      return prepareApplicationStores(document, this.storeAdapters);
-    } catch (error) {
-      return error instanceof Error ? error : new Error("Unknown store preparation failure.");
-    }
   }
   private configurationDiagnostic(document: UnifoldIrDocument, stores: PreparedApplicationStores) {
     return firstDiagnostic([
@@ -184,61 +182,63 @@ export class UnifoldApplication {
     nextStores: PreparedApplicationStores,
     migration: UiCompositionMigrationPlan
   ): UnifoldApplicationUpdateResult {
-    const previous = this.current;
-    const previousStores = this.stores;
-    const previousRevision = this.#engine.revision;
-    const previousNodes = captureRuntimeSnapshots(this.#engine, previous.document, this.#renderer);
+    const checkpoint = captureApplicationUpdateCheckpoint(
+      this.current,
+      this.stores,
+      this.#engine,
+      this.#renderer
+    );
+    const collection = this.collections.current;
+    const focusTarget = collectionFocusTarget(
+      checkpoint.previousNodes,
+      next.document,
+      collection?.metadata
+    );
     this.stageCandidate(next, nextStores);
     this.updating = true;
     try {
-      const collection = this.collections.current;
       executePreparedReconciliation(this.#engine, next, nextStores, migration, collection);
     } catch (error) {
-      const rollbackError = this.restoreRuntime(
-        previous,
-        previousStores,
-        previousRevision,
-        previousNodes,
-        migration
-      );
+      const rollbackError = this.restoreRuntime(checkpoint, migration);
       this.updating = false;
       return rejectedUpdate(this.#engine.revision, [
         rollbackResultDiagnostic(rollbackError, error, UnifoldApplicationDiagnosticStage.Runtime)
       ]);
     }
-    return this.commitRenderer(previous, previousStores, previousNodes, migration, next);
+    return this.commitRenderer(checkpoint, migration, next, focusTarget);
   }
 
   private commitRenderer(
-    previous: PreparedUnifoldDocument,
-    previousStores: PreparedApplicationStores,
-    previousNodes: readonly UiNodeSnapshot[],
+    checkpoint: ApplicationUpdateCheckpoint,
     migration: UiCompositionMigrationPlan,
-    next: PreparedUnifoldDocument
+    next: PreparedUnifoldDocument,
+    focusTarget: string | undefined
   ): UnifoldApplicationUpdateResult {
+    let result: UnifoldApplicationUpdateResult;
+    const nodes = checkpoint.previousNodes;
+    const context = collectionExecutionContext(this.collections.current);
     try {
       this.#renderer.update(next.document);
       this.projectAll(next.document);
-      restoreFocus(this.#renderer, migratedFocusedNodeId(previousNodes, migration));
       this.machines.replace(next.document.machines, next.document.nodesById);
       this.semantics?.publishRuntime(next.document, this.#engine);
-      return appliedUpdate(this.#engine.revision);
+      restoreApplicationFocus(this.#engine, this.#renderer, nodes, migration, focusTarget, context);
+      result = appliedUpdate(this.#engine.revision);
     } catch (error) {
-      const rollbackError = this.restore(previous, previousStores, previousNodes, migration);
-      return rejectedUpdate(this.#engine.revision, [
+      const rollbackError = this.restore(checkpoint, migration);
+      result = rejectedUpdate(this.#engine.revision, [
         rollbackResultDiagnostic(rollbackError, error, updateFailureStage(error))
       ]);
-    } finally {
-      this.updating = false;
     }
+    this.updating = false;
+    return result;
   }
 
   private restore(
-    previous: PreparedUnifoldDocument,
-    previousStores: PreparedApplicationStores,
-    previousNodes: readonly UiNodeSnapshot[],
+    checkpoint: ApplicationUpdateCheckpoint,
     migration: UiCompositionMigrationPlan
   ): Error | undefined {
+    const { previous, previousNodes, previousStores } = checkpoint;
     try {
       this.current = previous;
       this.stores = previousStores;
@@ -261,19 +261,25 @@ export class UnifoldApplication {
   }
 
   private restoreRuntime(
-    previous: PreparedUnifoldDocument,
-    previousStores: PreparedApplicationStores,
-    previousRevision: number,
-    previousNodes: readonly UiNodeSnapshot[],
+    checkpoint: ApplicationUpdateCheckpoint,
     migration: UiCompositionMigrationPlan
   ): Error | undefined {
     try {
-      this.current = previous;
-      this.stores = previousStores;
-      this.#engine.replaceStoreBindings(previousStores.bindings);
-      replaceStoreCommands(this.storeCommands, previous.document, previousStores);
-      this.#engine.replaceRules(previous.document.rules, previousNodes);
-      this.restoreRuntimeTransaction(previous, previousRevision, previousNodes, migration);
+      this.current = checkpoint.previous;
+      this.stores = checkpoint.previousStores;
+      this.#engine.replaceStoreBindings(checkpoint.previousStores.bindings);
+      replaceStoreCommands(
+        this.storeCommands,
+        checkpoint.previous.document,
+        checkpoint.previousStores
+      );
+      this.#engine.replaceRules(checkpoint.previous.document.rules, checkpoint.previousNodes);
+      this.restoreRuntimeTransaction(
+        checkpoint.previous,
+        checkpoint.previousRevision,
+        checkpoint.previousNodes,
+        migration
+      );
       return undefined;
     } catch (error) {
       this.dispose();
@@ -308,8 +314,7 @@ export class UnifoldApplication {
   };
 
   private readonly onRuntimeEvent = (event: UiEvent): void => {
-    if (this.updating) return;
-    if (event.type !== UiEventType.TransactionCommitted) return;
+    if (this.updating || event.type !== UiEventType.TransactionCommitted) return;
     this.projectTransaction(event.staterevision);
     this.refreshSemantics();
   };

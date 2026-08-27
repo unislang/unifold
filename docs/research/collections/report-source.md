@@ -96,8 +96,11 @@ state; the explicit timeout exists only to cross the intentionally delayed valid
 
 ## Remaining feasibility gaps
 
-- Removing the item that owns focus needs an explicit fallback-focus policy and browser proof. The
-  current journey removes a different item while retaining focus on an unaffected control.
+- Removing the item that owns focus now selects the next surviving member at the same index, then
+  the previous member. The canonical focus effect runs only after renderer, workflow, and semantic
+  commit, retains trusted lineage, traverses nested layout hosts, and is proven in Chromium/WebKit.
+  Empty collections deliberately do not make inert layout content focusable; an authored fallback
+  reference and compiler validation remain open.
 - Renderer or semantic-projection failure can follow publication of the forward structural event.
   Compensation restores state, but external consumers do not yet receive one buffered atomic event
   or an explicit causally linked compensation contract.
@@ -112,8 +115,8 @@ collection acceptance criterion partial.
 
 ## Recommendations
 
-1. Specify deterministic focus transfer before enabling removal of a focused member in production
-   authoring tools.
+1. Specify and validate an authored empty-collection focus fallback before enabling singleton
+   removal in production authoring tools.
 2. Buffer structural event publication until renderer and semantic commit, or add an explicit
    causal compensation event that external consumers can reconcile safely.
 3. Add 1,000-member and end-to-end mutation browser/performance gates before optimizing compilation. Retain the

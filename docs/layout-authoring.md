@@ -92,8 +92,12 @@ target one explicit logical Array or Record control, and generated member contro
 aggregate value and child order. Lower-level runtime collection commands remain headless primitives;
 the mounted runtime and renderer expose restricted capabilities that cannot issue structural
 commands or mutate rendered structure. Trusted host correlation/causation can accompany collection
-operations without becoming authored JSON. Removing the focused item still needs a defined focus policy, while
-post-runtime renderer rollback/event atomicity and representative large authored-collection
+operations without becoming authored JSON. Removing a focused member moves focus to the next
+surviving member at the same index, or the previous member when the removed member was last. The
+request uses the same trusted lineage and unified effect stream after a successful UI commit;
+unrelated focus is never moved. Empty collections do not make their layout host focusable, so an
+explicit authored empty-state fallback remains open. Post-runtime renderer rollback/event atomicity
+and representative large authored-collection
 mutation performance remain open; 500-item initial and revision compilation are separately gated.
 
 ## Trusted external definitions

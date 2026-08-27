@@ -14,6 +14,7 @@ import {
 import { createAsyncValidatorRegistry, type UiValidationContext } from "@unislang/unifold-forms";
 import {
   collectionOperationTypes,
+  focusRequestIds,
   lateRemovedEventCount,
   operationEventsAreCausal,
   operationEventsHaveTrustedOrigin
@@ -39,6 +40,7 @@ interface CollectionFixtureObservation {
   readonly alphaValue: unknown;
   readonly authoredKeys: readonly string[];
   readonly focusedId?: string;
+  readonly focusRequestIds: readonly string[];
   readonly lateRemovedEvents: number;
   readonly operationEventsCausal: boolean;
   readonly operationEventsOriginated: boolean;
@@ -156,6 +158,7 @@ function observeCollectionFixture(): CollectionFixtureObservation {
     alphaValue: fixture.application.runtime.getSnapshot("field::a").control?.value,
     authoredKeys: authored.variables.items.map(({ id }) => id),
     ...optionalFocusedId(focusedNodeId()),
+    focusRequestIds: focusRequestIds(fixture.events),
     lateRemovedEvents: lateRemovedEventCount(fixture.events, fixture.removedAtSequence),
     operationEventsCausal: operationEventsAreCausal(fixture.events),
     operationEventsOriginated: operationEventsHaveTrustedOrigin(fixture.events),

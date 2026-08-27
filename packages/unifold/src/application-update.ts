@@ -217,7 +217,7 @@ export function rollbackResultDiagnostic(
   return errorDiagnostic(updateError, stage);
 }
 
-export function captureRuntimeSnapshots(
+function captureRuntimeSnapshots(
   runtime: UnifoldRuntime,
   document: UnifoldIrDocument,
   renderer?: DomRenderController
@@ -229,6 +229,27 @@ export function captureRuntimeSnapshots(
     ...snapshot,
     base: { ...snapshot.base, focused: snapshot.id === focused }
   }));
+}
+
+export interface ApplicationUpdateCheckpoint {
+  readonly previous: PreparedUnifoldDocument;
+  readonly previousNodes: readonly UiNodeSnapshot[];
+  readonly previousRevision: number;
+  readonly previousStores: PreparedApplicationStores;
+}
+
+export function captureApplicationUpdateCheckpoint(
+  previous: PreparedUnifoldDocument,
+  stores: PreparedApplicationStores,
+  runtime: UnifoldRuntime,
+  renderer: DomRenderController
+): ApplicationUpdateCheckpoint {
+  return {
+    previous,
+    previousNodes: captureRuntimeSnapshots(runtime, previous.document, renderer),
+    previousRevision: runtime.revision,
+    previousStores: stores
+  };
 }
 
 function renderedFocusedNodeId(
@@ -260,26 +281,6 @@ function composedActiveElements(document: Document): readonly Element[] {
 
 function shadowActiveElement(element: Element): Element | null {
   return element.shadowRoot?.activeElement ?? null;
-}
-
-export function focusedNodeId(nodes: readonly UiNodeSnapshot[]): string | undefined {
-  return nodes.find(({ base }) => base.focused)?.id;
-}
-
-export function migratedFocusedNodeId(
-  nodes: readonly UiNodeSnapshot[],
-  migration: UiCompositionMigrationPlan
-): string | undefined {
-  const focused = focusedNodeId(nodes);
-  if (focused === undefined) return undefined;
-  return Object.entries(migration.nodeIdentityAliases).find(
-    ([, source]) => source === focused
-  )?.[0];
-}
-
-export function restoreFocus(renderer: DomRenderController, nodeId: string | undefined): void {
-  if (nodeId === undefined) return;
-  void renderer.restoreFocus(nodeId);
 }
 
 export function replaceStoreCommands(

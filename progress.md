@@ -22,12 +22,11 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   (`feat: enforce mounted collection authority`) on
   `https://github.com/unislang/unifold.git`.
 - Latest published verification checkpoint:
-  `a99b8540034cbcbea92c94435e056e376fd2cfe5`
-  (the implementation commit includes the refreshed architecture, acceptance, testing, performance,
-  package, research, and changeset records).
+  `e84e6bb93846a0c5e387054784dac213b650b8fc`
+  (`docs: record mounted collection authority checkpoint`).
 - Publication verification: live `git ls-remote origin refs/heads/main` resolved to
-  `a99b8540034cbcbea92c94435e056e376fd2cfe5`; local `HEAD` and `origin/main` matched that
-  implementation checkpoint before this progress-only follow-up. The history also includes runtime isolation at
+  `e84e6bb93846a0c5e387054784dac213b650b8fc`; local `HEAD` and `origin/main` matched that
+  verification checkpoint before the focused-member-removal worktree tranche. The history also includes runtime isolation at
   `5a9795e`, semantic owner isolation at `0b9d569`, and repository source-ownership gates at
   `a6b4b60`.
 - Current implementation: the Scratch-style public JSON contract supports explicit logical control
@@ -38,7 +37,8 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   initial closure without widening its gate. Named Scratch repeats now compile durable-key
   collection authority coupled to explicit Array/Record controls, mounted applications reconcile
   authored insert/move/remove operations, and mounted runtime/renderer capabilities deny raw
-  structural mutation.
+  structural mutation. Focused-member removal now transfers to the next or previous surviving
+  member through the canonical post-commit focus effect without making empty layout hosts focusable.
   The bounded adopter CLI/starter,
   governed AI provider boundary, Studio dogfood workflow, multi-application semantic isolation,
   exact test colocation, re-export prevention, and completed reference/hierarchical/Studio module
@@ -53,6 +53,40 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - 1.0 traceability register: [`docs/acceptance-audit.md`](./docs/acceptance-audit.md)
 - Concise 34-criterion evidence register:
   [`docs/acceptance-status.md`](./docs/acceptance-status.md)
+
+## 2026-08-27 focused authored-member removal tranche
+
+- Status: implemented and fully verified in the current worktree; commit and push are the immediate
+  next action. The overall goal remains active.
+- Focus capture uses the mounted composed-focus snapshot and logical `controlChildIds`; it never
+  parses generated IDs. Removal moves focus only when the removed member owned focus, selecting the
+  member now at the removed index or the preceding member when the removed member was last. Insert,
+  move, unrelated removal, malformed metadata, and empty collections fail closed without moving
+  focus or creating an artificial `tabindex` on Stack/Form content.
+- The transfer is one enum-backed `FocusRequest` executed after renderer projection, XState-machine
+  replacement, and semantic publication succeed. It carries the trusted collection
+  correlation/causation context through the unified command/effect stream, does not create a state
+  revision or extra `TransactionCommitted`, and is not emitted when those UI commit stages reject.
+  Composition-identity focus migration and rollback continue through the existing exact restoration
+  path.
+- The DOM resolver now traverses nested rendered child containers and shadow roots, skips disabled,
+  hidden, and inert targets, preserves indexed-control fallback, waits for Lit upgrades, and stops
+  delayed retries from stealing focus after the user moves elsewhere. Empty noninteractive hosts are
+  never made focusable.
+- Repository quality gates pass the 350-line, 30-line function, cyclomatic-complexity, exact
+  colocated-test, local import/re-export, lint, production/test TypeScript, dependency analysis over
+  2,422 modules/5,427 dependencies, and unused-code policies. Root Vitest passes 605 files/1,611
+  tests; 22 tooling tests, all generated/module-lock scripts, and 39 performance-correctness
+  files/50 tests also pass, with 32 profile files skipped. All 40 recursive builds pass, the
+  reference production closure is 162,910 gzip bytes plus 84,991 deferred against the 190 KiB
+  initial ceiling, and repository formatting passes. The authored collection lifecycle passes 2/2
+  in Chromium/WebKit with native `toBeFocused()` assertions and exactly one public focus-request
+  target.
+- Remaining AC19 work starts with a validated authored empty-collection fallback reference, followed
+  by buffered structural event publication or an explicit compensation contract, end-to-end large
+  collection mutation performance, exact composition-control provenance and aggregate-shape
+  migration, rendered composition mounts, wrapper-refactor identity/focus/rollback, and
+  schema-derived handle typing.
 
 ## 2026-08-27 mounted authority and logical collection tranche
 
@@ -90,7 +124,7 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   150 ms limits. The focused collection journey passes 2/2 across Chromium and WebKit, including
   the mounted negative bypass and positive collection lifecycle. The clean packed consumer passes
   5/5 and proves the same denied structural bypass from installed public artifacts.
-- Remaining AC19 work: focused-member removal and deterministic focus transfer; buffered renderer /
+- Remaining AC19 work after the newer tranche above: an authored empty-collection focus fallback; buffered renderer /
   semantic event atomicity or an explicit compensation contract; 1,000-item and end-to-end mutation
   performance; exact composition-control declaration provenance; aggregate-shape-aware migrations;
   rendered composition mounts; live wrapper-refactor identity/focus/rollback; and schema-derived
