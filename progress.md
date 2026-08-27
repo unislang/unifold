@@ -18,19 +18,16 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
 - Latest published implementation checkpoint:
-  `89645cc7ef95117b5c7a2f10a03de3ecd80061db`
-  (`feat: make focus effect settlement truthful`) on
-  `https://github.com/unislang/unifold.git`. The preceding executable collection-behavior
-  checkpoint is `a065b629677dd65f47ad9334dceb326de988e04e`.
-- Latest published verification checkpoint:
-  `cf136af0670e8dca421bf3e798e96c0f61e4955b`
-  (`docs: record truthful focus checkpoint`).
-- Latest local implementation checkpoint:
   `9c5922bec0737c8a3e53bc5f97fe587dfa1bdbc4`
-  (`feat: correlate effect lifecycles`); subsequent lifecycle-memory sampling work remains
-  uncommitted.
+  (`feat: correlate effect lifecycles`) on `https://github.com/unislang/unifold.git`.
+- Latest published verification checkpoint:
+  `ce6461471c5e5cc13677c2289cae8eba8c3d1a4f`
+  (`test: close effect lifecycle release gates`), following documentation checkpoint
+  `36a74d2` (`docs: record effect identity checkpoint`).
+- Latest local checkpoint: `ce6461471c5e5cc13677c2289cae8eba8c3d1a4f`; the worktree was clean
+  when publication was verified.
 - Publication verification: live `git ls-remote origin refs/heads/main` and local `HEAD` both
-  resolved to `cf136af0670e8dca421bf3e798e96c0f61e4955b` after the push to
+  resolved to `ce6461471c5e5cc13677c2289cae8eba8c3d1a4f` after the push to
   `https://github.com/unislang/unifold.git`. The
   history also includes runtime isolation at
   `5a9795e`, semantic owner isolation at `0b9d569`, and repository source-ownership gates at
@@ -50,7 +47,7 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   and every descendant by durable key. The latest local checkpoint promotes that safe fallback policy
   through closed `collectionBehaviors@1.0.0`, canonical IR `1.1.0`, resolved module artifacts, and
   application focus selection. Private source-pointer/key mutation authority remains only in the
-  prepared document. The active worktree now makes DOM focus settlement truthful: the renderer
+  prepared document. The published checkpoint makes DOM focus settlement truthful: the renderer
   returns an enum result, verifies deepest composed focus after accepted pending definitions and
   updates, and the application stream reports unavailable or refused focus as a failed effect. It
   also assigns every admitted effect one command-owned identity, preserves it through the canonical
@@ -70,10 +67,38 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Concise 34-criterion evidence register:
   [`docs/acceptance-status.md`](./docs/acceptance-status.md)
 
+## 2026-08-27 Scratch-style authoring and lifecycle release gates
+
+- The intended public authoring contract is the hierarchy described by
+  [`scratch/angular-ui/DYNAMIC-UI-README.md`](./scratch/angular-ui/DYNAMIC-UI-README.md): an exact
+  `layoutType`/`layoutVersion`, typed `variables`, and stable nested `id`, `type`, `props`,
+  `children`, and named `events`. Root README guidance now states this directly. Canonical IR,
+  XState actors, observable projections, CloudEvents, and effect lifecycle IDs are derived runtime
+  machinery, not a second authored JSON shape. Persist and export the authored layout JSON.
+- The corrected lifecycle-memory fixture compares symmetric quiescent task boundaries and uses a
+  synchronous major/full-heap query with a repository-owned sentinel. The complete schema `2.36.0`
+  selective benchmark passes all 63/63 gates: 20-cycle/500-node retained heap growth is 0% against
+  the strict 2% ceiling; 500-node hierarchical compilation is 4.0972 ms p95 against 100 ms; and
+  500-item collection compilation/revision are 5.5578/5.5585 ms p95 against 150 ms.
+- Full coverage passes its enforced thresholds at 97.28% lines/statements, 96.97% functions, and
+  exactly 90.00% branches (11,699/12,998). Privacy and deterministic replay tests prove malformed,
+  mismatched, and failed effect metadata fails closed; runtime tests cover absent optional event
+  extensions, missing intent sources/snapshots, and transaction source fallback.
+- Complete quality passes file/function/complexity, exact test colocation, lint, production/test
+  TypeScript, no imported-local-binding re-exports, dependency analysis over 2,447 modules/5,485
+  dependencies, unused-code, formatting, and duplication checks. All 40 builds pass; the reference
+  initial closure is 165,795 gzip bytes plus 84,982 deferred against 190 KiB. The packed external
+  consumer passes 5/5, and the focused collection effect journey passes 4/4 in Chromium/WebKit.
+- Checkpoint `ce6461471c5e5cc13677c2289cae8eba8c3d1a4f` is published on `unifold/main` and was verified
+  by exact `git ls-remote` equality. The overall architecture goal remains active; next systemic
+  work is buffered/compensated post-runtime publication atomicity, followed by explicit signed
+  module collection write authority and non-empty repeat identity rewriting.
+
 ## 2026-08-27 command-owned effect identity tranche
 
-- Status: implemented, release-gate verified, and committed locally as
-  `9c5922bec0737c8a3e53bc5f97fe587dfa1bdbc4`; publication remains. The overall goal remains active.
+- Status: implemented and published as `9c5922bec0737c8a3e53bc5f97fe587dfa1bdbc4`, with release
+  gates and authoring clarification published through
+  `ce6461471c5e5cc13677c2289cae8eba8c3d1a4f`. The overall goal remains active.
 - Every post-commit command admitted to a configured effect port uses its command-event ID as one
   opaque CloudEvents `subject`. `EffectRequested` and its one normal `EffectCompleted` or
   `EffectFailed` terminal reuse that subject while retaining distinct event IDs. The command port
@@ -100,6 +125,9 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   modules/5,485 dependencies pass. All 40 production builds pass. The production reference initial
   closure is 165,795 gzip bytes plus 84,982 deferred against the unchanged 190 KiB ceiling; the
   rebuilt Playwright matrix passes 4/4 on Chromium/WebKit.
+- The follow-up full coverage suite adds fail-closed boundary cases and passes at 90.00% branches,
+  97.28% lines/statements, and 96.97% functions without weakening any threshold. The packed external
+  consumer passes 5/5 after installing the committed tarballs in clean temporary projects.
 - Explicit next boundaries: application updates still publish runtime facts before renderer,
   machine, and semantic publication can fail, so public forward/compensation event atomicity remains
   the next systemic tranche. Module-authored collection mutation still needs an explicit signed and
