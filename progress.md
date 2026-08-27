@@ -18,15 +18,15 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
 - Latest published implementation checkpoint:
-  `a99b8540034cbcbea92c94435e056e376fd2cfe5`
-  (`feat: enforce mounted collection authority`) on
+  `c9f46bf6b8c409b5c151907b9017dec8abe473df`
+  (`feat: transfer focus after collection removal`) on
   `https://github.com/unislang/unifold.git`.
 - Latest published verification checkpoint:
   `e84e6bb93846a0c5e387054784dac213b650b8fc`
   (`docs: record mounted collection authority checkpoint`).
 - Publication verification: live `git ls-remote origin refs/heads/main` resolved to
-  `e84e6bb93846a0c5e387054784dac213b650b8fc`; local `HEAD` and `origin/main` matched that
-  verification checkpoint before the focused-member-removal worktree tranche. The history also includes runtime isolation at
+  `c9f46bf6b8c409b5c151907b9017dec8abe473df`; local `HEAD` and `origin/main` matched that
+  implementation checkpoint before this progress-only follow-up. The history also includes runtime isolation at
   `5a9795e`, semantic owner isolation at `0b9d569`, and repository source-ownership gates at
   `a6b4b60`.
 - Current implementation: the Scratch-style public JSON contract supports explicit logical control
@@ -56,8 +56,9 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 
 ## 2026-08-27 focused authored-member removal tranche
 
-- Status: implemented and fully verified in the current worktree; commit and push are the immediate
-  next action. The overall goal remains active.
+- Status: implemented, committed as `c9f46bf6b8c409b5c151907b9017dec8abe473df`, pushed to
+  `https://github.com/unislang/unifold.git`, and independently verified on live `unifold/main`. The
+  overall goal remains active.
 - Focus capture uses the mounted composed-focus snapshot and logical `controlChildIds`; it never
   parses generated IDs. Removal moves focus only when the removed member owned focus, selecting the
   member now at the removed index or the preceding member when the removed member was last. Insert,
