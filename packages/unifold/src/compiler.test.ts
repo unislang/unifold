@@ -1,4 +1,10 @@
 import { expect, it } from "vitest";
+import {
+  UiControlNodeKind,
+  UiControlTopologyVersion,
+  type JsonObject
+} from "@unislang/unifold-contracts";
+import { CompositionContractVersion } from "@unislang/unifold-compositions";
 
 import {
   createTrustedLayoutDefinitionRegistry,
@@ -14,6 +20,24 @@ it("expands and compiles an authored document through one public boundary", () =
   const result = prepareUnifoldDocument(authoredDocument());
   expect(result.status).toBe(UnifoldPreparationStatus.Valid);
   expect(result.prepared?.document.renderOrder).toEqual(["form", "name"]);
+});
+
+it("compiles namespaced composition-local control topology through the public boundary", () => {
+  const result = prepareUnifoldDocument(compositionControlDocument());
+  const document = requirePrepared(result).document;
+
+  expect(document.nodesById["billing::street"]).toMatchObject({
+    controlKey: "street",
+    controlParentId: "billing::group"
+  });
+  expect(document.nodesById["billing::group"]).toMatchObject({
+    controlKey: "billing",
+    controlParentId: "application"
+  });
+  expect(document.nodesById["shipping::street"]).toMatchObject({
+    controlKey: "street",
+    controlParentId: "shipping::group"
+  });
 });
 
 it("lowers a Scratch-style hierarchical layout before IR compilation", () => {
@@ -110,6 +134,71 @@ it("never serves a cached result for non-JSON input and validates cache capacity
 });
 
 function requirePrepared(result: UnifoldPreparationResult) {
-  if (result.prepared === undefined) throw new Error("Expected a prepared document.");
+  if (result.prepared === undefined) {
+    throw new Error(`Expected a prepared document: ${JSON.stringify(result.diagnostics)}`);
+  }
   return result.prepared;
+}
+
+function compositionControlDocument(): JsonObject {
+  return {
+    ...authoredDocument(),
+    compositions: [addressDefinition()],
+    controls: {
+      contractVersion: UiControlTopologyVersion.Version1,
+      nodes: [{ id: "application", kind: UiControlNodeKind.Form }]
+    },
+    view: {
+      $children: [addressInstance("billing"), addressInstance("shipping")],
+      $comp: "Form",
+      id: "application"
+    }
+  };
+}
+
+function addressDefinition(): JsonObject {
+  return {
+    contractVersion: CompositionContractVersion.Version2,
+    controls: addressControls(),
+    exports: {},
+    name: "AddressEditor",
+    parameters: {},
+    slots: [],
+    template: {
+      $children: [
+        {
+          $children: [{ $comp: "TextField", id: "street", name: "street" }],
+          $comp: "Stack",
+          id: "group"
+        }
+      ],
+      $comp: "Composition",
+      id: "root"
+    },
+    version: "1.0.0"
+  };
+}
+
+function addressControls(): JsonObject {
+  return {
+    contractVersion: UiControlTopologyVersion.Version1,
+    nodes: [
+      { id: "group", kind: UiControlNodeKind.Group },
+      {
+        id: "street",
+        key: "street",
+        kind: UiControlNodeKind.Control,
+        parentId: "group"
+      }
+    ]
+  };
+}
+
+function addressInstance(id: string): JsonObject {
+  return {
+    $compose: "AddressEditor",
+    $version: "1.0.0",
+    controlMount: { key: id, parentId: "application" },
+    id
+  };
 }

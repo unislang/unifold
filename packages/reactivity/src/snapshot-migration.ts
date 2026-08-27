@@ -17,15 +17,26 @@ export function migrateSnapshot(current: UiNodeSnapshot, desired: UiNodeSnapshot
 }
 
 function migrateBase(current: UiNodeSnapshot, desired: UiNodeSnapshot): UiNodeSnapshot["base"] {
-  const classification = current.control?.dirty
-    ? maximumDataClassification([current.base.dataClassification, desired.base.dataClassification])
-    : desired.base.dataClassification;
   return {
     ...desired.base,
     busy: current.base.busy,
-    dataClassification: classification,
-    focused: current.base.focused
+    dataClassification: migratedClassification(current, desired),
+    focused: current.base.focused,
+    ownDisabled: desired.base.ownDisabled ?? desired.base.disabled
   };
+}
+
+function migratedClassification(
+  current: UiNodeSnapshot,
+  desired: UiNodeSnapshot
+): UiNodeSnapshot["base"]["dataClassification"] {
+  if (current.control === undefined || !current.control.dirty) {
+    return desired.base.dataClassification;
+  }
+  return maximumDataClassification([
+    current.base.dataClassification,
+    desired.base.dataClassification
+  ]);
 }
 
 function migrateControl(

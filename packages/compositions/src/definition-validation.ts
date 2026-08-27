@@ -1,6 +1,8 @@
 import type { JsonObject, JsonValue } from "@unislang/unifold-contracts";
 
 import { CompositionDiagnosticCode } from "./enums.js";
+import { validateCompositionControlTopology } from "./composition-control-validation.js";
+import { detectDefinitionCycles, type CompositionEdge } from "./definition-cycle-validation.js";
 import { compositionError } from "./diagnostics.js";
 import { isCompositionParameterValue } from "./parameters.js";
 import { childPath } from "./path.js";
@@ -10,20 +12,8 @@ import type { CompositionDefinition, CompositionDiagnostic, CompositionInstance 
 interface DefinitionFacts {
   readonly localIds: Map<string, string>;
   readonly nested: CompositionEdge[];
+  readonly ownedPlainIds: Map<string, string>;
   readonly slotUses: Map<string, string[]>;
-}
-
-interface CompositionEdge {
-  readonly key: string;
-  readonly label: string;
-  readonly path: string;
-}
-
-interface GraphState {
-  readonly adjacency: ReadonlyMap<string, readonly CompositionEdge[]>;
-  readonly diagnostics: CompositionDiagnostic[];
-  readonly visited: Set<string>;
-  readonly visiting: Set<string>;
 }
 
 export function validateCompositionDefinitions(
@@ -46,7 +36,12 @@ function inspectDefinition(
   path: string,
   diagnostics: CompositionDiagnostic[]
 ): DefinitionFacts {
-  const facts: DefinitionFacts = { localIds: new Map(), nested: [], slotUses: new Map() };
+  const facts: DefinitionFacts = {
+    localIds: new Map(),
+    nested: [],
+    ownedPlainIds: new Map(),
+    slotUses: new Map()
+  };
   inspectTemplateNode(definition.template, childPath(path, "template"), facts, diagnostics);
   inspectParameterReferences(
     definition.template,
@@ -71,6 +66,7 @@ function inspectTemplateNode(
   const id = node["id"] as string;
   recordLocalId(id, path, facts, diagnostics);
   if (isCompositionInstance(node)) facts.nested.push(compositionEdge(node, path));
+  else facts.ownedPlainIds.set(id, path);
   inspectTemplateChildren(node, path, facts, diagnostics);
 }
 
@@ -192,6 +188,7 @@ function validateDefinitionFacts(
 ): void {
   validateSlots(definition, facts, path, diagnostics);
   validateExports(definition, facts, path, diagnostics);
+  validateCompositionControlTopology(definition, facts.ownedPlainIds, path, diagnostics);
   facts.nested.forEach((edge) => {
     if (!registry.has(edge.key)) diagnostics.push(unknownComposition(edge));
   });
@@ -240,36 +237,6 @@ function validateExports(
       )
     );
   });
-}
-
-function detectDefinitionCycles(
-  adjacency: ReadonlyMap<string, readonly CompositionEdge[]>,
-  diagnostics: CompositionDiagnostic[]
-): void {
-  const state: GraphState = { adjacency, diagnostics, visited: new Set(), visiting: new Set() };
-  adjacency.forEach((_edges, key) => visitDefinition(key, state));
-}
-
-function visitDefinition(key: string, state: GraphState): void {
-  if (state.visited.has(key)) return;
-  state.visiting.add(key);
-  (state.adjacency.get(key) ?? []).forEach((edge) => visitDefinitionEdge(edge, state));
-  state.visiting.delete(key);
-  state.visited.add(key);
-}
-
-function visitDefinitionEdge(edge: CompositionEdge, state: GraphState): void {
-  if (state.visiting.has(edge.key)) {
-    state.diagnostics.push(
-      compositionError(
-        CompositionDiagnosticCode.Cycle,
-        edge.path,
-        `Composition definition cycle detected at ${edge.label}.`
-      )
-    );
-    return;
-  }
-  if (state.adjacency.has(edge.key)) visitDefinition(edge.key, state);
 }
 
 function compositionEdge(instance: CompositionInstance, path: string): CompositionEdge {

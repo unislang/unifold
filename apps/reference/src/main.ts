@@ -19,7 +19,6 @@ import type {
   RealmCopyResult
 } from "./main.types.js";
 import "./reference.css";
-import { installStoreFixtureHooks } from "./store-fixture.js";
 
 type ReferenceUiDefinition = JsonObject & ProfileDocument;
 
@@ -62,19 +61,24 @@ function startReference(
   application = requireApplication(mountReference(host));
   if (testHooksEnabled) {
     document.documentElement.dataset["unifoldModuleIntegrity"] = source.integrity;
-    installPrototypeHooks(application);
-    installStoreFixtureHooks();
   }
   void Promise.all([
+    installReferenceTestHooks(application),
     synchronizeReferenceComponentFamilies(application),
     installReferenceEventOutput(application),
     installReferenceStateAuthorityOracle(application)
   ])
-    .then(([, resetEventCapture]) => {
+    .then(([, , resetEventCapture]) => {
       if (testHooksEnabled) resetEventCapture();
       reportComponentFamiliesReady(application);
     })
     .catch(reportComponentFamilyFailure);
+}
+
+async function installReferenceTestHooks(application: UnifoldApplicationPort): Promise<void> {
+  if (!testHooksEnabled) return;
+  await Promise.all([import("./collection-fixture.js"), import("./store-fixture.js")]);
+  installPrototypeHooks(application);
 }
 
 async function installReferenceStateAuthorityOracle(

@@ -40,7 +40,7 @@
   "dependencies": {
     "@unislang/unifold-contracts": "workspace:*",
     "@unislang/unifold-events": "workspace:*",
-    "ajv": "8.20.0"
+    "json-schema-library": "11.6.2"
   },
   "devDependencies": {
     "typescript": "^5.9.2",

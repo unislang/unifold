@@ -112,6 +112,7 @@ export default defineConfig({
     benchmark: {
       include: ["**/*.bench.ts"]
     },
-    include: ["**/*.test.ts"]
+    include: ["**/*.test.ts"],
+    maxWorkers: 1
   }
 });

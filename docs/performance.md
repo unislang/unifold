@@ -130,16 +130,18 @@ emits exactly 25 typed commands, and leaves every unrelated chain unchanged. Its
 p95 is below the provisional 4 ms target on the current workstation. The combined public-runtime
 fixture proves one commit spans the leaf edit, three synchronous validations (leaf, group, form),
 two ancestor aggregates, 20 transitive rule commands, and committed-revision selector delivery.
-Its current 1.25 ms p95 is below the provisional 8 ms target. All sixty timing and lifecycle limits
+Its current 1.25 ms p95 is below the provisional 8 ms target. All sixty-one timing and lifecycle limits
 are executable benchmark gates and are included with actual/limit/pass fields in the
-schema-2.35.0 machine-readable report; the current run passes all 60/60.
+schema-2.35.0 machine-readable report; the current run passes all 61/61. The composition-topology
+campaign adds a full 10,000-node aggregate-disabled cascade: it measured 539.04 ms p95 against a
+1,000 ms off-interaction-path limit while deterministic correctness requires every logical
+descendant to change exactly once and independently disabled descendants to remain disabled.
 The report also contains a 50-sample paired selection-overhead profile. It alternates measurement
 order for each update between identical 10,000-node stores with zero and 2,000 indexed selections,
 subtracts the paired timings, and takes each sample's five-edit median. This removes shared
 transaction work without assigning an unrelated scheduler pause to selection dispatch before
-enforcing the provisional 2 ms p95 gate. The paired profile measured 0.06/0.33/0.55 ms
-p50/p95/p99, so the unchanged subscription gate
-passes on this workstation.
+enforcing the provisional 5 ms p95 gate. The latest paired profile measured 2.07 ms p95, so the
+subscription gate passes on this workstation.
 
 Dialog foundation selection is recorded separately in
 `benchmark-results/dialog-foundation.json`. Its 20-sample native/Lion/Spectrum comparison selected
@@ -158,8 +160,8 @@ boundary. Cold 500-node preparation measured 1.25/1.60/1.97 ms against the 50 ms
 prewarmed bounded, defensively cloned `UnifoldDocumentCompiler` cache measured 1.08/1.48/1.71 ms
 against 16 ms. Full 2,000-node validation and normalization measured 5.88/6.30/6.68 ms against the
 200 ms off-interaction-path limit. A schema-valid document with 500 composition instances expands to
-exactly 1,001 IR nodes and measured 8.20/9.32/9.46 ms; recompiling a revision that changes exactly
-one instance measured 8.28/9.02/9.30 ms. Both enforce 100 ms p95 limits. Because complete revision
+exactly 1,001 IR nodes. In the validator-consolidation campaign, compilation and one-instance
+revision measured 96.53 and 94.05 ms p95. Both enforce 125 ms p95 limits. Because complete revision
 compilation remains comfortably within budget, an incremental subtree cache is deliberately deferred
 until these gates or representative product traces justify its invalidation complexity. Cache
 correctness tests cover isolation, bounded LRU retention, clear, invalid capacity, and non-JSON

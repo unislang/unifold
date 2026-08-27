@@ -1,4 +1,10 @@
 export { UnifoldApplication } from "./application.js";
+export type {
+  UnifoldCollectionInsertOperation,
+  UnifoldCollectionMoveOperation,
+  UnifoldCollectionOperation,
+  UnifoldCollectionRemoveOperation
+} from "./authored-collection.js";
 export * from "./application-observer.js";
 export { mountPreparedUnifoldApplication, mountUnifoldApplication } from "./mount.js";
 export { mountUnifoldApplicationAsync } from "./async-mount.js";

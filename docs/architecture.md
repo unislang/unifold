@@ -124,13 +124,43 @@ Normalized aggregate values and native submission are deliberately different pro
 names stay repeated. Applications must author and test the mapping rather than compare the nested
 object to `Object.fromEntries(new FormData(form))`.
 
-The first slice has explicit limits. Topology is document-global, so composition-local IDs are not
-yet namespaced or exported during composition expansion. Collection commands change normalized
-logical membership from trusted snapshots but do not compile authored JSON or create/remove DOM;
-they are a headless runtime seam, not the public dynamic-list completion. Aggregate disablement also
-does not yet cascade canonical disabled/interactivity state to logical descendants. A native
-`Fieldset` applies browser successful-control semantics, but that effect is not a replacement for
-effective-disabled state in every snapshot.
+Composition contract `2.0.0` may own a local `controls@1.0.0` topology. Expansion applies the same
+identity codec to visual and logical IDs, so repeated instances cannot collide. A form-rooted
+topology is self-contained. A reusable non-form fragment requires an instance `controlMount` with a
+caller-local `parentId` and durable `key`; nested and slotted instances resolve against lexical
+caller identity rather than visual order. Version 1 definitions reject local topology, mounted form
+roots reject, unknown parents fail closed, and the merged document retains one control authority and
+the 10,000-node ceiling. This feature has compiler coverage; a composed, mounted browser journey and
+exact control-declaration provenance remain required release evidence.
+
+Disabled intent is stored separately as `base.ownDisabled`; `base.disabled` is the effective value.
+Transactions walk logical descendants parent-first, cancel obsolete async validation, recompute
+status/values once, and selectively project changed controls. Re-enabling an aggregate restores only
+descendants without their own disabled intent. Chromium evidence covers normalized values, native
+successful-control omission/restoration, host/shadow input state, submit/reset, semantics, and axe.
+
+Named Scratch repeats may publish one collection authority containing the reviewed authored-variable
+pointer and durable key property. The mounted application applies revision-checked insert, move, and
+remove operations by collection ID through the normal compile, runtime reconciliation, and keyed DOM
+update boundary. Chromium proves explicit insertion, key-based movement, removal, last-known-good
+rejection, exact authored/rendered order, retained edited state and host identity, surviving focus,
+causal structural event metadata, and suppression of non-cooperative validation after the removed
+control lifetime ends. Lower-level snapshot collection commands remain headless runtime seams.
+The application rejects synchronous structural reentry, exposes no raw authored-pointer helper, and
+admits each authored array under one collection authority with a string or safe-integer key.
+
+The remaining limits are explicit. Named repeat operations do not yet create or maintain logical
+Array/Record topology membership, and Array-fragment mounting still needs an authored order contract.
+The browser proof preserves focus on a surviving item but does not define where focus moves when the
+focused item is removed. Invalid authored input rejects before commit; post-runtime renderer failure,
+compensation, and unified-event atomicity still need browser proof. Representative large authored
+collection insert/move/remove performance is not gated. Composition control declarations currently
+reuse visual-node provenance by ID rather than publishing exact `/controls/nodes/N` source records,
+and migration compatibility does not yet compare logical aggregate shape. Live wrapper-refactor
+identity/focus/rollback also remains open. The mounted application still exposes its low-level
+runtime; its headless structural commands must be capability-hidden or removed from that facade so
+they cannot bypass authored JSON. Collection operations also need an optional trusted execution
+context when causal provenance must link back to a UI, workflow, collaboration, or AI request.
 
 `runtime.control<T>(id)` is the typed integration facade. Its live value, raw-value, status, and
 error observables and transactional setters select or command the same normalized store; they do not

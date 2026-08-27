@@ -1,3 +1,4 @@
+import { UiCollectionOperationType } from "@unislang/unifold-contracts";
 import {
   UiCommandType,
   UiEventPhase,
@@ -48,6 +49,29 @@ it("exposes async validation lifecycle identity and failure details", () => {
     error: "offline",
     reason: UiValidationCancellationReason.Failed,
     requestId: "validation-1"
+  });
+});
+
+it("publishes collection reconciliation metadata without duplicating item values", () => {
+  const change = commandChange({
+    collectionOperation: {
+      collectionId: "items",
+      fromIndex: 2,
+      toIndex: 0,
+      type: UiCollectionOperationType.Move
+    },
+    compositionInstances: {},
+    nodes: [],
+    type: UiCommandType.StructureReconcile
+  });
+  expect(change).toEqual({
+    collectionOperation: {
+      collectionId: "items",
+      fromIndex: 2,
+      toIndex: 0,
+      type: UiCollectionOperationType.Move
+    },
+    commandType: UiCommandType.StructureReconcile
   });
 });
 

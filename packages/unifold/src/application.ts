@@ -11,12 +11,15 @@ import {
   type UiCompositionVersionMigration
 } from "./composition-migrations.js";
 import { createApplicationSnapshots } from "./application-snapshots.js";
+import { ApplicationCollectionCoordinator } from "./application-collection.js";
+import type { UnifoldCollectionOperation } from "./authored-collection.js";
 import {
   appliedUpdate,
   asError,
   captureRuntimeSnapshots,
   elementRegistrationDiagnostic,
   errorDiagnostic,
+  executePreparedReconciliation,
   firstDiagnostic,
   focusedNodeId,
   isApplicationDiagnostic,
@@ -32,6 +35,7 @@ import {
   reverseMigrationPlan,
   restoreFocus,
   unavailableDiagnostic,
+  updateInProgressDiagnostic,
   updateFailureStage
 } from "./application-update.js";
 import { commandForEvent, eventExecutionContext } from "./event-command.js";
@@ -57,7 +61,7 @@ export class UnifoldApplication {
   private stores: PreparedApplicationStores;
   private unavailable = false;
   private updating = false;
-
+  private readonly collections = new ApplicationCollectionCoordinator();
   constructor(
     prepared: PreparedUnifoldDocument,
     private readonly container: HTMLElement,
@@ -84,28 +88,31 @@ export class UnifoldApplication {
     this.projectAll(this.current.document);
     this.machines.replace(prepared.document.machines, prepared.document.nodesById);
   }
-
   get document(): UnifoldIrDocument {
     return this.current.document;
   }
-
   get authored(): unknown {
     return structuredClone(this.current.authored);
   }
-
+  applyCollectionOperation(operation: UnifoldCollectionOperation): UnifoldApplicationUpdateResult {
+    if (this.unavailable) return rejectedUpdate(this.runtime.revision, [unavailableDiagnostic()]);
+    if (this.updating) return rejectedUpdate(this.runtime.revision, [updateInProgressDiagnostic()]);
+    return this.collections.apply(this.current, operation, this.runtime.revision, (next) =>
+      this.update(next)
+    );
+  }
   update(authored: unknown): UnifoldApplicationUpdateResult {
     if (this.unavailable) return rejectedUpdate(this.runtime.revision, [unavailableDiagnostic()]);
+    if (this.updating) return rejectedUpdate(this.runtime.revision, [updateInProgressDiagnostic()]);
     const preparation = prepareApplicationUpdate(authored, this.applicationOptions);
     if (preparation.status === UnifoldPreparationStatus.Invalid) {
       return rejectedUpdate(this.runtime.revision, preparation.diagnostics);
     }
     return this.applyPrepared(requirePrepared(preparation.prepared));
   }
-
   machineState(id: string) {
     return this.machines.state(id);
   }
-
   dispose(): void {
     if (this.unavailable) return;
     this.unavailable = true;
@@ -116,7 +123,6 @@ export class UnifoldApplication {
     this.machines.dispose();
     this.runtime.dispose();
   }
-
   private applyPrepared(next: PreparedUnifoldDocument): UnifoldApplicationUpdateResult {
     const migration = prepareCompositionMigration(
       this.current.document,
@@ -127,7 +133,6 @@ export class UnifoldApplication {
       return rejectedUpdate(this.runtime.revision, [migration]);
     return this.applyMigrated(next, migration);
   }
-
   private applyMigrated(
     next: PreparedUnifoldDocument,
     migration: UiCompositionMigrationPlan
@@ -142,7 +147,6 @@ export class UnifoldApplication {
     if (diagnostic !== undefined) return rejectedUpdate(this.runtime.revision, [diagnostic]);
     return this.commitPrepared(next, stores, migration);
   }
-
   private prepareStores(document: UnifoldIrDocument): PreparedApplicationStores | Error {
     try {
       return prepareApplicationStores(document, this.storeAdapters);
@@ -150,7 +154,6 @@ export class UnifoldApplication {
       return error instanceof Error ? error : new Error("Unknown store preparation failure.");
     }
   }
-
   private configurationDiagnostic(document: UnifoldIrDocument, stores: PreparedApplicationStores) {
     return firstDiagnostic([
       elementRegistrationDiagnostic(this.container, document, this.applicationOptions),
@@ -203,9 +206,8 @@ export class UnifoldApplication {
     this.stageCandidate(next, nextStores);
     this.updating = true;
     try {
-      const nodes = createApplicationSnapshots(next.document, this.runtime.revision, nextStores);
-      this.runtime.replaceRules(next.document.rules, nodes);
-      this.runtime.execute([reconcileCommand(next.document, nodes, migration)]);
+      const metadata = this.collections.current;
+      executePreparedReconciliation(this.runtime, next, nextStores, migration, metadata);
     } catch (error) {
       const rollbackError = this.restoreRuntime(
         previous,

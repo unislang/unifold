@@ -1,6 +1,11 @@
 import type { UiNodeId, UiNodeSnapshot } from "@unislang/unifold-events";
 import { castDraft, type Draft } from "immer";
-import type { NodeRecipe, NormalizedNodeState, UiNodeTransactionDraft } from "./store-types.js";
+import type {
+  AggregateControlValidator,
+  NodeRecipe,
+  NormalizedNodeState,
+  UiNodeTransactionDraft
+} from "./store-types.js";
 import { migrateSnapshot } from "./snapshot-migration.js";
 import { buildControlChildren, logicalControlParentId } from "./normalized-control-topology.js";
 import { buildVisualChildren, validateVisualTopology } from "./normalized-visual-topology.js";
@@ -12,6 +17,7 @@ import {
   moveControlChild,
   requireControlChildren
 } from "./control-collection.js";
+import { reconcileEffectiveDisabled } from "./effective-disabled.js";
 
 export class NodeTransactionDraft implements UiNodeTransactionDraft {
   constructor(private readonly state: Draft<NormalizedNodeState>) {}
@@ -39,6 +45,13 @@ export class NodeTransactionDraft implements UiNodeTransactionDraft {
 
   moveControl(parentId: UiNodeId, key: string, index: number): void {
     moveControlChild(this.state, parentId, key, index);
+  }
+
+  reconcileControlDisabled(
+    rootIds: readonly UiNodeId[],
+    validate?: AggregateControlValidator
+  ): readonly UiNodeId[] {
+    return reconcileEffectiveDisabled(this.state, rootIds, validate);
   }
 
   removeControl(parentId: UiNodeId, key: string): void {

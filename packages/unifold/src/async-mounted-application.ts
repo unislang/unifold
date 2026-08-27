@@ -3,6 +3,7 @@ import type { DomRenderController } from "@unislang/unifold-renderer-dom";
 import type { UnifoldRuntime } from "@unislang/unifold-runtime";
 
 import type { AsyncStoreCommandController } from "./async-store-command-port.js";
+import type { UnifoldCollectionOperation } from "./authored-collection.js";
 import { prepareUnifoldDocument } from "./compiler.js";
 import {
   UnifoldApplicationDiagnosticStage,
@@ -44,6 +45,10 @@ export class AsyncMountedApplication implements UnifoldApplicationPort {
 
   machineState(id: string) {
     return this.#application.machineState(id);
+  }
+
+  applyCollectionOperation(operation: UnifoldCollectionOperation): UnifoldApplicationUpdateResult {
+    return this.#application.applyCollectionOperation(operation);
   }
 
   update(authored: unknown): UnifoldApplicationUpdateResult {

@@ -33,6 +33,16 @@ it("projects value, validity, disabled state, reset, and restoration", () => {
   ]);
 });
 
+it("releases a reflected own-disabled callback after the host is re-enabled", () => {
+  const fixture = createFixture("Ada", scalarAdapter());
+  fixture.host.disabled = true;
+  fixture.controller.formDisabledCallback(true);
+  fixture.controller.hostUpdated();
+  fixture.host.disabled = false;
+  fixture.controller.hostUpdated();
+  expect(fixture.internals.setFormValue).toHaveBeenLastCalledWith("Ada", "Ada");
+});
+
 it("clones the initial value and ignores invalid or unchanged restoration", () => {
   const initial = ["a"];
   const fixture = createFixture<readonly string[]>(initial, arrayAdapter());

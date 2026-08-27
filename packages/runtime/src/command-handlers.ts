@@ -13,6 +13,12 @@ import {
   type UiValidatorRegistryPort
 } from "@unislang/unifold-forms";
 import type { NodeRecipe, UiNodeTransactionDraft } from "@unislang/unifold-reactivity";
+import {
+  reconcileDisabled,
+  setControlDisabled,
+  setControlStatus,
+  setOwnDisabled
+} from "./control-disabled.js";
 
 type DraftNode = Parameters<NodeRecipe>[0];
 
@@ -61,6 +67,7 @@ function insertCollectionControl(draft: UiNodeTransactionDraft, command: UiComma
   assertInsertedControlIdentity(command);
   draft.add({ ...command.node, controlKey: command.key, controlParentId: command.parentId });
   draft.moveControl(command.parentId, command.key, command.index);
+  draft.reconcileControlDisabled([command.node.id]);
 }
 
 function assertInsertedControlIdentity(command: ControlCollectionInsertCommand): void {
@@ -128,19 +135,6 @@ function markControlTouched(
 ): void {
   if (command.type !== UiCommandType.ControlMarkTouched) return;
   draft.update(command.id, (node) => blurControl(node, validators));
-}
-
-function setControlDisabled(
-  draft: UiNodeTransactionDraft,
-  command: UiCommand,
-  validators: UiValidatorRegistryPort
-): void {
-  if (command.type !== UiCommandType.ControlSetDisabled) return;
-  draft.update(command.id, (node) => {
-    requireControl(node);
-    node.base.disabled = command.disabled;
-    applyValidation(node, validators);
-  });
 }
 
 function resetForm(
@@ -218,16 +212,6 @@ function requireControl(node: DraftNode): MutableControlState {
   return node.control as unknown as MutableControlState;
 }
 
-function setControlStatus(draft: UiNodeTransactionDraft, command: UiCommand): void {
-  if (command.type !== UiCommandType.ControlSetStatus) return;
-  draft.update(command.id, (node) => {
-    if (!node.control) throw new Error(`Node is not a control: ${command.id}`);
-    node.control.status = command.status;
-    node.control.pending = command.status === UiControlStatus.Pending;
-    node.base.disabled = command.status === UiControlStatus.Disabled;
-  });
-}
-
 function startControlValidation(draft: UiNodeTransactionDraft, command: UiCommand): void {
   if (command.type !== UiCommandType.ControlValidationStart) return;
   draft.update(command.id, (node) => {
@@ -273,7 +257,11 @@ function resultStatus(errorCount: number, disabled: boolean): UiControlStatus {
   return errorCount === 0 ? UiControlStatus.Valid : UiControlStatus.Invalid;
 }
 
-function patchProperties(draft: UiNodeTransactionDraft, command: UiCommand): void {
+function patchProperties(
+  draft: UiNodeTransactionDraft,
+  command: UiCommand,
+  validators: UiValidatorRegistryPort
+): void {
   if (command.type !== UiCommandType.NodePatchProperties) return;
   draft.update(command.id, (node) => {
     assignBaseProperties(node, command.properties);
@@ -282,13 +270,18 @@ function patchProperties(draft: UiNodeTransactionDraft, command: UiCommand): voi
       command.properties as Readonly<Record<string, unknown>>
     );
   });
+  if (typeof command.properties["disabled"] === "boolean") {
+    reconcileDisabled(draft, [command.id], validators);
+  }
 }
 
 function assignBaseProperties(
   node: DraftNode,
   properties: Readonly<Record<string, unknown>>
 ): void {
-  if (typeof properties["disabled"] === "boolean") node.base.disabled = properties["disabled"];
+  if (typeof properties["disabled"] === "boolean") {
+    setOwnDisabled(node, properties["disabled"]);
+  }
   if (typeof properties["readonly"] === "boolean") node.base.readonly = properties["readonly"];
 }
 
@@ -299,8 +292,14 @@ function assignProperties(
   Object.assign(target, properties);
 }
 
-function instantiateNode(draft: UiNodeTransactionDraft, command: UiCommand): void {
-  if (command.type === UiCommandType.StructureInstantiate) draft.add(command.node);
+function instantiateNode(
+  draft: UiNodeTransactionDraft,
+  command: UiCommand,
+  validators: UiValidatorRegistryPort
+): void {
+  if (command.type !== UiCommandType.StructureInstantiate) return;
+  draft.add(withValidatedControl(command.node, validators));
+  reconcileDisabled(draft, [command.node.id], validators);
 }
 
 function removeNode(draft: UiNodeTransactionDraft, command: UiCommand): void {
@@ -320,6 +319,11 @@ function reconcileStructure(
   );
   command.nodes.forEach(({ id }) =>
     draft.update(id, (node) => touchlessValidation(node, validators))
+  );
+  reconcileDisabled(
+    draft,
+    command.nodes.map(({ id }) => id),
+    validators
   );
 }
 

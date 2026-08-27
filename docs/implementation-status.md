@@ -92,8 +92,10 @@ described by the complete 1.0 plan.
   outcomes and verifies Unifold's exact redacted canonical event chain in Chromium, Firefox, and
   WebKit. Its
   measured isolated production-profile cost is 5.88 kB minified/1.76 kB
-  gzip. The current startup closure is 188,135 gzip bytes (183.73 KiB) against the executable 184
-  KiB Phase 1 budget. The module artifact, reference validator adapter, and reviewed runtime options
+  gzip. The current startup closure is 162,130 gzip bytes (158.33 KiB) against the executable 190
+  KiB Phase 1 budget. Composition and semantic validation now share the already-required
+  `json-schema-library` engine instead of statically shipping a second AJV engine. The module
+  artifact, reference validator adapter, and reviewed runtime options
   load before mount as explicit deferred resources; optional families and diagnostic event output
   load after mount, and all deferred chunks are audited together.
 - Typed `UiStoreDefinition` contracts and a Unifold `store`/`path` profile extension. The compiler
@@ -154,14 +156,23 @@ described by the complete 1.0 plan.
   adapters, and selective changed-node projection. Node-indexed selections, incremental ancestor
   aggregation, and changed-owner validation routing have deterministic 1k/10k correctness tests and
   an environment-tagged Vitest benchmark harness.
-- A closed document-global `controls@1.0.0` topology separates visual and logical edges through
+- A closed `controls@1.0.0` topology separates visual and logical edges through
   contracts, IR, snapshots, normalized storage, submit/reset, rules, disclosure, and live
   `runtime.control<T>()` handles. The locked hierarchical example and current Chromium/WebKit journey
   prove
   nested values through unrelated wrappers, logical event scope, XState, flat/repeated native
-  `FormData`, submit/reset, schema.org, selective projection, and axe. Composition-local topology
-  namespacing, authored/rendered collection edits, aggregate disabled cascading, and schema-derived
-  handle types remain incomplete.
+  `FormData`, submit/reset, schema.org, selective projection, and axe. Composition contract `2.0.0`
+  adds namespaced self-contained form topologies and caller-mounted reusable fragments through one
+  merged authority; focused compiler tests cover nested, slotted, repeated, and invalid mounts.
+  Logical aggregate disable cascading now preserves separate own/effective intent, cancels stale
+  validation, and has 10k plus Chromium native-form evidence. Named Scratch repeats now compile
+  bounded authored collection authority. The current 61/61 Chromium reference pass includes mounted
+  insert/move/remove/rejection, exact authored/rendered ordering, retained dirty value, stable host
+  and surviving focus, causal structural metadata, and zero late events from a non-cooperative
+  validator after its control is removed. Logical Array/Record coupling, focused-item removal policy,
+  post-runtime renderer rollback/event atomicity, representative large authored-collection
+  performance, exact composition-control provenance/migration shape, a rendered composition mount,
+  wrapper-refactor identity/focus/rollback, and schema-derived handle types remain incomplete.
 - A versioned data-only workflow-machine contract compiled to live XState v5 actors, scope-indexed
   canonical event routing, trusted typed-command factories, causal runtime transactions,
   bounded trusted named guards over canonical events and current normalized snapshots, fail-closed
@@ -453,10 +464,13 @@ described by the complete 1.0 plan.
   identity, and pre-render adapter rejection. The default runtime stream applies
   classification-aware public-safe disclosure.
 - Client-side validation and application coordination contribute materially to the reference bundle.
-  The current startup closure is 188,135 gzip bytes (183.73 KiB) and remains below the executable
-  184 KiB gate. The resolved module artifact, reference-specific validator adapter, and reviewed
+  The current startup closure is 162,130 gzip bytes (158.33 KiB) and remains below the executable
+  190 KiB gate. Consolidating composition and semantic Draft 2020-12 validation onto the existing
+  `json-schema-library` removed 77 duplicate AJV/fast-uri modules from the static closure while
+  preserving exact diagnostic mapping and explicit unsafe-key/prototype rejection. The resolved
+  module artifact, reference-specific validator adapter, and reviewed
   runtime options load through explicit pre-mount resources; optional component families and
-  diagnostic event output load after mount, and combined deferred JavaScript is audited at 44,870
+  diagnostic event output load after mount, and combined deferred JavaScript is audited at 84,968
   gzip bytes. Preserve the `/validation` boundary and evaluate schema
   precompilation, build-time validation, or an explicit lazy authoring/compiler boundary before
   setting production bundle budgets.

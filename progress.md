@@ -17,19 +17,24 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-27
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest published implementation checkpoint:
-  `7e826dfb39d989da8d4fd28fd3337143361b9ba3`
-  (`feat: add explicit JSON control topology`) on
+- Latest published checkpoint:
+  `4b3d438c4e7a4e7578aa5a6c469bb8efa613f918`
+  (`docs: record logical control topology checkpoint`) on
   `https://github.com/unislang/unifold.git`.
 - Publication verification: live `git ls-remote origin refs/heads/main` resolved to
-  `7e826dfb39d989da8d4fd28fd3337143361b9ba3` immediately after the implementation push; local
-  `HEAD` and `origin/main` matched exactly. The history also includes runtime isolation at
+  the implementation base `7e826dfb39d989da8d4fd28fd3337143361b9ba3` immediately after its
+  push; local `HEAD` and `origin/main` now match the documentation checkpoint `4b3d438`. The history
+  also includes runtime isolation at
   `5a9795e`, semantic owner isolation at `0b9d569`, and repository source-ownership gates at
   `a6b4b60`.
-- Current implementation: the Scratch-style public JSON contract now supports explicit logical
-  control topology separately from visual layout, with compiler diagnostics, normalized runtime
-  graphs, migration, aggregation, durable-key collection commands, typed live handles, a locked
-  hierarchical module, and Chromium/WebKit application evidence. The bounded adopter CLI/starter,
+- Current implementation: the Scratch-style public JSON contract supports explicit logical control
+  topology separately from visual layout. The unpublished worktree adds composition contract
+  `2.0.0` local topology/mounts and logical own/effective aggregate-disabled propagation. Compiler,
+  10k, browser, complete repository, and benchmark evidence pass; composition and semantic
+  validation now share the existing Draft 2020-12 JSON Schema engine, reducing the production
+  initial closure without widening its gate. Named Scratch repeats now compile durable-key
+  collection authority and mounted applications reconcile authored insert/move/remove operations.
+  The bounded adopter CLI/starter,
   governed AI provider boundary, Studio dogfood workflow, multi-application semantic isolation,
   exact test colocation, re-export prevention, and completed reference/hierarchical/Studio module
   graphs remain published checkpoints on `unifold/main`.
@@ -48,9 +53,8 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 
 - Status: the implementation base is published at `7e826dfb39d989da8d4fd28fd3337143361b9ba3`
   and was verified against the live `unifold/main` ref. The documentation checkpoint following that
-  base records the consumer changeset and corrected acceptance boundaries. AC19 remains partial
-  because composition-local topology, rendered collection lifecycle, effective aggregate disabled
-  propagation, and the remaining combined browser evidence are not yet complete.
+  base records the consumer changeset and corrected acceptance boundaries. This section records that
+  published baseline; the later worktree tranche supersedes two listed gaps. AC19 remains partial.
 - The public Scratch-style authoring contract remains `layoutType`, typed `variables`, nested stable
   `id`/`type`/`props`/`children`/named `events`, with optional top-level `controls`. The closed
   `controls@1.0.0` contract uses enum-backed `form`, `group`, `array`, `record`, and `control` nodes.
@@ -70,7 +74,7 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   ownership as a compatibility fallback.
   Aggregation, form lifecycle, rule dependencies, reconciliation, and runtime publication use the
   logical graph, so intervening visual wrappers do not change form values. Composition-local
-  topology namespacing is not implemented.
+  topology namespacing was not implemented at this published checkpoint.
 - Trusted `control.collection-insert`, `control.collection-move`, and `control.collection-remove`
   commands mutate normalized array/record membership by durable key but do not compile authored JSON
   or create/remove rendered hosts; they are a headless runtime seam. The typed
@@ -79,15 +83,15 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   store. Its generic is currently caller-supplied rather than schema-derived.
 - `pnpm quality` passes lint, all production/test TypeScript, file/function/test-ownership policies,
   unused-code analysis, and dependency-cruiser over 2,361 modules/5,244 dependencies with zero
-  violations. The final Vitest rerun passes 588 files/1,557 tests; the complete runner also passed
+  violations. The final Vitest rerun passes 588 files/1,558 tests; the complete runner also passed
   22 tooling tests, all generated/script suites, and 38 performance-correctness files/48 tests with
   32 long-profile skips.
 - `pnpm benchmark:selective` passes 60/60 executable gates. Representative evidence is 1.17 ms p95
   for a 100-control transaction against 8 ms, 1.83 ms p95 for 500-node cold compilation against
   50 ms, 0.54 ms p95 for 100-control native `FormData`/reset/restore against 8 ms, and 43.14 ms p99
-  for a 10k aggregate-heavy leaf edit. The production reference closure is 194,054 gzip bytes
-  (189.51 KiB) against a narrowly revised 194,560-byte (190 KiB) gate; the six-KiB increase admits
-  the synchronous topology/compiler/runtime surface and leaves less than one KiB headroom.
+  for a 10k aggregate-heavy leaf edit. The fresh production build measures the reference closure at
+  194,080 gzip bytes (189.53 KiB) against the 194,560-byte (190 KiB) gate. The full 40-project build
+  passes, including module locks, generated Custom Elements Manifest, examples, and browser fixtures.
 - The checked-in topology module, deterministic lock, module check, application mount test, and E2E
   build pass. The published checkpoint recorded a 24/24 Chromium/WebKit hierarchical matrix. A fresh
   local Chromium recheck passes 13/13, including the topology journey proving wrapper-independent
@@ -95,11 +99,77 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   values, logical causal scope, XState delivery, semantic projection, selective rendering, and axe.
   Firefox again fails before page creation with Playwright's upstream `_page` error, so it supplies
   no application assertion for this tranche.
-- Resume by adding composition-local topology namespacing and authored/rendered durable-key
-  insert/move/remove, then extend the browser journey with effective aggregate disabled propagation,
-  non-cooperative stale async rejection, and a live composition-wrapper refactor while preserving
-  logical value, identity, focus, transaction causality, rollback, and last-known-good behavior.
-  Reconsider AC19 only from that combined evidence.
+- The active worktree has since added composition-local topology and effective aggregate-disabled
+  propagation. Resume the remaining AC19 work from the tranche below rather than this baseline.
+
+## 2026-08-27 composition topology and effective-disabled worktree tranche
+
+- Composition contract `2.0.0` permits definition-local `controls@1.0.0`; version 1 rejects it.
+  Form roots are self-contained. Reusable non-form roots require a `controlMount` containing a
+  durable key and lexical caller-local parent. IDs, parent references, nested instances, and slotted
+  instances use the canonical visual identity codec, then merge into one final document authority.
+- Focused positive/negative coverage includes two repeated form instances, nested and slotted
+  fragments, a visual parent declared after its child, unknown parents, mounted forms, unmounted
+  fragments, nested authority claims, duplicates, cycles, the 10,000-node bound, and rejection of
+  array mounts until order becomes explicit. The public compiler proves global form plus two mounted
+  address fragments lower to independent `billing::` and `shipping::` logical graphs.
+- Snapshots now distinguish local `base.ownDisabled` from effective `base.disabled`. Transactions
+  propagate through logical descendants parent-first, cancel descendant async validation, preserve
+  independently disabled children, recompute aggregate values/status, and selectively notify only
+  affected nodes. The serialized 10k aggregate-heavy correctness gate completes in 1,566 ms on the
+  final full-suite run.
+- Chromium passes 13/13 for the hierarchical example. The topology journey proves aggregate
+  disable/restore across normalized form values, native `FormData`, host and shadow-input disabled
+  state, own-disabled preservation, submit/reset, XState, Schema.org projection, selective renders,
+  and axe. The journey exposed and fixed a browser-only form-associated restoration bug that the
+  simulated-DOM test had missed.
+- The final repository runner passes 598 Vitest files/1,585 tests, 22 tooling tests, all generated
+  and module-lock scripts, and 38 performance-correctness files/49 tests with 32 profile files
+  skipped. `pnpm quality` passes size/function/complexity, exact one-to-one colocated tests, the
+  feature re-export prohibition, lint, production/test TypeScript, unused analysis, and
+  dependency-cruiser over 2,400 modules/5,369 dependencies. All 40 builds pass.
+- `pnpm benchmark:selective` writes schema-2.35.0 evidence and passes 61/61 gates. The new 10k
+  aggregate-disabled cascade measures 539.04 ms p95 against 1,000 ms; 500-instance composition
+  compilation and revision measure 96.53 and 94.05 ms p95 against 125 ms; indexed-selection
+  overhead measures 2.07 ms p95 against 5 ms. The representative benchmark also preserves the
+  deterministic 100-transaction replay and exact selective-notification assertions.
+- Named Scratch-style repeated nodes can declare a unique `collection`. Compilation retains only
+  its reviewed authored-variable pointer and durable key property. The mounted public application
+  API admits insert/move/remove by collection ID, expected/new authored revision, durable key, and
+  explicit index; it then recompiles and reconciles through the existing atomic update boundary.
+  The mounted integration preserves an edited control value, element identity, and focused shadow
+  input across insert/move/remove; publishes exact structural collection metadata; and proves an
+  invalid inserted item leaves authored JSON, runtime revision, and DOM at last-known-good state.
+- The final authority audit rejects synchronous structural reentry, unknown operation types,
+  inherited registry names, unsafe numeric identities, and multiple collection names for one
+  authored array. The raw pointer candidate helper is no longer on the package root; consumers use
+  the compiler-authorized application method and enum-backed operation contract.
+- The focused Chromium collection journey passes 1/1. It additionally starts a deliberately
+  non-cooperative async validator on the inserted control, removes that control before completion,
+  waits past completion, and observes zero late events while retaining causal insert/move/remove
+  metadata, authored order, edited value, host identity, and focused shadow input.
+- The reference bundle gate initially rejected 196,562 gzip bytes against the unchanged 194,560-byte
+  ceiling. Source-map analysis attributed the intentional 2,482-byte baseline increase to the new
+  capability modules and revealed a redundant 77-module AJV/fast-uri validation engine while IR
+  already used `json-schema-library`. Composition and semantics now share that existing Draft
+  2020-12 engine, preserve diagnostic paths/keywords, and explicitly reject unsafe keys and mutated
+  prototypes. The fresh production build is 162,130 initial gzip bytes plus 84,968 deferred, and
+  total transfer is also lower; the gate was not widened or bypassed through artificial lazy loading.
+- Fresh Chromium evidence passes the primary reference 61/61, including the authored collection
+  lifecycle and dynamically isolated synchronous/async store fixtures, and the hierarchical example
+  13/13, including the aggregate topology journey. The collection case proves insert at an explicit
+  index, movement by durable key, removal, last-known-good rejection, exact authored/rendered order,
+  retained edited value/host/surviving focus, causal structural events, and zero late events after a
+  non-cooperative validator's control is removed. Firefox remains excluded from claims because its
+  known Playwright `_page` failure occurs before application code.
+- Remaining AC19 gaps are coupling authored repeat operations to explicit logical Array/Record
+  topology; defining focus behavior when the removed item is focused; proving post-runtime renderer
+  rollback and unified-event atomicity; adding representative large authored-collection performance;
+  capability-hiding low-level structural commands on the mounted runtime facade; accepting a trusted
+  originating execution context for cross-system causality;
+  exact composition-control declaration provenance; aggregate-shape-aware composition migrations;
+  a rendered composition-mount journey; live wrapper-refactor identity/focus/causality/rollback
+  evidence; and schema-derived handle typing.
 
 ## 2026-08-27 integrated implementation tranche
 

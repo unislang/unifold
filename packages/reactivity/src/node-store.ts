@@ -22,11 +22,13 @@ import { NodeTransactionDraft } from "./transaction-draft.js";
 import { recomputeAggregateControls } from "./aggregate-controls.js";
 import { buildControlChildren } from "./normalized-control-topology.js";
 import { reconcileValidationRoutes } from "./validation-routes.js";
+import { reconcileEffectiveDisabled } from "./effective-disabled.js";
 
 enablePatches();
 
 export interface NormalizedNodeStoreOptions {
   readonly aggregateValidator?: AggregateControlValidator;
+  readonly controlValidator?: AggregateControlValidator;
   readonly initializer?: (draft: UiNodeTransactionDraft) => void;
   readonly transactionRetention?: number;
 }
@@ -39,10 +41,17 @@ export class NormalizedNodeStore implements UiNodeStore {
   private selectionMetrics: SelectionDispatchMetrics = emptySelectionMetrics();
   private readonly retention: number;
   private readonly aggregateValidator: AggregateControlValidator | undefined;
+  private readonly controlValidator: AggregateControlValidator | undefined;
 
   constructor(nodes: readonly UiNodeSnapshot[], options: NormalizedNodeStoreOptions = {}) {
     this.aggregateValidator = options.aggregateValidator;
-    this.state = createInitialState(nodes, this.aggregateValidator, options.initializer);
+    this.controlValidator = options.controlValidator;
+    this.state = createInitialState(
+      nodes,
+      this.aggregateValidator,
+      this.controlValidator,
+      options.initializer
+    );
     this.retention = options.transactionRetention ?? 100;
   }
 
@@ -94,7 +103,12 @@ export class NormalizedNodeStore implements UiNodeStore {
       change(new NodeTransactionDraft(draft));
     });
     const directIds = new Set(changedNodeIds(directPatches));
-    const [candidate, derivedPatches] = deriveState(changed, directIds, this.aggregateValidator);
+    const [candidate, derivedPatches] = deriveState(
+      changed,
+      directIds,
+      this.aggregateValidator,
+      this.controlValidator
+    );
     const patches = [...directPatches, ...derivedPatches];
     if (patches.length === 0)
       return createRecord(metadata, previous.revision, previous.revision, patches);
@@ -149,11 +163,14 @@ export class NormalizedNodeStore implements UiNodeStore {
 function deriveState(
   state: NormalizedNodeState,
   directIds: ReadonlySet<UiNodeId>,
-  validate?: AggregateControlValidator
+  validateAggregate?: AggregateControlValidator,
+  validateControl?: AggregateControlValidator
 ): readonly [NormalizedNodeState, readonly Patch[]] {
   const [derived, patches] = produceWithPatches(state, (draft) => {
-    const aggregateIds = recomputeAggregateControls(draft, validate, directIds);
-    reconcileValidationRoutes(draft, new Set([...directIds, ...aggregateIds]));
+    const disabledIds = reconcileEffectiveDisabled(draft, directIds, validateControl);
+    const affectedIds = new Set([...directIds, ...disabledIds]);
+    const aggregateIds = recomputeAggregateControls(draft, validateAggregate, affectedIds);
+    reconcileValidationRoutes(draft, new Set([...affectedIds, ...aggregateIds]));
   });
   return [derived, patches];
 }
@@ -169,31 +186,39 @@ function emptySelectionMetrics(): SelectionDispatchMetrics {
 
 function createInitialState(
   nodes: readonly UiNodeSnapshot[],
-  validate?: AggregateControlValidator,
+  validateAggregate?: AggregateControlValidator,
+  validateControl?: AggregateControlValidator,
   initializer?: (draft: UiNodeTransactionDraft) => void
 ): NormalizedNodeState {
-  const state: {
-    revision: number;
-    nodes: Record<string, UiNodeSnapshot>;
-    children: Record<string, UiNodeId[]>;
-    controlChildren: Record<string, UiNodeId[]>;
-    validationRoutes: Record<string, readonly UiValidationError[]>;
-  } = {
+  const state = createEmptyState();
+  nodes.forEach((node) => addInitialNode(state, node));
+  state.controlChildren = buildControlChildren(nodes);
+  nodes.forEach((node) => linkVisualParent(state.children, node));
+  const aggregated = produce(state, (draft) => {
+    const transaction = new NodeTransactionDraft(draft);
+    reconcileEffectiveDisabled(draft, Object.keys(draft.nodes), validateControl);
+    applyInitializer(initializer, transaction);
+    reconcileEffectiveDisabled(draft, Object.keys(draft.nodes), validateControl);
+    recomputeAggregateControls(draft, validateAggregate);
+    reconcileValidationRoutes(draft);
+  });
+  return freeze(aggregated, true);
+}
+
+function createEmptyState(): {
+  revision: number;
+  nodes: Record<string, UiNodeSnapshot>;
+  children: Record<string, UiNodeId[]>;
+  controlChildren: Record<string, UiNodeId[]>;
+  validationRoutes: Record<string, readonly UiValidationError[]>;
+} {
+  return {
     revision: 0,
     nodes: {},
     children: {},
     controlChildren: {},
     validationRoutes: {}
   };
-  nodes.forEach((node) => addInitialNode(state, node));
-  state.controlChildren = buildControlChildren(nodes);
-  nodes.forEach((node) => linkVisualParent(state.children, node));
-  const aggregated = produce(state, (draft) => {
-    applyInitializer(initializer, new NodeTransactionDraft(draft));
-    recomputeAggregateControls(draft, validate);
-    reconcileValidationRoutes(draft);
-  });
-  return freeze(aggregated, true);
 }
 
 function applyInitializer(

@@ -33,6 +33,17 @@ it("preserves dirty values but clears obsolete in-flight async validation", () =
   });
 });
 
+it("normalizes legacy desired disabled intent without changing effective state", () => {
+  const source = controlNode("name", "Ada");
+  const current = { ...source, base: { ...source.base, ownDisabled: false } };
+  const desired = controlNode("name", "Default");
+
+  expect(migrateSnapshot(current, desired).base).toMatchObject({
+    disabled: false,
+    ownDisabled: false
+  });
+});
+
 function asyncError() {
   return {
     code: "unavailable",

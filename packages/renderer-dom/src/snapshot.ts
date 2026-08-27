@@ -91,6 +91,7 @@ function visibleValidationMessages(
 }
 
 function createBaseSnapshot(node: UnifoldIrNode, stateRevision: number): UiNodeSnapshot {
+  const ownDisabled = readBoolean(node, "disabled");
   return {
     id: node.id,
     instanceId: instanceId(node),
@@ -102,8 +103,9 @@ function createBaseSnapshot(node: UnifoldIrNode, stateRevision: number): UiNodeS
     base: {
       mounted: true,
       visible: true,
-      interactive: true,
-      disabled: readBoolean(node, "disabled"),
+      interactive: !ownDisabled,
+      ownDisabled,
+      disabled: ownDisabled,
       readonly: readBoolean(node, "readonly"),
       busy: false,
       focused: false,

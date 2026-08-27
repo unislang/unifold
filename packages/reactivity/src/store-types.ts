@@ -52,6 +52,10 @@ export interface UiNodeTransactionDraft {
     resetNodeIds?: readonly UiNodeId[]
   ): void;
   moveControl(parentId: UiNodeId, key: string, index: number): void;
+  reconcileControlDisabled(
+    rootIds: readonly UiNodeId[],
+    validate?: AggregateControlValidator
+  ): readonly UiNodeId[];
   remove(id: UiNodeId): void;
   removeControl(parentId: UiNodeId, key: string): void;
   update(id: UiNodeId, recipe: NodeRecipe): void;

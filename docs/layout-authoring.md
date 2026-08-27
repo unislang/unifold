@@ -81,9 +81,18 @@ the existing versioned composition and IR contracts; renderers never interpret a
 - XState commands remain trusted names registered by host code. Variables, props, event names, and
   machine definitions cannot contain functions, scripts, provider credentials, or arbitrary URLs.
 
-Composition-local topology namespacing and rendered collection insert/move/remove remain acceptance
-work. Until those seams compile and reconcile authored JSON, document-global topology is the only
-supported authoring boundary and runtime collection commands are headless primitives.
+Composition-local topology namespacing now compiles through one merged authority. A repeated node
+may declare one unique `collection` name; the compiler retains its authored-variable pointer and
+durable key property, and the mounted application admits revision-checked insert/move/remove by
+collection ID and explicit index through the existing recompile/reconcile coordination boundary.
+The current Chromium reference journey proves the rendered lifecycle, explicit ordering, retained
+edited value and host identity, focus on a surviving item, causal operation metadata,
+last-known-good rejection, and stale-async suppression after removing a control. Logical
+Array/Record topology coupling remains acceptance work; the lower-level runtime collection commands
+remain headless primitives. Removing the focused item still needs a defined focus policy, while
+post-runtime renderer rollback/event atomicity and representative large authored-collection
+performance remain open. The mounted runtime must capability-hide its headless structural commands,
+and collection calls still need optional trusted originating context for cross-system causality.
 
 ## Trusted external definitions
 

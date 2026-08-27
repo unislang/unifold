@@ -12,6 +12,11 @@ type DependencyResolver = (
   program: CompiledRuleProgram
 ) => readonly RuleDependency[];
 
+const BASE_PROPERTY_POINTERS: Readonly<Record<string, readonly string[]>> = {
+  disabled: ["/base/disabled", "/base/ownDisabled"],
+  readonly: ["/base/readonly"]
+};
+
 const RESOLVERS = new Map<UiCommandType, DependencyResolver>([
   [UiCommandType.ControlCollectionInsert, structuralDependencies],
   [UiCommandType.ControlCollectionMove, structuralDependencies],
@@ -56,6 +61,7 @@ function disabledDependencies(command: UiCommand): readonly RuleDependency[] {
   const nodeId = commandNodeId(command);
   return [
     { nodeId, pointer: "/base/disabled" },
+    { nodeId, pointer: "/base/ownDisabled" },
     { nodeId, pointer: "/control" }
   ];
 }
@@ -83,8 +89,7 @@ function propertyDependencies(command: UiCommand): readonly RuleDependency[] {
 }
 
 function basePropertyDependency(nodeId: string, property: string): readonly RuleDependency[] {
-  if (property !== "disabled" && property !== "readonly") return [];
-  return [{ nodeId, pointer: `/base/${property}` }];
+  return (BASE_PROPERTY_POINTERS[property] ?? []).map((pointer) => ({ nodeId, pointer }));
 }
 
 function structuralDependencies(

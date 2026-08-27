@@ -130,11 +130,32 @@ state and focus from IDs produced by the pre-codec implementation; ambiguous ali
 the legacy grammar, while IR and runtime still reject malformed or reused aliases rather than
 guessing.
 
-Explicit control topology is currently document-global. Composition expansion does not yet
-namespace composition-local control IDs or parent references, attach controls through slots, or
-publish logical controls through composition exports. Reusable form compositions must not claim
-wrapper-refactor-stable logical ownership until those authored references share the visual identity
-codec and have integrity/source-map/migration coverage.
+Contract `2.0.0` definitions may declare a local `controls@1.0.0` topology. A form-rooted definition
+is self-contained. A non-form fragment must be attached by its instance:
+
+```json
+{
+  "$compose": "AddressGroup",
+  "$version": "1.0.0",
+  "id": "billing",
+  "controlMount": { "key": "billing", "parentId": "addresses" }
+}
+```
+
+Expansion namespaces every local control ID and parent reference with the same identity codec used
+by visual nodes. `controlMount.parentId` resolves in the lexical caller even when the visual parent
+appears later or the instance arrives through a slot. The fragment root receives the mount key and
+resolved logical parent. Two instances therefore produce independent identities such as
+`billing::group` and `shipping::group` while contributing to one final document topology. Version 1
+definitions reject `controls`; mounted form roots, unmounted fragments, unknown caller parents,
+duplicate authority, nested claims, malformed local relationships, and totals above 10,000 fail
+closed.
+
+The remaining topology limitations are exact control-declaration provenance, aggregate-shape-aware
+composition migration compatibility, an explicit array mount ordering contract, and a rendered
+composition-mount browser journey. Existing selection exports can publish a mounted control value,
+but a topology-specific export kind is not introduced because it would duplicate the existing
+typed selection boundary.
 
 Do not treat the expanded document as the editable source. Store and export authored JSON, then
 regenerate expanded JSON deterministically. Provenance supports diagnostics and stable public

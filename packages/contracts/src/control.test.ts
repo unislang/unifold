@@ -7,6 +7,7 @@ describe("control module", () => {
   });
 
   it("exposes enum-backed control topology values", () => {
+    expect(Object.values(subject.UiCollectionOperationType)).toEqual(["insert", "move", "remove"]);
     expect(Object.values(subject.UiControlNodeKind)).toEqual([
       "array",
       "control",

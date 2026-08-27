@@ -89,8 +89,9 @@ export class NativeFormControlController<Value> implements ReactiveController {
   }
 
   formDisabledCallback(disabled: boolean): void {
-    if (this.formDisabled === disabled) return;
-    this.formDisabled = disabled;
+    const inheritedDisabled = disabled && !this.host.disabled;
+    if (this.formDisabled === inheritedDisabled) return;
+    this.formDisabled = inheritedDisabled;
     this.host.requestUpdate();
     this.project();
   }

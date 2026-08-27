@@ -36,12 +36,13 @@ pnpm test:consumer
 ```
 
 The reference build sums the gzip size of the entry's complete static import closure and fails above
-190 KiB. The six-KiB budget increase admits the synchronous public control-topology compiler,
-durable collection commands, and typed control handle; the gate remains less than one KiB above the
-measured integration. The authored JSON and reference-specific validator adapter are explicit pre-mount deferred
-resources; optional component families are requested only after the application mounts. All emitted
-JavaScript outside the static entry closure is audited and reported separately as deferred
-JavaScript.
+190 KiB. The current closure is 162,130 gzip bytes after composition and semantic validation were
+consolidated onto the already-required `json-schema-library`; the gate was not widened for
+composition-local topology or aggregate-disabled propagation. The authored JSON,
+reference-specific validator adapter, AJV-using module resolver, and reviewed runtime options are
+explicit pre-mount deferred resources; optional component families are requested only after the
+application mounts. All emitted JavaScript outside the static entry closure is audited and reported
+separately as deferred JavaScript (84,968 gzip bytes in the current production build).
 
 The Studio matrix builds the JSON-authored dogfood application before running its browser journeys.
 Its asset gate rejects browser bundles containing the server-only AI generator, provider-generation
@@ -105,6 +106,20 @@ state-authority journey, 12/12 hierarchical, and 9/9 Studio journeys. The
 three-engine commands remain intentionally red on this managed runner because Firefox fails before
 page construction with the `_page` defect; that process failure is reported separately from the
 passing application assertions.
+
+The 2026-08-27 composition-topology checkpoint passes 598 Vitest files/1,585 tests, 22 tooling
+tests, all generated/module-lock scripts, and 38 performance-correctness files/49 active tests.
+The full schema-2.35.0 benchmark report passes 61/61 gates, including the exact 10,000-node
+aggregate-disabled cascade and 500-instance composed document compilation/revision workloads.
+`pnpm quality` validates 2,400 modules and 5,369 dependencies with zero violations, and all 40
+production builds pass. The reference initial closure is 162,130 gzip bytes against its unchanged
+190 KiB gate.
+
+The focused Chromium authored-collection journey passes 1/1. It compiles a named Scratch repeat,
+performs revision-checked insert/move/remove at explicit indexes, preserves dirty value, host
+identity and focus on a surviving control, requires causal operation metadata, retains
+last-known-good state after an invalid insert, and proves a removed control's non-cooperative async
+validator emits no late event.
 
 ## State-authority proof
 
@@ -367,14 +382,25 @@ boundary. The same three-engine matrix covers form reassociation, ancestor field
 reset, callback restoration origins, IME de-duplication, file-handle revocation, and canonical-event
 privacy. Static-upgrade coverage edits the no-JavaScript controls before definition and proves
 value, focus, repeated-entry, and exactly-once event preservation after upgrade.
-The Chromium/WebKit hierarchical control-topology journey is the executable contract for the second graph. It
-asserts nested Form/Group/Array/Record snapshots while leaf visual parents remain wrappers, verifies
-logical ancestors in the same canonical event scope, drives an XState transition, compares the
-nested value with exact ordered/repeated native `FormData` pairs, submits and resets, refreshes the
-schema.org graph, checks leaf-only DOM projection, and runs axe. Do not use `Object.fromEntries` for
-native-form assertions because it destroys repeated keys. Remaining AC19 browser work is composition
-namespacing/refactoring, rendered collection lifecycle, effective-disabled propagation,
-non-cooperative aggregate async completion, identity/focus/rollback, and last-known-good recovery.
+The Chromium/WebKit hierarchical control-topology journey is the executable contract for the second
+graph. It asserts nested Form/Group/Array/Record snapshots while leaf visual parents remain wrappers,
+verifies logical ancestors in the same canonical event scope, drives an XState transition, compares
+the nested value with exact ordered/repeated native `FormData` pairs, submits and resets, refreshes
+the schema.org graph, checks leaf-only DOM projection, and runs axe. Do not use `Object.fromEntries`
+for native-form assertions because it destroys repeated keys.
+
+The dedicated authored-collection lifecycle is included in the current 61/61 Chromium reference
+pass. It mounts a named repeat, inserts at index one, moves by durable key, removes the inserted
+control, and rejects an invalid successor at the last-known-good authored revision. Assertions cover
+exact authored/rendered order, retained edited value and host identity, focus on a surviving control,
+causal insert/move/remove command-to-transaction metadata, and zero late events from a deliberately
+non-cooperative validator after its control is removed. The lifecycle does not yet couple the repeat
+to explicit logical Array/Record topology, capability-hide headless structural commands on the
+mounted runtime, accept originating causal context, define focus fallback when the focused item is
+removed, prove post-runtime renderer rollback/event atomicity, or supply representative large
+authored-collection performance. Remaining AC19 work also includes exact composition-control provenance,
+aggregate-shape migration, a rendered composition mount, wrapper-refactor identity/focus/rollback,
+and schema-derived handle typing.
 The three-browser suite also drives a Standard Schema-compatible form-level name-confirmation rule through
 invalid submission, affected-node metadata, correction, error removal, and valid resubmission.
 It then changes only the source field and proves the unchanged affected field gains and loses its

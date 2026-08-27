@@ -1,5 +1,6 @@
 export enum CompositionContractVersion {
-  Version1 = "1.0.0"
+  Version1 = "1.0.0",
+  Version2 = "2.0.0"
 }
 
 export enum CompositionExpansionStatus {
@@ -42,11 +43,16 @@ export enum CompositionParameterType {
 }
 
 export enum CompositionDiagnosticCode {
+  ControlNodeLimit = "composition-control-node-limit",
+  DuplicateControlAuthority = "duplicate-composition-control-authority",
+  DuplicateControlNodeId = "duplicate-composition-control-node-id",
   Cycle = "composition-cycle",
   DuplicateDefinition = "duplicate-composition-definition",
   DuplicateNodeId = "duplicate-composition-node-id",
   DuplicateSlot = "duplicate-composition-slot",
   DuplicateSlotPlaceholder = "duplicate-composition-slot-placeholder",
+  InvalidControlMount = "invalid-composition-control-mount",
+  InvalidControlTopology = "invalid-composition-control-topology",
   InvalidDocument = "invalid-composed-document",
   InvalidParameter = "invalid-composition-parameter",
   InvalidParameterReference = "invalid-composition-parameter-reference",
@@ -60,6 +66,9 @@ export enum CompositionDiagnosticCode {
   MissingSlotPlaceholder = "missing-composition-slot-placeholder",
   MultipleSlot = "multiple-nodes-for-single-composition-slot",
   UnknownComposition = "unknown-composition",
+  UnknownControlNode = "unknown-composition-control-node",
+  UnknownControlParent = "unknown-composition-control-parent",
+  UnknownControlMountParent = "unknown-composition-control-mount-parent",
   UnknownLayout = "unknown-layout",
   UnknownLayoutVariable = "unknown-layout-variable",
   UnknownExport = "unknown-composition-export",

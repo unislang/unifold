@@ -7,6 +7,12 @@ import {
   type CompositionExpansionResult
 } from "@unislang/unifold-compositions";
 import {
+  UI_COMPOSITION_IDENTITY_VERSION,
+  UiCompositionManifestVersion,
+  type JsonObject,
+  type UiCompositionManifest
+} from "@unislang/unifold-contracts";
+import {
   CompilationStatus,
   compileUiDocument,
   isJsonSafe,
@@ -80,7 +86,12 @@ export function prepareUnifoldDocument(
   const layout = expandAuthoredLayout(authored, options);
   if (layout.status === LayoutExpansionStatus.Invalid)
     return invalid(compositionDiagnostics(layout.diagnostics));
-  return prepareExpandedLayout(authored, layout.document, layoutSourcePointers(layout));
+  return prepareExpandedLayout(
+    authored,
+    layout.document,
+    layoutSourcePointers(layout),
+    layoutCollections(layout)
+  );
 }
 
 function expandAuthoredLayout(authored: unknown, options: UnifoldPreparationOptions) {
@@ -92,26 +103,113 @@ function layoutSourcePointers(layout: ReturnType<typeof expandLayoutDocument>) {
   return layout.sourcePointersByNodeId ?? {};
 }
 
+function layoutCollections(layout: ReturnType<typeof expandLayoutDocument>) {
+  return layout.collectionsById ?? {};
+}
+
 function prepareExpandedLayout(
   authored: unknown,
   layoutDocument: unknown,
-  sourcePointersByNodeId: Readonly<Record<string, string>>
+  sourcePointersByNodeId: Readonly<Record<string, string>>,
+  collectionsById: PreparedUnifoldDocument["collectionsById"]
 ): UnifoldPreparationResult {
-  const expansion = expandComposedUiDocument(layoutDocument ?? authored);
+  const expansion = expandCompositionDocument(layoutDocument ?? authored);
   const expanded = expandedDocument(expansion);
   if (expanded === undefined) return invalid(compositionDiagnostics(expansion.diagnostics));
-  return compileExpandedDocument(authored, expanded, { sourcePointersByNodeId });
+  return compileExpandedDocument(authored, expanded, { sourcePointersByNodeId }, collectionsById);
+}
+
+function expandCompositionDocument(value: unknown): CompositionExpansionResult {
+  if (!isCompositionFreeDocument(value)) return expandComposedUiDocument(value);
+  return {
+    diagnostics: [],
+    document: compositionFreeDocument(value),
+    exportsByInstanceId: {},
+    manifest: emptyCompositionManifest(),
+    status: CompositionExpansionStatus.Valid
+  };
+}
+
+function isCompositionFreeDocument(value: unknown): value is JsonObject {
+  if (!isRecord(value)) return false;
+  if (!hasNoCompositionDefinitions(value["compositions"])) return false;
+  return !containsCompositionInstance(value["view"]);
+}
+
+function hasNoCompositionDefinitions(value: unknown): boolean {
+  if (value === undefined) return true;
+  if (!Array.isArray(value)) return false;
+  return value.length === 0;
+}
+
+function containsCompositionInstance(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return recordContainsCompositionInstance(value);
+}
+
+function recordContainsCompositionInstance(value: Record<string, unknown>): boolean {
+  const pending: Record<string, unknown>[] = [value];
+  const seen = new Set<Record<string, unknown>>();
+  for (const node of pending) {
+    if (isCompositionOrRepeat(seen, node)) return true;
+    appendChildNodes(pending, node["$children"]);
+  }
+  return false;
+}
+
+function isCompositionOrRepeat(
+  seen: Set<Record<string, unknown>>,
+  node: Record<string, unknown>
+): boolean {
+  if (visitRepeatedNode(seen, node)) return true;
+  return typeof node["$compose"] === "string";
+}
+
+function visitRepeatedNode(seen: Set<Record<string, unknown>>, node: Record<string, unknown>) {
+  if (seen.has(node)) return true;
+  seen.add(node);
+  return false;
+}
+
+function appendChildNodes(pending: Record<string, unknown>[], value: unknown): void {
+  if (Array.isArray(value)) pending.push(...value.filter(isRecord));
+}
+
+function compositionFreeDocument(value: JsonObject) {
+  const document = Object.fromEntries(
+    Object.entries(value).filter(([key]) => key !== "compositions")
+  );
+  return {
+    ...document,
+    compositionManifest: emptyCompositionManifest(),
+    view: value["view"]
+  } as never;
+}
+
+function emptyCompositionManifest(): UiCompositionManifest {
+  return {
+    contractVersion: UiCompositionManifestVersion.Version1,
+    identityAliases: {},
+    identityVersion: UI_COMPOSITION_IDENTITY_VERSION,
+    instances: [],
+    nodeProvenanceById: {}
+  };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
 function compileExpandedDocument(
   authored: unknown,
   expanded: unknown,
-  options: CompileUiDocumentOptions
+  options: CompileUiDocumentOptions,
+  collectionsById: PreparedUnifoldDocument["collectionsById"]
 ): UnifoldPreparationResult {
   const compilation = compileUiDocument(expanded, options);
   const document = compiledDocument(compilation);
   if (document === undefined) return invalid(compilerDiagnostics(compilation.diagnostics));
-  return valid({ authored: structuredClone(authored), document });
+  return valid({ authored: structuredClone(authored), collectionsById, document });
 }
 
 function documentCacheKey(authored: unknown): string | undefined {

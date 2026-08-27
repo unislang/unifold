@@ -3,6 +3,7 @@ import {
   type StructureReconcileCommand,
   type UiNodeSnapshot
 } from "@unislang/unifold-events";
+import type { UiCollectionReconcileMetadata } from "@unislang/unifold-events";
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
 import type { DomRenderController } from "@unislang/unifold-renderer-dom";
 import type { UnifoldRuntime } from "@unislang/unifold-runtime";
@@ -18,6 +19,7 @@ import { UiSemanticConfigurationError } from "./semantic-coordinator.js";
 import type { UiSemanticCoordinator } from "./semantic-coordinator.js";
 import type { PreparedApplicationStores } from "./store-adapters.js";
 import type { StoreCommandController } from "./store-command-port.js";
+import { createApplicationSnapshots } from "./application-snapshots.js";
 import {
   UnifoldApplicationDiagnosticStage,
   UnifoldApplicationUpdateStatus,
@@ -57,15 +59,29 @@ export function prepareApplicationUpdate(
 export function reconcileCommand(
   document: UnifoldIrDocument,
   nodes: readonly UiNodeSnapshot[],
-  migration?: UiCompositionMigrationPlan
+  migration?: UiCompositionMigrationPlan,
+  collectionOperation?: UiCollectionReconcileMetadata
 ): StructureReconcileCommand {
   return {
+    ...(collectionOperation === undefined ? {} : { collectionOperation }),
     compositionInstances: document.compositionsByInstanceId,
     nodeIdentityAliases: migrationAliases(document, migration),
     nodes,
     ...migrationResets(migration),
     type: UiCommandType.StructureReconcile
   };
+}
+
+export function executePreparedReconciliation(
+  runtime: UnifoldRuntime,
+  next: PreparedUnifoldDocument,
+  stores: PreparedApplicationStores,
+  migration: UiCompositionMigrationPlan,
+  collectionOperation?: UiCollectionReconcileMetadata
+): void {
+  const nodes = createApplicationSnapshots(next.document, runtime.revision, stores);
+  runtime.replaceRules(next.document.rules, nodes);
+  runtime.execute([reconcileCommand(next.document, nodes, migration, collectionOperation)]);
 }
 
 function migrationAliases(
@@ -116,6 +132,15 @@ export function unavailableDiagnostic(): UnifoldApplicationDiagnostic {
   return {
     code: "application-unavailable",
     message: "The application is disposed or quarantined.",
+    path: "/",
+    stage: UnifoldApplicationDiagnosticStage.Coordination
+  };
+}
+
+export function updateInProgressDiagnostic(): UnifoldApplicationDiagnostic {
+  return {
+    code: "application-update-in-progress",
+    message: "A structural application update is already in progress.",
     path: "/",
     stage: UnifoldApplicationDiagnosticStage.Coordination
   };

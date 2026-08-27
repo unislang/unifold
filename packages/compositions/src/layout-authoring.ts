@@ -12,11 +12,12 @@ import {
   rejectUnknownLayoutKeys as rejectUnknownKeys,
   resolveLayoutVariables
 } from "./layout-values.js";
-import type { CompositionDiagnostic } from "./types.js";
+import type { CompositionDiagnostic, LayoutCollectionDefinition } from "./types.js";
 
 export const LAYOUT_DOCUMENT_SCHEMA = "https://schemas.unifold.org/layout-document/1.0/schema.json";
 
 export interface LayoutExpansionResult {
+  readonly collectionsById?: Readonly<Record<string, LayoutCollectionDefinition>>;
   readonly diagnostics: readonly CompositionDiagnostic[];
   readonly document?: JsonObject;
   readonly sourcePointersByNodeId?: Readonly<Record<string, string>>;
@@ -109,6 +110,7 @@ function expandWithVariables(
   diagnostics: CompositionDiagnostic[]
 ): LayoutExpansionResult {
   const definitionPath = selected.path;
+  const collectionsById: Record<string, LayoutCollectionDefinition> = {};
   const sourcePointers: Record<string, string> = {};
   const variablePointers = layoutVariableSourcePointers(
     selected.definition,
@@ -116,13 +118,14 @@ function expandWithVariables(
     definitionPath
   );
   const view = expandLayoutRoot(selected.definition["template"], variables, diagnostics, {
+    collectionsById,
     rootPointer: `${definitionPath}/template`,
     sourcePointers,
     variablePointers
   });
   if (view === undefined) return invalid(diagnostics);
   if (diagnostics.length > 0) return invalid(diagnostics);
-  return valid(document, view, sourcePointers);
+  return valid(document, view, sourcePointers, collectionsById);
 }
 
 function selectDefinition(
@@ -259,14 +262,24 @@ function unknownLayout(
 function valid(
   source: Readonly<Record<string, unknown>>,
   view: JsonObject,
-  sourcePointers: Readonly<Record<string, string>>
+  sourcePointers: Readonly<Record<string, string>>,
+  collectionsById: Readonly<Record<string, LayoutCollectionDefinition>>
 ): LayoutExpansionResult {
   return {
+    collectionsById: sortedCollections(collectionsById),
     diagnostics: [],
     document: createUiDocument(source, view),
     sourcePointersByNodeId: sortedPointers(sourcePointers),
     status: LayoutExpansionStatus.Valid
   };
+}
+
+function sortedCollections(
+  collections: Readonly<Record<string, LayoutCollectionDefinition>>
+): Readonly<Record<string, LayoutCollectionDefinition>> {
+  return Object.fromEntries(
+    Object.entries(collections).sort(([left], [right]) => left.localeCompare(right))
+  );
 }
 
 function sortedPointers(

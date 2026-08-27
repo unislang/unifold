@@ -29,6 +29,7 @@ it("delegates the mounted port and disposes the async controller once", () => {
 function applicationPort(document: UnifoldApplicationPort["document"]): UnifoldApplicationPort {
   return {
     authored: { id: "authored" },
+    applyCollectionOperation: vi.fn(),
     dispose: vi.fn(),
     document,
     machineState: (id) => id,

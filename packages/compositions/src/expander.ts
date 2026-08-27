@@ -1,11 +1,16 @@
 import {
   UI_COMPOSITION_IDENTITY_VERSION,
   UiCompositionManifestVersion,
+  UiControlTopologyVersion,
   type JsonObject,
   type UiCompositionManifest
 } from "@unislang/unifold-contracts";
 
 import { CompositionExpansionStatus } from "./enums.js";
+import {
+  createControlAuthority,
+  finalizeCompositionControlTopologies
+} from "./composition-control-mount.js";
 import { validateCompositionDefinitions } from "./definition-validation.js";
 import type { ExpansionContext } from "./expansion-context.js";
 import { expandNode } from "./node-expansion.js";
@@ -39,11 +44,12 @@ function expandValidatedDocument(
   validateCompositionDefinitions(source.compositions, context.registry, diagnostics);
   if (diagnostics.length > 0) return invalidExpansionResult(context);
   const view = expandNode(source.view, "/view", context, {}, []);
+  finalizeCompositionControlTopologies(context);
   if (expansionFailed(view, context)) return invalidExpansionResult(context);
   const manifest = createManifest(context);
   return {
     diagnostics,
-    document: { ...withoutCompositionDefinitions(source), compositionManifest: manifest, view },
+    document: expandedDocument(source, context, manifest, view),
     exportsByInstanceId: context.exportsByInstanceId,
     manifest,
     status: CompositionExpansionStatus.Valid
@@ -56,7 +62,11 @@ function createExpansionContext(
   diagnostics: CompositionDiagnostic[],
   registry: ExpansionContext["registry"]
 ): ExpansionContext {
+  const controlNodes = sourceControlNodes(source);
   return {
+    controlNodeIds: createControlAuthority(controlNodes, diagnostics),
+    controlNodeKinds: new Map(controlNodes.map(({ id, kind }) => [id, kind])),
+    controlNodes: [...controlNodes],
     definitionSourcePointers: definitionSourcePointers(source),
     diagnostics,
     emittedNodeIds: new Set(),
@@ -65,8 +75,32 @@ function createExpansionContext(
     instances: [],
     maxDepth: normalizedMaxDepth(options),
     nodeProvenanceById: {},
+    pendingControlTopologies: [],
     registry
   };
+}
+
+function sourceControlNodes(source: ComposedUiDocument) {
+  return source.controls === undefined ? [] : source.controls.nodes;
+}
+
+function expandedDocument(
+  source: ComposedUiDocument,
+  context: ExpansionContext,
+  manifest: UiCompositionManifest,
+  view: NonNullable<CompositionExpansionResult["document"]>["view"]
+): JsonObject & { readonly view: typeof view } {
+  const document = {
+    ...withoutCompositionDefinitions(source),
+    compositionManifest: manifest,
+    view
+  };
+  if (source.controls === undefined && context.controlNodes.length === 0) return document;
+  const controls = {
+    contractVersion: UiControlTopologyVersion.Version1,
+    nodes: context.controlNodes
+  };
+  return { ...document, controls };
 }
 
 function expansionFailed(

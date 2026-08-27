@@ -1,7 +1,10 @@
 import type { JsonValue } from "@unislang/unifold-contracts";
 import type { ElementDefinitionPolicy } from "@unislang/unifold-elements";
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
-import type { TrustedLayoutDefinitionRegistry } from "@unislang/unifold-compositions";
+import type {
+  LayoutCollectionDefinition,
+  TrustedLayoutDefinitionRegistry
+} from "@unislang/unifold-compositions";
 import type { DomRenderController, DomRendererOptions } from "@unislang/unifold-renderer-dom";
 import type { UnifoldRuntime, UnifoldRuntimeOptions } from "@unislang/unifold-runtime";
 import type { UiMachineCommandRegistry } from "@unislang/unifold-xstate";
@@ -55,6 +58,7 @@ export interface UnifoldApplicationDiagnostic {
 
 export interface PreparedUnifoldDocument {
   readonly authored: unknown;
+  readonly collectionsById: Readonly<Record<string, LayoutCollectionDefinition>>;
   readonly document: UnifoldIrDocument;
 }
 
@@ -121,5 +125,8 @@ export interface UnifoldApplicationPort {
   readonly runtime: UnifoldRuntime;
   dispose(): void;
   machineState(id: string): JsonValue;
+  applyCollectionOperation(
+    operation: import("./authored-collection.js").UnifoldCollectionOperation
+  ): UnifoldApplicationUpdateResult;
   update(authored: unknown): UnifoldApplicationUpdateResult;
 }

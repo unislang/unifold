@@ -131,6 +131,29 @@ conflict resolution, or distributed transactions. The synchronous adapter is a t
 and its source/persistence declarations are policy metadata until dedicated implementations and
 conformance evidence exist.
 
+## Authored durable collection mutation
+
+| Field                 | Decision                                                                                |
+| --------------------- | --------------------------------------------------------------------------------------- |
+| Status                | Accepted behind compiler-authorized named collections                                   |
+| Runtime dependency    | `rfc6902@5.3.0`, MIT                                                                    |
+| Purpose               | Apply bounded RFC 6902 add, move, and remove operations to a cloned authored document   |
+| Public boundary       | Collection ID, optimistic revisions, durable key or index, and inserted item            |
+| Custom ownership      | Admission, key/index policy, compilation, reconciliation, rollback, events, and privacy |
+| Network/data behavior | None                                                                                    |
+| Owner                 | Compiler, runtime, renderer, and application-coordinator maintainers                    |
+| Review date           | 2026-08-27                                                                              |
+| Fallback              | Replace the patch implementation behind the same named collection operation contract    |
+
+[RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902) defines the ordered patch primitives, so
+Unifold uses the maintained `rfc6902` package rather than implementing another JSON Patch engine.
+The library runs only after the compiler resolves a declared collection and durable key, and it
+mutates a clone that must pass the normal full compile/reconcile boundary before becoming authored
+state. Raw pointers, key-property paths, arbitrary patch operations, and inserted item data are not
+published as a general mutation or event surface. The detailed evidence and remaining logical-form
+coupling gaps are recorded in the
+[authored collection lifecycle research](./research/collections/report-source.md).
+
 ## Custom Elements Manifest generation
 
 | Field                 | Decision                                                                          |

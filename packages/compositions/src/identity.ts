@@ -1,4 +1,5 @@
 import { CompositionIdentitySegmentKind } from "./enums.js";
+import type { ExpansionScope } from "./expansion-context.js";
 import type { DecodedCompositionIdentitySegment } from "./types.js";
 
 const NAMESPACE_SEPARATOR = "::";
@@ -50,6 +51,26 @@ export function recordCompositionIdentityAlias(
 ): void {
   if (legacyNodeId === undefined || legacyNodeId === nodeId) return;
   aliases[nodeId] = legacyNodeId;
+}
+
+export function expandedCompositionNodeId(
+  sourceId: string,
+  scope: ExpansionScope,
+  isRoot: boolean
+): string {
+  if (isRoot && scope.rootId !== undefined) return scope.rootId;
+  return namespacedCompositionId(scope.prefix, sourceId);
+}
+
+export function legacyExpandedCompositionNodeId(
+  id: string,
+  sourceId: string,
+  scope: ExpansionScope,
+  isRoot: boolean
+): string | undefined {
+  if (scope.owner === undefined) return sourceId;
+  if (scope.legacyCompatible !== true) return undefined;
+  return legacyCompositionNodeIdentity(id, sourceId, isRoot);
 }
 
 export function decodeExpandedCompositionId(

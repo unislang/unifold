@@ -163,6 +163,7 @@ const validationTriggers = new Set<UiCommandType>([
   UiCommandType.ControlSetValue,
   UiCommandType.FormReset,
   UiCommandType.FormSubmit,
+  UiCommandType.NodePatchProperties,
   UiCommandType.StructureInstantiate,
   UiCommandType.StructureReconcile
 ]);

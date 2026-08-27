@@ -68,7 +68,7 @@ interface MountedAsyncStoreFixture {
   readonly container: HTMLElement;
 }
 
-export function installStoreFixtureHooks(): void {
+function installStoreFixtureHooks(): void {
   const target = window as unknown as StoreFixtureWindow;
   target.__unifoldStoreFixture = {
     mount: mountStoreFixture,
@@ -82,6 +82,8 @@ export function installStoreFixtureHooks(): void {
     publish: publishAsyncStoreFixture
   };
 }
+
+installStoreFixtureHooks();
 
 async function mountAsyncStoreFixture(): Promise<StoreFixtureMountObservation> {
   disposeAsyncStoreFixture();

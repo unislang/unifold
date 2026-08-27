@@ -2,6 +2,12 @@ import type { JsonObject, JsonValue } from "@unislang/unifold-contracts";
 
 import { CompositionDiagnosticCode } from "./enums.js";
 import { namespacedCompositionId } from "./identity.js";
+import {
+  parseLayoutRepeat,
+  registerLayoutCollection,
+  rejectLayoutCollection,
+  type LayoutRepeatDefinition
+} from "./layout-collections.js";
 import { resolveLayoutNodeContent } from "./layout-node-content.js";
 import { layoutValueSourcePointer } from "./layout-source-pointers.js";
 import {
@@ -11,9 +17,10 @@ import {
   rejectUnknownLayoutKeys as rejectUnknownKeys,
   resolveLayoutValue
 } from "./layout-values.js";
-import type { CompositionDiagnostic } from "./types.js";
+import type { CompositionDiagnostic, LayoutCollectionDefinition } from "./types.js";
 
 interface ExpansionContext {
+  readonly collectionsById: Record<string, LayoutCollectionDefinition>;
   readonly diagnostics: CompositionDiagnostic[];
   readonly ids: Set<string>;
   readonly sourcePointers: Record<string, string>;
@@ -22,15 +29,10 @@ interface ExpansionContext {
 }
 
 interface LayoutRootExpansionOptions {
+  readonly collectionsById?: Record<string, LayoutCollectionDefinition>;
   readonly rootPointer: string;
   readonly sourcePointers: Record<string, string>;
   readonly variablePointers: Readonly<Record<string, string>>;
-}
-
-interface RepeatDefinition {
-  readonly alias: string;
-  readonly key: string;
-  readonly reference: string;
 }
 
 enum ConditionDecision {
@@ -39,9 +41,11 @@ enum ConditionDecision {
   Invalid = "invalid"
 }
 
-const NODE_KEYS = new Set(["children", "events", "for", "id", "if", "key", "props", "type"]);
-const REPEAT_PATTERN =
-  /^([A-Za-z][A-Za-z0-9_-]*) in \{\{([A-Za-z][A-Za-z0-9_-]*(?:\.[A-Za-z][A-Za-z0-9_-]*)*)\}\}$/u;
+const NODE_KEYS = new Set("children collection events for id if key props type".split(" "));
+const BOOLEAN_DECISIONS = {
+  false: ConditionDecision.Exclude,
+  true: ConditionDecision.Include
+} as const;
 
 export function expandLayoutRoot(
   value: unknown,
@@ -50,6 +54,7 @@ export function expandLayoutRoot(
   options: LayoutRootExpansionOptions
 ): JsonObject | undefined {
   const context = {
+    collectionsById: options.collectionsById ?? {},
     diagnostics,
     ids: new Set<string>(),
     sourcePointers: options.sourcePointers,
@@ -100,11 +105,7 @@ function conditionDecision(
   if (condition === undefined) return ConditionDecision.Include;
   const resolved = resolveValue(condition, `${path}/if`, context);
   if (typeof resolved !== "boolean") return invalidCondition(path, context);
-  return booleanDecision(resolved);
-}
-
-function booleanDecision(value: boolean): ConditionDecision {
-  return value ? ConditionDecision.Include : ConditionDecision.Exclude;
+  return BOOLEAN_DECISIONS[String(resolved) as "false" | "true"];
 }
 
 function invalidCondition(path: string, context: ExpansionContext): ConditionDecision {
@@ -118,6 +119,18 @@ function repeatOrSingle(
   context: ExpansionContext
 ): readonly JsonObject[] {
   if (value["for"] !== undefined) return expandRepeatedNode(value, path, context);
+  return expandSingleNode(value, path, context);
+}
+
+function expandSingleNode(
+  value: Readonly<Record<string, unknown>>,
+  path: string,
+  context: ExpansionContext
+): readonly JsonObject[] {
+  if (value["collection"] !== undefined) {
+    rejectLayoutCollection(path, context.diagnostics);
+    return [];
+  }
   const node = expandNode(value, path, context);
   return node === undefined ? [] : [node];
 }
@@ -127,8 +140,17 @@ function expandRepeatedNode(
   path: string,
   context: ExpansionContext
 ): readonly JsonObject[] {
-  const repeat = parseRepeat(value, path, context);
+  const repeat = parseLayoutRepeat(value, path, context.diagnostics);
   if (repeat === undefined) return [];
+  return expandParsedRepeat(value, repeat, path, context);
+}
+
+function expandParsedRepeat(
+  value: Readonly<Record<string, unknown>>,
+  repeat: LayoutRepeatDefinition,
+  path: string,
+  context: ExpansionContext
+): readonly JsonObject[] {
   const items = resolveValue(`{{${repeat.reference}}}`, `${path}/for`, context);
   if (!Array.isArray(items)) return invalidRepeatSource(path, context);
   const sourcePointer = layoutValueSourcePointer(
@@ -136,39 +158,27 @@ function expandRepeatedNode(
     `${path}/for`,
     context.variablePointers
   );
+  if (
+    !registerLayoutCollection(
+      repeat.collection,
+      repeat.key,
+      sourcePointer,
+      path,
+      context.collectionsById,
+      context.diagnostics
+    )
+  )
+    return [];
   return items.flatMap((item, index) => {
     const itemPointer = `${sourcePointer}/${String(index)}`;
     return expandRepeatedItem(item, value, repeat, path, itemPointer, context);
   });
 }
 
-function parseRepeat(
-  value: Readonly<Record<string, unknown>>,
-  path: string,
-  context: ExpansionContext
-): RepeatDefinition | undefined {
-  const match = repeatMatch(value["for"], path, context);
-  if (match === undefined) return undefined;
-  const key = value["key"];
-  if (!isSafeName(key)) return invalidRepeat(path, context);
-  return { alias: match[1] as string, key, reference: match[2] as string };
-}
-
-function repeatMatch(
-  value: unknown,
-  path: string,
-  context: ExpansionContext
-): RegExpExecArray | undefined {
-  if (typeof value !== "string") return invalidRepeat(path, context);
-  const match = REPEAT_PATTERN.exec(value);
-  if (match === null) return invalidRepeat(path, context);
-  return match;
-}
-
 function expandRepeatedItem(
   item: unknown,
   node: Readonly<Record<string, unknown>>,
-  repeat: RepeatDefinition,
+  repeat: LayoutRepeatDefinition,
   path: string,
   itemPointer: string,
   context: ExpansionContext
@@ -295,7 +305,7 @@ function resolveValue(value: unknown, path: string, context: ExpansionContext): 
 
 function isValidRepeatKey(value: unknown): boolean {
   if (typeof value === "string") return isValidStringKey(value);
-  if (typeof value === "number") return Number.isFinite(value);
+  if (typeof value === "number") return Number.isSafeInteger(value);
   return false;
 }
 
@@ -306,11 +316,6 @@ function isValidStringKey(value: string): boolean {
 function invalidRepeatSource(path: string, context: ExpansionContext): readonly JsonObject[] {
   reportNode(`${path}/for`, context, "Node for source must resolve to an array.");
   return [];
-}
-
-function invalidRepeat(path: string, context: ExpansionContext): undefined {
-  reportNode(`${path}/for`, context, "Node for requires 'item in {{items}}' and a safe key.");
-  return undefined;
 }
 
 function missingRepeatKey(key: string, itemPointer: string, context: ExpansionContext): undefined {

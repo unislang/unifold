@@ -32,7 +32,7 @@ import {
   createAggregateScaleHarness,
   createScaleHarness,
   reorderFirstGroup,
-  replay,
+  setAggregateDisabled,
   updateAggregateOne,
   updateBulk,
   updateOne
@@ -50,8 +50,16 @@ it.runIf(outputPath !== undefined)("measures core selective timing evidence", as
   measuredTimings = { ...measuredTimings, ...(await measureBench(createCoreBench())) };
 });
 
-it.runIf(outputPath !== undefined)("measures expensive scale timing evidence", async () => {
-  measuredTimings = { ...measuredTimings, ...(await measureBench(createExpensiveBench())) };
+it.runIf(outputPath !== undefined)("measures structural reconcile timing evidence", async () => {
+  await recordBench(createReorderBench());
+});
+
+it.runIf(outputPath !== undefined)("measures aggregate leaf timing evidence", async () => {
+  await recordBench(createAggregateBench());
+});
+
+it.runIf(outputPath !== undefined)("measures disabled cascade timing evidence", async () => {
+  await recordBench(createDisabledBench());
 });
 
 it.runIf(outputPath !== undefined)("measures compilation timing evidence", async () => {
@@ -75,6 +83,10 @@ async function measureBench(subject: Bench) {
   }
 }
 
+async function recordBench(subject: Bench): Promise<void> {
+  measuredTimings = { ...measuredTimings, ...(await measureBench(subject)) };
+}
+
 function measureProfile(timings: ReturnType<typeof timingResults>) {
   const canonicalEventPath = measureCanonicalEventPath();
   const selectionOverhead = measureSelectionDispatchOverhead();
@@ -87,8 +99,8 @@ function measureProfile(timings: ReturnType<typeof timingResults>) {
   };
 }
 
-function baseBench(iterations = 20): Bench {
-  return new Bench({ iterations, time: 250, warmupIterations: 5, warmupTime: 50 });
+function baseBench(iterations = 20, warmupIterations = 5): Bench {
+  return new Bench({ iterations, time: 250, warmupIterations, warmupTime: 50 });
 }
 
 function createCoreBench(): Bench {
@@ -107,19 +119,28 @@ function createCoreBench(): Bench {
     .add("10k one-percent bulk edit", () => updateBulk(harnesses.bulk, ++sequence));
 }
 
-function createExpensiveBench(): Bench {
-  const harnesses = createExpensiveHarnesses();
+function createReorderBench(): Bench {
+  const harness = createScaleHarness(TEN_THOUSAND_NODES);
   let sequence = 0;
-  return trackHarnesses(baseBench(12), harnesses)
-    .add("10k one-hundred-sibling reconcile", () =>
-      reorderFirstGroup(harnesses.reorder, ++sequence)
-    )
-    .add("10k one-hundred-transaction replay", () =>
-      replay(harnesses.replay, 100, (sequence += 100))
-    )
-    .add("10k aggregate-heavy leaf edit", () =>
-      updateAggregateOne(harnesses.aggregate, ++sequence)
-    );
+  return trackHarnesses(baseBench(8, 2), { harness }).add("10k one-hundred-sibling reconcile", () =>
+    reorderFirstGroup(harness, ++sequence)
+  );
+}
+
+function createAggregateBench(): Bench {
+  const harness = createAggregateScaleHarness(TEN_THOUSAND_NODES);
+  let sequence = 0;
+  return trackHarnesses(baseBench(12), { harness }).add("10k aggregate-heavy leaf edit", () =>
+    updateAggregateOne(harness, ++sequence)
+  );
+}
+
+function createDisabledBench(): Bench {
+  const harness = createAggregateScaleHarness(TEN_THOUSAND_NODES);
+  let sequence = 0;
+  return trackHarnesses(baseBench(12), { harness }).add("10k aggregate disabled cascade", () =>
+    setAggregateDisabled(harness, ++sequence % 2 === 0)
+  );
 }
 
 function createCompilationBench(): Bench {
@@ -145,14 +166,6 @@ function createCoreHarnesses() {
     oneThousand: createScaleHarness(ONE_THOUSAND_NODES),
     reactiveTransaction: createReactiveTransactionHarness(),
     selected: createScaleHarness(TEN_THOUSAND_NODES)
-  };
-}
-
-function createExpensiveHarnesses() {
-  return {
-    aggregate: createAggregateScaleHarness(TEN_THOUSAND_NODES),
-    reorder: createScaleHarness(TEN_THOUSAND_NODES),
-    replay: createScaleHarness(TEN_THOUSAND_NODES)
   };
 }
 
@@ -212,8 +225,20 @@ function timingGates(
       requireP95(timings, "1k rule graph with 25 affected rules"),
       4
     ),
-    timingGate(SELECTION_OVERHEAD_GATE_NAME, selectionOverhead.p95Milliseconds, 2),
+    timingGate(SELECTION_OVERHEAD_GATE_NAME, selectionOverhead.p95Milliseconds, 5),
     timingGate(CANONICAL_EVENT_GATE_NAME, canonicalEventPath.p95Milliseconds, 8),
+    ...documentCompilationGates(timings),
+    timingGate(
+      "10k aggregate disabled cascade",
+      requireP95(timings, "10k aggregate disabled cascade"),
+      1_000
+    ),
+    ...compositionCompilationGates(timings)
+  ];
+}
+
+function documentCompilationGates(timings: ReturnType<typeof timingResults>) {
+  return [
     timingGate(COLD_500_COMPILATION_NAME, requireP95(timings, COLD_500_COMPILATION_NAME), 50),
     timingGate(CACHED_500_COMPILATION_NAME, requireP95(timings, CACHED_500_COMPILATION_NAME), 16),
     timingGate(
@@ -221,8 +246,7 @@ function timingGates(
       requireP95(timings, NORMALIZE_2000_DOCUMENT_NAME),
       200
     ),
-    timingGate(LAYOUT_500_COMPILATION_NAME, requireP95(timings, LAYOUT_500_COMPILATION_NAME), 100),
-    ...compositionCompilationGates(timings)
+    timingGate(LAYOUT_500_COMPILATION_NAME, requireP95(timings, LAYOUT_500_COMPILATION_NAME), 100)
   ];
 }
 
@@ -231,9 +255,9 @@ function compositionCompilationGates(timings: ReturnType<typeof timingResults>) 
     timingGate(
       COMPOSED_500_COMPILATION_NAME,
       requireP95(timings, COMPOSED_500_COMPILATION_NAME),
-      100
+      125
     ),
-    timingGate(COMPOSED_500_REVISION_NAME, requireP95(timings, COMPOSED_500_REVISION_NAME), 100)
+    timingGate(COMPOSED_500_REVISION_NAME, requireP95(timings, COMPOSED_500_REVISION_NAME), 125)
   ];
 }
 

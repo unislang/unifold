@@ -88,9 +88,10 @@ export function unchangedRecord(
 
 export function storeOptions(validators: UiValidatorRegistryPort, transactionRetention?: number) {
   const aggregateValidator = aggregateValidation(validators);
+  const controlValidator = aggregateValidator;
   return transactionRetention === undefined
-    ? { aggregateValidator }
-    : { aggregateValidator, transactionRetention };
+    ? { aggregateValidator, controlValidator }
+    : { aggregateValidator, controlValidator, transactionRetention };
 }
 
 function aggregateValidation(validators: UiValidatorRegistryPort): AggregateControlValidator {

@@ -100,22 +100,43 @@ it("rejects non-JSON authoring values before recursively lowering them", () => {
 it("expands keyed repetitions and boolean conditions with stable identities", () => {
   const source = layoutDocument();
   configureRepeatedActions(source);
+  const repeated = (source.layouts[0].template["children"] as Record<string, unknown>[])[0];
+  if (repeated === undefined) throw new Error("Repeated action fixture is missing.");
+  repeated["collection"] = "actions";
 
   const result = expandLayoutDocument(source);
   expect(result).toMatchObject({ diagnostics: [], status: LayoutExpansionStatus.Valid });
-  const view = result.document?.["view"] as { $children: Record<string, unknown>[] };
+  const view = requiredExpandedView(result);
   expect(view.$children.map(({ id }) => id)).toEqual(["action::edit", "action::archive"]);
   expect(view.$children.map(({ label }) => label)).toEqual(["Edit", "Archive"]);
   expect(result.sourcePointersByNodeId).toMatchObject({
     "action::archive": "/layouts/0/template/children/0",
     "action::edit": "/layouts/0/template/children/0"
   });
+  expect(result.collectionsById).toEqual({
+    actions: { keyProperty: "id", sourcePointer: "/variables/actions" }
+  });
 
   source.variables["showActions"] = false;
-  expect(
-    (expandLayoutDocument(source).document?.["view"] as Record<string, unknown>)["$children"]
-  ).toBeUndefined();
+  expect(requiredExpandedView(expandLayoutDocument(source))["$children"]).toBeUndefined();
 });
+
+it("rejects repeated numeric keys that are not durable JSON identities", () => {
+  const source = layoutDocument();
+  configureRepeatedActions(source);
+  const actions = source.variables["actions"] as Record<string, unknown>[];
+  const first = actions[0];
+  if (first === undefined) throw new Error("Repeated action fixture is missing.");
+  first["id"] = Number.MAX_SAFE_INTEGER + 1;
+  expect(codes(expandLayoutDocument(source))).toContain(
+    CompositionDiagnosticCode.InvalidLayoutNode
+  );
+});
+
+function requiredExpandedView(result: ReturnType<typeof expandLayoutDocument>) {
+  if (result.document === undefined) throw new Error("Expected expanded layout document.");
+  return result.document["view"] as { $children: Record<string, unknown>[] };
+}
 
 it("selects an exact host-trusted external definition without runtime lookup", () => {
   const source = layoutDocument();

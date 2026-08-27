@@ -18,7 +18,12 @@ enum TopologyEventType {
 }
 
 interface ControlSnapshot {
-  readonly control?: { readonly value: unknown };
+  readonly base: { readonly disabled: boolean; readonly ownDisabled?: boolean };
+  readonly control?: {
+    readonly rawValue: unknown;
+    readonly status: string;
+    readonly value: unknown;
+  };
   readonly controlParentId?: string;
   readonly parentId?: string;
   readonly revision: number;
@@ -46,6 +51,7 @@ test("executes a JSON-authored logical form topology end to end", async ({ page,
   await verifySelectiveLogicalUpdate(page, unifold);
   await fillRemainingControls(page);
   await verifyNestedAndNativeValues(page);
+  await verifyAggregateDisabledPropagation(page);
   await verifySubmission(page, unifold);
   await verifySemanticProjection(page);
   await verifyReset(page, unifold);
@@ -135,6 +141,69 @@ async function verifyNestedAndNativeValues(page: Page): Promise<void> {
   ]);
 }
 
+async function verifyAggregateDisabledPropagation(page: Page): Promise<void> {
+  await verifyDisabledAggregate(page);
+  await verifyOwnDisabledState(page);
+  await verifyRestoredAggregate(page);
+}
+
+async function verifyDisabledAggregate(page: Page): Promise<void> {
+  await setControlDisabled(page, "identity-group", true);
+  await expectNormalizedOutput(page, {
+    aliases: populatedValue.aliases,
+    contacts: populatedValue.contacts
+  });
+  await expect(page.getByLabel("Legal name")).toBeDisabled();
+  await expect(page.getByLabel("Preferred name")).toBeDisabled();
+  expect(await nativeEntries(page.getByLabel("Legal name"))).toEqual([
+    ["aliases", "Countess"],
+    ["aliases", "Enchantress"],
+    ["contacts.work", "work@example.com"],
+    ["contacts.home", "home@example.com"]
+  ]);
+  expect(await controlSnapshot(page, "identity-group")).toMatchObject({
+    base: { disabled: true, ownDisabled: true },
+    control: { rawValue: populatedValue.identity, status: "disabled" }
+  });
+  expect(await controlSnapshot(page, "legal-name")).toMatchObject({
+    base: { disabled: true, ownDisabled: false },
+    control: { status: "disabled", value: "Ada Lovelace" }
+  });
+}
+
+async function verifyOwnDisabledState(page: Page): Promise<void> {
+  await setControlDisabled(page, "legal-name", true);
+  await setControlDisabled(page, "identity-group", false);
+  expect(await controlSnapshot(page, "preferred-name")).toMatchObject({
+    base: { disabled: false, ownDisabled: false }
+  });
+  expect(await renderedDisabledState(page.getByLabel("Preferred name"))).toEqual({
+    eventDisabled: false,
+    hostDisabled: false,
+    inputDisabled: false
+  });
+  await expect(page.getByLabel("Preferred name")).toBeEnabled();
+  await expect(page.getByLabel("Legal name")).toBeDisabled();
+  await expectNormalizedOutput(page, {
+    ...populatedValue,
+    identity: { title: "Ada" }
+  });
+}
+
+async function verifyRestoredAggregate(page: Page): Promise<void> {
+  await setControlDisabled(page, "legal-name", false);
+  await expect(page.getByLabel("Legal name")).toBeEnabled();
+  await expectNormalizedOutput(page, populatedValue);
+  expect(await nativeEntries(page.getByLabel("Legal name"))).toEqual([
+    ["identity.name", "Ada Lovelace"],
+    ["identity.title", "Ada"],
+    ["aliases", "Countess"],
+    ["aliases", "Enchantress"],
+    ["contacts.work", "work@example.com"],
+    ["contacts.home", "home@example.com"]
+  ]);
+}
+
 async function verifySubmission(page: Page, unifold: UnifoldHarness): Promise<void> {
   await page.getByRole("button", { name: "Submit topology" }).click();
   await expect
@@ -205,6 +274,19 @@ async function controlSnapshot(page: Page, id: string): Promise<ControlSnapshot>
   }, id);
 }
 
+async function setControlDisabled(page: Page, id: string, disabled: boolean): Promise<void> {
+  await page.evaluate(
+    ({ controlId, value }) => {
+      const execute = Reflect.get(window, "__unifoldExecute") as
+        | ((commands: readonly unknown[]) => unknown)
+        | undefined;
+      if (execute === undefined) throw new Error("Runtime command executor is unavailable.");
+      execute([{ disabled: value, id: controlId, type: "control.set-disabled" }]);
+    },
+    { controlId: id, value: disabled }
+  );
+}
+
 async function nativeEntries(control: Locator): Promise<readonly (readonly [string, string])[]> {
   return control.evaluate((element) => {
     const root = element.getRootNode();
@@ -212,6 +294,21 @@ async function nativeEntries(control: Locator): Promise<readonly (readonly [stri
     const form = Reflect.get(host, "form") as HTMLFormElement | null;
     if (form === null) throw new Error("Native form owner is unavailable.");
     return [...new FormData(form).entries()].map(([name, value]) => [name, String(value)]);
+  });
+}
+
+async function renderedDisabledState(control: Locator): Promise<Record<string, unknown>> {
+  return control.evaluate((element) => {
+    const root = element.getRootNode();
+    const host = root instanceof ShadowRoot ? root.host : element;
+    const eventNode = Reflect.get(host, "eventNode");
+    const eventDisabled = (value: unknown) =>
+      (value as { base?: { disabled?: boolean } } | undefined)?.base?.disabled;
+    return {
+      eventDisabled: eventDisabled(eventNode),
+      hostDisabled: Reflect.get(host, "disabled"),
+      inputDisabled: Reflect.get(element, "disabled")
+    };
   });
 }
 

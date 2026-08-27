@@ -134,6 +134,14 @@ export function updateAggregateOne(harness: AggregateScaleHarness, sequence: num
   );
 }
 
+export function setAggregateDisabled(harness: AggregateScaleHarness, disabled: boolean) {
+  return harness.store.transact(metadata(`aggregate-disabled-${String(disabled)}`), (draft) =>
+    draft.update("aggregate-root", (node) => {
+      node.base.ownDisabled = disabled;
+    })
+  );
+}
+
 export function replay(harness: ScaleHarness, count: number, sequence: number): void {
   for (let index = 0; index < count; index += 1) updateOne(harness, sequence + index);
 }

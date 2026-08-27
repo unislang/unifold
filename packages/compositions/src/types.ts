@@ -3,7 +3,8 @@ import type {
   JsonUiNode,
   JsonValue,
   UiCompositionExportDefinition,
-  UiCompositionManifest
+  UiCompositionManifest,
+  UiControlTopologyDefinition
 } from "@unislang/unifold-contracts";
 
 import type {
@@ -26,8 +27,14 @@ export interface CompositionSlotDefinition extends JsonObject {
   readonly required: boolean;
 }
 
+export interface CompositionControlMount extends JsonObject {
+  readonly key: string;
+  readonly parentId: string;
+}
+
 export interface CompositionDefinition extends JsonObject {
   readonly contractVersion: CompositionContractVersion;
+  readonly controls?: UiControlTopologyDefinition;
   readonly exports: Readonly<Record<string, UiCompositionExportDefinition>>;
   readonly name: string;
   readonly parameters: Readonly<Record<string, CompositionParameterDefinition>>;
@@ -40,12 +47,14 @@ export interface CompositionInstance extends JsonObject {
   readonly $compose: string;
   readonly $version: string;
   readonly id: string;
+  readonly controlMount?: CompositionControlMount;
   readonly parameters?: JsonObject;
   readonly slots?: Readonly<Record<string, readonly JsonObject[]>>;
 }
 
 export interface ComposedUiDocument extends JsonObject {
   readonly compositions: readonly CompositionDefinition[];
+  readonly controls?: UiControlTopologyDefinition;
   readonly view: JsonObject;
 }
 
@@ -53,6 +62,11 @@ export interface CompositionDiagnostic {
   readonly code: CompositionDiagnosticCode;
   readonly message: string;
   readonly path: string;
+}
+
+export interface LayoutCollectionDefinition {
+  readonly keyProperty: string;
+  readonly sourcePointer: string;
 }
 
 export interface CompositionExpansionResult {

@@ -18,7 +18,8 @@ it("maps state commands to precise rule dependency footprints", () => {
     { nodeId: "field", pointer: "/control" },
     { nodeId: "summary", pointer: "/properties/a~1b" },
     { nodeId: "summary", pointer: "/properties/disabled" },
-    { nodeId: "summary", pointer: "/base/disabled" }
+    { nodeId: "summary", pointer: "/base/disabled" },
+    { nodeId: "summary", pointer: "/base/ownDisabled" }
   ]);
 });
 
@@ -39,6 +40,9 @@ function draft(): UiNodeTransactionDraft {
       throw new Error("Unused test port.");
     },
     reconcile() {
+      throw new Error("Unused test port.");
+    },
+    reconcileControlDisabled() {
       throw new Error("Unused test port.");
     },
     moveControl() {

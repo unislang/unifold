@@ -3,7 +3,7 @@ import {
   mountUnifoldApplication,
   type UnifoldApplicationPort
 } from "@unislang/unifold";
-import type { UiEvent } from "@unislang/unifold-events";
+import type { UiCommand, UiEvent } from "@unislang/unifold-events";
 
 import { resolveControlTopologyArtifact } from "./module-reference.js";
 
@@ -13,6 +13,7 @@ const MACHINE_ID = "topology-workflow";
 interface TopologyTestWindow extends Window {
   __unifoldCapturedEvents?: UiEvent[];
   __unifoldControlSnapshot?: (id: string) => unknown;
+  __unifoldExecute?: (commands: readonly UiCommand[]) => unknown;
 }
 
 export interface TopologyExampleController {
@@ -39,10 +40,33 @@ export async function mountControlTopologyExample(
   });
   showTopologyState(application, snapshotOutput, machineOutput);
   const removeReader = installSnapshotReader(application);
+  const removeExecutor = installCommandExecutor(application);
+  return topologyController(
+    application,
+    artifact.integrity,
+    subscription,
+    removeReader,
+    removeExecutor
+  );
+}
+
+function topologyController(
+  application: UnifoldApplicationPort,
+  moduleIntegrity: string,
+  subscription: { unsubscribe(): void },
+  removeReader: () => void,
+  removeExecutor: () => void
+): TopologyExampleController {
   return {
     application,
-    moduleIntegrity: artifact.integrity,
-    dispose: () => dispose(application, subscription.unsubscribe.bind(subscription), removeReader)
+    moduleIntegrity,
+    dispose: () =>
+      dispose(
+        application,
+        subscription.unsubscribe.bind(subscription),
+        removeReader,
+        removeExecutor
+      )
   };
 }
 
@@ -85,6 +109,13 @@ function installSnapshotReader(application: UnifoldApplicationPort): () => void 
   return () => delete target.__unifoldControlSnapshot;
 }
 
+function installCommandExecutor(application: UnifoldApplicationPort): () => void {
+  if (import.meta.env.MODE !== "e2e") return () => undefined;
+  const target = window as TopologyTestWindow;
+  target.__unifoldExecute = (commands) => application.runtime.execute(commands);
+  return () => delete target.__unifoldExecute;
+}
+
 function captureEvent(event: UiEvent): void {
   const events = capturedEvents();
   if (events === undefined) return;
@@ -109,9 +140,11 @@ function topologyTargets(): readonly [HTMLElement, HTMLElement, HTMLElement] | u
 function dispose(
   application: UnifoldApplicationPort,
   unsubscribe: () => void,
-  removeReader: () => void
+  removeReader: () => void,
+  removeExecutor: () => void
 ): void {
   unsubscribe();
   removeReader();
+  removeExecutor();
   application.dispose();
 }

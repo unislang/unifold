@@ -16,8 +16,12 @@ describe("assertSemanticGraph", () => {
     } catch (error) {
       expect(error).toBeInstanceOf(SemanticGraphValidationError);
       const diagnostics = (error as SemanticGraphValidationError).diagnostics;
-      expect(diagnostics.map((item) => item.keyword)).toContain("additionalProperties");
-      expect(diagnostics.map((item) => item.path)).toContain("/vocabulary");
+      expect(diagnostics).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ keyword: "additionalProperties", path: "/" }),
+          expect.objectContaining({ keyword: "required", path: "/vocabulary" })
+        ])
+      );
     }
   });
 });

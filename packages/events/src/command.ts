@@ -1,6 +1,7 @@
 import type {
   JsonObject,
   JsonValue,
+  UiCollectionOperationType,
   UiCompositionInstanceManifest
 } from "@unislang/unifold-contracts";
 import type { UiNodeId, UiNodeSnapshot } from "./node.js";
@@ -99,11 +100,19 @@ export interface StructureRemoveCommand {
 }
 
 export interface StructureReconcileCommand {
+  readonly collectionOperation?: UiCollectionReconcileMetadata;
   readonly type: UiCommandType.StructureReconcile;
   readonly compositionInstances: Readonly<Record<string, UiCompositionInstanceManifest>>;
   readonly nodes: readonly UiNodeSnapshot[];
   readonly nodeIdentityAliases?: Readonly<Record<UiNodeId, UiNodeId>>;
   readonly resetNodeIds?: readonly UiNodeId[];
+}
+
+export interface UiCollectionReconcileMetadata extends JsonObject {
+  readonly collectionId: string;
+  readonly fromIndex?: number;
+  readonly toIndex?: number;
+  readonly type: UiCollectionOperationType;
 }
 
 export interface FocusRequestCommand {

@@ -120,6 +120,7 @@
           "propertyNames": { "enum": ["onBlur", "onClick", "onInput", "onReset", "onSubmit"] },
           "additionalProperties": { "$ref": "#/$defs/name" }
         },
+        "collection": { "$ref": "#/$defs/name" },
         "if": { "oneOf": [{ "type": "boolean" }, { "$ref": "#/$defs/reference" }] },
         "for": { "type": "string", "maxLength": 512 },
         "key": { "$ref": "#/$defs/name" }

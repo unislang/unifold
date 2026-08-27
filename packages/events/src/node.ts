@@ -40,6 +40,9 @@ export interface UiNodeBaseState {
   readonly mounted: boolean;
   readonly visible: boolean;
   readonly interactive: boolean;
+  /** Local authored/runtime disabled intent. Omitted only by legacy snapshots. */
+  readonly ownDisabled?: boolean;
+  /** Effective disabled state after logical-control ancestor propagation. */
   readonly disabled: boolean;
   readonly readonly: boolean;
   readonly busy: boolean;

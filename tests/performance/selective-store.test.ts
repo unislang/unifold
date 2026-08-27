@@ -9,6 +9,7 @@ import {
   reorderFirstGroup,
   replay,
   selectedCount,
+  setAggregateDisabled,
   updateBulk,
   updateAggregateOne,
   updateOne
@@ -109,6 +110,27 @@ it("limits a leaf edit in an aggregate-heavy 10k graph to its ancestor chain", (
     invalidatedSelections: 0
   });
   expect(total(harness.notifications)).toBe(3);
+  harness.store.dispose();
+});
+
+it("cascades aggregate disablement once across a 10k logical graph", () => {
+  const harness = createAggregateScaleHarness(TEN_THOUSAND_NODES);
+  const disabled = setAggregateDisabled(harness, true);
+
+  expect(disabled.changedNodeIds).toHaveLength(TEN_THOUSAND_NODES);
+  expect(harness.store.getSnapshot(harness.targetId)).toMatchObject({
+    base: { disabled: true, ownDisabled: false },
+    control: { status: "disabled" }
+  });
+  expect(harness.store.getSnapshot("aggregate-root").control).toMatchObject({ value: {} });
+  expect(harness.store.getSelectionDispatchMetrics()).toMatchObject({
+    candidateSelections: 3,
+    changedNodeCount: TEN_THOUSAND_NODES
+  });
+
+  const enabled = setAggregateDisabled(harness, false);
+  expect(enabled.changedNodeIds).toHaveLength(TEN_THOUSAND_NODES);
+  expect(harness.store.getSnapshot(harness.targetId).base.disabled).toBe(false);
   harness.store.dispose();
 });
 

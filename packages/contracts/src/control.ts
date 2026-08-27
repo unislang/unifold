@@ -20,6 +20,12 @@ export enum UiControlNodeKind {
   Record = "record"
 }
 
+export enum UiCollectionOperationType {
+  Insert = "insert",
+  Move = "move",
+  Remove = "remove"
+}
+
 export interface UiControlNodeDefinition extends JsonObject {
   readonly id: string;
   readonly key?: string;

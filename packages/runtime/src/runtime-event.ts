@@ -50,7 +50,8 @@ const validationEventTypes: Readonly<Record<string, UiEventType>> = {
 const validationChanges = new Map<UiCommandType, (command: UiCommand) => JsonObject>([
   [UiCommandType.ControlValidationStart, startChange],
   [UiCommandType.ControlValidationResolve, resolveChange],
-  [UiCommandType.ControlValidationCancel, cancelChange]
+  [UiCommandType.ControlValidationCancel, cancelChange],
+  [UiCommandType.StructureReconcile, reconcileChange]
 ]);
 
 function commandKey(command: UiCommand): string {
@@ -84,6 +85,12 @@ function cancelChange(command: UiCommand): JsonObject {
     reason: command.reason,
     requestId: command.requestId
   };
+}
+
+function reconcileChange(command: UiCommand): JsonObject {
+  if (command.type !== UiCommandType.StructureReconcile) return baseChange(command);
+  if (command.collectionOperation === undefined) return baseChange(command);
+  return { ...baseChange(command), collectionOperation: command.collectionOperation };
 }
 
 export function createRuntimeEvent(
