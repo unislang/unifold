@@ -6,7 +6,11 @@ import {
 } from "@unislang/unifold-modules";
 import { expect, it } from "vitest";
 
-import { resolveReferenceModuleArtifact } from "./module-reference.js";
+import referenceDocument from "./ui.json" with { type: "json" };
+import {
+  resolveProductionReferenceArtifact,
+  resolveReferenceModuleArtifact
+} from "./module-reference.js";
 
 it("resolves the fixed Scratch-style reference modules with runtime and lock parity", async () => {
   const first = await resolveReferenceModuleArtifact();
@@ -25,6 +29,17 @@ it("resolves the fixed Scratch-style reference modules with runtime and lock par
   expect(first.sourceMap["/view"]).toMatchObject({
     sourceId: "src/modules/application.module.json"
   });
+});
+
+it("compiles the complete production reference document through UiModule", async () => {
+  const artifact = await resolveProductionReferenceArtifact();
+  expect(artifact.composedDocument).toEqual(referenceDocument);
+  expect(artifact.graph).toHaveLength(2);
+  expect(artifact.integrity).toMatch(/^sha256-[A-Za-z0-9_-]{43}$/u);
+  expect(artifact.sourceMap["/view"]).toMatchObject({ sourceId: "src/ui.json" });
+  expect(prepareUnifoldDocument(artifact.composedDocument).status).toBe(
+    UnifoldPreparationStatus.Valid
+  );
 });
 
 function expectReferenceView(view: unknown): void {

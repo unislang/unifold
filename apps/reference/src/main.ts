@@ -27,6 +27,11 @@ import { installStoreFixtureHooks } from "./store-fixture.js";
 
 type ReferenceUiDefinition = typeof import("./ui.json");
 
+interface ReferenceModuleDocument {
+  readonly definition: ReferenceUiDefinition;
+  readonly integrity: string;
+}
+
 let uiDefinition: ReferenceUiDefinition;
 let application: UnifoldApplicationPort;
 let profileValidation: typeof import("./profile-validation.js");
@@ -42,15 +47,16 @@ void Promise.all([loadReferenceDocument(), import("./profile-validation.js")])
   .catch(reportComponentFamilyFailure);
 
 function startReference(
-  loaded: readonly [ReferenceUiDefinition, typeof import("./profile-validation.js")]
+  loaded: readonly [ReferenceModuleDocument, typeof import("./profile-validation.js")]
 ): void {
   const [source, validation] = loaded;
-  uiDefinition = source;
+  uiDefinition = source.definition;
   profileValidation = validation;
   const host = requireElement<HTMLElement>("app");
   application = requireApplication(mountReference(host));
   application.runtime.events$.subscribe(handleRuntimeEvent);
   if (testHooksEnabled) {
+    document.documentElement.dataset["unifoldModuleIntegrity"] = source.integrity;
     installPrototypeHooks(application);
     installStoreFixtureHooks();
   }
@@ -60,10 +66,13 @@ function startReference(
     .catch(reportComponentFamilyFailure);
 }
 
-async function loadReferenceDocument(): Promise<ReferenceUiDefinition> {
-  const response = await fetch(new URL("./ui.json", import.meta.url));
-  if (!response.ok) throw new Error(`Reference JSON failed to load: ${response.status}.`);
-  return (await response.json()) as ReferenceUiDefinition;
+async function loadReferenceDocument(): Promise<ReferenceModuleDocument> {
+  const modules = await import("./module-reference.js");
+  const artifact = await modules.resolveProductionReferenceArtifact();
+  return {
+    definition: artifact.composedDocument as unknown as ReferenceUiDefinition,
+    integrity: artifact.integrity
+  };
 }
 
 async function defineReferenceComponentFamilies(document: typeof uiDefinition) {

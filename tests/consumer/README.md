@@ -14,6 +14,12 @@ update with dirty-value retention, disposal, and theme CSS resolution. The test 
 workspace references, repository links, build caches, missing export targets, broken source maps, or
 installed packages that resolve back into the repository.
 
+The generated-starter journey also uses the packed `unifold` binary to validate and flatten a
+versioned module project. It rewires the generated application to the emitted locked artifact, then
+requires two independent flatten operations to produce byte-identical artifacts and locks. The lock
+schema, artifact/IR hashes, portable JSON, and static HTML are verified before unit, strict
+TypeScript, production Vite, Chromium interaction, and accessibility checks run against the artifact.
+
 The packed element artifact is expanded into two physical package directories before the browser
 build. The journey verifies distinct component constructors over one shared Lit runtime,
 same-release idempotence, different-release iframe rejection without partial registration, and a

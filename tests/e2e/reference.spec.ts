@@ -19,6 +19,12 @@ import type { DynamicNode, DynamicUpdateResult, DynamicWindow } from "./referenc
 
 type ScenarioPage = Parameters<typeof readRenderUpdates>[0];
 type CapturedEvent = Awaited<ReturnType<UnifoldHarness["events"]>>[number];
+test("mounts the production document from a verified UiModule artifact", async ({ page }) => {
+  await page.goto("/");
+  const integrity = await page.locator("html").getAttribute("data-unifold-module-integrity");
+  expect(integrity).toMatch(/^sha256-[A-Za-z0-9_-]{43}$/u);
+});
+
 test("expands the authored composition to deterministic executable node ids", async ({ page }) => {
   await page.goto("/");
   await expect(nodeHost(page, compositionNodeIds.root)).toHaveCount(1);

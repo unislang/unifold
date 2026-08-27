@@ -53,8 +53,12 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   non-overwriting runtime/lock artifacts whose exact entry, module graph, expanded document, and
   prepared IR hashes remain tied together. A fixed two-module reference fixture uses the intended
   Scratch-style `layoutType`, typed-variable, nested `type`/`props`/`events` vocabulary and proves
-  graph/document/IR/lock parity. Production-mount migration and a clean packed module-project proof
-  remain before AC33 can advance beyond partial.
+  graph/document/IR/lock parity. The production reference now resolves its statically bundled JSON
+  through UiModule before mounting and exposes the verified artifact hash to Playwright. The clean
+  packed starter validates and independently flattens a module project twice, requires byte-identical
+  artifact/lock output, verifies lock and artifact/IR integrity plus portable/static export, imports
+  the emitted artifact without a runtime fetch, and passes unit, typecheck, production-build,
+  Chromium interaction, and accessibility checks outside the monorepo.
 - The clean packed closure passes 5/5 outside the monorepo. It packs every production dependency,
   invokes the installed CLI binary, validates the generated document, installs the generated app
   from tarballs, and passes its unit, typecheck, production build, and Chromium checks. Focused CLI
@@ -72,11 +76,11 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - The durable acceptance register classifies all 34 criteria conservatively: AC27 is proved, AC10
   and AC29 are missing, and the other 31 are partial. There are no known contradicted criteria after
   the semantic ownership correction.
-- Repository verification passes 566 Vitest files/1,484 tests, 18/18 tooling tests, 9/9 generated
+- Repository verification passes 566 Vitest files/1,485 tests, 18/18 tooling tests, 9/9 generated
   CEM checks, all workspace source/test TypeScript, lint, dependency boundaries, unused-code,
   file-size, exact colocated-test, direct-re-export ownership, duplication, formatting, and build
   gates. Dependency-cruiser validates 2,294 modules and 5,073 dependencies without violations.
-- V8 coverage passes at 97.54% lines/statements, 97.01% functions, and 90.08% branches. Benchmark
+- V8 coverage passes at 97.59% lines/statements, 97.05% functions, and 90.08% branches. Benchmark
   schema 2.34.0 passes all 59/59 gates. Studio passes 16/16 and static export passes 80/80 current
   Chromium/WebKit journeys. The managed Firefox binary still fails before page creation with the
   upstream Playwright `_page` runner defect, so this tranche does not claim new Firefox evidence.
@@ -143,15 +147,16 @@ JSON compiler, event fabric, state authority, renderer, or export boundary:
 - `@unislang/unifold-modules` now supplies the previously missing `UiModule@1.0.0` schema and
   bounded static resolver. Exact ID/version/integrity imports, namespaces, cycles, resources,
   source pointers, composition flattening, expanded-document integrity, and IR parity are
-  executable; CLI validate/flatten integration and a fixed Scratch-style reference module fixture
-  are local, while production-mount migration and clean packed preview/export proof remain next for
-  criterion 33.
+  executable; CLI validate/flatten integration, the fixed Scratch-style fixture, the production
+  reference mount, and clean packed artifact execution are local. Criterion 33 remains partial until
+  the monolithic bridge is sharded into authored modules and the hierarchical and Studio references
+  use lock-drift-checked module artifacts.
 - `pnpm quality:reexports` rejects feature modules that import a local binding and export that same
   binding. Feature modules expose owned operations; direct package export maps remain the deliberate
   public-boundary mechanism.
 
-Current local evidence: Vitest passes 566 files/1,484 tests. V8 coverage is 97.54%
-statements/lines, 97.01% functions, and 90.08% branches against unchanged 90% thresholds. Tooling
+Current local evidence: Vitest passes 566 files/1,485 tests. V8 coverage is 97.59%
+statements/lines, 97.05% functions, and 90.08% branches against unchanged 90% thresholds. Tooling
 passes 18/18, generated CEM checks pass 9/9, and the performance-correctness suite passes 37
 files/47 tests with 31 opt-in profile files skipped there and executed by the benchmark runner.
 File length, colocated one-to-one tests, import/re-export ownership, lint, source/test typechecks,
@@ -159,7 +164,7 @@ unused-code, and dependency boundaries pass; dependency-cruiser validates 2,294 
 dependencies with no violations. CEM/definition generation covers 46 elements: the named 45 stable
 families plus the structural `Composition` host.
 
-The production reference build passes at 188,353 initial gzip bytes (183.94/184 KiB), with 36,890
+The production reference build passes at 188,393 initial gzip bytes (183.98/184 KiB), with 43,843
 deferred gzip bytes. The authored JSON and reference-specific validator adapter load as explicit
 pre-mount resources while optional component families remain post-mount; the initial-closure budget
 was not raised. Studio builds at 235.20 KiB gzip against 250 KiB. Benchmark schema 2.34.0 passes
@@ -168,8 +173,9 @@ profile records 2.05/7.48/11.51 ms p50/p95/p99 across 50 samples; both retain a 
 
 The UiModule package now passes 11 files/30 tests plus package lint, typecheck, and build. Repository
 file-length and colocated-test gates include the package and remain green. The package, fixed
-reference sources, CLI workflow, and 17-module performance gate are reconciled; clean packed module
-execution and mounting that artifact in the reference application remain acceptance work.
+reference sources, CLI workflow, production reference mount, clean packed artifact execution, and
+17-module performance gate are reconciled. Module-native sharding and migration of the remaining
+reference applications remain acceptance work.
 
 Focused Playwright acceptance passes 4/4 hierarchical and 16/16 static-export Toast/Pagination
 journeys in Chromium and WebKit. Pagination previously passed its 3/3 hierarchical and 12/12 static
@@ -195,11 +201,10 @@ collaboration/rebase/undo; and the full multi-turn design surface.
   `git ls-remote origin refs/heads/main` all resolved to the exact commit above.
 - Focused evidence is 9/9 test files and 26/26 tests, package ESLint, package source/test TypeScript,
   package build, the 350-line authored-file gate, and colocated one-to-one test ownership.
-- Acceptance criterion 33 remains partial until the production reference mount and clean packed
-  preview/export builds consume the module artifact. The local CLI validate/flatten flow and fixed
-  two-module Scratch-style fixture now prove graph, lock, expanded-document, and prepared-IR hash
-  parity. Preserve the uncommitted AI/Studio and production-reference work while completing that
-  integration.
+- Acceptance criterion 33 remains partial. The production reference and packed preview workflow now
+  consume resolved module artifacts; remaining work is to replace the monolithic bridge with small
+  authored modules, migrate the hierarchical and Studio references, and enforce artifact/lock drift.
+  Preserve the uncommitted AI/Studio and production-reference work while completing that integration.
 
 ## UiModule layout/lock integration checkpoint
 
@@ -214,10 +219,16 @@ collaboration/rebase/undo; and the full multi-turn design surface.
 - `unifold module validate` and `unifold module flatten --output ... --lock ...` admit bounded local
   project manifests, reject traversal/symlink/overwrite hazards, and publish the runtime artifact and
   lock through private siblings with cleanup/rollback behavior.
-- The fixed reference project resolves two exact integrity-pinned modules and its production app
-  build passes at 188,342 initial gzip bytes (183.93 KiB) against the 184 KiB gate, with 36,933
-  deferred gzip bytes. Its main mount still reads `src/ui.json`; migration is the next AC33 step.
-- Fresh verification: `pnpm quality` passes, `pnpm test` passes 566/566 Vitest files and 1,484/1,484
+- The fixed reference project resolves two exact integrity-pinned modules. The production mount now
+  resolves the complete bundled JSON through UiModule without an arbitrary URL fetch and records the
+  artifact hash for E2E verification. Its build passes at 188,393 initial gzip bytes (183.98 KiB)
+  against the 184 KiB gate, with 43,843 deferred gzip bytes.
+- The clean packed starter validates and flattens a module project, consumes the locked artifact,
+  proves repeatable artifact/lock bytes, lock and IR integrity, portable/static export, and passes
+  unit, strict TypeScript, production Vite, Chromium interaction, and accessibility checks outside
+  the monorepo.
+  The complete reference Chromium regression suite passes 59/59 after the mount migration.
+- Fresh verification: `pnpm quality` passes, `pnpm test` passes 566/566 Vitest files and 1,485/1,485
   tests plus all tooling/script/performance fixture suites, and benchmark schema 2.34.0 passes 59/59
   gates. The module profile resolves exactly 17 modules and lowers exactly 500 nodes across 30
   samples at 5.08/8.60/9.90 ms p50/p95/p99 against the 250 ms p95 limit.

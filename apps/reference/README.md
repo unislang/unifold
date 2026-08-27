@@ -1,7 +1,10 @@
 # Unifold reference application
 
-This application mounts `src/ui.json` through the public `@unislang/unifold` coordinator and records
-the canonical event stream. It proves the Phase
+This application resolves its statically bundled `src/ui.json` through the pinned two-module
+`UiModule@1.0.0` registry before mounting the resulting artifact through the public
+`@unislang/unifold` coordinator. The separate fixed Scratch-style module source under `src/modules`
+proves the intended `layoutType`, typed-variable, nested `type`/`props`/`events` authoring shape. The
+application records the canonical event stream and proves the Phase
 0 path from a JSON definition through accessible Web Components to form
 submission. Its composition also exercises text-area, checkbox, radio-group, select, combobox,
 multi-select, and accordion controls

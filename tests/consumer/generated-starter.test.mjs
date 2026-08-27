@@ -13,19 +13,24 @@ import {
   runPnpm
 } from "./package-fixture.mjs";
 
-test("generates and runs a clean starter from the packed CLI", { timeout: 300_000 }, async () => {
-  const temporaryRoot = await mkdtemp(join(tmpdir(), "unifold-generated-starter-"));
-  try {
-    await verifyGeneratedStarter(temporaryRoot);
-  } finally {
-    await removeTemporaryRoot(temporaryRoot);
+test(
+  "runs a clean starter and locked module artifact from the packed CLI",
+  { timeout: 300_000 },
+  async () => {
+    const temporaryRoot = await mkdtemp(join(tmpdir(), "unifold-generated-starter-"));
+    try {
+      await verifyGeneratedStarter(temporaryRoot);
+    } finally {
+      await removeTemporaryRoot(temporaryRoot);
+    }
   }
-});
+);
 
 async function verifyGeneratedStarter(temporaryRoot) {
   const manifests = await readWorkspaceManifests();
   const closure = packageClosure(manifests, [
     "@unislang/unifold-cli",
+    "@unislang/unifold-export",
     "@unislang/unifold-playwright",
     "@unislang/unifold-theme"
   ]);
@@ -36,13 +41,147 @@ async function verifyGeneratedStarter(temporaryRoot) {
   await runPnpm(["exec", "unifold", "generate", "starter", "app", "--no-install"], host);
   await assertGeneratedFiles(host);
   await runPnpm(["exec", "unifold", "validate", "app/src/ui.json"], host);
+  await compileStarterModule(host);
   const app = join(host, "app");
   await addTarballOverrides(app, tarballs);
   await install(app);
+  await runPnpm(["exec", "node", "verify-module.mjs"], app);
   await runPnpm(["run", "test"], app);
   await runPnpm(["run", "typecheck"], app);
   await runPnpm(["run", "build"], app);
   await runPnpm(["run", "test:e2e", "--project", "chromium"], app);
+}
+
+async function compileStarterModule(host) {
+  const app = join(host, "app");
+  const definition = JSON.parse(await readFile(join(app, "src", "ui.json"), "utf8"));
+  await writeModuleProject(app, definition);
+  await runPnpm(
+    ["exec", "unifold", "module", "validate", "app/modules/modules.project.json"],
+    host
+  );
+  await runPnpm(
+    moduleFlattenArguments("app/src/ui.module.json", "app/src/ui.module.lock.json"),
+    host
+  );
+  await mkdir(join(app, "modules", "repeat"));
+  await runPnpm(
+    moduleFlattenArguments(
+      "app/modules/repeat/ui.module.json",
+      "app/modules/repeat/ui.module.lock.json"
+    ),
+    host
+  );
+  await consumeModuleArtifact(app);
+  await assertModuleArtifacts(app);
+  await writeFile(join(app, "verify-module.mjs"), moduleVerifierSource());
+}
+
+async function writeModuleProject(app, definition) {
+  const modules = join(app, "modules");
+  await mkdir(modules);
+  await Promise.all([
+    writeJson(join(modules, "application.module.json"), starterModule(definition)),
+    writeJson(join(modules, "modules.project.json"), moduleProject())
+  ]);
+}
+
+function moduleFlattenArguments(output, lock) {
+  return [
+    "exec",
+    "unifold",
+    "module",
+    "flatten",
+    "app/modules/modules.project.json",
+    "--output",
+    output,
+    "--lock",
+    lock
+  ];
+}
+
+async function consumeModuleArtifact(app) {
+  const path = join(app, "src", "main.ts");
+  const source = await readFile(path, "utf8");
+  const original = 'import definition from "./ui.json" with { type: "json" };';
+  const replacement =
+    'import artifact from "./ui.module.json" with { type: "json" };\n\nconst definition = artifact.document;';
+  const updated = source.replace(original, replacement);
+  assert.notEqual(updated, source, "The generated starter import did not match the template.");
+  assert.doesNotMatch(
+    updated,
+    /fetch\s*\(/u,
+    "The static module preview performs a runtime fetch."
+  );
+  await writeFile(path, updated);
+}
+
+async function assertModuleArtifacts(app) {
+  const artifact = JSON.parse(await readFile(join(app, "src", "ui.module.json"), "utf8"));
+  const lock = JSON.parse(await readFile(join(app, "src", "ui.module.lock.json"), "utf8"));
+  assert.equal(artifact.document.id, "unifold-starter");
+  assert.equal(artifact.document.view.$comp, "Stack");
+  assert.match(artifact.integrity, /^sha256-[A-Za-z0-9_-]{43}$/u);
+  assert.equal(lock.artifactIntegrity, artifact.integrity);
+  assert.equal(lock.modules.length, 1);
+}
+
+function moduleVerifierSource() {
+  return `import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import { createPortableJsonExport, createStaticHtmlExport, UnifoldExportStatus } from "@unislang/unifold-export";
+import { prepareUnifoldDocument, UnifoldPreparationStatus } from "@unislang/unifold";
+import { uiModuleIntegrity, validateUiModuleLock } from "@unislang/unifold-modules";
+
+const artifactText = await readFile(new URL("./src/ui.module.json", import.meta.url), "utf8");
+const lockText = await readFile(new URL("./src/ui.module.lock.json", import.meta.url), "utf8");
+assert.equal(artifactText, await readFile(new URL("./modules/repeat/ui.module.json", import.meta.url), "utf8"));
+assert.equal(lockText, await readFile(new URL("./modules/repeat/ui.module.lock.json", import.meta.url), "utf8"));
+const artifact = JSON.parse(artifactText);
+const lock = JSON.parse(lockText);
+assert.deepEqual(validateUiModuleLock(lock).diagnostics, []);
+assert.equal(artifact.integrity, lock.artifactIntegrity);
+assert.equal(artifact.irIntegrity, lock.irIntegrity);
+const preparation = prepareUnifoldDocument(artifact.document);
+assert.equal(preparation.status, UnifoldPreparationStatus.Valid);
+assert(preparation.prepared);
+assert.equal(await uiModuleIntegrity(preparation.prepared.document), lock.irIntegrity);
+const portable = await createPortableJsonExport(artifact.document);
+const staticHtml = await createStaticHtmlExport(artifact.document);
+assert.equal(portable.status, UnifoldExportStatus.Exported);
+assert.equal(staticHtml.status, UnifoldExportStatus.Exported);
+assert.deepEqual(JSON.parse(portable.output.content), artifact.document);
+assert.match(staticHtml.output.content, /Profile starter/u);
+assert.match(staticHtml.output.content, /data-unifold-static-component="TextField"/u);
+`;
+}
+
+function starterModule(document) {
+  return {
+    $schema: "https://schemas.unifold.org/ui-module/1.0/schema.json",
+    schemaVersion: "1.0.0",
+    id: "org.unifold.starter.application",
+    version: "1.0.0",
+    imports: [],
+    exports: { compositions: [], documents: [{ name: "application", document }], resources: [] }
+  };
+}
+
+function moduleProject() {
+  return {
+    $schema: "https://schemas.unifold.org/ui-module-project/1.0/schema.json",
+    schemaVersion: "1.0.0",
+    entry: {
+      moduleId: "org.unifold.starter.application",
+      version: "1.0.0",
+      exportName: "application"
+    },
+    sources: ["application.module.json"]
+  };
+}
+
+function writeJson(path, value) {
+  return writeFile(path, `${JSON.stringify(value, null, 2)}\n`);
 }
 
 async function writeHostManifest(host, tarballs) {
@@ -62,6 +201,8 @@ async function writeHostManifest(host, tarballs) {
 async function addTarballOverrides(app, tarballs) {
   const path = join(app, "package.json");
   const manifest = JSON.parse(await readFile(path, "utf8"));
+  manifest.dependencies["@unislang/unifold-export"] = "0.0.0";
+  manifest.dependencies["@unislang/unifold-modules"] = "0.0.0";
   manifest.pnpm = { overrides: tarballSpecifications(app, tarballs) };
   await writeFile(path, `${JSON.stringify(manifest, null, 2)}\n`);
 }
