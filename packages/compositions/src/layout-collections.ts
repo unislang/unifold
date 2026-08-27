@@ -44,7 +44,12 @@ function registerNamedLayoutCollection(
     collectionAuthorityExists(definitions, name, sourcePointer)
   )
     return rejectLayoutCollection(path, diagnostics);
-  definitions[name] = { keyProperty, sourcePointer };
+  definitions[name] = {
+    controlId: name,
+    declarationPointer: `${path}/collection`,
+    keyProperty,
+    sourcePointer
+  };
   return true;
 }
 

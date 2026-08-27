@@ -17,6 +17,10 @@ and form/event traversal, migration-safe async state, separate own/effective dis
 and authorized authored repeat insert/move/remove operations with durable keys and explicit order.
 Reject structural reentry, unknown operations, inherited registry names, unsafe numeric keys, and
 duplicate authority for one authored array; keep raw pointer bindings package-internal.
+Couple named repeats to explicit logical Array/Record controls, preserve aggregate value/order, and
+restrict mounted runtime and renderer capabilities so only authored application APIs can change
+structure. Accept trusted collection correlation/causation outside authored JSON while retaining
+runtime-owned transaction identity and all structural primitives on the explicit headless runtime.
 Extend Playwright evidence across mounted repeat insertion, key-based movement, removal,
 last-known-good rejection, retained value/host/focus, causal structural events, and discarded stale
 validation from a removed control. Extend the locked hierarchical example across nested values,

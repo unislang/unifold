@@ -1,5 +1,9 @@
 // @vitest-environment happy-dom
-import { UiCollectionOperationType } from "@unislang/unifold-contracts";
+import {
+  UiCollectionOperationType,
+  UiControlNodeKind,
+  UiControlTopologyVersion
+} from "@unislang/unifold-contracts";
 import { UiCommandType, UiEventType, type UiEvent } from "@unislang/unifold-events";
 import { expect, it } from "vitest";
 
@@ -50,9 +54,14 @@ function assertInsertedCollection(fixture: CollectionFixture): void {
     UnifoldApplicationUpdateStatus.Applied
   );
   expect(fixture.application.renderer.getElement("field::a")).toBe(fixture.alpha);
-  expect(fixture.application.runtime.getSnapshot("field::a").control?.value).toBe("Edited");
+  expect(controlValue(fixture, "field::a")).toBe("Edited");
   expect(fixture.alpha.shadowRoot?.activeElement).toBe(fixture.input);
   expect(renderedIds(fixture.container)).toEqual(["field::a", "field::c", "field::b"]);
+  expect(controlValue(fixture, "items")).toEqual(["Edited", "Gamma", "Beta"]);
+}
+
+function controlValue(fixture: CollectionFixture, id: string): unknown {
+  return fixture.application.runtime.getSnapshot(id).control?.value;
 }
 
 function assertMovedAndRemovedCollection(fixture: CollectionFixture): void {
@@ -60,10 +69,12 @@ function assertMovedAndRemovedCollection(fixture: CollectionFixture): void {
     UnifoldApplicationUpdateStatus.Applied
   );
   expect(renderedIds(fixture.container)).toEqual(["field::b", "field::a", "field::c"]);
+  expect(controlValue(fixture, "items")).toEqual(["Beta", "Edited", "Gamma"]);
   expect(fixture.application.applyCollectionOperation(removeOperation()).status).toBe(
     UnifoldApplicationUpdateStatus.Applied
   );
   expect(renderedIds(fixture.container)).toEqual(["field::b", "field::a"]);
+  expect(controlValue(fixture, "items")).toEqual(["Beta", "Edited"]);
 }
 
 function assertCollectionEvidence(fixture: CollectionFixture): void {
@@ -95,6 +106,25 @@ it("retains last-known-good authored, runtime, and DOM state after rejection", (
   application.dispose();
 });
 
+it("propagates trusted collection lineage without admitting transaction spoofing", () => {
+  const application = requireApplication(
+    mountUnifoldApplication(collectionDocument(), document.createElement("main"))
+  );
+  const events: UiEvent[] = [];
+  application.runtime.events$.subscribe((event) => events.push(event));
+  const result = application.applyCollectionOperation(insertOperation(), {
+    causationId: "collection-insert",
+    correlationId: "collection-journey",
+    transactionId: "spoofed"
+  } as { causationId: string; correlationId: string; transactionId: string });
+  expect(result.status).toBe(UnifoldApplicationUpdateStatus.Applied);
+  expect(events.length).toBeGreaterThan(0);
+  expect(events.every((event) => event.correlationid === "collection-journey")).toBe(true);
+  expect(events.every((event) => event.causationid === "collection-insert")).toBe(true);
+  expect(events.every((event) => event.transactionid !== "spoofed")).toBe(true);
+  application.dispose();
+});
+
 it("rejects a collection update reentered from the synchronous public event stream", () => {
   const container = document.createElement("main");
   const application = requireApplication(mountUnifoldApplication(collectionDocument(), container));
@@ -118,10 +148,49 @@ it("rejects a collection update reentered from the synchronous public event stre
   application.dispose();
 });
 
+it("requires named collections to own an explicit array or record control", () => {
+  const missing = collectionDocument();
+  Reflect.deleteProperty(missing, "controls");
+  expect(mountUnifoldApplication(missing, document.createElement("main"))).toMatchObject({
+    diagnostics: [{ path: "/layouts/0/template/children/0/children/0/collection" }],
+    status: "rejected"
+  });
+  const incompatible = collectionDocument();
+  incompatible.controls.nodes[1] = {
+    id: "items",
+    key: "items",
+    kind: UiControlNodeKind.Group,
+    parentId: "collection-form"
+  };
+  expect(mountUnifoldApplication(incompatible, document.createElement("main"))).toMatchObject({
+    diagnostics: [{ path: "/layouts/0/template/children/0/children/0/collection" }],
+    status: "rejected"
+  });
+});
+
+it("projects the same named repeat through record authority by durable key", () => {
+  const source = collectionDocument();
+  source.controls.nodes[1] = {
+    id: "items",
+    key: "items",
+    kind: UiControlNodeKind.Record,
+    parentId: "collection-form"
+  };
+  const application = requireApplication(
+    mountUnifoldApplication(source, document.createElement("main"))
+  );
+  expect(application.runtime.getSnapshot("items")).toMatchObject({
+    control: { value: { a: "Alpha", b: "Beta" } },
+    controlChildIds: ["field::a", "field::b"]
+  });
+  application.dispose();
+});
+
 function collectionDocument() {
   return {
     $schema: "https://schemas.unifold.org/layout-document/1.0/schema.json",
     catalog: { name: "unifold-core", version: "1.0.0" },
+    controls: collectionControls(),
     id: "collection-page",
     layoutType: "collection",
     layoutVersion: "1.0.0",
@@ -143,19 +212,40 @@ function collectionLayout() {
     template: {
       children: [
         {
-          collection: "items",
-          for: "item in {{items}}",
-          id: "field",
-          key: "id",
-          props: { label: "{{item.label}}" },
-          type: "TextField"
+          children: [
+            {
+              collection: "items",
+              for: "item in {{items}}",
+              id: "field",
+              key: "id",
+              props: { label: "{{item.label}}", value: "{{item.label}}" },
+              type: "TextField"
+            }
+          ],
+          id: "items",
+          type: "Stack"
         }
       ],
-      id: "root",
-      type: "Stack"
+      id: "collection-form",
+      type: "Form"
     },
     variables: { items: { required: true, type: "array" } },
     version: "1.0.0"
+  };
+}
+
+function collectionControls() {
+  return {
+    contractVersion: UiControlTopologyVersion.Version1,
+    nodes: [
+      { id: "collection-form", kind: UiControlNodeKind.Form },
+      {
+        id: "items",
+        key: "items",
+        kind: UiControlNodeKind.Array,
+        parentId: "collection-form"
+      }
+    ]
   };
 }
 
@@ -196,9 +286,20 @@ function removeOperation(): UnifoldCollectionRemoveOperation {
 }
 
 function renderedIds(container: HTMLElement): readonly string[] {
-  return [...container.querySelectorAll("[data-unifold-node-id^='field::']")].map(
-    (element) => element.id
-  );
+  return composedElements(container)
+    .filter(({ dataset }) => dataset["unifoldNodeId"]?.startsWith("field::") === true)
+    .map(({ id }) => id);
+}
+
+function composedElements(root: ParentNode): readonly HTMLElement[] {
+  return [...root.children].flatMap((child) => {
+    const element = child as HTMLElement;
+    return [
+      element,
+      ...composedElements(element),
+      ...(element.shadowRoot === null ? [] : composedElements(element.shadowRoot))
+    ];
+  });
 }
 
 function structuralEvents(events: readonly UiEvent[]): readonly UiEvent[] {

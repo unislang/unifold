@@ -1,9 +1,10 @@
 import {
   UnifoldApplicationMountStatus,
   mountUnifoldApplication,
+  type UnifoldApplicationCommand,
   type UnifoldApplicationPort
 } from "@unislang/unifold";
-import type { UiCommand, UiEvent } from "@unislang/unifold-events";
+import type { UiEvent } from "@unislang/unifold-events";
 
 import { resolveControlTopologyArtifact } from "./module-reference.js";
 
@@ -13,7 +14,7 @@ const MACHINE_ID = "topology-workflow";
 interface TopologyTestWindow extends Window {
   __unifoldCapturedEvents?: UiEvent[];
   __unifoldControlSnapshot?: (id: string) => unknown;
-  __unifoldExecute?: (commands: readonly UiCommand[]) => unknown;
+  __unifoldExecute?: (commands: readonly UnifoldApplicationCommand[]) => unknown;
 }
 
 export interface TopologyExampleController {

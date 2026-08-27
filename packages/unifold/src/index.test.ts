@@ -15,5 +15,8 @@ describe("index module", () => {
     expect(subject.createTrustedLayoutDefinitionRegistry).toBeTypeOf("function");
     expect(subject.createMachineGuardRegistry).toBeTypeOf("function");
     expect(subject).not.toHaveProperty("createAuthoredCollectionCandidate");
+    expect(subject).not.toHaveProperty("UnifoldApplication");
+    expect(subject).not.toHaveProperty("createApplicationRuntime");
+    expect(subject).not.toHaveProperty("createApplicationRenderer");
   });
 });

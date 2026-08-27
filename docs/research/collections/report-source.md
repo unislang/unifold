@@ -79,7 +79,12 @@ privacy-bounded structural metadata, and last-known-good recovery.
 The final negative-case audit also rejects unknown operation discriminators, inherited registry
 names, unsafe numeric identities, duplicate names for one authored-array authority, and synchronous
 structural reentry. The raw pointer helper is internal to the package; the public root exposes only
-the enum-backed operation types and application method.
+the enum-backed operation types and application method. Named repeats now target one explicit
+logical Array or Record authority, whose generated member controls preserve aggregate value/order.
+The mounted runtime and renderer are restricted capability facades: all six raw structural command
+families remain on the headless runtime but cannot bypass authored coordination after mounting.
+Trusted host correlation and causation IDs can accompany a collection operation without admitting
+authored or caller-selected transaction identity.
 
 The Chromium reference journey exercises the packaged public API against real Web Components. It
 inserts, reorders, and removes authored items; preserves an unaffected dirty control and its DOM
@@ -91,43 +96,30 @@ state; the explicit timeout exists only to cross the intentionally delayed valid
 
 ## Remaining feasibility gaps
 
-- A repeated visual collection and a logical Array/Record topology are not yet one atomic authored
-  declaration. Static `controls.nodes` must currently be coordinated separately.
 - Removing the item that owns focus needs an explicit fallback-focus policy and browser proof. The
   current journey removes a different item while retaining focus on an unaffected control.
 - Renderer or semantic-projection failure can follow publication of the forward structural event.
   Compensation restores state, but external consumers do not yet receive one buffered atomic event
   or an explicit causally linked compensation contract.
-- Full candidate compilation favors correctness and a single authority. Collection-specific
-  500/1,000-item latency, allocation, and selective-projection measurements remain to determine
-  whether a future incremental compiler path is justified.
+- Full candidate compilation favors correctness and a single authority. Initial and revision
+  compilation now have 500-item gates; 1,000-item, allocation, end-to-end mutation, and selective
+  projection measurements remain before an incremental compiler path could be justified.
 - Distributed revisions, server persistence, concurrent writers, and offline merge remain outside
   this API and must use the existing collaboration/control-plane boundaries.
-- The mounted application still exposes its low-level runtime, whose headless structural commands
-  can change normalized membership without changing authored JSON. A production authority boundary
-  must either hide those commands behind an internal capability or expose a mounted-runtime facade
-  that admits only authored application operations.
-- Collection calls create fresh correlation/causation identifiers. An optional trusted execution
-  context is still needed when a host must link the structural transaction to an originating UI,
-  workflow, collaboration, or AI request.
 
 These gaps do not invalidate the bounded lifecycle, but they keep the broader dynamic logical-form
 collection acceptance criterion partial.
 
 ## Recommendations
 
-1. Make logical Array/Record collection membership derive from the same named repeat declaration so
-   one authored operation cannot update visual structure without its logical aggregate.
-2. Specify deterministic focus transfer before enabling removal of a focused member in production
+1. Specify deterministic focus transfer before enabling removal of a focused member in production
    authoring tools.
-3. Buffer structural event publication until renderer and semantic commit, or add an explicit
+2. Buffer structural event publication until renderer and semantic commit, or add an explicit
    causal compensation event that external consumers can reconcile safely.
-4. Add 500- and 1,000-member browser/performance gates before optimizing compilation. Retain the
+3. Add 1,000-member and end-to-end mutation browser/performance gates before optimizing compilation. Retain the
    full-recompile path as the correctness oracle for any incremental implementation.
-5. Keep source pointers and key-property bindings private and retain the enum-backed, named public
+4. Keep source pointers and key-property bindings private and retain the enum-backed, named public
    collection operation contract.
-6. Remove raw structural commands from the mounted application runtime surface while retaining them
-   in the explicitly headless runtime package.
 
 ## Claim-to-source ledger
 

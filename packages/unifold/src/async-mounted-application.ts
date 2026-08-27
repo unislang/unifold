@@ -1,6 +1,4 @@
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
-import type { DomRenderController } from "@unislang/unifold-renderer-dom";
-import type { UnifoldRuntime } from "@unislang/unifold-runtime";
 
 import type { AsyncStoreCommandController } from "./async-store-command-port.js";
 import type { UnifoldCollectionOperation } from "./authored-collection.js";
@@ -10,13 +8,16 @@ import {
   UnifoldApplicationUpdateStatus,
   type PreparedUnifoldDocument,
   type UnifoldApplicationPort,
+  type UnifoldApplicationRendererPort,
+  type UnifoldApplicationRuntimePort,
   type UnifoldApplicationUpdateResult,
-  type UnifoldPreparationOptions
+  type UnifoldPreparationOptions,
+  type UiOriginatingExecutionContext
 } from "./types.js";
 
 export class AsyncMountedApplication implements UnifoldApplicationPort {
-  readonly renderer: DomRenderController;
-  readonly runtime: UnifoldRuntime;
+  readonly renderer: UnifoldApplicationRendererPort;
+  readonly runtime: UnifoldApplicationRuntimePort;
   readonly #application: UnifoldApplicationPort;
   readonly #controller: AsyncStoreCommandController;
   readonly #stores: UnifoldIrDocument["storesById"];
@@ -47,8 +48,11 @@ export class AsyncMountedApplication implements UnifoldApplicationPort {
     return this.#application.machineState(id);
   }
 
-  applyCollectionOperation(operation: UnifoldCollectionOperation): UnifoldApplicationUpdateResult {
-    return this.#application.applyCollectionOperation(operation);
+  applyCollectionOperation(
+    operation: UnifoldCollectionOperation,
+    origin?: UiOriginatingExecutionContext
+  ): UnifoldApplicationUpdateResult {
+    return this.#application.applyCollectionOperation(operation, origin);
   }
 
   update(authored: unknown): UnifoldApplicationUpdateResult {

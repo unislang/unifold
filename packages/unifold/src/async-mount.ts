@@ -2,6 +2,7 @@ import type { UiStoreDefinition } from "@unislang/unifold-contracts";
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
 import { AsyncStoreCommandController } from "./async-store-command-port.js";
 import { AsyncMountedApplication } from "./async-mounted-application.js";
+import { applicationRuntimeEngine } from "./application-runtime.js";
 import { connectAsyncStore } from "./async-store-connection.js";
 import type {
   MountAsyncUnifoldApplicationOptions,
@@ -104,7 +105,7 @@ function attachController(
   options: MountUnifoldApplicationOptions
 ): MountUnifoldApplicationResult {
   try {
-    controller.attach(result.application.runtime);
+    controller.attach(applicationRuntimeEngine(result.application.runtime));
     return {
       ...result,
       application: new AsyncMountedApplication(result.application, controller, document, options)

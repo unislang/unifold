@@ -87,6 +87,11 @@ snapshots. They do not compile authored JSON or create/remove rendered hosts, so
 treat them as the finished dynamic-collection API. The packaged completion will name a compiled
 template/composition and reconcile authored structure, runtime, and DOM together.
 
+These collection commands plus `StructureInstantiate`, `StructureReconcile`, and `StructureRemove`
+are intentionally available on the explicit headless `UnifoldRuntime`. A mounted application from
+`@unislang/unifold` exposes an allowlisted runtime capability instead, so raw structural commands
+cannot bypass its authored-document coordinator.
+
 `StructureReconcile` is the whole-graph structural command used by the application coordinator. It
 validates the candidate topology before mutation, adds and removes nodes atomically, rebuilds parent
 ordering, and updates the composition manifest at the same revision. A retained node with the same

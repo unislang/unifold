@@ -11,6 +11,7 @@ it("installs the bounded authored-collection browser fixture hooks", () => {
   ).__unifoldCollectionFixture;
 
   expect(Object.keys(hooks ?? {}).sort()).toEqual([
+    "bypass",
     "insert",
     "mount",
     "move",

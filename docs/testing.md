@@ -121,6 +121,12 @@ identity and focus on a surviving control, requires causal operation metadata, r
 last-known-good state after an invalid insert, and proves a removed control's non-cooperative async
 validator emits no late event.
 
+The 2026-08-27 mounted-authority follow-up passes 603 root Vitest files/1,605 tests, 22 tooling
+tests, all generated/module-lock scripts, and 39 performance-correctness files/50 active tests.
+Selective benchmark schema 2.36.0 passes 63/63 gates; the new 500-item authored collection initial
+and revision compiles measure 5.33 ms and 5.34 ms p95 against 150 ms. All 40 builds pass, and the
+focused collection journey passes 2/2 across Chromium and WebKit.
+
 ## State-authority proof
 
 Runtime unit tests require empty, effect-only, and normalized no-op batches to preserve the current
@@ -389,16 +395,20 @@ the nested value with exact ordered/repeated native `FormData` pairs, submits an
 the schema.org graph, checks leaf-only DOM projection, and runs axe. Do not use `Object.fromEntries`
 for native-form assertions because it destroys repeated keys.
 
-The dedicated authored-collection lifecycle is included in the current 61/61 Chromium reference
-pass. It mounts a named repeat, inserts at index one, moves by durable key, removes the inserted
+The dedicated authored-collection lifecycle passed in the prior full Chromium reference matrix and
+passes the current focused Chromium/WebKit 2/2 rerun. It mounts a named repeat, inserts at index one, moves by durable key, removes the inserted
 control, and rejects an invalid successor at the last-known-good authored revision. Assertions cover
 exact authored/rendered order, retained edited value and host identity, focus on a surviving control,
 causal insert/move/remove command-to-transaction metadata, and zero late events from a deliberately
-non-cooperative validator after its control is removed. The lifecycle does not yet couple the repeat
-to explicit logical Array/Record topology, capability-hide headless structural commands on the
-mounted runtime, accept originating causal context, define focus fallback when the focused item is
-removed, prove post-runtime renderer rollback/event atomicity, or supply representative large
-authored-collection performance. Remaining AC19 work also includes exact composition-control provenance,
+non-cooperative validator after its control is removed. The lifecycle also asserts logical aggregate
+values, trusted operation correlation/causation, and denial of a raw mounted `structure.remove`
+attempt without revision or host-identity change. Focused type and runtime tests prove all six
+structural command families are absent from the mounted port and retained by the headless runtime;
+the mounted renderer exposes lookup only. The clean packed-consumer 5/5 suite repeats the raw
+structural denial against installed tarballs before continuing ordinary interaction and authored
+update. Remaining work includes focused-item fallback, post-runtime
+renderer rollback/event atomicity, and end-to-end collection mutation performance beyond the
+500-item compile/revision gates. Remaining AC19 work also includes exact composition-control provenance,
 aggregate-shape migration, a rendered composition mount, wrapper-refactor identity/focus/rollback,
 and schema-derived handle typing.
 The three-browser suite also drives a Standard Schema-compatible form-level name-confirmation rule through

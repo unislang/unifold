@@ -1,6 +1,10 @@
 import type { JsonObject } from "@unislang/unifold-contracts";
 
 import { CompositionDiagnosticCode, LayoutExpansionStatus } from "./enums.js";
+import {
+  coupleLayoutCollectionControls,
+  type LayoutCollectionControlMember
+} from "./layout-collection-controls.js";
 import { expandLayoutRoot } from "./layout-nodes.js";
 import { validateLayoutJson, validateLayoutJsonAt } from "./layout-safety.js";
 import { TrustedLayoutDefinitionRegistry } from "./layout-registry.js";
@@ -110,22 +114,42 @@ function expandWithVariables(
   diagnostics: CompositionDiagnostic[]
 ): LayoutExpansionResult {
   const definitionPath = selected.path;
-  const collectionsById: Record<string, LayoutCollectionDefinition> = {};
-  const sourcePointers: Record<string, string> = {};
-  const variablePointers = layoutVariableSourcePointers(
-    selected.definition,
-    document["variables"],
-    definitionPath
-  );
+  const state = expansionState(selected, document["variables"]);
   const view = expandLayoutRoot(selected.definition["template"], variables, diagnostics, {
-    collectionsById,
+    collectionControlMembers: state.collectionControlMembers,
+    collectionsById: state.collectionsById,
     rootPointer: `${definitionPath}/template`,
-    sourcePointers,
-    variablePointers
+    sourcePointers: state.sourcePointers,
+    variablePointers: state.variablePointers
   });
   if (view === undefined) return invalid(diagnostics);
+  return completeExpansion(document, view, state, diagnostics);
+}
+
+function expansionState(selected: SelectedLayoutDefinition, variables: unknown) {
+  return {
+    collectionControlMembers: [] as LayoutCollectionControlMember[],
+    collectionsById: {},
+    sourcePointers: {},
+    variablePointers: layoutVariableSourcePointers(selected.definition, variables, selected.path)
+  };
+}
+
+function completeExpansion(
+  document: Readonly<Record<string, unknown>>,
+  view: JsonObject,
+  state: ReturnType<typeof expansionState>,
+  diagnostics: CompositionDiagnostic[]
+): LayoutExpansionResult {
   if (diagnostics.length > 0) return invalid(diagnostics);
-  return valid(document, view, sourcePointers, collectionsById);
+  const controls = coupleLayoutCollectionControls(
+    document["controls"],
+    state.collectionsById,
+    state.collectionControlMembers,
+    diagnostics
+  );
+  if (diagnostics.length > 0) return invalid(diagnostics);
+  return valid(document, view, state.sourcePointers, state.collectionsById, controls);
 }
 
 function selectDefinition(
@@ -263,12 +287,13 @@ function valid(
   source: Readonly<Record<string, unknown>>,
   view: JsonObject,
   sourcePointers: Readonly<Record<string, string>>,
-  collectionsById: Readonly<Record<string, LayoutCollectionDefinition>>
+  collectionsById: Readonly<Record<string, LayoutCollectionDefinition>>,
+  controls: JsonObject | undefined
 ): LayoutExpansionResult {
   return {
     collectionsById: sortedCollections(collectionsById),
     diagnostics: [],
-    document: createUiDocument(source, view),
+    document: createUiDocument(source, view, controls),
     sourcePointersByNodeId: sortedPointers(sourcePointers),
     status: LayoutExpansionStatus.Valid
   };
@@ -290,7 +315,11 @@ function sortedPointers(
   );
 }
 
-function createUiDocument(source: Readonly<Record<string, unknown>>, view: JsonObject): JsonObject {
+function createUiDocument(
+  source: Readonly<Record<string, unknown>>,
+  view: JsonObject,
+  controls: JsonObject | undefined
+): JsonObject {
   const retained = Object.fromEntries(
     Object.entries(source).filter(
       ([name]) => !["layoutType", "layoutVersion", "layouts", "variables"].includes(name)
@@ -298,6 +327,7 @@ function createUiDocument(source: Readonly<Record<string, unknown>>, view: JsonO
   );
   return {
     ...retained,
+    ...(controls === undefined ? {} : { controls }),
     $schema: "https://schemas.unifold.org/ui-document/1.0/schema.json",
     compositions: [],
     jsonUiProfile: {

@@ -38,6 +38,7 @@ if (result.status !== UnifoldApplicationMountStatus.Mounted) {
 
 const application = result.application;
 host.dataset["mounted"] = "true";
+host.dataset["structuralBypassDenied"] = String(structuralBypassDenied());
 showMachineState();
 host.dataset["sourceIntegrity"] = result.provenance.integrity;
 if (result.provenance.integrity !== UnifoldDocumentIntegrity.Unsigned) {
@@ -66,6 +67,22 @@ function requireElement<T extends HTMLElement>(id: string): T {
   const element = document.getElementById(id);
   if (element === null) throw new Error(`Missing packed-consumer element: ${id}.`);
   return element as T;
+}
+
+function structuralBypassDenied(): boolean {
+  const revision = application.runtime.revision;
+  const element = application.renderer.getElement("name");
+  try {
+    Reflect.apply(Reflect.get(application.runtime, "execute"), application.runtime, [
+      [{ id: "name", type: "structure.remove" }]
+    ]);
+    return false;
+  } catch {
+    return (
+      application.runtime.revision === revision &&
+      application.renderer.getElement("name") === element
+    );
+  }
 }
 
 function requireTestElement(testId: string): HTMLElement {

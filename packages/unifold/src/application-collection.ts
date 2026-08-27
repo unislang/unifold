@@ -10,21 +10,33 @@ import {
   type UnifoldApplicationUpdateResult
 } from "./types.js";
 import type { UiCollectionReconcileMetadata } from "@unislang/unifold-events";
+import type { UiExecutionContext } from "@unislang/unifold-runtime";
 
 type ApplyCandidate = (candidate: unknown) => UnifoldApplicationUpdateResult;
 
+interface CollectionExecution {
+  readonly context: UiExecutionContext;
+  readonly metadata: UiCollectionReconcileMetadata;
+}
+
+interface CollectionOrigin {
+  readonly causationId?: string;
+  readonly correlationId?: string;
+}
+
 export class ApplicationCollectionCoordinator {
-  current: UiCollectionReconcileMetadata | undefined;
+  current: CollectionExecution | undefined;
 
   apply(
     source: PreparedUnifoldDocument,
     operation: UnifoldCollectionOperation,
     revision: number,
-    applyCandidate: ApplyCandidate
+    applyCandidate: ApplyCandidate,
+    origin?: CollectionOrigin
   ): UnifoldApplicationUpdateResult {
     try {
       const candidate = createAuthoredCollectionCandidate(source, operation);
-      return this.applyCandidate(candidate, applyCandidate);
+      return this.applyCandidate(candidate, applyCandidate, origin);
     } catch (error) {
       return rejectedCollectionOperation(error, revision);
     }
@@ -32,15 +44,29 @@ export class ApplicationCollectionCoordinator {
 
   private applyCandidate(
     candidate: ReturnType<typeof createAuthoredCollectionCandidate>,
-    apply: ApplyCandidate
+    apply: ApplyCandidate,
+    origin?: CollectionOrigin
   ): UnifoldApplicationUpdateResult {
-    this.current = candidate.metadata;
+    this.current = { context: executionContext(origin), metadata: candidate.metadata };
     try {
       return apply(candidate.authored);
     } finally {
       this.current = undefined;
     }
   }
+}
+
+function executionContext(origin: CollectionOrigin | undefined): UiExecutionContext {
+  if (origin === undefined) return {};
+  const { causationId, correlationId } = origin;
+  return {
+    ...optionalContextId("causationId", causationId),
+    ...optionalContextId("correlationId", correlationId)
+  };
+}
+
+function optionalContextId<K extends string>(key: K, value: string | undefined) {
+  return value === undefined ? {} : { [key]: value };
 }
 
 function rejectedCollectionOperation(

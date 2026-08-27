@@ -87,12 +87,14 @@ durable key property, and the mounted application admits revision-checked insert
 collection ID and explicit index through the existing recompile/reconcile coordination boundary.
 The current Chromium reference journey proves the rendered lifecycle, explicit ordering, retained
 edited value and host identity, focus on a surviving item, causal operation metadata,
-last-known-good rejection, and stale-async suppression after removing a control. Logical
-Array/Record topology coupling remains acceptance work; the lower-level runtime collection commands
-remain headless primitives. Removing the focused item still needs a defined focus policy, while
+last-known-good rejection, and stale-async suppression after removing a control. A named repeat must
+target one explicit logical Array or Record control, and generated member controls maintain its
+aggregate value and child order. Lower-level runtime collection commands remain headless primitives;
+the mounted runtime and renderer expose restricted capabilities that cannot issue structural
+commands or mutate rendered structure. Trusted host correlation/causation can accompany collection
+operations without becoming authored JSON. Removing the focused item still needs a defined focus policy, while
 post-runtime renderer rollback/event atomicity and representative large authored-collection
-performance remain open. The mounted runtime must capability-hide its headless structural commands,
-and collection calls still need optional trusted originating context for cross-system causality.
+mutation performance remain open; 500-item initial and revision compilation are separately gated.
 
 ## Trusted external definitions
 

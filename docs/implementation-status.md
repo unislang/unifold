@@ -166,11 +166,14 @@ described by the complete 1.0 plan.
   merged authority; focused compiler tests cover nested, slotted, repeated, and invalid mounts.
   Logical aggregate disable cascading now preserves separate own/effective intent, cancels stale
   validation, and has 10k plus Chromium native-form evidence. Named Scratch repeats now compile
-  bounded authored collection authority. The current 61/61 Chromium reference pass includes mounted
+  bounded authored collection authority coupled to explicit logical Array/Record controls. The
+  previous full Chromium reference pass and current focused Chromium/WebKit 2/2 rerun include mounted
   insert/move/remove/rejection, exact authored/rendered ordering, retained dirty value, stable host
   and surviving focus, causal structural metadata, and zero late events from a non-cooperative
-  validator after its control is removed. Logical Array/Record coupling, focused-item removal policy,
-  post-runtime renderer rollback/event atomicity, representative large authored-collection
+  validator after its control is removed. Frozen mounted runtime/renderer capabilities deny raw
+  structural mutation, while trusted host correlation/causation remains outside authored JSON.
+  Schema 2.36.0 gates 500-item initial/revision compilation. Focused-item removal policy,
+  post-runtime renderer rollback/event atomicity, end-to-end authored-collection mutation
   performance, exact composition-control provenance/migration shape, a rendered composition mount,
   wrapper-refactor identity/focus/rollback, and schema-derived handle types remain incomplete.
 - A versioned data-only workflow-machine contract compiled to live XState v5 actors, scope-indexed

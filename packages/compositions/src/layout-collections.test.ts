@@ -7,7 +7,14 @@ it("registers only unique repeats over supplied authored variables", () => {
   const definitions: Record<string, LayoutCollectionDefinition> = {};
   const diagnostics: CompositionDiagnostic[] = [];
   expect(register("items", "/variables/items", definitions, diagnostics)).toBe(true);
-  expect(definitions).toEqual({ items: { keyProperty: "id", sourcePointer: "/variables/items" } });
+  expect(definitions).toEqual({
+    items: {
+      controlId: "items",
+      declarationPointer: "/node/collection",
+      keyProperty: "id",
+      sourcePointer: "/variables/items"
+    }
+  });
   expect(register("items", "/variables/other", definitions, diagnostics)).toBe(false);
   expect(register("aliases", "/variables/items", definitions, diagnostics)).toBe(false);
   expect(register("defaults", "/layouts/0/variables/items/default", definitions, diagnostics)).toBe(

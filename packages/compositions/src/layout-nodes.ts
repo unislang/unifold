@@ -2,6 +2,14 @@ import type { JsonObject, JsonValue } from "@unislang/unifold-contracts";
 
 import { CompositionDiagnosticCode } from "./enums.js";
 import { namespacedCompositionId } from "./identity.js";
+import { recordCollectionMember } from "./layout-collection-controls.js";
+import {
+  BOOLEAN_CONDITION_DECISIONS,
+  ConditionDecision,
+  LAYOUT_NODE_KEYS,
+  type LayoutNodeExpansionContext as ExpansionContext,
+  type LayoutRootExpansionOptions
+} from "./layout-node-configuration.js";
 import {
   parseLayoutRepeat,
   registerLayoutCollection,
@@ -17,35 +25,7 @@ import {
   rejectUnknownLayoutKeys as rejectUnknownKeys,
   resolveLayoutValue
 } from "./layout-values.js";
-import type { CompositionDiagnostic, LayoutCollectionDefinition } from "./types.js";
-
-interface ExpansionContext {
-  readonly collectionsById: Record<string, LayoutCollectionDefinition>;
-  readonly diagnostics: CompositionDiagnostic[];
-  readonly ids: Set<string>;
-  readonly sourcePointers: Record<string, string>;
-  readonly variablePointers: Readonly<Record<string, string>>;
-  readonly variables: Readonly<Record<string, JsonValue>>;
-}
-
-interface LayoutRootExpansionOptions {
-  readonly collectionsById?: Record<string, LayoutCollectionDefinition>;
-  readonly rootPointer: string;
-  readonly sourcePointers: Record<string, string>;
-  readonly variablePointers: Readonly<Record<string, string>>;
-}
-
-enum ConditionDecision {
-  Exclude = "exclude",
-  Include = "include",
-  Invalid = "invalid"
-}
-
-const NODE_KEYS = new Set("children collection events for id if key props type".split(" "));
-const BOOLEAN_DECISIONS = {
-  false: ConditionDecision.Exclude,
-  true: ConditionDecision.Include
-} as const;
+import type { CompositionDiagnostic } from "./types.js";
 
 export function expandLayoutRoot(
   value: unknown,
@@ -53,18 +33,35 @@ export function expandLayoutRoot(
   diagnostics: CompositionDiagnostic[],
   options: LayoutRootExpansionOptions
 ): JsonObject | undefined {
-  const context = {
-    collectionsById: options.collectionsById ?? {},
+  const context = expansionContext(variables, diagnostics, options);
+  const nodes = expandNodes(value, options.rootPointer, context);
+  if (nodes.length === 1) return nodes[0];
+  reportNode(options.rootPointer, context, "A layout template must produce exactly one root node.");
+  return undefined;
+}
+
+function expansionContext(
+  variables: Readonly<Record<string, JsonValue>>,
+  diagnostics: CompositionDiagnostic[],
+  options: LayoutRootExpansionOptions
+): ExpansionContext {
+  return {
+    collectionControlMembers: collectionMembers(options.collectionControlMembers),
+    collectionsById: collectionDefinitions(options.collectionsById),
     diagnostics,
     ids: new Set<string>(),
     sourcePointers: options.sourcePointers,
     variablePointers: options.variablePointers,
     variables
   };
-  const nodes = expandNodes(value, options.rootPointer, context);
-  if (nodes.length === 1) return nodes[0];
-  reportNode(options.rootPointer, context, "A layout template must produce exactly one root node.");
-  return undefined;
+}
+
+function collectionMembers(value: LayoutRootExpansionOptions["collectionControlMembers"]) {
+  return value ?? [];
+}
+
+function collectionDefinitions(value: LayoutRootExpansionOptions["collectionsById"]) {
+  return value ?? {};
 }
 
 function expandNodes(
@@ -105,7 +102,7 @@ function conditionDecision(
   if (condition === undefined) return ConditionDecision.Include;
   const resolved = resolveValue(condition, `${path}/if`, context);
   if (typeof resolved !== "boolean") return invalidCondition(path, context);
-  return BOOLEAN_DECISIONS[String(resolved) as "false" | "true"];
+  return BOOLEAN_CONDITION_DECISIONS[String(resolved) as "false" | "true"];
 }
 
 function invalidCondition(path: string, context: ExpansionContext): ConditionDecision {
@@ -187,7 +184,17 @@ function expandRepeatedItem(
   if (record === undefined) return [];
   const key = repeatKey(record[repeat.key], repeat.key, itemPointer, context);
   if (key === undefined) return [];
-  return expandRepeatedRecord(record, key, node, repeat.alias, path, itemPointer, context);
+  const expanded = expandRepeatedRecord(
+    record,
+    key,
+    node,
+    repeat.alias,
+    path,
+    itemPointer,
+    context
+  );
+  recordCollectionMember(repeat.collection, key, expanded, context.collectionControlMembers);
+  return expanded;
 }
 
 function repeatRecord(
@@ -248,7 +255,7 @@ function expandNode(
   context: ExpansionContext,
   repeatKey?: string
 ): JsonObject | undefined {
-  rejectUnknownKeys(value, NODE_KEYS, path, context.diagnostics);
+  rejectUnknownKeys(value, LAYOUT_NODE_KEYS, path, context.diagnostics);
   const id = resolveNodeIdentity(value["id"], repeatKey, path, context);
   if (id === undefined) return undefined;
   return expandIdentifiedNode(value, id, path, context);

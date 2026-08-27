@@ -3,6 +3,13 @@ import { Bench } from "tinybench";
 import { expect, it } from "vitest";
 
 import { summarizeTiming } from "./profile-statistics.js";
+import {
+  AUTHORED_COLLECTION_COMPILATION_NAME,
+  AUTHORED_COLLECTION_REVISION_NAME,
+  compileAuthoredCollection,
+  compileAuthoredCollectionRevision,
+  createAuthoredCollectionHarness
+} from "./authored-collection-fixture.js";
 import { CANONICAL_EVENT_GATE_NAME, measureCanonicalEventPath } from "./canonical-event-fixture.js";
 import {
   CACHED_500_COMPILATION_NAME,
@@ -153,6 +160,12 @@ function createCompilationBench(): Bench {
     .add(COMPOSED_500_COMPILATION_NAME, () => compileComposedDocument(harnesses.compilation))
     .add(COMPOSED_500_REVISION_NAME, () => compileComposedRevision(harnesses.compilation))
     .add(LAYOUT_500_COMPILATION_NAME, () => compileLayoutDocument(harnesses.compilation))
+    .add(AUTHORED_COLLECTION_COMPILATION_NAME, () =>
+      compileAuthoredCollection(harnesses.collection)
+    )
+    .add(AUTHORED_COLLECTION_REVISION_NAME, () =>
+      compileAuthoredCollectionRevision(harnesses.collection)
+    )
     .add("1k rule graph with 25 affected rules", () =>
       evaluateRuleChain(harnesses.rules, 0, ++sequence)
     );
@@ -170,7 +183,11 @@ function createCoreHarnesses() {
 }
 
 function createCompilationHarnesses() {
-  return { compilation: createDocumentCompilationHarness(), rules: createRuleScaleHarness() };
+  return {
+    collection: createAuthoredCollectionHarness(),
+    compilation: createDocumentCompilationHarness(),
+    rules: createRuleScaleHarness()
+  };
 }
 
 function trackHarnesses<T extends Record<string, unknown>>(bench: Bench, harnesses: T): Bench {
@@ -246,7 +263,17 @@ function documentCompilationGates(timings: ReturnType<typeof timingResults>) {
       requireP95(timings, NORMALIZE_2000_DOCUMENT_NAME),
       200
     ),
-    timingGate(LAYOUT_500_COMPILATION_NAME, requireP95(timings, LAYOUT_500_COMPILATION_NAME), 100)
+    timingGate(LAYOUT_500_COMPILATION_NAME, requireP95(timings, LAYOUT_500_COMPILATION_NAME), 100),
+    timingGate(
+      AUTHORED_COLLECTION_COMPILATION_NAME,
+      requireP95(timings, AUTHORED_COLLECTION_COMPILATION_NAME),
+      150
+    ),
+    timingGate(
+      AUTHORED_COLLECTION_REVISION_NAME,
+      requireP95(timings, AUTHORED_COLLECTION_REVISION_NAME),
+      150
+    )
   ];
 }
 

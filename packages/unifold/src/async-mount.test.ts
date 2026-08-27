@@ -33,6 +33,11 @@ it("waits for loading before render and coordinates local, external, and disposa
   fixture.load.resolve(snapshot("revision-1", "Ada"));
   const application = requireApplication(await mounting);
   expect(application.runtime.getSnapshot("name").control?.value).toBe("Ada");
+  expect(() =>
+    (application.runtime.execute as (commands: readonly unknown[]) => unknown)([
+      { id: "name", type: "structure.remove" }
+    ])
+  ).toThrow("not admitted");
   const events: UiEvent[] = [];
   application.runtime.events$.subscribe((event) => events.push(event));
 

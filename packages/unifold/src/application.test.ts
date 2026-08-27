@@ -13,8 +13,8 @@ import { UiCommandType } from "@unislang/unifold-events";
 import { Window } from "happy-dom";
 import { expect, it, vi } from "vitest";
 
+import { UnifoldApplication } from "./application.js";
 import {
-  UnifoldApplication,
   UnifoldApplicationDiagnosticStage,
   UnifoldApplicationMountStatus,
   UnifoldApplicationUpdateStatus,

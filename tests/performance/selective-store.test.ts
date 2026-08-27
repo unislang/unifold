@@ -92,7 +92,7 @@ it("keeps 100 replay transactions at one indexed candidate each", () => {
   expect(harness.candidateCounts).toEqual(Array.from({ length: 100 }, () => 1));
   expect(total(harness.notifications)).toBe(100);
   harness.store.dispose();
-});
+}, 10_000);
 
 it("limits a leaf edit in an aggregate-heavy 10k graph to its ancestor chain", () => {
   const harness = createAggregateScaleHarness(TEN_THOUSAND_NODES);

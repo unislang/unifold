@@ -100,9 +100,6 @@ it("rejects non-JSON authoring values before recursively lowering them", () => {
 it("expands keyed repetitions and boolean conditions with stable identities", () => {
   const source = layoutDocument();
   configureRepeatedActions(source);
-  const repeated = (source.layouts[0].template["children"] as Record<string, unknown>[])[0];
-  if (repeated === undefined) throw new Error("Repeated action fixture is missing.");
-  repeated["collection"] = "actions";
 
   const result = expandLayoutDocument(source);
   expect(result).toMatchObject({ diagnostics: [], status: LayoutExpansionStatus.Valid });
@@ -113,9 +110,7 @@ it("expands keyed repetitions and boolean conditions with stable identities", ()
     "action::archive": "/layouts/0/template/children/0",
     "action::edit": "/layouts/0/template/children/0"
   });
-  expect(result.collectionsById).toEqual({
-    actions: { keyProperty: "id", sourcePointer: "/variables/actions" }
-  });
+  expect(result.collectionsById).toEqual({});
 
   source.variables["showActions"] = false;
   expect(requiredExpandedView(expandLayoutDocument(source))["$children"]).toBeUndefined();

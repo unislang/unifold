@@ -145,22 +145,25 @@ remove operations by collection ID through the normal compile, runtime reconcili
 update boundary. Chromium proves explicit insertion, key-based movement, removal, last-known-good
 rejection, exact authored/rendered order, retained edited state and host identity, surviving focus,
 causal structural event metadata, and suppression of non-cooperative validation after the removed
-control lifetime ends. Lower-level snapshot collection commands remain headless runtime seams.
+control lifetime ends. Each named repeat is coupled to one explicit logical Array or Record control;
+generated member controls maintain aggregate value and child order across insert, move, and remove.
+Lower-level snapshot collection commands remain headless runtime seams.
 The application rejects synchronous structural reentry, exposes no raw authored-pointer helper, and
-admits each authored array under one collection authority with a string or safe-integer key.
+admits each authored array under one collection authority with a string or safe-integer key. Its
+mounted runtime is a frozen, allowlisted capability that rejects all six collection/structure
+command families before execution; its renderer capability exposes element lookup but no mutation
+or disposal. Raw structural primitives remain available only from the explicit headless runtime.
+Collection operations accept optional trusted correlation and causation IDs outside authored JSON;
+transaction IDs remain runtime-owned.
 
-The remaining limits are explicit. Named repeat operations do not yet create or maintain logical
-Array/Record topology membership, and Array-fragment mounting still needs an authored order contract.
+The remaining limits are explicit. Array-fragment mounting still needs an authored order contract.
 The browser proof preserves focus on a surviving item but does not define where focus moves when the
 focused item is removed. Invalid authored input rejects before commit; post-runtime renderer failure,
 compensation, and unified-event atomicity still need browser proof. Representative large authored
-collection insert/move/remove performance is not gated. Composition control declarations currently
+collection end-to-end mutation performance remains broader than the 500-item compile/revision gates. Composition control declarations currently
 reuse visual-node provenance by ID rather than publishing exact `/controls/nodes/N` source records,
 and migration compatibility does not yet compare logical aggregate shape. Live wrapper-refactor
-identity/focus/rollback also remains open. The mounted application still exposes its low-level
-runtime; its headless structural commands must be capability-hidden or removed from that facade so
-they cannot bypass authored JSON. Collection operations also need an optional trusted execution
-context when causal provenance must link back to a UI, workflow, collaboration, or AI request.
+identity/focus/rollback also remains open.
 
 `runtime.control<T>(id)` is the typed integration facade. Its live value, raw-value, status, and
 error observables and transactional setters select or command the same normalized store; they do not

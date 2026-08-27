@@ -8,6 +8,7 @@ test("runs the documented lifecycle from packed public exports", async ({ page }
   expect(pageErrors).toEqual([]);
   await expectRegistrationEvidence(page);
   await expect(page.locator("#app")).toHaveAttribute("data-mounted", "true");
+  await expect(page.locator("#app")).toHaveAttribute("data-structural-bypass-denied", "true");
   await expect(page.locator("#app")).toHaveAttribute("data-source-integrity", "unsigned");
   await expect(page.locator("#app")).toHaveAttribute("data-machine-state", "editing");
   await expect(page.locator("unifold-text-field")).toHaveCount(1);

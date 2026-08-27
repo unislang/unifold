@@ -1,4 +1,3 @@
-export { UnifoldApplication } from "./application.js";
 export type {
   UnifoldCollectionInsertOperation,
   UnifoldCollectionMoveOperation,

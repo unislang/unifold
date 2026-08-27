@@ -6,7 +6,7 @@ import {
 import type { UiCollectionReconcileMetadata } from "@unislang/unifold-events";
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
 import type { DomRenderController } from "@unislang/unifold-renderer-dom";
-import type { UnifoldRuntime } from "@unislang/unifold-runtime";
+import type { UiExecutionContext, UnifoldRuntime } from "@unislang/unifold-runtime";
 
 import { prepareUnifoldDocument } from "./compiler.js";
 import { registerApplicationElements } from "./element-registration.js";
@@ -15,8 +15,9 @@ import {
   type UiCompositionMigrationPlan,
   type UiCompositionVersionMigration
 } from "./composition-migrations.js";
-import { UiSemanticConfigurationError } from "./semantic-coordinator.js";
+import { semanticSnapshotRecord, UiSemanticConfigurationError } from "./semantic-coordinator.js";
 import type { UiSemanticCoordinator } from "./semantic-coordinator.js";
+import type { UiMachineCoordinator } from "./machine-coordinator.js";
 import type { PreparedApplicationStores } from "./store-adapters.js";
 import type { StoreCommandController } from "./store-command-port.js";
 import { createApplicationSnapshots } from "./application-snapshots.js";
@@ -43,6 +44,45 @@ export function firstDiagnostic(
   diagnostics: readonly (UnifoldApplicationDiagnostic | undefined)[]
 ): UnifoldApplicationDiagnostic | undefined {
   return diagnostics.find((diagnostic) => diagnostic !== undefined);
+}
+
+export function machineConfigurationDiagnostic(
+  machines: UiMachineCoordinator,
+  document: UnifoldIrDocument
+): UnifoldApplicationDiagnostic | undefined {
+  try {
+    machines.validate(document.machines);
+    return undefined;
+  } catch (error) {
+    return errorDiagnostic(error, UnifoldApplicationDiagnosticStage.Workflow);
+  }
+}
+
+export function rendererConfigurationDiagnostic(
+  renderer: DomRenderController,
+  document: UnifoldIrDocument
+): UnifoldApplicationDiagnostic | undefined {
+  try {
+    renderer.validate(document);
+    return undefined;
+  } catch (error) {
+    return errorDiagnostic(error, UnifoldApplicationDiagnosticStage.Renderer);
+  }
+}
+
+export function semanticConfigurationDiagnostic(
+  semantics: UiSemanticCoordinator | undefined,
+  document: UnifoldIrDocument,
+  stores: PreparedApplicationStores,
+  revision: number
+): UnifoldApplicationDiagnostic | undefined {
+  try {
+    const snapshots = createApplicationSnapshots(document, revision, stores);
+    semantics?.validate(document, semanticSnapshotRecord(snapshots));
+    return undefined;
+  } catch (error) {
+    return errorDiagnostic(error, UnifoldApplicationDiagnosticStage.Semantics);
+  }
 }
 
 export function asError(error: unknown): Error {
@@ -77,11 +117,15 @@ export function executePreparedReconciliation(
   next: PreparedUnifoldDocument,
   stores: PreparedApplicationStores,
   migration: UiCompositionMigrationPlan,
-  collectionOperation?: UiCollectionReconcileMetadata
+  collection?: {
+    readonly context: UiExecutionContext;
+    readonly metadata: UiCollectionReconcileMetadata;
+  }
 ): void {
+  const { context, metadata } = collection ?? {};
   const nodes = createApplicationSnapshots(next.document, runtime.revision, stores);
   runtime.replaceRules(next.document.rules, nodes);
-  runtime.execute([reconcileCommand(next.document, nodes, migration, collectionOperation)]);
+  runtime.execute([reconcileCommand(next.document, nodes, migration, metadata)], context);
 }
 
 function migrationAliases(

@@ -42,8 +42,13 @@ changes refresh it from the same snapshots, invalid dynamic data retains the las
 updates participate in rollback, and disposal removes it. Secondary applications sharing a
 document can explicitly select `Disabled`; competing publication owners reject.
 
-The application exposes the current compiled `document`, `runtime`, and `renderer` for integration
-and diagnostics. Its `authored` getter returns a defensive copy suitable for deterministic export.
+The application exposes the current compiled `document` plus restricted `runtime` and `renderer`
+capabilities for integration and diagnostics. The mounted runtime retains public events, snapshots,
+selectors, handles, actors, and ordinary UI commands, but rejects collection/structure commands;
+use authored `update()` or `applyCollectionOperation()` for structural change. The renderer exposes
+element lookup only. Import `@unislang/unifold-runtime` explicitly when building a headless engine
+that intentionally owns raw structural primitives. Its `authored` getter returns a defensive copy
+suitable for deterministic export.
 Call `dispose()` at the host lifecycle boundary. Updates must retain the document
 ID; use a new application mount for a different document. A post-commit renderer exception triggers
 a compensating reconcile to the previous prepared document and returns a renderer-stage diagnostic.
@@ -75,6 +80,11 @@ mutation.
 Persist and export authored JSON, not normalized IR. IR, generated composition IDs, and runtime
 snapshots are derived execution artifacts. The coordinator currently recompiles the full candidate
 document; subtree compilation is reserved for a measured performance optimization.
+
+Named layout repeats must target one explicit logical Array or Record control. Call
+`applyCollectionOperation(operation, origin?)` with enum-backed insert/move/remove operations;
+`origin` may carry trusted host `correlationId` and `causationId` values, but authored JSON cannot
+provide them and cannot select a transaction ID.
 
 `mountUnifoldApplication` also mounts document-declared workflow machines when the host supplies a
 `UiMachineCommandRegistry` and, for guarded transitions, a `UiMachineGuardRegistry`. Trusted guards

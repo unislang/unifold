@@ -1,5 +1,10 @@
-import { UiCollectionOperationType, type JsonObject } from "@unislang/unifold-contracts";
-import { UiEventType, UiValidationSeverity, type UiEvent } from "@unislang/unifold-events";
+import {
+  UiCollectionOperationType,
+  UiControlNodeKind,
+  UiControlTopologyVersion,
+  type JsonObject
+} from "@unislang/unifold-contracts";
+import { UiValidationSeverity, type UiEvent } from "@unislang/unifold-events";
 import {
   UnifoldApplicationMountStatus,
   UnifoldApplicationUpdateStatus,
@@ -7,12 +12,19 @@ import {
   type UnifoldApplicationPort
 } from "@unislang/unifold";
 import { createAsyncValidatorRegistry, type UiValidationContext } from "@unislang/unifold-forms";
+import {
+  collectionOperationTypes,
+  lateRemovedEventCount,
+  operationEventsAreCausal,
+  operationEventsHaveTrustedOrigin
+} from "./collection-event-evidence.js";
 
 interface CollectionFixtureWindow {
   __unifoldCollectionFixture?: CollectionFixtureHooks;
 }
 
 interface CollectionFixtureHooks {
+  bypass(): boolean;
   insert(): UnifoldApplicationUpdateStatus;
   mount(): UnifoldApplicationMountStatus;
   move(): UnifoldApplicationUpdateStatus;
@@ -22,12 +34,14 @@ interface CollectionFixtureHooks {
 }
 
 interface CollectionFixtureObservation {
+  readonly aggregateValue: unknown;
   readonly alphaRetained: boolean;
   readonly alphaValue: unknown;
   readonly authoredKeys: readonly string[];
   readonly focusedId?: string;
   readonly lateRemovedEvents: number;
   readonly operationEventsCausal: boolean;
+  readonly operationEventsOriginated: boolean;
   readonly operationTypes: readonly UiCollectionOperationType[];
   readonly renderedIds: readonly string[];
   readonly revision: string;
@@ -45,6 +59,7 @@ let mounted: MountedCollectionFixture | undefined;
 
 function installCollectionFixtureHooks(): void {
   (window as unknown as CollectionFixtureWindow).__unifoldCollectionFixture = {
+    bypass: denyStructuralBypass,
     insert: insertCollectionItem,
     mount: mountCollectionFixture,
     move: moveCollectionItem,
@@ -78,36 +93,45 @@ function mountCollectionFixture(): UnifoldApplicationMountStatus {
 
 function insertCollectionItem(): UnifoldApplicationUpdateStatus {
   const fixture = requireCollectionFixture();
-  return fixture.application.applyCollectionOperation({
-    collectionId: "items",
-    expectedRevision: "1",
-    index: 1,
-    item: { id: "c", label: "Gamma" },
-    revision: "2",
-    type: UiCollectionOperationType.Insert
-  }).status;
+  return fixture.application.applyCollectionOperation(
+    {
+      collectionId: "items",
+      expectedRevision: "1",
+      index: 1,
+      item: { id: "c", label: "Gamma" },
+      revision: "2",
+      type: UiCollectionOperationType.Insert
+    },
+    collectionOrigin(UiCollectionOperationType.Insert)
+  ).status;
 }
 
 function moveCollectionItem(): UnifoldApplicationUpdateStatus {
-  return requireCollectionFixture().application.applyCollectionOperation({
-    collectionId: "items",
-    expectedRevision: "2",
-    index: 0,
-    key: "b",
-    revision: "3",
-    type: UiCollectionOperationType.Move
-  }).status;
+  return requireCollectionFixture().application.applyCollectionOperation(
+    {
+      collectionId: "items",
+      expectedRevision: "2",
+      index: 0,
+      key: "b",
+      revision: "3",
+      type: UiCollectionOperationType.Move
+    },
+    collectionOrigin(UiCollectionOperationType.Move)
+  ).status;
 }
 
 function removeCollectionItem(): UnifoldApplicationUpdateStatus {
   const fixture = requireCollectionFixture();
-  const status = fixture.application.applyCollectionOperation({
-    collectionId: "items",
-    expectedRevision: "3",
-    key: "c",
-    revision: "4",
-    type: UiCollectionOperationType.Remove
-  }).status;
+  const status = fixture.application.applyCollectionOperation(
+    {
+      collectionId: "items",
+      expectedRevision: "3",
+      key: "c",
+      revision: "4",
+      type: UiCollectionOperationType.Remove
+    },
+    collectionOrigin(UiCollectionOperationType.Remove)
+  ).status;
   fixture.removedAtSequence = fixture.events.at(-1)?.sequence ?? 0;
   return status;
 }
@@ -127,16 +151,39 @@ function observeCollectionFixture(): CollectionFixtureObservation {
   const fixture = requireCollectionFixture();
   const authored = fixture.application.authored as ReturnType<typeof collectionDocument>;
   return {
+    aggregateValue: fixture.application.runtime.getSnapshot("items").control?.value,
     alphaRetained: fixture.application.renderer.getElement("field::a") === fixture.alpha,
     alphaValue: fixture.application.runtime.getSnapshot("field::a").control?.value,
     authoredKeys: authored.variables.items.map(({ id }) => id),
     ...optionalFocusedId(focusedNodeId()),
-    lateRemovedEvents: lateRemovedEventCount(fixture),
+    lateRemovedEvents: lateRemovedEventCount(fixture.events, fixture.removedAtSequence),
     operationEventsCausal: operationEventsAreCausal(fixture.events),
+    operationEventsOriginated: operationEventsHaveTrustedOrigin(fixture.events),
     operationTypes: collectionOperationTypes(fixture.events),
     renderedIds: renderedNodeIds(fixture.container),
     revision: authored.revision
   };
+}
+
+function collectionOrigin(type: UiCollectionOperationType) {
+  return { causationId: `collection-${type}`, correlationId: "collection-journey" };
+}
+
+function denyStructuralBypass(): boolean {
+  const fixture = requireCollectionFixture();
+  const revision = fixture.application.runtime.revision;
+  const alpha = fixture.application.renderer.getElement("field::a");
+  try {
+    (fixture.application.runtime.execute as (commands: readonly unknown[]) => unknown)([
+      { id: "field::a", type: "structure.remove" }
+    ]);
+    return false;
+  } catch {
+    return (
+      fixture.application.runtime.revision === revision &&
+      fixture.application.renderer.getElement("field::a") === alpha
+    );
+  }
 }
 
 function collectionValidators() {
@@ -165,6 +212,7 @@ function collectionDocument() {
   return {
     $schema: "https://schemas.unifold.org/layout-document/1.0/schema.json",
     catalog: { name: "unifold-core", version: "1.0.0" },
+    controls: collectionControls(),
     id: "collection-fixture",
     layoutType: "collection",
     layoutVersion: "1.0.0",
@@ -184,9 +232,9 @@ function collectionLayout() {
   return {
     layoutType: "collection",
     template: {
-      children: [collectionField()],
-      id: "collection-root",
-      type: "Stack"
+      children: [{ children: [collectionField()], id: "items", type: "Stack" }],
+      id: "collection-form",
+      type: "Form"
     },
     variables: { items: { required: true, type: "array" } },
     version: "1.0.0"
@@ -199,94 +247,58 @@ function collectionField(): JsonObject {
     for: "item in {{items}}",
     id: "field",
     key: "id",
-    props: { asyncValidators: ["non-cooperative"], label: "{{item.label}}" },
+    props: {
+      asyncValidators: ["non-cooperative"],
+      label: "{{item.label}}",
+      value: "{{item.label}}"
+    },
     type: "TextField"
   };
 }
 
-function collectionOperationTypes(events: readonly UiEvent[]): UiCollectionOperationType[] {
-  return events.flatMap((event) => optionalOperationType(eventCollectionOperationType(event)));
-}
-
-function eventCollectionOperationType(event: UiEvent): UiCollectionOperationType | undefined {
-  if (event.type !== UiEventType.CommandApplied) return undefined;
-  return operationType(eventCollectionMetadata(event));
-}
-
-function operationType(
-  metadata: Readonly<Record<string, unknown>> | undefined
-): UiCollectionOperationType | undefined {
-  const value = metadata?.["type"];
-  return isCollectionOperationType(value) ? value : undefined;
-}
-
-function optionalOperationType(
-  value: UiCollectionOperationType | undefined
-): readonly UiCollectionOperationType[] {
-  return value === undefined ? [] : [value];
-}
-
-function operationEventsAreCausal(events: readonly UiEvent[]): boolean {
-  const operations = events.filter((event) => eventCollectionMetadata(event) !== undefined);
-  return operations.every((operation) => hasCausalTransaction(operation, events));
-}
-
-function hasCausalTransaction(operation: UiEvent, events: readonly UiEvent[]): boolean {
-  const transaction = events.find(({ sequence }) => sequence === operation.sequence + 1);
-  if (transaction?.type !== UiEventType.TransactionCommitted) return false;
-  return sameEventContext(operation, transaction);
-}
-
-function sameEventContext(left: UiEvent, right: UiEvent): boolean {
-  return [
-    left.transactionid === right.transactionid,
-    left.correlationid === right.correlationid,
-    left.causationid === right.causationid
-  ].every(Boolean);
-}
-
-function eventCollectionMetadata(event: UiEvent): Readonly<Record<string, unknown>> | undefined {
-  const change = record(event.data.change);
-  return record(change?.["collectionOperation"]);
-}
-
-function isCollectionOperationType(value: unknown): value is UiCollectionOperationType {
-  return Object.values(UiCollectionOperationType).includes(value as UiCollectionOperationType);
-}
-
-function lateRemovedEventCount(fixture: MountedCollectionFixture): number {
-  const removedAt = fixture.removedAtSequence;
-  if (removedAt === undefined) return 0;
-  return fixture.events.filter((event) => isLateRemovedEvent(event, removedAt)).length;
-}
-
-function isLateRemovedEvent(event: UiEvent, removedAt: number): boolean {
-  if (event.sequence <= removedAt) return false;
-  return event.data.sourceNode?.id === "field::c";
+function collectionControls() {
+  return {
+    contractVersion: UiControlTopologyVersion.Version1,
+    nodes: [
+      { id: "collection-form", kind: UiControlNodeKind.Form },
+      {
+        id: "items",
+        key: "items",
+        kind: UiControlNodeKind.Array,
+        parentId: "collection-form"
+      }
+    ]
+  };
 }
 
 function renderedNodeIds(container: HTMLElement): readonly string[] {
-  return [...container.querySelectorAll<HTMLElement>("[data-unifold-node-id^='field::']")].map(
-    ({ id }) => id
-  );
+  return composedElements(container)
+    .filter(({ dataset }) => dataset["unifoldNodeId"]?.startsWith("field::") === true)
+    .map(({ id }) => id);
+}
+
+function composedElements(root: ParentNode): readonly HTMLElement[] {
+  return [...root.children].flatMap((child) => {
+    const element = child as HTMLElement;
+    return [
+      element,
+      ...composedElements(element),
+      ...(element.shadowRoot === null ? [] : composedElements(element.shadowRoot))
+    ];
+  });
 }
 
 function focusedNodeId(): string | undefined {
-  const active = document.activeElement as HTMLElement | null;
-  return active?.dataset["unifoldNodeId"];
+  return [...composedElements(document.body)]
+    .reverse()
+    .find(
+      (element) =>
+        element.dataset["unifoldNodeId"] !== undefined && element.matches(":focus-within")
+    )?.dataset["unifoldNodeId"];
 }
 
 function optionalFocusedId(id: string | undefined): { readonly focusedId?: string } {
   return id === undefined ? {} : { focusedId: id };
-}
-
-function record(value: unknown): Readonly<Record<string, unknown>> | undefined {
-  if (!isObject(value)) return undefined;
-  return Array.isArray(value) ? undefined : (value as Readonly<Record<string, unknown>>);
-}
-
-function isObject(value: unknown): value is object {
-  return value !== null && typeof value === "object";
 }
 
 function requireCollectionFixture(): MountedCollectionFixture {

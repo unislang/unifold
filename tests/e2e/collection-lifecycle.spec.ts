@@ -2,18 +2,21 @@ import { expect, test } from "@unislang/unifold-playwright";
 import { UnifoldApplicationMountStatus, UnifoldApplicationUpdateStatus } from "@unislang/unifold";
 
 interface CollectionObservation {
+  readonly aggregateValue: unknown;
   readonly alphaRetained: boolean;
   readonly alphaValue: unknown;
   readonly authoredKeys: readonly string[];
   readonly focusedId?: string;
   readonly lateRemovedEvents: number;
   readonly operationEventsCausal: boolean;
+  readonly operationEventsOriginated: boolean;
   readonly operationTypes: readonly string[];
   readonly renderedIds: readonly string[];
   readonly revision: string;
 }
 
 interface CollectionHooks {
+  bypass(): boolean;
   insert(): UnifoldApplicationUpdateStatus;
   mount(): UnifoldApplicationMountStatus;
   move(): UnifoldApplicationUpdateStatus;
@@ -32,6 +35,7 @@ test("reconciles authored collections by durable key and drops stale async work"
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("data-unifold-readiness", "ready");
   expect(await callHook(page, "mount")).toBe(UnifoldApplicationMountStatus.Mounted);
+  expect(await callHook(page, "bypass")).toBe(true);
   await page.getByLabel("Alpha").fill("Edited");
   await page.getByLabel("Alpha").focus();
   expect(await callHook(page, "insert")).toBe(UnifoldApplicationUpdateStatus.Applied);
@@ -55,6 +59,9 @@ async function assertObservation(
 ): Promise<void> {
   const observation = await observe(page);
   expect(observation).toMatchObject({
+    aggregateValue: authoredKeys.map((key) =>
+      key === "a" ? "Edited" : key === "b" ? "Beta" : "Gamma"
+    ),
     alphaRetained: true,
     alphaValue: "Edited",
     authoredKeys,
@@ -66,12 +73,14 @@ async function assertObservation(
 async function assertFinalObservation(page: ScenarioPage): Promise<void> {
   const observation = await observe(page);
   expect(observation).toMatchObject({
+    aggregateValue: ["Beta", "Edited"],
     alphaRetained: true,
     alphaValue: "Edited",
     authoredKeys: ["b", "a"],
     focusedId: "field::a",
     lateRemovedEvents: 0,
     operationEventsCausal: true,
+    operationEventsOriginated: true,
     operationTypes: ["insert", "move", "remove"],
     renderedIds: ["field::b", "field::a"],
     revision: "4"
@@ -81,7 +90,7 @@ async function assertFinalObservation(page: ScenarioPage): Promise<void> {
 async function callHook(
   page: import("@playwright/test").Page,
   name: Exclude<keyof CollectionHooks, "observe">
-): Promise<UnifoldApplicationMountStatus | UnifoldApplicationUpdateStatus> {
+): Promise<boolean | UnifoldApplicationMountStatus | UnifoldApplicationUpdateStatus> {
   return page.evaluate((method) => {
     const hooks = (window as unknown as CollectionWindow).__unifoldCollectionFixture;
     if (hooks === undefined) throw new Error("Collection fixture hooks are not installed.");

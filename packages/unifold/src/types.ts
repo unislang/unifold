@@ -1,4 +1,17 @@
 import type { JsonValue } from "@unislang/unifold-contracts";
+import type {
+  AnnouncementRequestCommand,
+  ControlMarkTouchedCommand,
+  ControlSetDisabledCommand,
+  ControlSetValueCommand,
+  EffectInvokeCommand,
+  FocusRequestCommand,
+  FormResetCommand,
+  FormSubmitCommand,
+  NavigationRequestCommand,
+  NodePatchPropertiesCommand,
+  UiTransactionRecord
+} from "@unislang/unifold-events";
 import type { ElementDefinitionPolicy } from "@unislang/unifold-elements";
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
 import type {
@@ -6,7 +19,11 @@ import type {
   TrustedLayoutDefinitionRegistry
 } from "@unislang/unifold-compositions";
 import type { DomRenderController, DomRendererOptions } from "@unislang/unifold-renderer-dom";
-import type { UnifoldRuntime, UnifoldRuntimeOptions } from "@unislang/unifold-runtime";
+import type {
+  UiExecutionContext,
+  UnifoldRuntime,
+  UnifoldRuntimeOptions
+} from "@unislang/unifold-runtime";
 import type { UiMachineCommandRegistry } from "@unislang/unifold-xstate";
 import type { UiMachineGuardRegistry } from "@unislang/unifold-xstate";
 import type { UiCompositionVersionMigration } from "./composition-migrations.js";
@@ -97,6 +114,47 @@ export interface UiStoreAdapter {
 
 export type UiStoreAdapterRegistry = Readonly<Record<string, UiStoreAdapter>>;
 
+export interface UiOriginatingExecutionContext {
+  readonly causationId?: string;
+  readonly correlationId?: string;
+}
+
+export type UnifoldApplicationCommand =
+  | AnnouncementRequestCommand
+  | ControlMarkTouchedCommand
+  | ControlSetDisabledCommand
+  | ControlSetValueCommand
+  | EffectInvokeCommand
+  | FocusRequestCommand
+  | FormResetCommand
+  | FormSubmitCommand
+  | NavigationRequestCommand
+  | NodePatchPropertiesCommand;
+
+export interface UnifoldApplicationRuntimePort {
+  readonly composition: UnifoldRuntime["composition"];
+  readonly control: UnifoldRuntime["control"];
+  readonly events$: UnifoldRuntime["events$"];
+  readonly getSnapshot: UnifoldRuntime["getSnapshot"];
+  readonly getTransaction: UnifoldRuntime["getTransaction"];
+  readonly getValidationErrors: UnifoldRuntime["getValidationErrors"];
+  readonly inspect: UnifoldRuntime["inspect"];
+  readonly node: UnifoldRuntime["node"];
+  readonly registerActor: UnifoldRuntime["registerActor"];
+  readonly revision: number;
+  readonly scope: UnifoldRuntime["scope"];
+  readonly select: UnifoldRuntime["select"];
+  readonly status: UnifoldRuntime["status"];
+  execute(
+    commands: readonly UnifoldApplicationCommand[],
+    context?: UiExecutionContext
+  ): UiTransactionRecord;
+}
+
+export interface UnifoldApplicationRendererPort {
+  readonly getElement: DomRenderController["getElement"];
+}
+
 export interface MountedUnifoldApplicationResult {
   readonly application: UnifoldApplicationPort;
   readonly diagnostics: readonly UnifoldApplicationDiagnostic[];
@@ -121,12 +179,13 @@ export interface UnifoldApplicationUpdateResult {
 export interface UnifoldApplicationPort {
   readonly authored: unknown;
   readonly document: UnifoldIrDocument;
-  readonly renderer: DomRenderController;
-  readonly runtime: UnifoldRuntime;
+  readonly renderer: UnifoldApplicationRendererPort;
+  readonly runtime: UnifoldApplicationRuntimePort;
   dispose(): void;
   machineState(id: string): JsonValue;
   applyCollectionOperation(
-    operation: import("./authored-collection.js").UnifoldCollectionOperation
+    operation: import("./authored-collection.js").UnifoldCollectionOperation,
+    origin?: UiOriginatingExecutionContext
   ): UnifoldApplicationUpdateResult;
   update(authored: unknown): UnifoldApplicationUpdateResult;
 }
