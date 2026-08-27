@@ -17,19 +17,18 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Current published repository head:
-  `5e0601bc543c746d3d75ce510977f6a8fba75421` (`feat: add native JSON date field`) on
+- Latest implementation checkpoint:
+  `dae5b5acde1fbc2dc272aaea7510c5ae7b90c769`
+  (`feat: complete toast and pagination integration`) on
   `https://github.com/unislang/unifold.git`.
-- Latest published implementation checkpoint:
-  `5e0601bc543c746d3d75ce510977f6a8fba75421` (`feat: add native JSON date field`) on
-  `https://github.com/unislang/unifold.git`.
-- Current local implementation: the `NumberField`, `SearchField`, and `CheckboxGroup` families are
-  committed and published, as are `Switch` and `DateField`. Governed AI/Studio, Studio dogfood, reference
-  feature-module re-export cleanup, executable import-then-local-re-export prevention, the
-  parallel-safe Studio Playwright port, and the in-progress Toast family remain local and
-  must be preserved.
-- Goal status: active. Toast and Pagination remain component-family gaps, followed by
-  broader Studio and production-integration gates.
+- Current local implementation: the `NumberField`, `SearchField`, `CheckboxGroup`, `Switch`, and
+  `DateField`, `Toast`, and `Pagination` families are committed as implementation checkpoints.
+  Governed AI/Studio, Studio dogfood, reference feature-module re-export cleanup, executable
+  import-then-local-re-export prevention, and the parallel-safe Studio Playwright port remain local
+  and must be preserved.
+- Goal status: active. The named 45-component stable catalog is implemented; `Composition` is the
+  additional structural host, producing 46 generated catalog elements. Broader Studio,
+  control-plane, manual accessibility, packaging, and production-integration gates remain.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
@@ -37,8 +36,9 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 
 ## Active slice
 
-The current slice proves that the AI SDK and Studio operate through governed framework seams instead
-of bypassing the JSON compiler, event fabric, state authority, or export boundary:
+The current slice completes the remaining named catalog families while proving that AI/Studio and
+application effects continue to operate through governed framework seams rather than bypassing the
+JSON compiler, event fabric, state authority, renderer, or export boundary:
 
 - AI context is catalog-derived, bounded, and recursively redacted. Proposal values enforce byte,
   depth, value-count, string-length, finite-number, plain-object, cycle, shared-reference, and
@@ -82,32 +82,76 @@ of bypassing the JSON compiler, event fabric, state authority, or export boundar
   disabled behavior, static fallback, guarded edited/focused upgrade, selective projection, CEM,
   all-engine Playwright, and a 100-control performance gate. Exact authored attributes close the
   WebKit `input.type` normalization gap without weakening hydration tamper rejection.
+- `Toast` is a persistent, timer-free live-region component. Info/success use polite `status`
+  semantics; warning/error use assertive `alert` semantics. Manual dismissal emits one canonical
+  activation, enters XState, patches `visible`, selectively updates the host, and restores focus
+  through an awaited renderer-backed `FocusRequest` effect.
+- `Pagination` renders one explicit authored ordered item sequence in a labelled native navigation
+  landmark. Exactly one enabled page is current; previous/next order, unique IDs, safe destinations,
+  disabled/overflow behavior, and current-page ownership are compiler-validated. Activation carries
+  stable item identity/kind and state patches the authored item array without hidden page-window
+  state.
 - `pnpm quality:reexports` rejects feature modules that import a local binding and export that same
   binding. Feature modules expose owned operations; direct package export maps remain the deliberate
   public-boundary mechanism.
 
-Current local evidence: `pnpm quality`, `pnpm test`, `pnpm test:coverage`, `pnpm build`, and
-`pnpm format:check` pass. Vitest passes 514 files/1,300 tests; tooling passes 18/18, CEM generation
-passes 8/8, and the performance-correctness suite passes 34 files/44 tests with 31 opt-in profiles
-skipped there. Coverage is 97.56% statements/lines, 96.86% functions, and 90.00% branches against
-unchanged 90% thresholds. Dependency-cruiser validates 2,081 modules and 4,604 dependencies with no
-violations. All-engine Playwright passes 30/30 hierarchical, 96/96 static-export, and 24/24 Studio
-journeys; Studio includes unsafe rejection, stale-apply preservation, real cancellation,
-supersession, export-failure recovery, keyboard, axe, Schema.org, and browser-asset isolation.
-CEM/definition generation covers all 44 components. The reference startup closure is 188,071 gzip
-bytes (183.66 KiB) against its executable 184 KiB limit, with 35,970 post-mount gzip bytes. Studio
-is 231.59 KiB gzip against its 250 KiB limit. Benchmark schema 2.31.0 passes 56/56 gates; the exact
-100-group/600-checkbox run records 0.96/3.28/4.38 ms and the exact 100-Switch run records
-0.52/1.20/6.29 ms p50/p95/p99. The exact 100-DateField run records 0.75/2.12/2.60 ms
-p50/p95/p99 across 50 samples; each component workload has a 100 ms p95 ceiling. Switch,
-CheckboxGroup, and DateField are published; the separate AI/Studio, reference, tooling,
-test-harness, root-configuration, and in-progress Toast work remains uncommitted and unpushed.
+Current local evidence: Vitest passes 533 files/1,352 tests. V8 coverage is 97.62%
+statements/lines, 96.93% functions, and 90.10% branches against unchanged 90% thresholds. Tooling
+passes 18/18, generated CEM checks pass 9/9, and the performance-correctness suite passes 36
+files/46 tests with 30 opt-in profile files skipped there and executed by the benchmark runner.
+File length, colocated one-to-one tests, import/re-export ownership, lint, source/test typechecks,
+unused-code, and dependency boundaries pass; dependency-cruiser validates 2,159 modules and 4,776
+dependencies with no violations. CEM/definition generation covers 46 elements: the named 45 stable
+families plus the structural `Composition` host.
+
+The production reference build passes at 188,353 initial gzip bytes (183.94/184 KiB), with 36,890
+deferred gzip bytes. The authored JSON and reference-specific validator adapter load as explicit
+pre-mount resources while optional component families remain post-mount; the initial-closure budget
+was not raised. Studio builds at 235.20 KiB gzip against 250 KiB. Benchmark schema 2.33.0 passes
+58/58 gates. The exact 100-Toast profile records 0.75/6.65/7.52 ms and the exact 100-Pagination
+profile records 2.05/7.48/11.51 ms p50/p95/p99 across 50 samples; both retain a 100 ms p95 ceiling.
+
+Focused Playwright acceptance passes 4/4 hierarchical and 16/16 static-export Toast/Pagination
+journeys in Chromium and WebKit. Pagination previously passed its 3/3 hierarchical and 12/12 static
+matrix across all three engines. On this managed elevated Windows runner, Firefox currently fails
+inside `browserContext.newPage()` before test code with Playwright's `_page` error; this matches the
+upstream [elevated-terminal defect](https://github.com/microsoft/playwright/issues/36594) and is
+recorded as runner evidence, not an application assertion failure. Existing DateField/Studio
+all-engine evidence remains unchanged. Toast and Pagination are committed in
+`dae5b5acde1fbc2dc272aaea7510c5ae7b90c769`; the separate AI/Studio, reference re-export, tooling,
+root-configuration, and related test-harness work remains uncommitted and must be preserved.
 
 Remaining AI/Studio gaps are explicit: provenance-bound third-party catalog manifests; complete
 component property, event, machine, and rule authoring context; durable actor identity, approval
 audit, and separation of duties; provider/model token, cost, time, retry, and signature policy;
 executable product outcome evaluators; collaboration/rebase/undo; and the full multi-turn design
 surface.
+
+## Toast and Pagination publication checkpoint
+
+- Implementation commit: `dae5b5acde1fbc2dc272aaea7510c5ae7b90c769`
+  (`feat: complete toast and pagination integration`) on `unifold/main`.
+
+- `Toast` and `Pagination` are complete locally across Scratch-style hierarchical JSON, contracts,
+  enum-backed catalog definitions, compiler validation, deferred Lit elements, public facade
+  subpaths, canonical events, XState-owned updates, selective renderer projection, deterministic
+  static export, strict hydration, generated CEM, documentation, benchmarks, and Playwright.
+- Toast deliberately has no expiration timer in its first stable contract. It persists until
+  application state hides it or a user activates its optional dismiss action, never moves focus on
+  announcement, and excludes the dismiss control from the atomic live text.
+- Pagination deliberately has no hidden page-window algorithm or second current-page field. The
+  authored `items[].current` value is the single current-page truth and the application replaces the
+  bounded item sequence through a typed property patch.
+- Renderer focus effects are no longer aspirational: `ApplicationCommandController` forwards store
+  commands, awaits renderer `restoreFocus` for `FocusRequest`, and is attached before application
+  effects can execute.
+- Static fallback coverage includes no-JavaScript announcements/links, safe href handling, exact
+  ordered/current semantics, and fail-closed upgrade on content, destination, ownership, or order
+  tamper. Hydration lookup filters exact dataset values rather than interpolating authored IDs into
+  selectors.
+- Preserve all remaining local work. The next active work is the remaining AI/Studio production gap register,
+  packaging/release acceptance, and provisioned browser/manual-accessibility evidence; it is not
+  another stable catalog-family implementation.
 
 ## DateField publication checkpoint
 
@@ -125,9 +169,9 @@ surface.
   and uses exact authored attributes to handle WebKit's native date-property normalization.
 - Benchmark schema 2.31.0 passes 56/56 gates. The exact 100-DateField/50-sample profile records
   0.75/2.12/2.60 ms p50/p95/p99, exact final `2026-10-15`, and 100 hosts against the 100 ms p95 gate.
-- Preserve the separate governed AI/Studio, re-export-policy, reference, test-harness,
-  root-configuration, and in-progress Toast work. Continue Toast, then Pagination, through the same
-  complete evidence path.
+- Preserve the separate governed AI/Studio, re-export-policy, reference, test-harness, and
+  root-configuration work. Toast and Pagination continued through the same complete evidence path
+  in the publication checkpoint above.
 
 ## Switch publication checkpoint
 
