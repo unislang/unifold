@@ -66,7 +66,10 @@ it("rolls a rejected optimistic write back and reports an asynchronous effect fa
   );
 
   expect(fixture.runtime.revision).toBe(2);
-  expect(events.filter(({ type }) => type === UiEventType.EffectRequested)).toHaveLength(1);
+  const requested = events.filter(({ type }) => type === UiEventType.EffectRequested);
+  const failed = events.filter(({ type }) => type === UiEventType.EffectFailed);
+  expect(requested).toHaveLength(1);
+  expect(failed.map(({ subject }) => subject)).toEqual([requested[0]?.subject]);
   fixture.dispose();
 });
 

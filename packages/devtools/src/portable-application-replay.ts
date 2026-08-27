@@ -1,6 +1,6 @@
 import type { JsonObject } from "@unislang/unifold-contracts";
 import { UiCommandType, type UiCommand } from "@unislang/unifold-events";
-import type { UiCommandPort } from "@unislang/unifold-runtime";
+import type { UiCommandPort, UiEffectExecutionContext } from "@unislang/unifold-runtime";
 import canonicalize from "canonicalize";
 
 export interface DevtoolsPortableReplayControls {
@@ -8,16 +8,22 @@ export interface DevtoolsPortableReplayControls {
   readonly randomness: readonly string[];
 }
 
+export enum DevtoolsMockEffectOutcome {
+  Completed = "completed",
+  Failed = "failed"
+}
+
 export interface DevtoolsMockEffect {
   readonly capability: string;
   readonly input: JsonObject;
-  readonly outcome: "completed" | "failed";
+  readonly outcome: DevtoolsMockEffectOutcome;
   readonly receipt: JsonObject;
 }
 
 export interface DevtoolsMockEffectReceipt extends JsonObject {
   readonly capability: string;
-  readonly outcome: "completed" | "failed";
+  readonly effectId: string;
+  readonly outcome: DevtoolsMockEffectOutcome;
   readonly receipt: JsonObject;
 }
 
@@ -70,18 +76,19 @@ class PortableReplayEffects implements DevtoolsPortableReplayEffectPort {
     return Object.freeze([...this.#receipts]);
   }
 
-  execute(command: UiCommand): void {
+  execute(command: UiCommand, context: UiEffectExecutionContext): void {
     if (command.type !== UiCommandType.EffectInvoke) return;
     const effect = take(this.effects, this.count++, "mocked effect");
     requireEffectMatch(command, effect);
-    this.#receipts.push(receipt(effect));
+    this.#receipts.push(receipt(effect, context.effectId));
     requireCompletedEffect(effect);
   }
 }
 
-function receipt(effect: DevtoolsMockEffect): DevtoolsMockEffectReceipt {
+function receipt(effect: DevtoolsMockEffect, effectId: string): DevtoolsMockEffectReceipt {
   return Object.freeze({
     capability: effect.capability,
+    effectId,
     outcome: effect.outcome,
     receipt: effect.receipt
   });
@@ -98,7 +105,9 @@ function requireEffectMatch(
 }
 
 function requireCompletedEffect(effect: DevtoolsMockEffect): void {
-  if (effect.outcome === "failed") throw new Error("Explicit mocked effect failure.");
+  if (effect.outcome === DevtoolsMockEffectOutcome.Failed) {
+    throw new Error("Explicit mocked effect failure.");
+  }
 }
 
 function take<T>(values: readonly T[], index: number, name: string): T {

@@ -15,6 +15,10 @@ export enum UiEventContentType {
   Json = "application/json"
 }
 
+export enum UiEventDataSchema {
+  EffectV1 = "https://schemas.unifold.org/events/effect-data/1.0/schema.json"
+}
+
 export enum UiEventPhase {
   Intent = "intent",
   State = "state",

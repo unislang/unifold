@@ -13,6 +13,18 @@ export function focusEffectTypes(events: readonly UiEvent[]): string[] {
   return events.filter(isFocusEffect).map(({ type }) => type);
 }
 
+export function focusCommandEffectIds(events: readonly UiEvent[]): string[] {
+  return events.filter(isFocusCommand).flatMap(optionalSubject);
+}
+
+export function focusLifecycleEffectIds(events: readonly UiEvent[]): string[] {
+  return events.filter(isFocusEffect).flatMap(optionalSubject);
+}
+
+function isFocusCommand(event: UiEvent): boolean {
+  return event.type === UiEventType.CommandApplied && isFocusRequest(record(event.data.change));
+}
+
 function isFocusEffect(event: UiEvent): boolean {
   return event.data.phase === UiEventPhase.Effect && isFocusRequest(record(event.data.change));
 }
@@ -30,6 +42,10 @@ function isFocusRequest(change: Readonly<Record<string, unknown>> | undefined): 
 
 function optionalSourceId(event: UiEvent): readonly string[] {
   return event.data.sourceNode === undefined ? [] : [event.data.sourceNode.id];
+}
+
+function optionalSubject(event: UiEvent): readonly string[] {
+  return event.subject === undefined ? [] : [event.subject];
 }
 
 export function operationEventsAreCausal(events: readonly UiEvent[]): boolean {

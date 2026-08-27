@@ -1,7 +1,7 @@
 import { UiCommandType, type UiCommand } from "@unislang/unifold-events";
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
 import { FocusRestoreStatus, type DomRenderController } from "@unislang/unifold-renderer-dom";
-import type { UiExecutionContext } from "@unislang/unifold-runtime";
+import type { UiEffectExecutionContext } from "@unislang/unifold-runtime";
 
 import type { StoreCommandController } from "./store-command-port.js";
 import type { PreparedApplicationStores } from "./store-adapters.js";
@@ -15,7 +15,7 @@ export class ApplicationCommandController implements StoreCommandController {
     this.#renderer = renderer;
   }
 
-  execute(command: UiCommand, context: Required<UiExecutionContext>): Promise<void> | void {
+  execute(command: UiCommand, context: UiEffectExecutionContext): Promise<void> | void {
     if (command.type !== UiCommandType.FocusRequest)
       return this.storeCommands.execute(command, context);
     if (this.#renderer === undefined) throw new Error("Application renderer is not attached.");

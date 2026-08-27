@@ -1,6 +1,7 @@
 import { DataClassification } from "@unislang/unifold-contracts";
 import {
   UiEventDisclosureMode,
+  UiEventPhase,
   type UiEvent,
   type UiEventData,
   type UiEventSourceNode,
@@ -30,8 +31,31 @@ function metadataOnlyData(data: UiEventData): UiEventData {
     ...(data.disclosure === undefined ? {} : { disclosure: data.disclosure }),
     phase: data.phase,
     runtime: data.runtime,
+    ...effectMetadata(data),
     ...(data.sourceNode === undefined ? {} : { sourceNode: data.sourceNode })
   };
+}
+
+function effectMetadata(data: UiEventData) {
+  if (data.phase !== UiEventPhase.Effect) return {};
+  const change = safeEffectChange(data.change);
+  return change === undefined ? {} : { change };
+}
+
+function safeEffectChange(change: UiEventData["change"]) {
+  if (!isRecord(change)) return undefined;
+  const commandType = change["commandType"];
+  if (typeof commandType !== "string") return undefined;
+  return { commandType, ...optionalTargetId(change["targetId"]) };
+}
+
+function optionalTargetId(value: unknown) {
+  return typeof value === "string" ? { targetId: value } : {};
+}
+
+function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+  if (value === null || typeof value !== "object") return false;
+  return !Array.isArray(value);
 }
 
 function sourceNode(snapshot: UiNodeSnapshot): UiEventSourceNode {

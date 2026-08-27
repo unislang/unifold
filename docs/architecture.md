@@ -171,6 +171,14 @@ stable ID of a distinct authored node. Compilation rejects missing, self-referen
 non-focus-capable targets; the mounted update also verifies that a usable target remains in the
 candidate runtime before committing final-member removal. The resulting focus transaction names the
 structural reconciliation transaction as its cause while retaining the trusted correlation ID.
+Every admitted effect command owns one opaque identity: its command event ID becomes the CloudEvents
+`subject` reused by requested and terminal facts and passed to the command port as `effectId`.
+Identical asynchronous effects therefore remain attributable when they settle out of order. A
+machine-issued effect also carries its machine owner as the reply source, so targetless
+`effect.invoke` and cross-scope focus outcomes route back through the existing XState scope index.
+The three existing enum-backed event types remain the lifecycle status authority; pending work is
+represented by a request without a terminal, and disposal still suppresses late settlement rather
+than claiming cancellation.
 Layout lowering publishes this safe policy as closed `collectionBehaviors@1.0.0`; IR `1.1.0`
 canonicalizes it by collection ID, and application focus selection consumes that IR rather than the
 private prepared-document sidecar. Source pointers, key properties, and declaration pointers remain

@@ -6,13 +6,13 @@ import {
   type UiEvent
 } from "@unislang/unifold-events";
 import { FocusRestoreStatus } from "@unislang/unifold-renderer-dom";
-import { UnifoldRuntime, type UiExecutionContext } from "@unislang/unifold-runtime";
+import { UnifoldRuntime, type UiEffectExecutionContext } from "@unislang/unifold-runtime";
 import { describe, expect, it, vi } from "vitest";
 
 import { ApplicationCommandController } from "./application-command-port.js";
 import type { StoreCommandController } from "./store-command-port.js";
 
-const context = {} as Required<UiExecutionContext>;
+const context = {} as UiEffectExecutionContext;
 
 describe("ApplicationCommandController", () => {
   it("routes focus requests to the attached renderer", async () => {
@@ -77,6 +77,10 @@ async function expectFocusSettlement(
   runtime.execute([{ id: "target", type: UiCommandType.FocusRequest }]);
   await vi.waitFor(() => expect(effectTypes(events)).toContain(terminal));
   expect(effectTypes(events)).toEqual([UiEventType.EffectRequested, terminal]);
+  const effectId = events.find(({ type }) => type === UiEventType.CommandApplied)?.subject;
+  const lifecycle = events.filter(({ data }) => data.phase === UiEventPhase.Effect);
+  expect(effectId).toBeDefined();
+  expect(lifecycle.map(({ subject }) => subject)).toEqual([effectId, effectId]);
 }
 
 function effectTypes(events: readonly UiEvent[]): readonly string[] {

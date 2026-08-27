@@ -27,9 +27,19 @@ runtime.execute([
 All state commands in one `execute` call commit at one revision. Canonical facts
 are published only after snapshots and selections expose the complete commit.
 Non-state commands are sent to an optional `UiCommandPort` only after the state transaction commits.
-The runtime publishes `EffectRequested` and then `EffectCompleted` or `EffectFailed` facts around
-that invocation. A port failure cannot relabel or roll back an already committed transaction, and it
-does not terminate `events$`.
+The command fact, `EffectRequested`, and its `EffectCompleted` or `EffectFailed` terminal share one
+opaque CloudEvents `subject`. The same value is the required `effectId` in the port's
+`UiEffectExecutionContext`, so concurrent identical effects remain joinable even when asynchronous
+settlement order differs. A port failure cannot relabel or roll back an already committed
+transaction, and it does not terminate `events$`.
+
+Every dispatched effect receives an opaque ID before invocation. The originating command fact uses
+that ID as both its event ID and lifecycle subject; requested and settlement facts retain the same
+subject even when indistinguishable async commands settle out of order. `UiCommandPort.execute()`
+receives the ID in `UiEffectExecutionContext`, so adapters and deterministic replay can correlate
+their receipt without copying provider input, output, or error text into public event data. Machine
+effects attribute their public snapshot/source metadata to the owning authored node while preserving
+the triggering fact's causation and correlation chain.
 
 Optional `storeBindings` map control IDs to declared store IDs and JSON Pointer paths. After a bound
 control value commits—including blur/submit-deferred commits and form reset—the runtime derives a

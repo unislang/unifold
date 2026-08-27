@@ -14,6 +14,7 @@ import { expect, it } from "vitest";
 import {
   createPortableReplayControlPort,
   createPortableReplayEffectPort,
+  DevtoolsMockEffectOutcome,
   type DevtoolsMockEffect,
   type DevtoolsPortableReplayControlPort,
   type DevtoolsPortableReplayControls,
@@ -78,7 +79,12 @@ it("fails closed when deterministic controls or mocked receipts drift", () => {
   expect(controls.random()).toBe("id-1");
   expect(() => controls.now()).toThrow("exhausted clock");
   const effects = createPortableReplayEffectPort([
-    { capability: "allowed", input: { a: 1, b: 2 }, outcome: "completed", receipt: {} }
+    {
+      capability: "allowed",
+      input: { a: 1, b: 2 },
+      outcome: DevtoolsMockEffectOutcome.Completed,
+      receipt: {}
+    }
   ]);
   effects.execute(
     {
@@ -98,7 +104,12 @@ it("fails closed when deterministic controls or mocked receipts drift", () => {
 });
 
 function executionContext() {
-  return { causationId: "effect", correlationId: "replay", transactionId: "effect-1" };
+  return {
+    causationId: "effect",
+    correlationId: "replay",
+    effectId: "effect-1",
+    transactionId: "transaction-1"
+  };
 }
 
 function runReplay(fixture: PortableReplayFixture): ReplayResult {
@@ -139,7 +150,8 @@ function replayActors(
     const actor = createUiMachineActor(definition, commands, (batch, cause) => {
       runtime.execute(batch, {
         causationId: cause.id,
-        correlationId: cause.correlationid
+        correlationId: cause.correlationid,
+        effectSourceId: definition.ownerId
       });
     });
     actor.start();
@@ -196,7 +208,9 @@ function eventProjection(event: UiEvent): readonly (number | string)[] {
     event.type,
     event.sequence,
     event.staterevision,
-    event.transactionid
+    event.transactionid,
+    event.subject ?? "",
+    event.dataschema ?? ""
   ];
 }
 

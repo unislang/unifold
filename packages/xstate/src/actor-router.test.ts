@@ -29,9 +29,10 @@ it("unregisters owners, clears ownership, and freezes actor events", () => {
   router.clear();
   router.route(lifecycleEvent(UiEventType.CommandApplied));
   expect(actor.send).not.toHaveBeenCalled();
-  const event = lifecycleEvent(UiEventType.TransactionCommitted);
+  const event = { ...lifecycleEvent(UiEventType.TransactionCommitted), subject: "effect-1" };
   const converted = toXStateEvent(event);
   expect(converted).toEqual({ type: event.type, uiEvent: event });
+  expect(converted.uiEvent.subject).toBe("effect-1");
   expect(Object.isFrozen(converted)).toBe(true);
 });
 

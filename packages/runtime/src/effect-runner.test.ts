@@ -1,8 +1,14 @@
-import { UiCommandType, UiEventType, type UiEvent } from "@unislang/unifold-events";
+import {
+  UiCommandType,
+  UiEventDataSchema,
+  UiEventType,
+  type UiEvent
+} from "@unislang/unifold-events";
 import { expect, it, vi } from "vitest";
 
 import { UnifoldRuntime } from "./runtime.js";
 import { controlNode } from "./runtime.test-data.js";
+import type { UiCommandPort, UiEffectExecutionContext } from "./types.js";
 
 it("publishes completion only after an asynchronous effect settles", async () => {
   const pending = deferred();
@@ -36,7 +42,40 @@ it("does not publish a late effect settlement after disposal", async () => {
   expect(effectTypes(events)).toEqual([UiEventType.EffectRequested]);
 });
 
-function effectRuntime(execute: () => Promise<void>) {
+it("correlates identical asynchronous effects that settle out of order", async () => {
+  const first = deferred();
+  const second = deferred();
+  const contexts: UiEffectExecutionContext[] = [];
+  const pending = [first.promise, second.promise];
+  const { events, runtime } = effectRuntime((_command, context) => {
+    contexts.push(context);
+    return pending[contexts.length - 1];
+  });
+  const command = { id: "field", type: UiCommandType.FocusRequest } as const;
+
+  runtime.execute([command, command]);
+
+  const requested = effectEvents(events, UiEventType.EffectRequested);
+  const applied = events.filter(({ type }) => type === UiEventType.CommandApplied);
+  expect(requested.map(({ subject }) => subject)).toEqual(applied.map(({ subject }) => subject));
+  expect(new Set(requested.map(({ subject }) => subject)).size).toBe(2);
+  expect(contexts.map(({ effectId }) => effectId)).toEqual(requested.map(({ subject }) => subject));
+  expect(requested.every(({ dataschema }) => dataschema === UiEventDataSchema.EffectV1)).toBe(true);
+
+  second.resolve();
+  await vi.waitFor(() => expect(effectEvents(events, UiEventType.EffectCompleted)).toHaveLength(1));
+  first.resolve();
+  await vi.waitFor(() => expect(effectEvents(events, UiEventType.EffectCompleted)).toHaveLength(2));
+
+  const completed = effectEvents(events, UiEventType.EffectCompleted);
+  expect(completed.map(({ subject }) => subject)).toEqual([
+    requested[1]?.subject,
+    requested[0]?.subject
+  ]);
+  expect(completed.every(({ id, subject }) => id !== subject)).toBe(true);
+});
+
+function effectRuntime(execute: UiCommandPort["execute"]) {
   const runtime = new UnifoldRuntime({
     commandPort: { execute },
     documentId: "effects",
@@ -45,6 +84,10 @@ function effectRuntime(execute: () => Promise<void>) {
   const events: UiEvent[] = [];
   runtime.events$.subscribe((event) => events.push(event));
   return { events, runtime };
+}
+
+function effectEvents(events: readonly UiEvent[], type: UiEventType): readonly UiEvent[] {
+  return events.filter((event) => event.type === type);
 }
 
 function effectTypes(events: readonly UiEvent[]): string[] {

@@ -52,7 +52,7 @@ it("loads, validates, resolves, classifies, and writes through trusted adapters"
       type: UiCommandType.StoreWrite,
       value: "Grace"
     },
-    { causationId: "cause", correlationId: "correlation", transactionId: "transaction" }
+    context()
   );
   expect(adapter.snapshot()).toEqual({ name: "Grace" });
   expect(stores.values["customer"]).toEqual({ name: "Grace" });
@@ -329,7 +329,12 @@ function storeCommand(changes: Readonly<Record<string, unknown>> = {}) {
 }
 
 function context() {
-  return { causationId: "cause", correlationId: "correlation", transactionId: "transaction" };
+  return {
+    causationId: "cause",
+    correlationId: "correlation",
+    effectId: "effect-1",
+    transactionId: "transaction"
+  };
 }
 
 function errorMessage(run: () => void): string {

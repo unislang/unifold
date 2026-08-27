@@ -52,6 +52,7 @@ it("commits one XState command batch and does not write effect-only state", () =
   ]);
   expect(runtime.revision).toBe(2);
   expect(execute).toHaveBeenCalledTimes(1);
+  expectMachineEffectIdentity(caused, execute);
   coordinator.dispose();
   runtime.dispose();
 });
@@ -61,6 +62,41 @@ function withMachine(
   definition = workflowDefinition()
 ) {
   return { ...source, machines: [definition] };
+}
+
+function expectMachineEffectIdentity(
+  caused: readonly UiEvent[],
+  execute: ReturnType<typeof vi.fn>
+): void {
+  const command = requireValue(caused.find(isAnnouncementCommand), "announcement command");
+  const subject = requireValue(command.subject, "effect subject");
+  const lifecycle = caused.filter(({ data }) => data.phase === "effect");
+  const call = requireValue(execute.mock.calls[0], "effect port call");
+  expect(lifecycle.map(({ subject: id }) => id)).toEqual([subject, subject]);
+  expect(lifecycle.map(effectSourceId)).toEqual(["form", "form"]);
+  expect(call[1]).toMatchObject({ effectId: subject });
+}
+
+function isAnnouncementCommand(event: UiEvent): boolean {
+  return (
+    event.type === UiEventType.CommandApplied &&
+    commandType(event.data.change) === UiCommandType.AnnouncementRequest
+  );
+}
+
+function effectSourceId(event: UiEvent): string | undefined {
+  return event.data.sourceNode?.id;
+}
+
+function commandType(change: unknown): unknown {
+  if (!isRecord(change)) return undefined;
+  return Reflect.get(change, "commandType");
+}
+
+function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+  if (value === null) return false;
+  if (typeof value !== "object") return false;
+  return !Array.isArray(value);
 }
 
 function requirePrepared(source: unknown) {

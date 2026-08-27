@@ -16,10 +16,12 @@ import {
 export interface RuntimeEventContext {
   readonly causationId?: string;
   readonly correlationId: string;
+  readonly dataschema?: string;
   readonly documentId: string;
   readonly id: string;
   readonly sequence: number;
   readonly source: string;
+  readonly subject?: string;
   readonly time: string;
   readonly transactionId: string;
 }
@@ -106,13 +108,33 @@ export function createRuntimeEvent(
     source: context.source,
     type,
     time: context.time,
+    ...eventExtensions(context),
     correlationid: context.correlationId,
-    ...(context.causationId ? { causationid: context.causationId } : {}),
     transactionid: context.transactionId,
     sequence: context.sequence,
     staterevision: record.revision,
     data: runtimeEventData(phase ?? UiEventPhase.State, context.documentId, change, projection)
   });
+}
+
+function eventExtensions(context: RuntimeEventContext) {
+  return {
+    ...optionalSubject(context.subject),
+    ...optionalDataSchema(context.dataschema),
+    ...optionalCausationId(context.causationId)
+  };
+}
+
+function optionalSubject(subject?: string) {
+  return subject === undefined ? {} : { subject };
+}
+
+function optionalDataSchema(dataschema?: string) {
+  return dataschema === undefined ? {} : { dataschema };
+}
+
+function optionalCausationId(causationid?: string) {
+  return causationid === undefined ? {} : { causationid };
 }
 
 function runtimeEventData(

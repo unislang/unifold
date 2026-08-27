@@ -32,13 +32,16 @@ Each classification-bearing runtime fact states whether its disclosure is full o
 records the effective classification and snapshot revision, and, when metadata-only, identifies
 whether classification or the `store.write` rule caused the projection. A metadata-only fact keeps:
 
-- CloudEvents identity and type;
+- CloudEvents identity, type, and opaque effect `subject` when present;
 - phase, correlation, causation, transaction, sequence, time, and state revision;
 - runtime context;
 - source-node identity: stable ID, instance ID, kind, parent ID, scope path, component type, and
   definition version; and
 - an event-specific allowlist such as command type, request ID, reason, error count, changed node
   IDs, or changed state paths.
+
+Restricted effect projections retain only their `subject`, command type, and optional target ID.
+They never retain provider input, DOM details, values, exception text, or arbitrary receipt data.
 
 It omits the node snapshot and value-bearing change data. Validation parameters, form values, raw
 exception text, and arbitrary effect input are not metadata. Exception facts use stable, sanitized

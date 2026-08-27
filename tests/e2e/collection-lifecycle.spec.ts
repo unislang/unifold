@@ -7,7 +7,9 @@ interface CollectionObservation {
   readonly alphaValue: unknown;
   readonly authoredKeys: readonly string[];
   readonly focusedId?: string;
+  readonly focusCommandEffectIds: readonly string[];
   readonly focusEffectTypes: readonly string[];
+  readonly focusLifecycleEffectIds: readonly string[];
   readonly focusRequestIds: readonly string[];
   readonly lateRemovedEvents: number;
   readonly operationEventsCausal: boolean;
@@ -78,6 +80,7 @@ test("reports CSS-hidden collection focus as a failed effect", async ({ page }) 
       "org.unifold.ui.effect.failed.v1"
     ]);
   expect((await observe(page)).focusedId).not.toBe("add-item");
+  expectCorrelatedFocusEffects(await observe(page), 2);
 });
 
 type ScenarioPage = Parameters<typeof callHook>[0];
@@ -123,6 +126,7 @@ async function assertFinalObservation(page: ScenarioPage): Promise<void> {
     renderedIds: ["field::b", "field::a"],
     revision: "4"
   });
+  expectCorrelatedFocusEffects(observation, 1);
 }
 
 async function assertEmptyFocusLifecycle(page: ScenarioPage): Promise<void> {
@@ -135,6 +139,7 @@ async function assertEmptyFocusLifecycle(page: ScenarioPage): Promise<void> {
     focusRequestIds: ["field::a", "field::b"],
     revision: "5"
   });
+  expectCorrelatedFocusEffects(await observe(page), 2);
   expect(await callHook(page, "empty")).toBe(UnifoldApplicationUpdateStatus.Applied);
   await expect(page.getByRole("button", { name: "Add item" })).toBeFocused();
   expect(await observe(page)).toMatchObject({
@@ -146,6 +151,17 @@ async function assertEmptyFocusLifecycle(page: ScenarioPage): Promise<void> {
     renderedIds: [],
     revision: "6"
   });
+  expectCorrelatedFocusEffects(await observe(page), 3);
+}
+
+function expectCorrelatedFocusEffects(observation: CollectionObservation, count: number): void {
+  const lifecyclePairs = Array.from({ length: count }, (_, index) =>
+    observation.focusLifecycleEffectIds.slice(index * 2, index * 2 + 2)
+  );
+  expect(lifecyclePairs).toEqual(
+    observation.focusCommandEffectIds.map((effectId) => [effectId, effectId])
+  );
+  expect(new Set(observation.focusCommandEffectIds).size).toBe(count);
 }
 
 function successfulFocusEffects(count: number): readonly string[] {

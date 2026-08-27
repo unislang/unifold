@@ -18,6 +18,7 @@ the explicit versions embedded in each JSON or protocol contract and by the exec
 | Derived rule                  | `1.0.0`                | Exact closed JSON Logic profile                                                              |
 | Semantic graph                | `1.0.0`                | Exact graph contract with Schema.org release `30.0` vocabulary                               |
 | Canonical event envelope      | CloudEvents `1.0`      | Exact envelope; each event type carries its own version suffix                               |
+| Effect event data             | `1.0`                  | Exact closed payload; one runtime-assigned subject joins command, request, and settlement    |
 | Data protocol                 | `1.0.0`                | Exact schema and operation vocabulary                                                        |
 | Control-plane protocol        | `1.0.0`                | Exact request shape over the bounded Fetch adapter; trusted context is derived server-side   |
 | Collaboration protocol        | `1.0.0`                | Exact request/event vocabulary and schema                                                    |
@@ -40,6 +41,12 @@ means deepest composed DOM focus was verified after pending definitions and rend
 maps `NotFocused` to the existing `effect.failed.v1` event and resolves only verified focus as
 `effect.completed.v1`. Direct best-effort hydration and migration callers may intentionally ignore
 the enum result without creating an unhandled rejection.
+
+Effect lifecycle identity is additive to the existing `.v1` events: an admitted effect command uses
+its own event ID as `subject`, and requested/terminal facts reuse it. Effect facts declare the
+packaged `effect-data/1.0` `dataschema`; the three existing event types remain the status authority.
+No document, IR, module, static-export, or portable-machine version changes because runtime outcome
+history is not serialized into those artifacts.
 
 ## Migration support
 

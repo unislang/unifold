@@ -7,6 +7,7 @@
   "sideEffects": false,
   "files": [
     "dist",
+    "schemas",
     "src/**/*.ts",
     "!src/**/*.test.ts",
     "!src/**/*.test-data.ts",
@@ -18,7 +19,8 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./schemas/effect-event-data.schema.json": "./schemas/effect-event-data.schema.json"
   },
   "scripts": {
     "build": "tsc -b",
@@ -39,6 +41,7 @@
     "@unislang/unifold-contracts": "workspace:*"
   },
   "devDependencies": {
+    "ajv": "8.20.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   }

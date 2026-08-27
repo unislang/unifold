@@ -52,10 +52,11 @@ import {
 import { reconciledCompositionInstances, removedOwnerIds } from "./structure-reconciliation.js";
 import { ruleCommandDependencies } from "./rule-command-dependencies.js";
 import { captureBoundValues, storeWriteEffects } from "./store-write.js";
-import { runCommandEffects } from "./effect-runner.js";
+import { runCommandEffects, type UiCommandEffect } from "./effect-runner.js";
 import {
   UnifoldRuntimeStatus,
   type UiRuntimeExecutionContext,
+  type UiResolvedRuntimeExecutionContext,
   type UiCompositionHandle,
   type UiNodeHandle,
   type RuntimeTransactionResult,
@@ -221,7 +222,6 @@ export class UnifoldRuntime {
       throw error;
     }
   }
-
   dispose(): void {
     if (this.lifecycle === UnifoldRuntimeStatus.Disposed) return;
     const context = this.resolveContext({});
@@ -236,10 +236,9 @@ export class UnifoldRuntime {
     this.store.dispose();
     this.fabric.dispose();
   }
-
   private commit(
     commands: readonly UiCommand[],
-    context: Required<UiRuntimeExecutionContext>
+    context: UiResolvedRuntimeExecutionContext
   ): UiTransactionRecord {
     const snapshots = this.store.getSnapshots();
     const removedIds = removedOwnerIds(commands, snapshots);
@@ -253,23 +252,16 @@ export class UnifoldRuntime {
     const after = (id: string) => this.safeSnapshot(id);
     const storeWrites = storeWriteEffects(context.suppressedStoreWriteIds, before, bindings, after);
     const executedCommands = [...appliedCommands, ...storeWrites];
-    executedCommands.forEach((command) =>
-      this.publisher.command(command, context, record, snapshots)
-    );
+    const effects = this.publishCommands(executedCommands, context, record, snapshots);
     this.publisher.transaction(context, record, snapshots, commands);
     commands.forEach((command) => this.publisher.formResult(command, context, record));
-    this.runEffects(
-      executedCommands.filter((command) => !isStateCommand(command)),
-      context,
-      record
-    );
+    this.runEffects(effects, context, record);
     this.validation.afterCommit(appliedCommands, record, context);
     return record;
   }
-
   private transact(
     commands: readonly UiCommand[],
-    context: Required<UiRuntimeExecutionContext>
+    context: UiResolvedRuntimeExecutionContext
   ): RuntimeTransactionResult {
     const stateCommands = commands.filter(isStateCommand);
     if (stateCommands.length === 0) {
@@ -293,37 +285,46 @@ export class UnifoldRuntime {
     });
     return { derivedCommands, record };
   }
-
   private ruleDependencies(
     commands: readonly UiCommand[],
     draft: import("@unislang/unifold-reactivity").UiNodeTransactionDraft
   ) {
     return this.rules === undefined ? [] : ruleCommandDependencies(commands, draft, this.rules);
   }
-
-  private runEffects(
+  private publishCommands(
     commands: readonly UiCommand[],
-    context: Required<UiRuntimeExecutionContext>,
-    record: UiTransactionRecord
-  ): void {
-    runCommandEffects(commands, context, record, {
-      active: () => this.lifecycle === UnifoldRuntimeStatus.Active,
-      commandPort: this.options.commandPort,
-      publish: (type, command, effectContext, effectRecord) =>
-        this.publisher.effect(type, command, effectContext, effectRecord)
+    context: UiResolvedRuntimeExecutionContext,
+    record: UiTransactionRecord,
+    before: readonly UiNodeSnapshot[]
+  ): readonly UiCommandEffect[] {
+    return commands.flatMap((command) => {
+      const isEffect = this.options.commandPort !== undefined && !isStateCommand(command);
+      const effectId = this.publisher.command(command, context, record, before, isEffect);
+      return effectId === undefined ? [] : [{ command, effectId }];
     });
   }
-
-  private resolveContext(input: UiRuntimeExecutionContext): Required<UiRuntimeExecutionContext> {
+  private runEffects(
+    effects: readonly UiCommandEffect[],
+    context: UiResolvedRuntimeExecutionContext,
+    record: UiTransactionRecord
+  ): void {
+    runCommandEffects(effects, context, record, {
+      active: () => this.lifecycle === UnifoldRuntimeStatus.Active,
+      commandPort: this.options.commandPort,
+      publish: (type, command, effectContext, effectRecord, effectId) =>
+        this.publisher.effect(type, command, effectContext, effectRecord, effectId)
+    });
+  }
+  private resolveContext(input: UiRuntimeExecutionContext): UiResolvedRuntimeExecutionContext {
     const transactionId = valueOrCreate(input.transactionId, this.createId);
     return {
       transactionId,
       correlationId: valueOrDefault(input.correlationId, transactionId),
       causationId: valueOrDefault(input.causationId, transactionId),
+      ...(input.effectSourceId === undefined ? {} : { effectSourceId: input.effectSourceId }),
       suppressedStoreWriteIds: input.suppressedStoreWriteIds ?? []
     };
   }
-
   private safeSnapshot(id: UiNodeId): UiNodeSnapshot | undefined {
     try {
       return this.store.getSnapshot(id);

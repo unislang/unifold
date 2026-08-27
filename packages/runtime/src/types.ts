@@ -28,6 +28,7 @@ export enum UnifoldRuntimeStatus {
 export interface UiExecutionContext {
   readonly causationId?: string;
   readonly correlationId?: string;
+  readonly effectSourceId?: UiNodeId;
   readonly transactionId?: string;
 }
 
@@ -35,8 +36,23 @@ export interface UiRuntimeExecutionContext extends UiExecutionContext {
   readonly suppressedStoreWriteIds?: readonly string[];
 }
 
+export interface UiResolvedExecutionContext {
+  readonly causationId: string;
+  readonly correlationId: string;
+  readonly effectSourceId?: UiNodeId;
+  readonly transactionId: string;
+}
+
+export interface UiResolvedRuntimeExecutionContext extends UiResolvedExecutionContext {
+  readonly suppressedStoreWriteIds: readonly string[];
+}
+
+export interface UiEffectExecutionContext extends UiResolvedExecutionContext {
+  readonly effectId: string;
+}
+
 export interface UiCommandPort {
-  execute(command: UiCommand, context: Required<UiExecutionContext>): Promise<void> | void;
+  execute(command: UiCommand, context: UiEffectExecutionContext): Promise<void> | void;
 }
 
 export interface UiRuntimeInspectionSnapshot {

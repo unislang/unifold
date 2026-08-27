@@ -2,6 +2,7 @@ import {
   DataClassification,
   UiCommandType,
   UiEventDisclosureMode,
+  UiEventDataSchema,
   UiEventRedactionReason,
   UiEventType,
   UiTransactionStatus,
@@ -17,19 +18,7 @@ import { RuntimePublisher } from "./runtime-publisher.js";
 
 it("publishes ordered store effects without exposing the written value", () => {
   const events: UiEvent[] = [];
-  const publisher = publisherFor([controlNode("field", "Grace")], events);
-  publisher.effect(
-    UiEventType.EffectCompleted,
-    {
-      id: "field",
-      path: "/name",
-      storeId: "customer",
-      type: UiCommandType.StoreWrite,
-      value: "Grace"
-    },
-    { causationId: "cause", correlationId: "correlation", transactionId: "transaction" },
-    transaction()
-  );
+  publishStoreEffect(events);
   expect(events).toHaveLength(1);
   expect(events[0]).toMatchObject({ data: { sourceNode: { id: "field" } } });
   expect(events[0]).toMatchObject({
@@ -41,7 +30,68 @@ it("publishes ordered store effects without exposing the written value", () => {
     }
   });
   expect((events[0] as UiEvent).data.snapshot).toBeUndefined();
+  expect(events[0]).toMatchObject({
+    dataschema: UiEventDataSchema.EffectV1,
+    subject: "effect-1",
+    data: { change: { commandType: UiCommandType.StoreWrite, targetId: "field" } }
+  });
   expect(JSON.stringify(events[0])).not.toContain("Grace");
+});
+
+function publishStoreEffect(events: UiEvent[]): void {
+  const publisher = publisherFor([controlNode("field", "Grace")], events);
+  publisher.effect(
+    UiEventType.EffectCompleted,
+    {
+      id: "field",
+      path: "/name",
+      storeId: "customer",
+      type: UiCommandType.StoreWrite,
+      value: "Grace"
+    },
+    executionContext(),
+    transaction(),
+    "effect-1"
+  );
+}
+
+it("uses the effect requester as the stable XState routing source", () => {
+  const requester = controlNode("requester", "", "request-scope");
+  const target = controlNode("target", "", "target-scope");
+  const events: UiEvent[] = [];
+  const publisher = publisherFor([requester, target], events);
+
+  publisher.effect(
+    UiEventType.EffectRequested,
+    { id: "target", type: UiCommandType.FocusRequest },
+    { ...executionContext(), effectSourceId: "requester" },
+    transaction(),
+    "effect-1"
+  );
+
+  expect(events[0]).toMatchObject({
+    subject: "effect-1",
+    data: {
+      change: { commandType: UiCommandType.FocusRequest, targetId: "target" },
+      sourceNode: { id: "requester", scopePath: ["request-scope", "requester"] }
+    }
+  });
+});
+
+it("uses the effect command fact as the lifecycle subject", () => {
+  const events: UiEvent[] = [];
+  const publisher = publisherFor([controlNode("field", "")], events);
+
+  const effectId = publisher.command(
+    { id: "field", type: UiCommandType.FocusRequest },
+    executionContext(),
+    transaction(),
+    [],
+    true
+  );
+
+  expect(effectId).toBe("event-1");
+  expect(events[0]).toMatchObject({ id: "event-1", subject: "event-1" });
 });
 
 it("uses the maximum pre/post classification for transaction disclosure", () => {

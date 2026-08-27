@@ -98,7 +98,7 @@ export class UiMachineCoordinator {
     return createUiMachineActor(
       definition,
       this.registry,
-      (commands, cause) => executeCausedCommands(this.runtime, commands, cause),
+      (commands, cause) => executeCausedCommands(this.runtime, commands, cause, definition.ownerId),
       this.guards,
       (id) => runtimeSnapshot(this.runtime, id)
     );
@@ -181,11 +181,13 @@ function errorMessage(error: unknown): string {
 function executeCausedCommands(
   runtime: UnifoldRuntime,
   commands: readonly UiCommand[],
-  cause: UiEvent
+  cause: UiEvent,
+  effectSourceId: string
 ): void {
   runtime.execute(commands, {
     causationId: cause.id,
-    correlationId: cause.correlationid
+    correlationId: cause.correlationid,
+    effectSourceId
   });
 }
 

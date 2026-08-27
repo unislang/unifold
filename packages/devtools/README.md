@@ -19,3 +19,8 @@ Its colocated test validates the fixture against
 `schemas/portable-application-replay.schema.json`, drives the real runtime and XState adapter twice,
 and requires byte-equivalent snapshots, machine states, public event projections, effect calls, and
 control consumption. No wall clock, random generator, network, or provider is consulted.
+
+Mock effect receipts retain the runtime-assigned `effectId`, which joins a replayed invocation to its
+command/request/settlement lifecycle without re-running the external provider. Metadata-only privacy
+projection retains only the effect `commandType` and optional target node ID; provider errors,
+credentials, inputs, results, and arbitrary nested change fields are discarded.

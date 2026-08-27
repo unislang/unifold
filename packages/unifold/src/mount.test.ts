@@ -226,16 +226,16 @@ function expectStoreEvents(events: readonly UiEvent[]): void {
   ]);
   expect(storeEvents.every(({ data }) => data.sourceNode?.id === "name")).toBe(true);
   expect(storeEvents.every(({ data }) => data.snapshot === undefined)).toBe(true);
+  const command = storeEvents[0];
+  if (command === undefined) throw new Error("Store command event is missing.");
+  expect(storeEvents.map(({ subject }) => subject)).toEqual([command.id, command.id, command.id]);
   expect(JSON.stringify(storeEvents)).not.toContain("Grace");
 }
 
 function isStoreEvent(event: UiEvent): boolean {
-  return (
-    JSON.stringify(event.data.change) ===
-    JSON.stringify({
-      commandType: UiCommandType.StoreWrite
-    })
-  );
+  const change = event.data.change;
+  if (change === null || typeof change !== "object") return false;
+  return Reflect.get(change, "commandType") === UiCommandType.StoreWrite;
 }
 
 function boundDocument(path = "/name", revision = "1") {

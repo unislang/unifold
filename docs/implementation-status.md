@@ -150,7 +150,12 @@ described by the complete 1.0 plan.
 - CloudEvents-shaped canonical UI events with node identity, correlation, causation, transaction,
   sequence, state revision, and classification-aware disclosure. Public ordinary facts may carry
   complete snapshots and changes; non-public and store-write facts retain source identity with
-  metadata-only payloads.
+  metadata-only payloads. Non-state command effects now receive a runtime-assigned opaque identity:
+  the command fact, request, and terminal settlement share one subject while retaining distinct
+  event IDs, so identical asynchronous effects remain unambiguous when they settle out of order.
+  The versioned closed effect-data schema exposes only registered command type and optional target,
+  machine effects retain authored owner attribution, command ports receive the same identity, and
+  deterministic replay/privacy projection preserve the join without recording provider data.
 - A private RxJS ingress, public read-only event stream, transactional Immer node store,
   source/scope indexes, coherent form/group/record/array aggregates, selectors, XState actor/effect
   adapters, and selective changed-node projection. Node-indexed selections, incremental ancestor
@@ -184,7 +189,12 @@ described by the complete 1.0 plan.
   verifies deepest composed active focus. The application command adapter publishes exactly one
   completed effect only for `Focused`; missing, hidden, disabled, native-refused, or superseded
   targets produce the existing failed-effect outcome. Focused Chromium/WebKit 4/4 evidence covers
-  both successful collection focus and a CSS-hidden authored fallback.
+  both successful collection focus and a CSS-hidden authored fallback. Each admitted effect now
+  uses its command event ID as an opaque CloudEvents subject shared by request and terminal facts
+  and passed unchanged to the command port. A strict packaged effect-data schema, restricted
+  DevTools allowlist, deterministic replay receipt, reverse-order async tests, and Chromium/WebKit
+  collection evidence prove attribution without exposing provider or error data. Machine-issued
+  effects preserve the owner as reply scope, including targetless `effect.invoke`.
   Post-runtime renderer rollback/event atomicity, module-authored collection mutation and non-empty
   repeat identity rewriting, end-to-end authored-collection mutation
   performance, exact composition-control provenance/migration shape, a rendered composition mount,

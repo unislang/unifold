@@ -8,7 +8,7 @@ import {
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
 import {
   type UiCommandPort,
-  type UiExecutionContext,
+  type UiEffectExecutionContext,
   type UnifoldRuntime
 } from "@unislang/unifold-runtime";
 
@@ -50,7 +50,7 @@ export class AsyncStoreCommandController implements StoreCommandController {
     this.#fallback = fallback;
   }
 
-  execute(command: UiCommand, context: Required<UiExecutionContext>): Promise<void> | void {
+  execute(command: UiCommand, context: UiEffectExecutionContext): Promise<void> | void {
     if (command.type !== UiCommandType.StoreWrite) return this.#fallback?.execute(command, context);
     authorizedStoreDefinition(command, this.#document);
     return this.#enqueue(command.storeId, () => this.#commit(command, context));
@@ -107,7 +107,7 @@ export class AsyncStoreCommandController implements StoreCommandController {
     if (this.#queues.get(id) === settled) this.#queues.delete(id);
   }
 
-  async #commit(command: StoreWriteCommand, context: Required<UiExecutionContext>): Promise<void> {
+  async #commit(command: StoreWriteCommand, context: UiEffectExecutionContext): Promise<void> {
     assertControllerActive(this.#disposed);
     const session = requireSession(this.#sessions, command.storeId);
     const result = await session.commit({

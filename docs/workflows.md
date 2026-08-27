@@ -81,6 +81,12 @@ application. A selected command runs through the normal transaction coordinator.
 facts inherit the triggering event's `correlationid`, set `causationid` to that event ID, and use a
 new transaction. XState does not copy component values into machine context.
 
+Machine-issued effects retain the machine owner as their reply scope even when the effect targets a
+node in another visual scope or has no node target, as with `effect.invoke`. The command,
+requested, and terminal facts share one opaque CloudEvents `subject`; guards and transitions can use
+that identity to distinguish concurrent invocations without overloading correlation, causation, or
+transaction IDs. The trusted command port receives the same value as `context.effectId`.
+
 ## Register trusted guards
 
 A transition may reference one synchronous host predicate by name. The predicate receives the

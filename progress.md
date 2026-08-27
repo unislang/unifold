@@ -50,7 +50,9 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   application focus selection. Private source-pointer/key mutation authority remains only in the
   prepared document. The active worktree now makes DOM focus settlement truthful: the renderer
   returns an enum result, verifies deepest composed focus after accepted pending definitions and
-  updates, and the application stream reports unavailable or refused focus as a failed effect.
+  updates, and the application stream reports unavailable or refused focus as a failed effect. It
+  also assigns every admitted effect one command-owned identity, preserves it through the canonical
+  stream and command port, and routes machine-issued outcomes back to their requester scope.
   The bounded adopter CLI/starter,
   governed AI provider boundary, Studio dogfood workflow, multi-application semantic isolation,
   exact test colocation, re-export prevention, and completed reference/hierarchical/Studio module
@@ -65,6 +67,42 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - 1.0 traceability register: [`docs/acceptance-audit.md`](./docs/acceptance-audit.md)
 - Concise 34-criterion evidence register:
   [`docs/acceptance-status.md`](./docs/acceptance-status.md)
+
+## 2026-08-27 command-owned effect identity tranche
+
+- Status: implemented and release-gate verified in the active worktree; local checkpointing and
+  publication remain. The overall goal remains active.
+- Every post-commit command admitted to a configured effect port uses its command-event ID as one
+  opaque CloudEvents `subject`. `EffectRequested` and its one normal `EffectCompleted` or
+  `EffectFailed` terminal reuse that subject while retaining distinct event IDs. The command port
+  receives the same value as required `UiEffectExecutionContext.effectId`; correlation, causation,
+  transaction, sequence, and state-revision semantics are unchanged.
+- A packaged strict `effect-data/1.0` schema admits only effect phase, runtime context, safe
+  disclosure/source/snapshot projection, command type, and optional target ID. Effect facts declare
+  its `dataschema`. Restricted DevTools timelines retain subject/command/target identity but strip
+  arbitrary values, provider data, DOM detail, receipts, and exception text.
+- XState machine commands preserve the machine owner as the effect reply source. Targetless
+  `effect.invoke` and cross-scope outcomes therefore return through the existing owner index instead
+  of disappearing or routing only by target. Pending work remains represented by a request without
+  a terminal; no deferred/rejected/cancelled facts are claimed without distinct runtime semantics.
+- Deterministic portable replay records enum-backed mock outcomes, the exact port `effectId`, and
+  command/request/terminal subject plus data-schema identity without consuming another clock or
+  randomness value. The reference observer and Chromium/WebKit collection journey prove unique IDs
+  across focus operations and exact command-to-request-to-success/failure pairing.
+- Focused verification passes 39 tests across thirteen events/runtime/application/XState/DevTools and
+  reference files, plus the existing eight-test mounted store suite. Root Vitest passes 611
+  files/1,654 tests; tooling passes 22/22; generated CEM/theme/module-lock scripts pass; and
+  performance correctness passes 39 files/50 tests with 32 profile files skipped. Production and
+  test TypeScript, lint/complexity, 350-line files, 30-line functions, exact colocation,
+  import/re-export ownership, formatting, unused-code analysis, and dependency analysis over 2,447
+  modules/5,485 dependencies pass. All 40 production builds pass. The production reference initial
+  closure is 165,795 gzip bytes plus 84,982 deferred against the unchanged 190 KiB ceiling; the
+  rebuilt Playwright matrix passes 4/4 on Chromium/WebKit.
+- Explicit next boundaries: application updates still publish runtime facts before renderer,
+  machine, and semantic publication can fail, so public forward/compensation event atomicity remains
+  the next systemic tranche. Module-authored collection mutation still needs an explicit signed and
+  locked write-authority policy. Distinct deferred/rejected/cancelled effect facts remain intentionally
+  absent until the runtime has genuinely distinct admission and abort semantics.
 
 ## 2026-08-27 truthful DOM focus-effect tranche
 
@@ -110,10 +148,11 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   over 2,443 modules/5,475 dependencies pass. All 40 production builds pass. The production
   reference initial closure is 165,536 gzip bytes plus 84,965 deferred against the unchanged 190
   KiB ceiling, and the rebuilt Playwright matrix passes 4/4 on Chromium/WebKit.
-- Explicit next boundaries: generic effects still lack per-effect lifecycle identity and distinct
-  deferred/rejected/cancelled statuses; hydration and migration focus are intentionally best-effort
-  outside the canonical stream. AC19 still needs post-runtime renderer rollback/event atomicity,
-  module-authored collection mutation, and the non-empty repeat identity rewrite.
+- Explicit next boundaries at that checkpoint: generic effects still lacked per-effect lifecycle
+  identity; the newer tranche above closes that ambiguity without inventing unproved lifecycle
+  statuses. Hydration and migration focus remain intentionally best-effort outside the canonical
+  stream. AC19 still needs post-runtime renderer rollback/event atomicity, module-authored collection
+  mutation, and the non-empty repeat identity rewrite.
 
 ## 2026-08-27 executable collection-behavior IR tranche
 

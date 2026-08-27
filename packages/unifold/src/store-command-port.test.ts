@@ -13,12 +13,21 @@ it("returns non-store effect settlement from the configured fallback port", asyn
     { execute }
   );
 
+  const context = {
+    causationId: "cause",
+    correlationId: "correlation",
+    effectId: "effect-1",
+    transactionId: "transaction"
+  };
   const result = port.execute(
     { capability: "save", input: {}, type: UiCommandType.EffectInvoke },
-    { causationId: "cause", correlationId: "correlation", transactionId: "transaction" }
+    context
   );
 
   expect(result).toBe(settlement);
   await result;
-  expect(execute).toHaveBeenCalledOnce();
+  expect(execute).toHaveBeenCalledWith(
+    { capability: "save", input: {}, type: UiCommandType.EffectInvoke },
+    context
+  );
 });

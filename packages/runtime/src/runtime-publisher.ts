@@ -1,11 +1,13 @@
 import { DataClassification, maximumDataClassification } from "@unislang/unifold-contracts";
 import {
   UiCommandType,
+  UiEventDataSchema,
   UiEventPhase,
   UiEventRedactionReason,
   UiEventType,
   type UiCommand,
   type UiEvent,
+  type UiEffectEventChange,
   type UiNodeSnapshot,
   type UiTransactionRecord
 } from "@unislang/unifold-events";
@@ -18,7 +20,7 @@ import type { RuntimeEventProjection } from "./event-disclosure.js";
 import { commandChange, commandType, createRuntimeEvent } from "./runtime-event.js";
 import type { RuntimeEventContext } from "./runtime-event.js";
 import { commandNodeId, rejectedRecord, transactionSourceId } from "./runtime-helpers.js";
-import type { UiExecutionContext } from "./types.js";
+import type { UiResolvedExecutionContext } from "./types.js";
 
 interface RuntimePublisherOptions {
   readonly actors: XStateEventRouter;
@@ -29,6 +31,12 @@ interface RuntimePublisherOptions {
   readonly snapshot: (id: string) => UiNodeSnapshot | undefined;
   readonly snapshots: () => readonly UiNodeSnapshot[];
   readonly source: string;
+}
+
+interface RuntimeEventEnvelope {
+  readonly dataschema?: string;
+  readonly id?: string;
+  readonly subject?: string;
 }
 
 export class RuntimePublisher {
@@ -43,36 +51,48 @@ export class RuntimePublisher {
 
   emit(
     type: UiEventType,
-    context: Required<UiExecutionContext>,
+    context: UiResolvedExecutionContext,
     record: UiTransactionRecord,
     change: Parameters<typeof createRuntimeEvent>[3],
     phase?: UiEventPhase,
-    projection: RuntimeEventProjection = {}
+    projection: RuntimeEventProjection = {},
+    envelope: RuntimeEventEnvelope = {}
   ): void {
     this.publish(
-      createRuntimeEvent(type, this.eventContext(context), record, change, phase, projection)
+      createRuntimeEvent(
+        type,
+        this.eventContext(context, envelope),
+        record,
+        change,
+        phase,
+        projection
+      )
     );
   }
 
   command(
     command: UiCommand,
-    context: Required<UiExecutionContext>,
+    context: UiResolvedExecutionContext,
     record: UiTransactionRecord,
-    before: readonly UiNodeSnapshot[] = []
-  ): void {
+    before: readonly UiNodeSnapshot[] = [],
+    effect = false
+  ): string | undefined {
     const projection = commandProjection(command, this.commandSnapshot(command, before));
+    const id = this.options.createId();
     this.emit(
       commandType(command),
       context,
       record,
       disclosedCommandChange(command, projection),
       undefined,
-      projection
+      projection,
+      commandEnvelope(id, effect)
     );
+    return effectIdentity(id, effect);
   }
 
   transaction(
-    context: Required<UiExecutionContext>,
+    context: UiResolvedExecutionContext,
     record: UiTransactionRecord,
     before: readonly UiNodeSnapshot[],
     commands: readonly UiCommand[] = []
@@ -95,14 +115,14 @@ export class RuntimePublisher {
     );
   }
 
-  rejected(context: Required<UiExecutionContext>, revision: number): void {
+  rejected(context: UiResolvedExecutionContext, revision: number): void {
     const record = rejectedRecord(context, revision, this.options.now);
     this.emit(UiEventType.TransactionRejected, context, record, {});
   }
 
   formResult(
     command: UiCommand,
-    context: Required<UiExecutionContext>,
+    context: UiResolvedExecutionContext,
     record: UiTransactionRecord
   ): void {
     if (!isFormResultCommand(command)) return;
@@ -124,18 +144,15 @@ export class RuntimePublisher {
   effect(
     type: UiEventType,
     command: UiCommand,
-    context: Required<UiExecutionContext>,
-    record: UiTransactionRecord
+    context: UiResolvedExecutionContext,
+    record: UiTransactionRecord,
+    effectId: string
   ): void {
-    const projection = commandProjection(command, this.commandSnapshot(command, []));
-    this.emit(
-      type,
-      context,
-      record,
-      { commandType: command.type },
-      UiEventPhase.Effect,
-      projection
-    );
+    const projection = commandProjection(command, this.effectSnapshot(command, context));
+    this.emit(type, context, record, effectChange(command), UiEventPhase.Effect, projection, {
+      dataschema: UiEventDataSchema.EffectV1,
+      subject: effectId
+    });
   }
 
   intent(event: UiEvent, snapshot: UiNodeSnapshot): void {
@@ -151,18 +168,30 @@ export class RuntimePublisher {
     return this.options.snapshot(id) ?? fallback.find((snapshot) => snapshot.id === id);
   }
 
+  private effectSnapshot(
+    command: UiCommand,
+    context: UiResolvedExecutionContext
+  ): UiNodeSnapshot | undefined {
+    if (context.effectSourceId !== undefined) return this.options.snapshot(context.effectSourceId);
+    return this.commandSnapshot(command, []);
+  }
+
   private requireSnapshot(id: string): UiNodeSnapshot {
     const snapshot = this.options.snapshot(id);
     if (snapshot === undefined) throw new Error(`Runtime snapshot is missing: ${id}.`);
     return snapshot;
   }
 
-  private eventContext(context: Required<UiExecutionContext>): RuntimeEventContext {
+  private eventContext(
+    context: UiResolvedExecutionContext,
+    envelope: RuntimeEventEnvelope = {}
+  ): RuntimeEventContext {
     return {
       causationId: context.causationId,
       correlationId: context.correlationId,
+      ...envelope,
       documentId: this.options.documentId,
-      id: this.options.createId(),
+      id: envelope.id ?? this.options.createId(),
       sequence: this.nextSequence(),
       source: this.options.source,
       time: this.options.now(),
@@ -174,6 +203,26 @@ export class RuntimePublisher {
     this.options.fabric.publish(event);
     this.options.actors.route(event);
   }
+}
+
+function effectChange(command: UiCommand): UiEffectEventChange {
+  const targetId = effectTargetId(command);
+  return {
+    commandType: command.type,
+    ...(targetId === undefined ? {} : { targetId })
+  };
+}
+
+function effectTargetId(command: UiCommand): string | undefined {
+  return "id" in command ? command.id : undefined;
+}
+
+function commandEnvelope(id: string, effect: boolean): RuntimeEventEnvelope {
+  return effect ? { id, subject: id } : { id };
+}
+
+function effectIdentity(id: string, effect: boolean): string | undefined {
+  return effect ? id : undefined;
 }
 
 function transactionSnapshot(
