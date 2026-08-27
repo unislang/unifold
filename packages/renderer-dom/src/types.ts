@@ -15,11 +15,16 @@ export interface PendingElementDefinitionOptions {
   readonly registry: Pick<CustomElementRegistry, "get" | "whenDefined">;
 }
 
+export enum FocusRestoreStatus {
+  Focused = "focused",
+  NotFocused = "not-focused"
+}
+
 export interface DomRenderController {
   dispose(): void;
   getElement(nodeId: string): HTMLElement | undefined;
   project(snapshot: UiNodeSnapshot, routedErrors?: readonly UiValidationError[]): void;
-  restoreFocus(nodeId: string, controlIndex?: number): Promise<void>;
+  restoreFocus(nodeId: string, controlIndex?: number): Promise<FocusRestoreStatus>;
   update(document: UnifoldIrDocument): void;
   validate(document: UnifoldIrDocument): void;
 }

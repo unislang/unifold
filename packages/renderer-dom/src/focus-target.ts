@@ -7,8 +7,13 @@ export function focusRenderedElement(
   controlIndex?: number
 ): HTMLElement | undefined {
   const target = renderedFocusTarget(element, controlIndex);
-  target?.focus();
-  return target;
+  if (target === undefined) return undefined;
+  return focusElement(target) ? target : undefined;
+}
+
+function focusElement(target: HTMLElement): boolean {
+  tryFocus(target);
+  return deepestActiveElement(target.ownerDocument) === target;
 }
 
 export function focusMayBeRetried(
@@ -24,7 +29,7 @@ export function focusMayBeStarted(
   element: UnifoldElementHost,
   previousActive: Element | null
 ): boolean {
-  const active = element.ownerDocument.activeElement;
+  const active = deepestActiveElement(element.ownerDocument);
   if (active === previousActive) return true;
   return isDocumentFallback(active, element.ownerDocument);
 }
@@ -92,20 +97,62 @@ function nativeFocusTarget(element: HTMLElement): HTMLElement | undefined {
 
 function acceptsFocus(element: HTMLElement): boolean {
   if (!element.isConnected) return false;
-  if (isSelfBlocked(element)) return false;
-  return !isAncestorBlocked(element);
+  return !focusAncestry(element).some(blocksFocus);
 }
 
-function isSelfBlocked(element: HTMLElement): boolean {
-  return element.hidden || element.matches(":disabled");
+function focusAncestry(element: HTMLElement): readonly HTMLElement[] {
+  const ancestry: HTMLElement[] = [];
+  let current: HTMLElement | null = element;
+  while (current !== null) {
+    ancestry.push(current);
+    current = composedParent(current);
+  }
+  return ancestry;
 }
 
-function isAncestorBlocked(element: HTMLElement): boolean {
-  if (element.closest("[inert], [hidden]") !== null) return true;
-  return element.getAttribute("aria-hidden") === "true";
+function composedParent(element: HTMLElement): HTMLElement | null {
+  if (element.parentElement !== null) return element.parentElement;
+  const root = element.getRootNode() as Node & { readonly host?: Element };
+  return htmlHost(root.host);
 }
 
-function deepestActiveElement(document: Document): Element | null {
+function htmlHost(host: Element | undefined): HTMLElement | null {
+  return host instanceof HTMLElement ? host : null;
+}
+
+function blocksFocus(element: HTMLElement): boolean {
+  return isSemanticallyBlocked(element) || isVisuallyBlocked(element);
+}
+
+function isSemanticallyBlocked(element: HTMLElement): boolean {
+  return [
+    element.hidden || element.hasAttribute("inert"),
+    element.getAttribute("aria-hidden") === "true",
+    element.getAttribute("aria-disabled") === "true",
+    element.matches(":disabled, input[type='hidden']")
+  ].includes(true);
+}
+
+function isVisuallyBlocked(element: HTMLElement): boolean {
+  const style = computedStyle(element);
+  if (style === undefined) return false;
+  return [
+    style.display === "none",
+    style.visibility === "hidden",
+    style.visibility === "collapse",
+    style.contentVisibility === "hidden"
+  ].includes(true);
+}
+
+function computedStyle(element: HTMLElement): CSSStyleDeclaration | undefined {
+  try {
+    return element.ownerDocument.defaultView?.getComputedStyle(element);
+  } catch {
+    return undefined;
+  }
+}
+
+export function deepestActiveElement(document: Document): Element | null {
   let active = document.activeElement;
   let nested = shadowActiveElement(active);
   while (nested instanceof Element) {
@@ -113,6 +160,14 @@ function deepestActiveElement(document: Document): Element | null {
     nested = shadowActiveElement(active);
   }
   return active;
+}
+
+function tryFocus(target: HTMLElement): void {
+  try {
+    target.focus();
+  } catch {
+    return;
+  }
 }
 
 function shadowActiveElement(element: Element | null): Element | null {

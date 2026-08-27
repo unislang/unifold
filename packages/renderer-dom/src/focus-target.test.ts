@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { focusMayBeRetried, focusMayBeStarted, focusRenderedElement } from "./focus-target.js";
 import type { UnifoldElementHost } from "./types.js";
@@ -40,6 +40,27 @@ describe("rendered focus fallback", () => {
     expect(inert.hasAttribute("tabindex")).toBe(false);
   });
 
+  it("rejects semantic and CSS-hidden composed targets", () => {
+    expect(focusRenderedElement(hostWithInput("aria-hidden", "true"))).toBeUndefined();
+    expect(focusRenderedElement(hostWithInput("style", "display: none"))).toBeUndefined();
+    expect(focusRenderedElement(hostWithInput("style", "visibility: hidden"))).toBeUndefined();
+    const hiddenInput = connectedHost();
+    hiddenInput.innerHTML = "<input type='hidden'>";
+    expect(focusRenderedElement(hiddenInput)).toBeUndefined();
+  });
+});
+
+describe("rendered focus ownership", () => {
+  it("requires native focus to become the deepest active element", () => {
+    const host = connectedHost();
+    const button = document.createElement("button");
+    host.append(button);
+    vi.spyOn(button, "focus").mockImplementation(() => undefined);
+
+    expect(focusRenderedElement(host)).toBeUndefined();
+    expect(document.activeElement).not.toBe(button);
+  });
+
   it("does not retry after the user focuses another connected control", () => {
     const host = connectedHost();
     const root = host.attachShadow({ mode: "open" });
@@ -57,5 +78,14 @@ describe("rendered focus fallback", () => {
 function connectedHost(): UnifoldElementHost {
   const host = document.createElement("x-host") as UnifoldElementHost;
   document.body.append(host);
+  return host;
+}
+
+function hostWithInput(attribute: string, value: string): UnifoldElementHost {
+  const host = connectedHost();
+  const container = document.createElement("section");
+  container.setAttribute(attribute, value);
+  container.innerHTML = "<input>";
+  host.append(container);
   return host;
 }

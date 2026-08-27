@@ -1,6 +1,6 @@
 import { UiCommandType, type UiCommand } from "@unislang/unifold-events";
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
-import type { DomRenderController } from "@unislang/unifold-renderer-dom";
+import { FocusRestoreStatus, type DomRenderController } from "@unislang/unifold-renderer-dom";
 import type { UiExecutionContext } from "@unislang/unifold-runtime";
 
 import type { StoreCommandController } from "./store-command-port.js";
@@ -19,10 +19,15 @@ export class ApplicationCommandController implements StoreCommandController {
     if (command.type !== UiCommandType.FocusRequest)
       return this.storeCommands.execute(command, context);
     if (this.#renderer === undefined) throw new Error("Application renderer is not attached.");
-    return this.#renderer.restoreFocus(command.id);
+    return requireFocused(this.#renderer.restoreFocus(command.id));
   }
 
   replace(document: UnifoldIrDocument, stores: PreparedApplicationStores): void {
     this.storeCommands.replace(document, stores);
   }
+}
+
+async function requireFocused(settlement: Promise<FocusRestoreStatus>): Promise<void> {
+  if ((await settlement) === FocusRestoreStatus.Focused) return;
+  throw new Error("Focus request was not completed.");
 }

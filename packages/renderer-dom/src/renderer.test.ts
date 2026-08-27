@@ -9,7 +9,7 @@ import {
 import { UiValidationSeverity } from "@unislang/unifold-events";
 import { describe, expect, it } from "vitest";
 
-import { createNodeSnapshot, renderIrDocument } from "./index.js";
+import { createNodeSnapshot, FocusRestoreStatus, renderIrDocument } from "./index.js";
 
 describe("renderIrDocument", () => {
   it("preserves unrelated elements during a property-only update", preservesSibling);
@@ -33,18 +33,19 @@ async function preservesSibling(): Promise<void> {
 
 async function restoresFocus(): Promise<void> {
   const { container, controller } = await renderTestDocument();
-  await controller.restoreFocus("name");
+  await expect(controller.restoreFocus("missing")).resolves.toBe(FocusRestoreStatus.NotFocused);
+  await expect(controller.restoreFocus("name")).resolves.toBe(FocusRestoreStatus.Focused);
   const name = requiredElement(controller.getElement("name"));
   expect(activeElement(name)).toBe(requiredInput(name));
   requiredInput(name).blur();
-  await controller.restoreFocus("name", 0);
+  await expect(controller.restoreFocus("name", 0)).resolves.toBe(FocusRestoreStatus.Focused);
   expect(activeElement(name)).toBe(requiredInput(name));
   requiredInput(name).blur();
-  await controller.restoreFocus("name", 99);
+  await expect(controller.restoreFocus("name", 99)).resolves.toBe(FocusRestoreStatus.Focused);
   expect(activeElement(name)).toBe(requiredInput(name));
   requiredInput(name).disabled = true;
   requiredInput(name).blur();
-  await controller.restoreFocus("name", 0);
+  await expect(controller.restoreFocus("name", 0)).resolves.toBe(FocusRestoreStatus.NotFocused);
   expect(requiredInput(name).disabled).toBe(true);
   container.remove();
 }

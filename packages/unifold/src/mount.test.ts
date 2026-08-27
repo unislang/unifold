@@ -52,7 +52,7 @@ it("upgrades validated static DOM while preserving control state and focus", asy
     value: "Grace"
   });
   expect(Reflect.get(field, "value")).toBe("Grace");
-  expect(focus.mock.instances).toContain(requireShadowInput(field));
+  await vi.waitFor(() => expect(focus.mock.instances).toContain(requireShadowInput(field)));
   focus.mockRestore();
   expect(container.querySelector("input")).not.toBe(fallback);
   disposeApplication(application, container);

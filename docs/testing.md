@@ -396,7 +396,7 @@ the schema.org graph, checks leaf-only DOM projection, and runs axe. Do not use 
 for native-form assertions because it destroys repeated keys.
 
 The dedicated authored-collection lifecycle passed in the prior full Chromium reference matrix and
-passes the current focused Chromium/WebKit 2/2 rerun. It mounts a named repeat, inserts at index one, moves by durable key, removes the inserted
+passes the current focused Chromium/WebKit 4/4 rerun. It mounts a named repeat, inserts at index one, moves by durable key, removes the inserted
 control, and rejects an invalid successor at the last-known-good authored revision. Assertions cover
 exact authored/rendered order, retained edited value and host identity, next/previous focus transfer
 when the focused control is removed,
@@ -410,7 +410,11 @@ structural denial against installed tarballs before continuing ordinary interact
 update. The focused Chromium/WebKit journey also asserts the removed native input disappears, the
 adjacent native input is focused, the final-member removal focuses an authored `emptyFocusTarget`,
 and exactly one canonical focus-request target appears per focused removal in the public event
-observation. Compiler tests reject missing, self-referential, disabled, and non-focusable fallback
+observation. The same public observation now requires exactly one requested/completed effect pair
+for each verified focus. A second real-browser case CSS-hides the authored fallback and requires
+requested/failed settlement with no composed focus on that target. Renderer tests cover missing,
+semantic-hidden, CSS-hidden, disabled, inert, native-refused, replaced, pending-definition, and
+user-superseded targets. Compiler tests reject missing, self-referential, disabled, and non-focusable fallback
 targets. Contract/IR/module tests also prove closed `collectionBehaviors@1.0.0`, canonical IR
 `1.1.0`, artifact preservation, and application consumption without a prepared-sidecar dependency,
 while integration evidence links each focus transaction causally to its structural

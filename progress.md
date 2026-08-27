@@ -24,9 +24,13 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Latest published verification checkpoint:
   `0e7a549c61e6425379491e515bbf56fec334beac`
   (`docs: record empty collection focus checkpoint`).
+- Latest local implementation checkpoint:
+  `a065b629677dd65f47ad9334dceb326de988e04e`
+  (`feat: make collection behavior executable`); it has not been pushed.
 - Publication verification: live `git ls-remote origin refs/heads/main` resolved to
   `0e7a549c61e6425379491e515bbf56fec334beac`; local `HEAD` and `origin/main` matched that
-  verification checkpoint before this progress-only follow-up. The history also includes runtime isolation at
+  verification checkpoint before the local collection-behavior and focus-settlement work. The
+  history also includes runtime isolation at
   `5a9795e`, semantic owner isolation at `0b9d569`, and repository source-ownership gates at
   `a6b4b60`.
 - Current implementation: the Scratch-style public JSON contract supports explicit logical control
@@ -41,10 +45,12 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   member through the canonical post-commit focus effect. A named repeat may now declare a validated
   `emptyFocusTarget`; final-member removal transfers focus to that stable authored destination
   without making empty layout hosts focusable. Hierarchical repeated members namespace their root
-  and every descendant by durable key. The active worktree now promotes that safe fallback policy
+  and every descendant by durable key. The latest local checkpoint promotes that safe fallback policy
   through closed `collectionBehaviors@1.0.0`, canonical IR `1.1.0`, resolved module artifacts, and
   application focus selection. Private source-pointer/key mutation authority remains only in the
-  prepared document.
+  prepared document. The active worktree now makes DOM focus settlement truthful: the renderer
+  returns an enum result, verifies deepest composed focus after accepted pending definitions and
+  updates, and the application stream reports unavailable or refused focus as a failed effect.
   The bounded adopter CLI/starter,
   governed AI provider boundary, Studio dogfood workflow, multi-application semantic isolation,
   exact test colocation, re-export prevention, and completed reference/hierarchical/Studio module
@@ -59,6 +65,44 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - 1.0 traceability register: [`docs/acceptance-audit.md`](./docs/acceptance-audit.md)
 - Concise 34-criterion evidence register:
   [`docs/acceptance-status.md`](./docs/acceptance-status.md)
+
+## 2026-08-27 truthful DOM focus-effect tranche
+
+- Status: implemented and release-gate verified in the active worktree; local checkpointing and
+  publication remain. The overall goal remains active.
+- `DomRenderController.restoreFocus()` now returns enum-backed `FocusRestoreStatus`. `Focused` means
+  the current connected renderer host still owns a visible, enabled focus target and deepest
+  composed `activeElement` proves native focus succeeded. A missing host, empty or disabled target,
+  semantic/CSS hiding, native refusal, rejected definition, replacement, or user supersession
+  returns `NotFocused`.
+- Pending element definitions no longer falsely complete. The renderer waits for the registered
+  definition, requires the application definition policy to accept it, yields for property replay,
+  awaits host and ancestor updates, rechecks host identity, and does not steal focus if the user
+  moved during that work.
+- `ApplicationCommandController` translates `Focused` to normal promise completion and
+  `NotFocused` to a contained rejection. The existing runtime effect runner therefore publishes
+  exactly one `effect.completed.v1` only for verified focus and one `effect.failed.v1` for a normal
+  unavailable focus outcome without exposing DOM or error details.
+- Colocated tests cover visible success, missing and empty hosts, disabled/inert/ARIA/CSS-hidden and
+  hidden-input targets, native no-op focus, pending accepted/rejected definitions, deferred render
+  updates, current-host identity, and intervening user focus. The real application adapter test
+  proves exact requested/completed and requested/failed stream sequences.
+- The reference collection observer now records effect settlement rather than treating
+  `CommandApplied` as success. Its focused Playwright matrix passes 4/4 on Chromium/WebKit: verified
+  next/previous/empty-target focus produces requested/completed pairs, while a CSS-hidden authored
+  fallback produces requested/failed and never appears as composed focused state.
+- Focused verification passes 46 tests across eight renderer/application/reference files. Root
+  Vitest passes 610 files/1,648 tests; tooling passes 22/22; generated CEM/theme/module-lock scripts
+  pass; and performance correctness passes 39 files/50 tests with 32 profile files skipped.
+  Production and test TypeScript, lint/complexity, 350-line files, 30-line functions, exact
+  colocation, import/re-export ownership, formatting, unused-code analysis, and dependency analysis
+  over 2,443 modules/5,475 dependencies pass. All 40 production builds pass. The production
+  reference initial closure is 165,536 gzip bytes plus 84,965 deferred against the unchanged 190
+  KiB ceiling, and the rebuilt Playwright matrix passes 4/4 on Chromium/WebKit.
+- Explicit next boundaries: generic effects still lack per-effect lifecycle identity and distinct
+  deferred/rejected/cancelled statuses; hydration and migration focus are intentionally best-effort
+  outside the canonical stream. AC19 still needs post-runtime renderer rollback/event atomicity,
+  module-authored collection mutation, and the non-empty repeat identity rewrite.
 
 ## 2026-08-27 executable collection-behavior IR tranche
 
@@ -88,12 +132,11 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   bytes plus 84,990 deferred against the 190 KiB initial ceiling, and the focused collection journey
   passes 2/2 on Chromium/WebKit. All five committed module `irIntegrity` locks are regenerated and
   validated against IR `1.1.0`.
-- Explicit remaining boundaries: normalized module artifacts still lack original layout variables
+- Explicit remaining boundaries at that checkpoint: normalized module artifacts still lacked original layout variables
   and private source pointers, so they cannot authorize `applyCollectionOperation()`. Non-empty
   module repeats expose a generated logical-versus-escaped visual ID mismatch that requires one
-  identity-rewrite fix. DOM focus effects can still falsely complete for CSS-hidden/native-refused
-  targets or pending upgrades; truthful deepest-composed-focus settlement and Playwright negative
-  evidence remain next.
+  identity-rewrite fix. The newer truthful DOM focus-effect tranche above closes the previously
+  recorded CSS-hidden/native-refused/pending-upgrade settlement gap.
 
 ## 2026-08-27 focused authored-member removal tranche
 

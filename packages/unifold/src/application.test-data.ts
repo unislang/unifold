@@ -12,7 +12,11 @@ import {
 } from "@unislang/unifold-contracts";
 import { coreCatalog } from "@unislang/unifold-catalog";
 import { UiCommandType, UiEventType, type UiNodeSnapshot } from "@unislang/unifold-events";
-import { createNodeSnapshot, type DomRenderController } from "@unislang/unifold-renderer-dom";
+import {
+  createNodeSnapshot,
+  FocusRestoreStatus,
+  type DomRenderController
+} from "@unislang/unifold-renderer-dom";
 import { UnifoldRuntime } from "@unislang/unifold-runtime";
 import { createMachineCommandRegistry, createMachineGuardRegistry } from "@unislang/unifold-xstate";
 
@@ -140,7 +144,7 @@ function rendererWithFailures(failures: number): DomRenderController {
     dispose: noop,
     getElement: () => undefined,
     project: noop,
-    restoreFocus: () => Promise.resolve(),
+    restoreFocus: () => Promise.resolve(FocusRestoreStatus.NotFocused),
     update() {
       updateCount += 1;
       if (updateCount <= failures) throw new Error("Injected renderer failure.");

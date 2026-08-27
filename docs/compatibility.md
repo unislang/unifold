@@ -34,6 +34,13 @@ The compiler emits `UnifoldIr@1.1.0`. Existing `1.0.0` renderer fixtures remain 
 the unchanged node/render model, while `1.1.0` adds the canonical `collectionBehaviorsById` map.
 Persist authored JSON rather than IR and regenerate module IR-integrity locks after compiler upgrades.
 
+The prerelease DOM renderer now returns `Promise<FocusRestoreStatus>` from `restoreFocus`. `Focused`
+means deepest composed DOM focus was verified after pending definitions and render updates;
+`NotFocused` is a normal, non-throwing renderer outcome. The supported application command adapter
+maps `NotFocused` to the existing `effect.failed.v1` event and resolves only verified focus as
+`effect.completed.v1`. Direct best-effort hydration and migration callers may intentionally ignore
+the enum result without creating an unhandled rejection.
+
 ## Migration support
 
 `UiDocument@1.0.0` is the first contract candidate, so the framework intentionally ships no legacy

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import * as subject from "./types.js";
+import { FocusRestoreStatus } from "./types.js";
 
 describe("types module", () => {
-  it("loads through its colocated contract", () => {
-    expect(subject).toBeDefined();
+  it("defines closed focus settlement values", () => {
+    expect(Object.values(FocusRestoreStatus)).toEqual(["focused", "not-focused"]);
   });
 });

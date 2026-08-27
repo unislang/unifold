@@ -7,6 +7,7 @@ interface CollectionObservation {
   readonly alphaValue: unknown;
   readonly authoredKeys: readonly string[];
   readonly focusedId?: string;
+  readonly focusEffectTypes: readonly string[];
   readonly focusRequestIds: readonly string[];
   readonly lateRemovedEvents: number;
   readonly operationEventsCausal: boolean;
@@ -57,7 +58,35 @@ test("reconciles authored collections by durable key and drops stale async work"
   await assertEmptyFocusLifecycle(page);
 });
 
+test("reports CSS-hidden collection focus as a failed effect", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("data-unifold-readiness", "ready");
+  expect(await callHook(page, "mount")).toBe(UnifoldApplicationMountStatus.Mounted);
+  await advanceCollectionToRevisionFour(page);
+  await page.getByLabel("Alpha").focus();
+  expect(await callHook(page, "removeFocused")).toBe(UnifoldApplicationUpdateStatus.Applied);
+  await expect(page.getByLabel("Beta")).toBeFocused();
+  const add = page.getByRole("button", { name: "Add item" });
+  await add.evaluate((element) => ((element as HTMLElement).style.display = "none"));
+
+  expect(await callHook(page, "empty")).toBe(UnifoldApplicationUpdateStatus.Applied);
+  await expect
+    .poll(async () => (await observe(page)).focusEffectTypes)
+    .toEqual([
+      ...successfulFocusEffects(1),
+      "org.unifold.ui.effect.requested.v1",
+      "org.unifold.ui.effect.failed.v1"
+    ]);
+  expect((await observe(page)).focusedId).not.toBe("add-item");
+});
+
 type ScenarioPage = Parameters<typeof callHook>[0];
+
+async function advanceCollectionToRevisionFour(page: ScenarioPage): Promise<void> {
+  expect(await callHook(page, "insert")).toBe(UnifoldApplicationUpdateStatus.Applied);
+  expect(await callHook(page, "move")).toBe(UnifoldApplicationUpdateStatus.Applied);
+  expect(await callHook(page, "remove")).toBe(UnifoldApplicationUpdateStatus.Applied);
+}
 
 async function assertObservation(
   page: ScenarioPage,
@@ -85,6 +114,7 @@ async function assertFinalObservation(page: ScenarioPage): Promise<void> {
     alphaValue: "Edited",
     authoredKeys: ["b", "a"],
     focusedId: "field::a",
+    focusEffectTypes: successfulFocusEffects(1),
     focusRequestIds: ["field::a"],
     lateRemovedEvents: 0,
     operationEventsCausal: true,
@@ -101,6 +131,7 @@ async function assertEmptyFocusLifecycle(page: ScenarioPage): Promise<void> {
   expect(await observe(page)).toMatchObject({
     aggregateValue: ["Beta"],
     authoredKeys: ["b"],
+    focusEffectTypes: successfulFocusEffects(2),
     focusRequestIds: ["field::a", "field::b"],
     revision: "5"
   });
@@ -109,11 +140,19 @@ async function assertEmptyFocusLifecycle(page: ScenarioPage): Promise<void> {
   expect(await observe(page)).toMatchObject({
     aggregateValue: [],
     authoredKeys: [],
+    focusEffectTypes: successfulFocusEffects(3),
     focusRequestIds: ["field::a", "field::b", "add-item"],
     focusedId: "add-item",
     renderedIds: [],
     revision: "6"
   });
+}
+
+function successfulFocusEffects(count: number): readonly string[] {
+  return Array.from({ length: count }).flatMap(() => [
+    "org.unifold.ui.effect.requested.v1",
+    "org.unifold.ui.effect.completed.v1"
+  ]);
 }
 
 async function callHook(

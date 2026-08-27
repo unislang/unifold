@@ -4,14 +4,15 @@ import { defaultValidationMessage } from "@unislang/unifold-forms";
 import type { CoreComponentType, UnifoldIrDocument, UnifoldIrNode } from "@unislang/unifold-ir";
 
 import { applyBindings } from "./bindings.js";
-import { focusMayBeRetried, focusMayBeStarted, focusRenderedElement } from "./focus-target.js";
+import { restoreRenderedFocus } from "./focus-restore.js";
 import { createNodeSnapshot, createProjectedProperties } from "./snapshot.js";
-import type {
-  DomRenderController,
-  DomRendererOptions,
-  PendingElementDefinitionOptions,
-  RenderedNode,
-  UnifoldElementHost
+import {
+  FocusRestoreStatus,
+  type DomRenderController,
+  type DomRendererOptions,
+  type PendingElementDefinitionOptions,
+  type RenderedNode,
+  type UnifoldElementHost
 } from "./types.js";
 
 export function renderIrDocument(
@@ -92,10 +93,16 @@ class DomRenderer implements DomRenderController {
     rendered.properties = properties;
   }
 
-  async restoreFocus(nodeId: string, controlIndex?: number): Promise<void> {
-    const element = this.getElement(nodeId) as UnifoldElementHost | undefined;
-    if (element === undefined) return;
-    await completeFocusRestore(element, controlIndex);
+  restoreFocus(nodeId: string, controlIndex?: number) {
+    const rendered = this.nodes.get(nodeId);
+    if (rendered === undefined) return Promise.resolve(FocusRestoreStatus.NotFocused);
+    return restoreRenderedFocus({
+      controlIndex,
+      currentElement: () => this.nodes.get(nodeId)?.element,
+      element: rendered.element,
+      pendingDefinitions: this.pendingDefinitions,
+      tagName: rendered.descriptor.tagName
+    });
   }
 
   private createElement(id: string, document: UnifoldIrDocument): UnifoldElementHost {
@@ -276,67 +283,6 @@ function placeChild(parent: HTMLElement, child: HTMLElement, index: number): voi
 
 function childContainer(element: UnifoldElementHost): HTMLElement {
   return element.unifoldChildContainer ?? element;
-}
-
-function pendingAncestorUpdates(element: UnifoldElementHost): readonly Promise<boolean>[] {
-  const updates: Promise<boolean>[] = [];
-  let current: HTMLElement | null = element.parentElement;
-  while (current !== null) {
-    const update = (current as UnifoldElementHost).updateComplete;
-    if (update !== undefined) updates.push(update);
-    current = current.parentElement;
-  }
-  return updates;
-}
-
-async function completeFocusRestore(
-  element: UnifoldElementHost,
-  controlIndex: number | undefined
-): Promise<void> {
-  const ancestorUpdates = pendingAncestorUpdates(element);
-  const active = element.ownerDocument.activeElement;
-  const initial = focusRenderedElement(element, controlIndex);
-  await element.updateComplete;
-  const refreshed = focusAfterUpdate(element, initial, active, controlIndex);
-  if (refreshed === undefined) return;
-  await Promise.all(ancestorUpdates);
-  retryFinalFocus(element, refreshed, controlIndex);
-}
-
-function focusAfterUpdate(
-  element: UnifoldElementHost,
-  initial: HTMLElement | undefined,
-  previousActive: Element | null,
-  controlIndex: number | undefined
-): HTMLElement | undefined {
-  if (initial !== undefined) return retryFocus(element, initial, controlIndex);
-  return startFocusAfterUpdate(element, previousActive, controlIndex);
-}
-
-function startFocusAfterUpdate(
-  element: UnifoldElementHost,
-  previousActive: Element | null,
-  controlIndex: number | undefined
-): HTMLElement | undefined {
-  if (!focusMayBeStarted(element, previousActive)) return undefined;
-  return focusRenderedElement(element, controlIndex);
-}
-
-function retryFocus(
-  element: UnifoldElementHost,
-  target: HTMLElement,
-  controlIndex: number | undefined
-): HTMLElement | undefined {
-  if (!focusMayBeRetried(element, target)) return undefined;
-  return focusRenderedElement(element, controlIndex) ?? target;
-}
-
-function retryFinalFocus(
-  element: UnifoldElementHost,
-  target: HTMLElement,
-  controlIndex: number | undefined
-): void {
-  if (focusMayBeRetried(element, target)) focusRenderedElement(element, controlIndex);
 }
 
 function resolveText(value: string | undefined, fallback: string): string {

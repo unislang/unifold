@@ -1,5 +1,12 @@
-import { UiCommandType, type UiCommand } from "@unislang/unifold-events";
-import type { UiExecutionContext } from "@unislang/unifold-runtime";
+import {
+  UiCommandType,
+  UiEventPhase,
+  UiEventType,
+  type UiCommand,
+  type UiEvent
+} from "@unislang/unifold-events";
+import { FocusRestoreStatus } from "@unislang/unifold-renderer-dom";
+import { UnifoldRuntime, type UiExecutionContext } from "@unislang/unifold-runtime";
 import { describe, expect, it, vi } from "vitest";
 
 import { ApplicationCommandController } from "./application-command-port.js";
@@ -9,7 +16,7 @@ const context = {} as Required<UiExecutionContext>;
 
 describe("ApplicationCommandController", () => {
   it("routes focus requests to the attached renderer", async () => {
-    const restoreFocus = vi.fn(() => Promise.resolve());
+    const restoreFocus = vi.fn(() => Promise.resolve(FocusRestoreStatus.Focused));
     const fallback = commandController();
     const commands = new ApplicationCommandController(fallback);
     commands.attach({ restoreFocus });
@@ -20,6 +27,18 @@ describe("ApplicationCommandController", () => {
     expect(fallback.execute).not.toHaveBeenCalled();
   });
 
+  it("rejects a renderer result that did not acquire focus", async () => {
+    const restoreFocus = vi.fn(() => Promise.resolve(FocusRestoreStatus.NotFocused));
+    const commands = new ApplicationCommandController(commandController());
+    commands.attach({ restoreFocus });
+
+    await expect(
+      commands.execute({ id: "missing", type: UiCommandType.FocusRequest }, context)
+    ).rejects.toThrow("Focus request was not completed.");
+  });
+});
+
+describe("ApplicationCommandController fallback and settlement", () => {
   it("forwards non-focus commands and document replacement", () => {
     const fallback = commandController();
     const commands = new ApplicationCommandController(fallback);
@@ -38,7 +57,31 @@ describe("ApplicationCommandController", () => {
 
     expect(() => commands.execute(focus, context)).toThrow("Application renderer is not attached.");
   });
+
+  it("maps verified renderer focus to truthful runtime effect settlement", async () => {
+    await expectFocusSettlement(FocusRestoreStatus.Focused, UiEventType.EffectCompleted);
+    await expectFocusSettlement(FocusRestoreStatus.NotFocused, UiEventType.EffectFailed);
+  });
 });
+
+async function expectFocusSettlement(
+  status: FocusRestoreStatus,
+  terminal: UiEventType
+): Promise<void> {
+  const commands = new ApplicationCommandController(commandController());
+  commands.attach({ restoreFocus: () => Promise.resolve(status) });
+  const runtime = new UnifoldRuntime({ commandPort: commands, documentId: "focus-effects" });
+  const events: UiEvent[] = [];
+  runtime.events$.subscribe((event) => events.push(event));
+
+  runtime.execute([{ id: "target", type: UiCommandType.FocusRequest }]);
+  await vi.waitFor(() => expect(effectTypes(events)).toContain(terminal));
+  expect(effectTypes(events)).toEqual([UiEventType.EffectRequested, terminal]);
+}
+
+function effectTypes(events: readonly UiEvent[]): readonly string[] {
+  return events.filter(({ data }) => data.phase === UiEventPhase.Effect).map(({ type }) => type);
+}
 
 function commandController(): StoreCommandController {
   return { execute: vi.fn(), replace: vi.fn() };

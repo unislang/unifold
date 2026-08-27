@@ -161,7 +161,12 @@ Focused-member removal now resolves the removed root from logical `controlChildI
 member at the removed index or the preceding member when the removed member was last, and issues one
 canonical `focus.request` only after renderer, machine, and semantic commit succeed. The DOM resolver
 finds the first enabled composed control through nested layout hosts and does not fabricate a focus
-stop on an empty container. A named repeated node may instead declare `emptyFocusTarget` with the
+stop on an empty container. Its enum-backed settlement reports success only after accepted pending
+definitions and host/ancestor updates settle, the rendered host identity remains current, and the
+deepest composed active element proves native focus was acquired. Missing, semantically or
+CSS-hidden, disabled, native-refused, replaced, or user-superseded targets map to the existing
+canonical failed-effect fact rather than false completion. A named repeated node may instead declare
+`emptyFocusTarget` with the
 stable ID of a distinct authored node. Compilation rejects missing, self-referential, disabled, or
 non-focus-capable targets; the mounted update also verifies that a usable target remains in the
 candidate runtime before committing final-member removal. The resulting focus transaction names the
@@ -171,8 +176,8 @@ canonicalizes it by collection ID, and application focus selection consumes that
 private prepared-document sidecar. Source pointers, key properties, and declaration pointers remain
 compiler-private mutation authority. Resolved module artifacts preserve the safe behavior projection,
 but do not yet preserve enough original layout state to authorize structural mutation.
-Invalid authored input rejects before commit; post-runtime renderer failure,
-compensation, and unified-event atomicity still need browser proof. Representative large authored
+Invalid authored input rejects before commit; post-runtime renderer compensation and unified-event
+atomicity still need browser proof. Representative large authored
 collection end-to-end mutation performance remains broader than the 500-item compile/revision gates. Composition control declarations currently
 reuse visual-node provenance by ID rather than publishing exact `/controls/nodes/N` source records,
 and migration compatibility does not yet compare logical aggregate shape. Live wrapper-refactor

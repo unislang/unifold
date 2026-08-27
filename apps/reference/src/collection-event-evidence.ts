@@ -1,5 +1,5 @@
 import { UiCollectionOperationType } from "@unislang/unifold-contracts";
-import { UiCommandType, UiEventType, type UiEvent } from "@unislang/unifold-events";
+import { UiCommandType, UiEventPhase, UiEventType, type UiEvent } from "@unislang/unifold-events";
 
 export function collectionOperationTypes(events: readonly UiEvent[]): UiCollectionOperationType[] {
   return events.flatMap((event) => optionalOperationType(eventCollectionOperationType(event)));
@@ -7,6 +7,14 @@ export function collectionOperationTypes(events: readonly UiEvent[]): UiCollecti
 
 export function focusRequestIds(events: readonly UiEvent[]): string[] {
   return events.flatMap(focusRequestId);
+}
+
+export function focusEffectTypes(events: readonly UiEvent[]): string[] {
+  return events.filter(isFocusEffect).map(({ type }) => type);
+}
+
+function isFocusEffect(event: UiEvent): boolean {
+  return event.data.phase === UiEventPhase.Effect && isFocusRequest(record(event.data.change));
 }
 
 function focusRequestId(event: UiEvent): readonly string[] {

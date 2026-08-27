@@ -69,7 +69,7 @@ it("migrates dirty and focused state across an exact versioned export rename", a
   expect(application.runtime.getSnapshot("editor::new-field")).toMatchObject({
     control: { dirty: true, value: "User value" }
   });
-  expect(focus.mock.instances).toContain(requireInput(newField));
+  await vi.waitFor(() => expect(focus.mock.instances).toContain(requireInput(newField)));
   focus.mockRestore();
   expect(() => application.runtime.getSnapshot("editor::old-field")).toThrow("Unknown node");
   application.dispose();

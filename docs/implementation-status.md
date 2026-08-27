@@ -167,7 +167,7 @@ described by the complete 1.0 plan.
   Logical aggregate disable cascading now preserves separate own/effective intent, cancels stale
   validation, and has 10k plus Chromium native-form evidence. Named Scratch repeats now compile
   bounded authored collection authority coupled to explicit logical Array/Record controls. The
-  previous full Chromium reference pass and current focused Chromium/WebKit 2/2 rerun include mounted
+  previous full Chromium reference pass and current focused Chromium/WebKit 4/4 rerun include mounted
   insert/move/remove/rejection, exact authored/rendered ordering, retained dirty value, stable host
   and surviving focus, causal structural metadata, and zero late events from a non-cooperative
   validator after its control is removed. Frozen mounted runtime/renderer capabilities deny raw
@@ -178,7 +178,13 @@ described by the complete 1.0 plan.
   removal to a distinct stable focus-capable authored node and preserves structural-to-focus causal
   lineage in Chromium/WebKit. The safe behavior now lowers through closed
   `collectionBehaviors@1.0.0`, canonical IR `1.1.0`, module artifacts, and application focus
-  selection; private source-pointer/key authority remains confined to prepared documents.
+  selection; private source-pointer/key authority remains confined to prepared documents. DOM
+  focus restoration now returns the enum-backed `FocusRestoreStatus`, waits for accepted pending
+  definitions and render updates, rechecks host identity, respects intervening user focus, and
+  verifies deepest composed active focus. The application command adapter publishes exactly one
+  completed effect only for `Focused`; missing, hidden, disabled, native-refused, or superseded
+  targets produce the existing failed-effect outcome. Focused Chromium/WebKit 4/4 evidence covers
+  both successful collection focus and a CSS-hidden authored fallback.
   Post-runtime renderer rollback/event atomicity, module-authored collection mutation and non-empty
   repeat identity rewriting, end-to-end authored-collection mutation
   performance, exact composition-control provenance/migration shape, a rendered composition mount,
