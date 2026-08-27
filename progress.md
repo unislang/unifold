@@ -17,15 +17,13 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-27
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest published checkpoint:
-  `94408ad6c099c6dc61f1a444aae1107fe3f5a032`
-  (`docs: record effect lifecycle publication`) on `https://github.com/unislang/unifold.git`.
-- Latest local checkpoint: `94408ad6c099c6dc61f1a444aae1107fe3f5a032`; the atomic
-  application-update tranche described below is implemented in the worktree and is not yet
-  checkpointed or published.
-- Publication verification: the preceding checkpoint was verified on `unifold/main`. Re-run live
-  `git ls-remote origin refs/heads/main` after publishing this tranche and replace this note with the
-  exact implementation and verification commit hashes. The history also includes runtime isolation at
+- Latest published implementation checkpoint:
+  `0c3930fab7f17272d773f289114ceb6dc7935987`
+  (`feat: coordinate atomic application updates`) on `https://github.com/unislang/unifold.git`.
+- Publication verification: after the implementation push, live
+  `git ls-remote origin refs/heads/main` resolved exactly to
+  `0c3930fab7f17272d773f289114ceb6dc7935987`. This progress-only follow-up records that evidence and
+  the remaining gates. The history also includes runtime isolation at
   `5a9795e`, semantic owner isolation at `0b9d569`, and repository source-ownership gates at
   `a6b4b60`.
 - Current implementation: the Scratch-style public JSON contract supports explicit logical control
@@ -65,9 +63,9 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 
 ## 2026-08-27 atomic application-update tranche
 
-- Status: implemented and checkpoint-ready; the overall goal remains active. All tranche-specific
-  gates pass. The broader managed-Firefox environment and Studio bundle budget remain open and are
-  recorded below.
+- Status: implemented, committed, pushed, and verified on `unifold/main`; the overall goal remains
+  active. All tranche-specific gates pass. The broader managed-Firefox environment and Studio bundle
+  budget remain open and are recorded below.
 - `NormalizedNodeStore` now exposes one exact savepoint scope. Candidate transactions may advance
   coordinator-visible state, but records and selection notifications remain hidden. Commit retains
   the candidate and refreshes affected selections once; discard restores state, revision, metrics,
