@@ -184,8 +184,11 @@ canonicalizes it by collection ID, and application focus selection consumes that
 private prepared-document sidecar. Source pointers, key properties, and declaration pointers remain
 compiler-private mutation authority. Resolved module artifacts preserve the safe behavior projection,
 but do not yet preserve enough original layout state to authorize structural mutation.
-Invalid authored input rejects before commit; post-runtime renderer compensation and unified-event
-atomicity still need browser proof. Representative large authored
+Invalid authored input rejects before commit. Valid structural candidates use an exact normalized
+savepoint and runtime publication outbox: renderer, Schema.org publication, and atomic XState actor
+replacement must all succeed before canonical facts, effects, store writes, or validation can
+escape. Chromium and WebKit failure/retry journeys prove prior state, DOM identity, focus, semantic
+graph, revision, and sequence continuity with no candidate or compensation facts. Representative large authored
 collection end-to-end mutation performance remains broader than the 500-item compile/revision gates. Composition control declarations currently
 reuse visual-node provenance by ID rather than publishing exact `/controls/nodes/N` source records,
 and migration compatibility does not yet compare logical aggregate shape. Live wrapper-refactor
@@ -365,12 +368,18 @@ actor ownership is discarded. The DOM renderer performs keyed subtree insertion,
 replacement, reparenting, and ordering while preserving unrelated element identity and focus.
 
 `@unislang/unifold` coordinates revised authored documents. It fully re-expands and compiles a
-candidate, preflights renderer compatibility, and sends one atomic `structure.reconcile` command.
+candidate, preflights renderer compatibility, and opens one exclusive runtime coordination scope.
+The normalized store advances tentatively while transaction records and selection notifications stay
+hidden. Renderer projection, owned Schema.org JSON-LD, and replacement XState actors are prepared
+against that candidate. Commit retains the candidate graph, removes obsolete owners, installs staged
+actors, then drains canonical facts in sequence order before effects, store writes, and validation.
+Discard restores the exact prior revision, graph, records, selection state, rules, bindings,
+composition authority, actor set, and event sequence without publishing compensation events.
 Compatible dirty controls retain user values and interaction state; pristine controls adopt revised
 defaults. Keyed hosts, focus, subscriptions, manifests, and actor ownership follow node lifetimes.
-Invalid candidates retain the last-known-good application, and a post-commit renderer failure is
-compensated by reconciling the prior document. Incremental subtree compilation remains a measured
-optimization, not a correctness dependency.
+Invalid or downstream-rejected candidates retain the last-known-good application. If restoring a
+mutated peripheral surface fails, the application quarantines and emits only `runtime.disposed.v1`.
+Incremental subtree compilation remains a measured optimization, not a correctness dependency.
 
 The stable `data-unifold-node-id` attribute identifies a rendered host. `data-unifold-render-count` is a diagnostic contract used to prove both expected updates and important non-updates; applications must not use it as business state.
 The Chromium scale journey observes every host at 1,000 and 10,000 nodes and requires one target

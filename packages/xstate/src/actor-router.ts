@@ -21,7 +21,7 @@ export class XStateEventRouter {
   route(event: UiEvent): void {
     const actors = this.resolveActors(event);
     const actorEvent = toXStateEvent(event);
-    actors.forEach((actor) => actor.send(actorEvent));
+    actors.forEach((actor) => this.sendSafely(actor, actorEvent));
   }
 
   clear(): void {
@@ -37,6 +37,14 @@ export class XStateEventRouter {
     if (!actors) return;
     actors.delete(actor);
     this.removeEmptyOwner(id, actors);
+  }
+
+  private sendSafely(actor: UiActorRef, event: UiXStateEvent): void {
+    try {
+      actor.send(event);
+    } catch {
+      // Actor adapters observe committed facts and cannot invalidate their publication.
+    }
   }
 
   private removeEmptyOwner(id: UiNodeId, actors: Set<UiActorRef>): void {

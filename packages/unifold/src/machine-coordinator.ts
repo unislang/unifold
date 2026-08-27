@@ -24,6 +24,23 @@ interface MachineRecord {
   readonly unregister: () => void;
 }
 
+interface StagedMachineRecord {
+  readonly actor: UiMachineActor;
+  readonly bindings: Readonly<Record<string, UiNodeEventBindings>>;
+  readonly key: string;
+  readonly ownerId: string;
+}
+
+interface MachineCandidate {
+  readonly id: string;
+  readonly retained?: MachineRecord;
+  readonly staged?: StagedMachineRecord;
+}
+
+interface UiMachineActorRegistrar {
+  registerActor(id: string, actor: UiActorRef): () => void;
+}
+
 const BINDING_BY_EVENT_TYPE: Readonly<Record<string, UiComponentEventBinding>> = {
   [ElementEventType.ComponentActivated]: UiComponentEventBinding.Activated,
   [ElementEventType.ControlBlurred]: UiComponentEventBinding.Blurred,
@@ -54,16 +71,18 @@ export class UiMachineCoordinator {
 
   replace(
     definitions: readonly UiMachineDefinition[],
-    nodes: Readonly<Record<string, UnifoldIrNode>>
+    nodes: Readonly<Record<string, UnifoldIrNode>>,
+    registrar: UiMachineActorRegistrar = this.runtime
   ): void {
-    const next = new Map<string, MachineRecord>();
-    definitions.forEach((definition) =>
-      next.set(definition.id, this.nextRecord(definition, nodes))
-    );
-    this.records.forEach((record, id) => {
-      if (next.get(id) !== record) stopRecord(record);
-    });
+    const candidates = this.stageCandidates(definitions, nodes);
+    const next = this.registerCandidates(candidates, registrar);
+    const previous = this.records;
     this.records = next;
+    try {
+      stopObsoleteRecords(previous, next);
+    } catch (error) {
+      throw configurationError(error);
+    }
   }
 
   state(id: string): JsonValue {
@@ -77,21 +96,71 @@ export class UiMachineCoordinator {
     this.records.clear();
   }
 
-  private nextRecord(
+  private stageCandidates(
+    definitions: readonly UiMachineDefinition[],
+    nodes: Readonly<Record<string, UnifoldIrNode>>
+  ): readonly MachineCandidate[] {
+    const candidates: MachineCandidate[] = [];
+    try {
+      requireUniqueMachineIds(definitions);
+      definitions.forEach((definition) => candidates.push(this.stageCandidate(definition, nodes)));
+      return candidates;
+    } catch (error) {
+      stopCandidateActors(candidates);
+      throw configurationError(error);
+    }
+  }
+
+  private stageCandidate(
     definition: UiMachineDefinition,
     nodes: Readonly<Record<string, UnifoldIrNode>>
-  ): MachineRecord {
+  ): MachineCandidate {
     const bindings = bindingsForOwner(definition.ownerId, nodes);
     const key = JSON.stringify([definition, bindings]);
     const current = this.records.get(definition.id);
-    if (current?.key === key) return current;
-    const actor = this.createActor(definition);
-    const unregister = this.runtime.registerActor(
-      definition.ownerId,
-      bindingActor(actor, bindings)
+    if (current?.key === key) return { id: definition.id, retained: current };
+    const actor = this.createStartedActor(definition);
+    return {
+      id: definition.id,
+      staged: { actor, bindings, key, ownerId: definition.ownerId }
+    };
+  }
+
+  private registerCandidates(
+    candidates: readonly MachineCandidate[],
+    registrar: UiMachineActorRegistrar
+  ): Map<string, MachineRecord> {
+    const next = new Map<string, MachineRecord>();
+    const registered: MachineRecord[] = [];
+    const pending = new Set(candidates.flatMap(candidateActor));
+    try {
+      candidates.forEach((candidate) =>
+        next.set(candidate.id, this.registerCandidate(candidate, registered, pending, registrar))
+      );
+      return next;
+    } catch (error) {
+      registered.forEach(safelyStopRecord);
+      pending.forEach(safelyStopActor);
+      throw configurationError(error);
+    }
+  }
+
+  private registerCandidate(
+    candidate: MachineCandidate,
+    registered: MachineRecord[],
+    pending: Set<UiMachineActor>,
+    registrar: UiMachineActorRegistrar
+  ): MachineRecord {
+    if (candidate.retained !== undefined) return candidate.retained;
+    const staged = requireStagedRecord(candidate);
+    const unregister = registrar.registerActor(
+      staged.ownerId,
+      bindingActor(staged.actor, staged.bindings)
     );
-    actor.start();
-    return { actor, key, unregister };
+    const record = { actor: staged.actor, key: staged.key, unregister };
+    registered.push(record);
+    pending.delete(staged.actor);
+    return record;
   }
 
   private createActor(definition: UiMachineDefinition): UiMachineActor {
@@ -102,6 +171,12 @@ export class UiMachineCoordinator {
       this.guards,
       (id) => runtimeSnapshot(this.runtime, id)
     );
+  }
+
+  private createStartedActor(definition: UiMachineDefinition): UiMachineActor {
+    const actor = this.createActor(definition);
+    startMachineActor(actor);
+    return actor;
   }
 }
 
@@ -178,6 +253,52 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "Invalid machine configuration.";
 }
 
+function configurationError(error: unknown): UiMachineConfigurationError {
+  if (error instanceof UiMachineConfigurationError) return error;
+  return new UiMachineConfigurationError(errorMessage(error));
+}
+
+function requireUniqueMachineIds(definitions: readonly UiMachineDefinition[]): void {
+  const ids = definitions.map(({ id }) => id);
+  if (new Set(ids).size === ids.length) return;
+  throw new UiMachineConfigurationError("Machine definitions must have unique IDs.");
+}
+
+function candidateActor(candidate: MachineCandidate): readonly UiMachineActor[] {
+  return candidate.staged === undefined ? [] : [candidate.staged.actor];
+}
+
+function requireStagedRecord(candidate: MachineCandidate): StagedMachineRecord {
+  if (candidate.staged !== undefined) return candidate.staged;
+  throw new UiMachineConfigurationError(`Machine candidate is incomplete: ${candidate.id}.`);
+}
+
+function stopCandidateActors(candidates: readonly MachineCandidate[]): void {
+  candidates.flatMap(candidateActor).forEach(safelyStopActor);
+}
+
+function stopObsoleteRecords(
+  previous: ReadonlyMap<string, MachineRecord>,
+  next: ReadonlyMap<string, MachineRecord>
+): void {
+  const failures: unknown[] = [];
+  previous.forEach((record, id) => stopObsoleteRecord(record, next.get(id), failures));
+  if (failures[0] !== undefined) throw failures[0];
+}
+
+function stopObsoleteRecord(
+  previous: MachineRecord,
+  next: MachineRecord | undefined,
+  failures: unknown[]
+): void {
+  if (previous === next) return;
+  try {
+    stopRecord(previous);
+  } catch (error) {
+    failures.push(error);
+  }
+}
+
 function executeCausedCommands(
   runtime: UnifoldRuntime,
   commands: readonly UiCommand[],
@@ -192,6 +313,34 @@ function executeCausedCommands(
 }
 
 function stopRecord(record: MachineRecord): void {
-  record.unregister();
-  record.actor.stop();
+  try {
+    record.unregister();
+  } finally {
+    record.actor.stop();
+  }
+}
+
+function safelyStopRecord(record: MachineRecord): void {
+  try {
+    stopRecord(record);
+  } catch {
+    // Preserve the replacement failure while attempting every staged cleanup.
+  }
+}
+
+function safelyStopActor(actor: UiMachineActor): void {
+  try {
+    actor.stop();
+  } catch {
+    // Preserve the replacement failure while attempting every staged cleanup.
+  }
+}
+
+function startMachineActor(actor: UiMachineActor): void {
+  try {
+    actor.start();
+  } catch (error) {
+    safelyStopActor(actor);
+    throw error;
+  }
 }

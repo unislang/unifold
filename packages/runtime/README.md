@@ -27,6 +27,20 @@ runtime.execute([
 All state commands in one `execute` call commit at one revision. Canonical facts
 are published only after snapshots and selections expose the complete commit.
 Non-state commands are sent to an optional `UiCommandPort` only after the state transaction commits.
+
+Multi-package application updates use `beginCoordination()` as one exclusive publication boundary.
+Only the returned handle may execute commands while the boundary is open; ordinary runtime handles,
+selection creation, actor registration, intent ingestion, and direct execution fail closed. Candidate
+snapshots and revisions remain readable by the coordinator, while canonical facts, XState routing,
+store writes, command-port effects, owner cleanup, and async-validation starts wait for resolution.
+`discard()` restores the prior graph revision, event sequence, derived-rule program, store bindings,
+and composition manifests without publishing or invoking effects. `commit()` publishes the committed
+facts in sequence order before effects and validation. Actors registered through the coordination
+handle are staged until old owners are removed, then installed before the fact flush; actor-triggered
+reentrant execution appends behind every already-buffered lower-sequence fact. Actor adapters are
+isolated observers: one adapter exception cannot interrupt sibling routing or invalidate an already
+committed fact.
+
 The command fact, `EffectRequested`, and its `EffectCompleted` or `EffectFailed` terminal share one
 opaque CloudEvents `subject`. The same value is the required `effectId` in the port's
 `UiEffectExecutionContext`, so concurrent identical effects remain joinable even when asynchronous

@@ -77,8 +77,17 @@ function startReference(
 
 async function installReferenceTestHooks(application: UnifoldApplicationPort): Promise<void> {
   if (!testHooksEnabled) return;
-  await Promise.all([import("./collection-fixture.js"), import("./store-fixture.js")]);
+  const [, , atomicity] = await Promise.all([
+    import("./collection-fixture.js"),
+    import("./store-fixture.js"),
+    import("./reference-update-atomicity.js")
+  ]);
   installPrototypeHooks(application);
+  const target = window as unknown as PrototypeWindow;
+  target.__unifoldProbeAtomicUpdate = atomicity.createReferenceAtomicUpdateProbe(
+    application,
+    () => target.__unifoldCapturedEvents
+  );
 }
 
 async function installReferenceStateAuthorityOracle(

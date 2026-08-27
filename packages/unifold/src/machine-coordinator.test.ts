@@ -4,7 +4,7 @@ import { UnifoldRuntime } from "@unislang/unifold-runtime";
 import { expect, it, vi } from "vitest";
 
 import { prepareUnifoldDocument } from "./compiler.js";
-import { UiMachineCoordinator } from "./machine-coordinator.js";
+import { UiMachineConfigurationError, UiMachineCoordinator } from "./machine-coordinator.js";
 import {
   authoredDocument,
   workflowCommandRegistry,
@@ -26,6 +26,60 @@ it("retains unchanged actors and emits causally linked runtime commands", () => 
   coordinator.replace(prepared.document.machines, prepared.document.nodesById);
   expect(coordinator.state("profile-workflow")).toBe("saved");
   expectCausalCommand(events);
+  coordinator.dispose();
+  runtime.dispose();
+});
+
+it("cleans staged registrations and retains exact old routes after replacement fails", () => {
+  const definitions = repeatableWorkflowDefinitions("1.0.0");
+  const prepared = requirePrepared({ ...authoredDocument(), machines: definitions });
+  const runtime = runtimeFor(prepared.document);
+  const coordinator = new UiMachineCoordinator(runtime, workflowCommandRegistry());
+  coordinator.replace(definitions, prepared.document.nodesById);
+  const events: UiEvent[] = [];
+  runtime.events$.subscribe((event) => events.push(event));
+  const registration = failSecondRegistration(runtime);
+
+  expect(() =>
+    coordinator.replace(
+      repeatableWorkflowDefinitions("2.0.0"),
+      prepared.document.nodesById,
+      registration.registrar
+    )
+  ).toThrow(UiMachineConfigurationError);
+  expect(registration.unregister).toHaveBeenCalledOnce();
+  expect([coordinator.state("workflow-one"), coordinator.state("workflow-two")]).toEqual([
+    "editing",
+    "editing"
+  ]);
+
+  runtime.execute([{ id: "form", type: UiCommandType.FormSubmit }]);
+  expect(patchCommandCount(events)).toBe(2);
+  coordinator.replace(repeatableWorkflowDefinitions("2.0.0"), prepared.document.nodesById);
+  events.length = 0;
+  runtime.execute([{ id: "form", type: UiCommandType.FormSubmit }]);
+  expect(patchCommandCount(events)).toBe(2);
+  coordinator.dispose();
+  runtime.dispose();
+});
+
+it("does not register any candidate when later actor creation fails", () => {
+  const definitions = repeatableWorkflowDefinitions("1.0.0");
+  const prepared = requirePrepared({ ...authoredDocument(), machines: definitions });
+  const runtime = runtimeFor(prepared.document);
+  const coordinator = new UiMachineCoordinator(runtime, workflowCommandRegistry());
+  coordinator.replace(definitions, prepared.document.nodesById);
+  const register = vi.spyOn(runtime, "registerActor");
+  const invalid = [repeatableWorkflowDefinition("workflow-one", "2.0.0"), invalidWorkflow()];
+
+  expect(() => coordinator.replace(invalid, prepared.document.nodesById)).toThrow(
+    UiMachineConfigurationError
+  );
+  expect(register).not.toHaveBeenCalled();
+  expect([coordinator.state("workflow-one"), coordinator.state("workflow-two")]).toEqual([
+    "editing",
+    "editing"
+  ]);
   coordinator.dispose();
   runtime.dispose();
 });
@@ -62,6 +116,69 @@ function withMachine(
   definition = workflowDefinition()
 ) {
   return { ...source, machines: [definition] };
+}
+
+function repeatableWorkflowDefinitions(version: string) {
+  return [
+    repeatableWorkflowDefinition("workflow-one", version),
+    repeatableWorkflowDefinition("workflow-two", version)
+  ];
+}
+
+function repeatableWorkflowDefinition(id: string, version: string) {
+  const definition = workflowDefinition();
+  return {
+    ...definition,
+    id,
+    states: {
+      ...definition.states,
+      saved: {
+        on: {
+          [UiEventType.FormSubmitted]: { commands: ["show-saved"], target: "saved" }
+        }
+      }
+    },
+    version
+  };
+}
+
+function invalidWorkflow() {
+  const definition = repeatableWorkflowDefinition("workflow-two", "2.0.0");
+  return {
+    ...definition,
+    states: {
+      ...definition.states,
+      editing: {
+        on: {
+          [UiEventType.FormSubmitted]: { commands: ["missing-command"], target: "saved" }
+        }
+      }
+    }
+  };
+}
+
+function failSecondRegistration(runtime: UnifoldRuntime) {
+  const register = runtime.registerActor.bind(runtime);
+  const unregister = vi.fn();
+  let attempts = 0;
+  const registrar = {
+    registerActor(id: string, actor: Parameters<UnifoldRuntime["registerActor"]>[1]) {
+      attempts += 1;
+      if (attempts === 2) throw new Error("Injected registration failure.");
+      const remove = register(id, actor);
+      return () => {
+        unregister();
+        remove();
+      };
+    }
+  };
+  return { registrar, unregister };
+}
+
+function patchCommandCount(events: readonly UiEvent[]): number {
+  return events.filter(
+    (event) => commandType(event.data.change) === UiCommandType.NodePatchProperties
+  ).length;
 }
 
 function expectMachineEffectIdentity(

@@ -26,7 +26,6 @@ import {
   reconcileCommand,
   rejectedUpdate,
   reverseMigrationPlan,
-  rollbackResultDiagnostic,
   unavailableDiagnostic
 } from "./application-update.js";
 
@@ -120,13 +119,6 @@ it("creates stable coordination and result diagnostics", () => {
   expect(appliedUpdate(2).status).toBe(UnifoldApplicationUpdateStatus.Applied);
   expect(rejectedUpdate(2, []).status).toBe(UnifoldApplicationUpdateStatus.Rejected);
   expect(unavailableDiagnostic().code).toBe("application-unavailable");
-  expect(
-    rollbackResultDiagnostic(
-      new Error("rollback"),
-      new Error("update"),
-      UnifoldApplicationDiagnosticStage.Runtime
-    ).code
-  ).toBe("application-update-rollback-failed");
 });
 
 it("retains the last-known-good hierarchy after an invalid layout update", () => {

@@ -195,8 +195,11 @@ described by the complete 1.0 plan.
   DevTools allowlist, deterministic replay receipt, reverse-order async tests, and Chromium/WebKit
   collection evidence prove attribution without exposing provider or error data. Machine-issued
   effects preserve the owner as reply scope, including targetless `effect.invoke`.
-  Post-runtime renderer rollback/event atomicity, module-authored collection mutation and non-empty
-  repeat identity rewriting, end-to-end authored-collection mutation
+  Exact application-update savepoints now keep tentative state, records, selections, canonical
+  facts, XState routing, effects, store writes, and validation private until keyed DOM, Schema.org,
+  and atomic machine replacement all succeed. Failure restores the prior revision and event sequence;
+  Chromium/WebKit failure/retry journeys verify no ghost or compensation facts. Module-authored
+  collection mutation and non-empty repeat identity rewriting, end-to-end authored-collection mutation
   performance, exact composition-control provenance/migration shape, a rendered composition mount,
   wrapper-refactor identity/focus/rollback, and schema-derived handle types remain incomplete.
 - A versioned data-only workflow-machine contract compiled to live XState v5 actors, scope-indexed
@@ -222,8 +225,9 @@ described by the complete 1.0 plan.
   scale journey proves exact mutation, all-host identity, shadow-input focus, event order, and a
   one-node commit at both 1,000 and 10,000 rendered nodes.
 - A supported `@unislang/unifold` application coordinator with explicit element registration,
-  compiler and renderer preflight, one-command structural reconciliation, compatible control-state
-  migration, dynamic composition handles, and last-known-good rejection or compensation.
+  compiler and renderer preflight, one-command coordinated structural reconciliation, compatible
+  control-state migration, atomic DOM/Schema.org/XState publication, dynamic composition handles,
+  exact rollback, and quarantine when a peripheral restoration itself fails.
 - An enum-pinned `unifold-core@1.0.0` document/catalog boundary and all-tag custom-element registry
   preflight. Exact duplicate releases register idempotently; foreign, malformed, mismatched, aliased,
   differently versioned, or unavailable realm definitions reject before runtime/render creation.

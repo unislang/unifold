@@ -36,7 +36,7 @@ export function collectionFocusTarget(
 }
 
 export function restoreApplicationFocus(
-  runtime: UnifoldRuntime,
+  runtime: Pick<UnifoldRuntime, "execute">,
   renderer: DomRenderController,
   nodes: readonly UiNodeSnapshot[],
   migration: UiCompositionMigrationPlan,

@@ -34,9 +34,13 @@ export class UiSemanticCoordinator {
 
   publish(document: UnifoldIrDocument, snapshots: Readonly<Record<string, UiNodeSnapshot>>): void {
     if (!this.enabled()) return;
-    this.assertAdoptableOwner();
-    const serialized = compile(document, snapshots);
-    this.publishCompiled(serialized);
+    try {
+      this.assertAdoptableOwner();
+      const serialized = compile(document, snapshots);
+      this.publishCompiled(serialized);
+    } catch (error) {
+      throw semanticPublicationError(error);
+    }
   }
 
   publishRuntime(document: UnifoldIrDocument, runtime: UnifoldRuntime): void {
@@ -107,6 +111,12 @@ function semanticError(
   const detail =
     first === undefined ? "unknown semantic failure" : `${String(first.code)} at ${first.path}`;
   return new UiSemanticConfigurationError(`Semantic graph rejected: ${detail}.`);
+}
+
+function semanticPublicationError(error: unknown): UiSemanticConfigurationError {
+  if (error instanceof UiSemanticConfigurationError) return error;
+  const message = error instanceof Error ? error.message : "Unknown semantic publication failure.";
+  return new UiSemanticConfigurationError(message);
 }
 
 function nextOwnerId(document: Document): string {

@@ -22,17 +22,21 @@ import {
 import { XStateEventRouter, type UiActorRef } from "@unislang/unifold-xstate";
 import type { CompiledRuleProgram } from "@unislang/unifold-rules";
 import type { Observable } from "rxjs";
-import { applyStateCommand, isStateCommand } from "./command-handlers.js";
+import { isStateCommand } from "./command-handlers.js";
 import {
-  applyRuntimeDerivedRules,
   compileRuntimeDerivedRules,
-  createRuntimeNodeStore
+  createRuntimeNodeStore,
+  transactRuntimeCommands
 } from "./derived-rules.js";
 import { createCompositionHandle } from "./composition-handle.js";
 import { createControlHandle } from "./control-handle.js";
 import { acceptIntent } from "./intent-ingress.js";
 import { createNodeHandle, createScopeHandle } from "./node-handle.js";
 import { RuntimePublisher } from "./runtime-publisher.js";
+import {
+  RuntimeCoordinationManager,
+  type RuntimeAuthorityCheckpoint
+} from "./runtime-coordination.js";
 import { UiRuntimeValidation } from "./runtime-validation.js";
 import {
   initialCompositions,
@@ -41,16 +45,15 @@ import {
   asyncValidatorRegistry,
   resolveIdFactory,
   resolveNow,
+  readRuntimeSnapshot,
+  requireIntentSnapshot,
+  resolveRuntimeExecutionContext,
   runtimeInspection,
   runtimeSource,
-  transactionMetadata,
   unchangedRecord,
-  validatorRegistry,
-  valueOrCreate,
-  valueOrDefault
+  validatorRegistry
 } from "./runtime-helpers.js";
 import { reconciledCompositionInstances, removedOwnerIds } from "./structure-reconciliation.js";
-import { ruleCommandDependencies } from "./rule-command-dependencies.js";
 import { captureBoundValues, storeWriteEffects } from "./store-write.js";
 import { runCommandEffects, type UiCommandEffect } from "./effect-runner.js";
 import {
@@ -59,10 +62,10 @@ import {
   type UiResolvedRuntimeExecutionContext,
   type UiCompositionHandle,
   type UiNodeHandle,
-  type RuntimeTransactionResult,
   type UiRuntimeInspectionSnapshot,
   type UiControlHandle,
   type UiScopeHandle,
+  type UnifoldRuntimeCoordination,
   type UnifoldRuntimeOptions
 } from "./types.js";
 
@@ -81,6 +84,7 @@ export class UnifoldRuntime {
   private rules: CompiledRuleProgram | undefined;
   private storeBindings: Readonly<Record<string, import("./types.js").UiRuntimeStoreBinding>>;
   private compositionInstances: Readonly<Record<string, UiCompositionInstanceManifest>>;
+  private readonly coordination: RuntimeCoordinationManager;
   private lifecycle = UnifoldRuntimeStatus.Active;
 
   constructor(private readonly options: UnifoldRuntimeOptions) {
@@ -104,17 +108,13 @@ export class UnifoldRuntime {
     this.validation = new UiRuntimeValidation(
       asyncValidatorRegistry(options),
       this.createId,
-      (id) => this.safeSnapshot(id),
+      (id) => readRuntimeSnapshot(this.store, id),
       (commands, context) => void this.execute(commands, context)
     );
     this.compositionInstances = initialCompositions(options.compositionInstances);
     this.storeBindings = initialStoreBindings(options);
+    this.coordination = this.createCoordination();
   }
-
-  get revision(): number {
-    return this.store.revision;
-  }
-
   private createPublisher(): RuntimePublisher {
     return new RuntimePublisher({
       actors: this.actors,
@@ -122,49 +122,73 @@ export class UnifoldRuntime {
       documentId: this.options.documentId,
       fabric: this.fabric,
       now: this.now,
-      snapshot: (id) => this.safeSnapshot(id),
+      snapshot: (id) => readRuntimeSnapshot(this.store, id),
       snapshots: () => this.store.getSnapshots(),
       source: this.source
     });
   }
-
+  get revision(): number {
+    return this.store.revision;
+  }
+  private createCoordination(): RuntimeCoordinationManager {
+    return new RuntimeCoordinationManager({
+      captureAuthorities: () => ({
+        compositionInstances: this.compositionInstances,
+        rules: this.rules,
+        storeBindings: this.storeBindings
+      }),
+      execute: (commands, context) => {
+        this.assertActive();
+        return this.executeResolved(commands, context);
+      },
+      installActor: (id, actor) => this.actors.register(id, actor),
+      publisher: this.publisher,
+      remove: (ids) => this.removeOwners(ids),
+      restoreAuthorities: (checkpoint) => this.restoreAuthorities(checkpoint),
+      runEffects: ({ context, effects, record }) => this.runEffects(effects, context, record),
+      store: this.store,
+      validate: ({ commands, context, record }) =>
+        this.validation.afterCommit(commands, record, context)
+    });
+  }
+  private restoreAuthorities(checkpoint: RuntimeAuthorityCheckpoint): void {
+    this.compositionInstances = checkpoint.compositionInstances;
+    this.rules = checkpoint.rules;
+    this.storeBindings = checkpoint.storeBindings;
+  }
   get status(): UnifoldRuntimeStatus {
     return this.lifecycle;
   }
-
   getSnapshot(id: UiNodeId): UiNodeSnapshot {
     return this.store.getSnapshot(id);
   }
   getTransaction(revision: number): UiTransactionRecord | undefined {
     return this.store.getTransaction(revision);
   }
-
   inspect(): UiRuntimeInspectionSnapshot {
     return runtimeInspection(this.store);
   }
   getValidationErrors(id: UiNodeId) {
     return this.store.getValidationErrors(id);
   }
-
   node(id: UiNodeId): UiNodeHandle {
-    this.assertActive();
+    this.assertAvailable();
     this.store.getSnapshot(id);
     return createNodeHandle(id, this.store, this.fabric.fabric);
   }
   control<TValue extends JsonValue = JsonValue>(id: UiNodeId): UiControlHandle<TValue> {
-    this.assertActive();
+    this.assertAvailable();
     return createControlHandle<TValue>(id, this.store, this.fabric.fabric, (commands) =>
       this.execute(commands)
     );
   }
   scope(id: UiNodeId): UiScopeHandle {
-    this.assertActive();
+    this.assertAvailable();
     this.store.getSnapshot(id);
     return createScopeHandle(id, this.store, this.fabric.fabric);
   }
-
   composition(id: string): UiCompositionHandle {
-    this.assertActive();
+    this.assertAvailable();
     const instance = this.compositionInstances[id];
     if (instance === undefined) throw new Error(`Unknown composition instance: ${id}.`);
     return createCompositionHandle(
@@ -174,14 +198,12 @@ export class UnifoldRuntime {
       this.fabric.fabric
     );
   }
-
   select<T>(selector: UiSelector<T>): UiSelection<T> {
-    this.assertActive();
+    this.assertAvailable();
     return this.store.select(selector);
   }
-
   registerActor(id: UiNodeId, actor: UiActorRef): () => void {
-    this.assertActive();
+    this.assertAvailable();
     return this.actors.register(id, actor);
   }
   replaceStoreBindings(
@@ -190,7 +212,6 @@ export class UnifoldRuntime {
     this.assertActive();
     this.storeBindings = bindings;
   }
-
   replaceRules(
     definitions: readonly UiDerivedRuleDefinition[] | undefined,
     nodes: readonly UiNodeSnapshot[] = this.store.getSnapshots()
@@ -198,23 +219,31 @@ export class UnifoldRuntime {
     this.assertActive();
     this.rules = compileRuntimeDerivedRules(definitions, nodes);
   }
-
   ingestIntent(event: UiEvent): UiEvent {
-    this.assertActive();
-    const snapshot = this.intentSnapshot(event);
+    this.assertAvailable();
+    const snapshot = requireIntentSnapshot(this.store, event);
     const accepted = acceptIntent(event, this.options.documentId, this.ingestedEventIds, () =>
       this.publisher.nextSequence()
     );
     this.publisher.intent(accepted, snapshot);
     return accepted;
   }
-
   execute(
     commands: readonly UiCommand[],
     input: UiRuntimeExecutionContext = {}
   ): UiTransactionRecord {
-    this.assertActive();
-    const context = this.resolveContext(input);
+    this.assertAvailable();
+    return this.executeResolved(commands, input);
+  }
+  beginCoordination(): UnifoldRuntimeCoordination {
+    this.assertAvailable();
+    return this.coordination.begin();
+  }
+  private executeResolved(
+    commands: readonly UiCommand[],
+    input: UiRuntimeExecutionContext
+  ): UiTransactionRecord {
+    const context = resolveRuntimeExecutionContext(input, this.createId);
     try {
       return this.commit(commands, context);
     } catch (error) {
@@ -224,7 +253,8 @@ export class UnifoldRuntime {
   }
   dispose(): void {
     if (this.lifecycle === UnifoldRuntimeStatus.Disposed) return;
-    const context = this.resolveContext({});
+    this.coordination.discardActive();
+    const context = resolveRuntimeExecutionContext({}, this.createId);
     const record = unchangedRecord(context, this.store.revision, this.now());
     this.publisher.emit(UiEventType.RuntimeDisposed, context, record, {
       status: UnifoldRuntimeStatus.Disposed
@@ -247,49 +277,25 @@ export class UnifoldRuntime {
     const appliedCommands = [...commands, ...derivedCommands];
     const before = captureBoundValues(appliedCommands, bindings, snapshots);
     this.compositionInstances = reconciledCompositionInstances(commands, this.compositionInstances);
-    removedIds.forEach((id) => this.actors.removeOwner(id));
-    this.validation.remove(removedIds);
-    const after = (id: string) => this.safeSnapshot(id);
+    if (!this.coordination.active) this.removeOwners(removedIds);
+    const after = (id: string) => readRuntimeSnapshot(this.store, id);
     const storeWrites = storeWriteEffects(context.suppressedStoreWriteIds, before, bindings, after);
     const executedCommands = [...appliedCommands, ...storeWrites];
     const effects = this.publishCommands(executedCommands, context, record, snapshots);
     this.publisher.transaction(context, record, snapshots, commands);
     commands.forEach((command) => this.publisher.formResult(command, context, record));
-    this.runEffects(effects, context, record);
-    this.validation.afterCommit(appliedCommands, record, context);
+    this.coordination.settle({ commands: appliedCommands, context, effects, record, removedIds });
     return record;
   }
-  private transact(
-    commands: readonly UiCommand[],
-    context: UiResolvedRuntimeExecutionContext
-  ): RuntimeTransactionResult {
-    const stateCommands = commands.filter(isStateCommand);
-    if (stateCommands.length === 0) {
-      return {
-        derivedCommands: [],
-        record: unchangedRecord(context, this.store.revision, this.now())
-      };
-    }
-    let derivedCommands: readonly UiCommand[] = [];
-    const record = this.store.transact(transactionMetadata(context, this.now()), (draft) => {
-      const dependencies = this.ruleDependencies(stateCommands, draft);
-      stateCommands.forEach((command) => applyStateCommand(draft, command, this.validators));
-      if (this.rules !== undefined) {
-        derivedCommands = applyRuntimeDerivedRules(
-          this.rules,
-          dependencies,
-          draft,
-          this.validators
-        );
-      }
+  private transact(commands: readonly UiCommand[], context: UiResolvedRuntimeExecutionContext) {
+    return transactRuntimeCommands({
+      commands,
+      context,
+      now: this.now,
+      rules: this.rules,
+      store: this.store,
+      validators: this.validators
     });
-    return { derivedCommands, record };
-  }
-  private ruleDependencies(
-    commands: readonly UiCommand[],
-    draft: import("@unislang/unifold-reactivity").UiNodeTransactionDraft
-  ) {
-    return this.rules === undefined ? [] : ruleCommandDependencies(commands, draft, this.rules);
   }
   private publishCommands(
     commands: readonly UiCommand[],
@@ -315,35 +321,19 @@ export class UnifoldRuntime {
         this.publisher.effect(type, command, effectContext, effectRecord, effectId)
     });
   }
-  private resolveContext(input: UiRuntimeExecutionContext): UiResolvedRuntimeExecutionContext {
-    const transactionId = valueOrCreate(input.transactionId, this.createId);
-    return {
-      transactionId,
-      correlationId: valueOrDefault(input.correlationId, transactionId),
-      causationId: valueOrDefault(input.causationId, transactionId),
-      ...(input.effectSourceId === undefined ? {} : { effectSourceId: input.effectSourceId }),
-      suppressedStoreWriteIds: input.suppressedStoreWriteIds ?? []
-    };
-  }
-  private safeSnapshot(id: UiNodeId): UiNodeSnapshot | undefined {
-    try {
-      return this.store.getSnapshot(id);
-    } catch {
-      return undefined;
-    }
-  }
-
-  private intentSnapshot(event: UiEvent): UiNodeSnapshot {
-    const source = event.data.sourceNode;
-    if (source === undefined) throw new Error("Intent source node is missing.");
-    const snapshot = this.safeSnapshot(source.id);
-    if (snapshot === undefined) throw new Error(`Intent source node is unknown: ${source.id}.`);
-    return snapshot;
+  private removeOwners(ids: readonly string[]): void {
+    ids.forEach((id) => this.actors.removeOwner(id));
+    this.validation.remove(ids);
   }
 
   private assertActive(): void {
     if (this.lifecycle === UnifoldRuntimeStatus.Disposed) {
       throw new Error("The Unifold runtime is disposed.");
     }
+  }
+
+  private assertAvailable(): void {
+    this.assertActive();
+    this.coordination.assertAvailable();
   }
 }

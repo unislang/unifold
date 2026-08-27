@@ -70,6 +70,30 @@ it("isolates tenant publications through failure, update, and reverse disposal",
   expect(semanticScripts()).toHaveLength(0);
 });
 
+it("wraps a platform publication failure and preserves the prior graph for retry", () => {
+  const initial = constantSemanticDocument("Initial");
+  const updated = constantSemanticDocument("Updated");
+  const coordinator = automaticCoordinator();
+  coordinator.publish(initial.document, snapshots(initial));
+  const previous = semanticScript();
+  Object.defineProperty(previous, "replaceWith", {
+    configurable: true,
+    value() {
+      Reflect.deleteProperty(previous, "replaceWith");
+      throw new Error("Injected semantic publication failure.");
+    }
+  });
+
+  expect(() => coordinator.publish(updated.document, snapshots(updated))).toThrow(
+    UiSemanticConfigurationError
+  );
+  expect(semanticScript()).toBe(previous);
+  expect(semanticNames()).toEqual(["Initial"]);
+  coordinator.publish(updated.document, snapshots(updated));
+  expect(semanticNames()).toEqual(["Updated"]);
+  coordinator.dispose();
+});
+
 it("supports disabled publication and removes an owned graph when semantics are absent", () => {
   const prepared = semanticDocument(SemanticValueKind.Constant);
   const source = snapshots(prepared);

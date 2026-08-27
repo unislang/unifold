@@ -6,7 +6,7 @@ import {
   type UiTransactionMetadata,
   type UiTransactionRecord
 } from "@unislang/unifold-events";
-import { enablePatches, freeze, produce, produceWithPatches, type Patch } from "immer";
+import { enablePatches, produce, produceWithPatches, type Patch } from "immer";
 import { StoreSelection } from "./selection.js";
 import { SelectionIndex } from "./selection-index.js";
 import type {
@@ -20,9 +20,13 @@ import type {
 } from "./store-types.js";
 import { NodeTransactionDraft } from "./transaction-draft.js";
 import { recomputeAggregateControls } from "./aggregate-controls.js";
-import { buildControlChildren } from "./normalized-control-topology.js";
 import { reconcileValidationRoutes } from "./validation-routes.js";
 import { reconcileEffectiveDisabled } from "./effective-disabled.js";
+import { createInitialNodeState } from "./initial-node-state.js";
+import {
+  createNodeStoreCoordination,
+  type NormalizedNodeStoreCoordination
+} from "./node-store-coordination.js";
 
 enablePatches();
 
@@ -31,6 +35,13 @@ export interface NormalizedNodeStoreOptions {
   readonly controlValidator?: AggregateControlValidator;
   readonly initializer?: (draft: UiNodeTransactionDraft) => void;
   readonly transactionRetention?: number;
+}
+
+interface ActiveCoordination {
+  readonly changedNodeIds: Set<UiNodeId>;
+  readonly previousMetrics: SelectionDispatchMetrics;
+  readonly previousState: NormalizedNodeState;
+  readonly records: UiTransactionRecord[];
 }
 
 export class NormalizedNodeStore implements UiNodeStore {
@@ -42,11 +53,12 @@ export class NormalizedNodeStore implements UiNodeStore {
   private readonly retention: number;
   private readonly aggregateValidator: AggregateControlValidator | undefined;
   private readonly controlValidator: AggregateControlValidator | undefined;
+  private coordination: ActiveCoordination | undefined;
 
   constructor(nodes: readonly UiNodeSnapshot[], options: NormalizedNodeStoreOptions = {}) {
     this.aggregateValidator = options.aggregateValidator;
     this.controlValidator = options.controlValidator;
-    this.state = createInitialState(
+    this.state = createInitialNodeState(
       nodes,
       this.aggregateValidator,
       this.controlValidator,
@@ -86,7 +98,26 @@ export class NormalizedNodeStore implements UiNodeStore {
     return this.state.validationRoutes[id] ?? [];
   }
 
+  beginCoordination(): NormalizedNodeStoreCoordination {
+    if (this.coordination !== undefined) {
+      throw new Error("Node store coordination is already active.");
+    }
+    this.coordination = {
+      changedNodeIds: new Set(),
+      previousMetrics: this.selectionMetrics,
+      previousState: this.state,
+      records: []
+    };
+    return createNodeStoreCoordination(
+      () => this.commitCoordination(),
+      () => this.discardCoordination()
+    );
+  }
+
   select<T>(selector: UiSelector<T>, equal = Object.is): UiSelection<T> {
+    if (this.coordination !== undefined) {
+      throw new Error("Cannot create a selection during node store coordination.");
+    }
     const selection = new StoreSelection(selector, this.state, equal, () =>
       this.selections.delete(selection as StoreSelection<unknown>)
     );
@@ -120,19 +151,52 @@ export class NormalizedNodeStore implements UiNodeStore {
   }
 
   dispose(): void {
+    if (this.coordination !== undefined) {
+      throw new Error("Cannot dispose the node store during coordination.");
+    }
     this.selections.values().forEach((selection) => selection.dispose());
     this.records.clear();
     this.recordOrder.length = 0;
   }
 
   private commit(state: NormalizedNodeState, record: UiTransactionRecord): void {
-    const invalidatedIds = invalidatedNodeIds(this.state, state, record.changedNodeIds);
+    const previous = this.state;
     this.state = state;
+    if (this.coordination !== undefined) {
+      this.coordination.records.push(record);
+      record.changedNodeIds.forEach((id) => this.coordination?.changedNodeIds.add(id));
+      return;
+    }
     this.retain(record);
-    const changedIds = new Set(record.changedNodeIds);
+    this.refreshSelections(previous, new Set(record.changedNodeIds));
+  }
+
+  private commitCoordination(): void {
+    const coordination = this.requireCoordination();
+    this.coordination = undefined;
+    if (coordination.records.length === 0) return;
+    coordination.records.forEach((record) => this.retain(record));
+    this.refreshSelections(coordination.previousState, coordination.changedNodeIds);
+  }
+
+  private discardCoordination(): void {
+    const coordination = this.requireCoordination();
+    this.state = coordination.previousState;
+    this.selectionMetrics = coordination.previousMetrics;
+    this.coordination = undefined;
+  }
+
+  private requireCoordination(): ActiveCoordination {
+    const coordination = this.coordination;
+    if (coordination === undefined) throw new Error("Node store coordination is not active.");
+    return coordination;
+  }
+
+  private refreshSelections(previous: NormalizedNodeState, changedIds: Set<UiNodeId>): void {
+    const invalidatedIds = invalidatedNodeIds(previous, this.state, [...changedIds]);
     const invalidatedSelections = this.disposeInvalidated(invalidatedIds);
     const candidates = this.selections.candidates(changedIds);
-    candidates.forEach((selection) => selection.refresh(state, changedIds));
+    candidates.forEach((selection) => selection.refresh(this.state, changedIds));
     this.selectionMetrics = {
       activeSelections: this.selections.size,
       candidateSelections: candidates.size,
@@ -182,77 +246,6 @@ function emptySelectionMetrics(): SelectionDispatchMetrics {
     changedNodeCount: 0,
     invalidatedSelections: 0
   };
-}
-
-function createInitialState(
-  nodes: readonly UiNodeSnapshot[],
-  validateAggregate?: AggregateControlValidator,
-  validateControl?: AggregateControlValidator,
-  initializer?: (draft: UiNodeTransactionDraft) => void
-): NormalizedNodeState {
-  const state = createEmptyState();
-  nodes.forEach((node) => addInitialNode(state, node));
-  state.controlChildren = buildControlChildren(nodes);
-  nodes.forEach((node) => linkVisualParent(state.children, node));
-  const aggregated = produce(state, (draft) => {
-    const transaction = new NodeTransactionDraft(draft);
-    reconcileEffectiveDisabled(draft, Object.keys(draft.nodes), validateControl);
-    applyInitializer(initializer, transaction);
-    reconcileEffectiveDisabled(draft, Object.keys(draft.nodes), validateControl);
-    recomputeAggregateControls(draft, validateAggregate);
-    reconcileValidationRoutes(draft);
-  });
-  return freeze(aggregated, true);
-}
-
-function createEmptyState(): {
-  revision: number;
-  nodes: Record<string, UiNodeSnapshot>;
-  children: Record<string, UiNodeId[]>;
-  controlChildren: Record<string, UiNodeId[]>;
-  validationRoutes: Record<string, readonly UiValidationError[]>;
-} {
-  return {
-    revision: 0,
-    nodes: {},
-    children: {},
-    controlChildren: {},
-    validationRoutes: {}
-  };
-}
-
-function applyInitializer(
-  initializer: ((draft: UiNodeTransactionDraft) => void) | undefined,
-  draft: UiNodeTransactionDraft
-): void {
-  if (initializer !== undefined) initializer(draft);
-}
-
-function addInitialNode(
-  state: {
-    nodes: Record<string, UiNodeSnapshot>;
-    children: Record<string, UiNodeId[]>;
-    controlChildren: Record<string, UiNodeId[]>;
-  },
-  node: UiNodeSnapshot
-): void {
-  if (state.nodes[node.id]) throw new Error(`Duplicate node: ${node.id}`);
-  state.nodes[node.id] = node;
-  state.children[node.id] = [];
-  state.controlChildren[node.id] = [...(node.controlChildIds ?? [])];
-}
-
-function linkVisualParent(children: Record<string, UiNodeId[]>, node: UiNodeSnapshot): void {
-  if (node.parentId !== undefined) requireInitialChildren(children, node.parentId).push(node.id);
-}
-
-function requireInitialChildren(
-  index: Readonly<Record<string, UiNodeId[]>>,
-  id: UiNodeId
-): UiNodeId[] {
-  const children = index[id];
-  if (!children) throw new Error(`Unknown parent: ${id}`);
-  return children;
 }
 
 function finalizeRevision(

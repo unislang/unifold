@@ -19,6 +19,7 @@ import type {
   UiValidatorRegistryPort
 } from "@unislang/unifold-forms";
 import type { Observable } from "rxjs";
+import type { UiActorRef } from "@unislang/unifold-xstate";
 
 export enum UnifoldRuntimeStatus {
   Active = "active",
@@ -53,6 +54,13 @@ export interface UiEffectExecutionContext extends UiResolvedExecutionContext {
 
 export interface UiCommandPort {
   execute(command: UiCommand, context: UiEffectExecutionContext): Promise<void> | void;
+}
+
+export interface UnifoldRuntimeCoordination {
+  execute(commands: readonly UiCommand[], context?: UiRuntimeExecutionContext): UiTransactionRecord;
+  registerActor(id: UiNodeId, actor: UiActorRef): () => void;
+  commit(): void;
+  discard(): void;
 }
 
 export interface UiRuntimeInspectionSnapshot {

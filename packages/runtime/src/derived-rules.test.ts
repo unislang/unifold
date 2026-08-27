@@ -30,6 +30,29 @@ it("applies reachable rule commands inside the caller transaction draft", () => 
   expect(store.getTransaction(1)?.changedNodeIds).toEqual(["age", "submit"]);
 });
 
+it("contains a dependency path that is absent from the current snapshot", () => {
+  const nodes = [controlNode("age", "21"), controlNode("submit", "")];
+  const rule = {
+    ...disabledRule(),
+    inputs: [{ name: "age", nodeId: "age", pointer: "/control/missing/deep" }]
+  };
+  const program = compileRuntimeDerivedRules([rule], nodes);
+  if (program === undefined) throw new Error("Expected a rule program.");
+  const store = new NormalizedNodeStore(nodes);
+  const validators = createValidatorRegistry();
+  store.transact(metadata(), (draft) => {
+    applyRuntimeDerivedRules(program, [{ nodeId: "age", pointer: "/control" }], draft, validators);
+  });
+  expect(store.getSnapshot("submit").base.disabled).toBe(true);
+});
+
+it("reports an invalid runtime rule definition", () => {
+  const invalid = { ...disabledRule(), id: "" };
+  expect(() => compileRuntimeDerivedRules([invalid], [controlNode("age", "21")])).toThrow(
+    "Invalid runtime derived rules"
+  );
+});
+
 function disabledRule(): UiDerivedRuleDefinition {
   return {
     expression: { "<": [{ var: "age" }, 18] },

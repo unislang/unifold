@@ -11,9 +11,8 @@ import {
 } from "@unislang/unifold-elements";
 import { UiCommandType } from "@unislang/unifold-events";
 import { Window } from "happy-dom";
-import { expect, it, vi } from "vitest";
+import { expect, it } from "vitest";
 
-import { UnifoldApplication } from "./application.js";
 import {
   UnifoldApplicationDiagnosticStage,
   UnifoldApplicationMountStatus,
@@ -21,18 +20,13 @@ import {
   createMemoryStoreAdapter,
   mountUnifoldApplication
 } from "./index.js";
-import { prepareApplicationStores } from "./store-adapters.js";
 import {
   authoredDocument,
-  failingCompensationRenderer,
-  failingRenderer,
   machineDocument,
   requireApplication,
   requireElement,
   requireInput,
-  requirePrepared,
   requireShadowElement,
-  runtimeFor,
   updateComplete,
   withoutButton,
   workflowCommandRegistry,
@@ -163,85 +157,6 @@ it("rejects renderer-incompatible updates before state mutation", () => {
   expect(application.runtime.revision).toBe(0);
   expect(application.renderer.getElement("name")).toBe(name);
   expect(application.renderer.getElement("details")).toBeUndefined();
-  application.dispose();
-});
-
-it("restores runtime state when rendering fails after commit", () => {
-  const prepared = requirePrepared(authoredDocument());
-  const runtime = runtimeFor(prepared);
-  const application = new UnifoldApplication(
-    prepared,
-    document.createElement("div"),
-    runtime,
-    failingRenderer(),
-    prepareApplicationStores(prepared.document),
-    {}
-  );
-  const result = application.update(authoredDocument("2", { label: "Full name" }));
-  expect(result.status).toBe(UnifoldApplicationUpdateStatus.Rejected);
-  expect(result.diagnostics[0]?.stage).toBe(UnifoldApplicationDiagnosticStage.Renderer);
-  expect(application.document.documentRevision).toBe("1");
-  expect(runtime.getSnapshot("name").properties).toMatchObject({ label: "Name" });
-  expect(runtime.revision).toBe(2);
-  application.dispose();
-});
-
-it("quarantines the application when renderer rollback cannot complete", () => {
-  const prepared = requirePrepared(authoredDocument());
-  const runtime = runtimeFor(prepared);
-  const application = new UnifoldApplication(
-    prepared,
-    document.createElement("div"),
-    runtime,
-    failingCompensationRenderer(),
-    prepareApplicationStores(prepared.document),
-    {}
-  );
-  const result = application.update(authoredDocument("2", { label: "Full name" }));
-  expect(result).toMatchObject({
-    diagnostics: [
-      {
-        code: "application-update-rollback-failed",
-        stage: UnifoldApplicationDiagnosticStage.Coordination
-      }
-    ],
-    status: UnifoldApplicationUpdateStatus.Rejected
-  });
-  expect(application.document.documentRevision).toBe("1");
-  expect(runtime.getSnapshot("name").properties).toMatchObject({ label: "Name" });
-  expect(application.update(authoredDocument("3")).diagnostics[0]?.code).toBe(
-    "application-unavailable"
-  );
-  application.dispose();
-});
-
-it("restores application and runtime state when coordination fails after commit", () => {
-  const prepared = requirePrepared(authoredDocument());
-  const runtime = runtimeFor(prepared);
-  const execute = runtime.execute.bind(runtime);
-  let executions = 0;
-  vi.spyOn(runtime, "execute").mockImplementation((commands, context) => {
-    const record = execute(commands, context);
-    executions += 1;
-    if (executions === 1) throw new Error("Injected post-commit failure.");
-    return record;
-  });
-  const application = new UnifoldApplication(
-    prepared,
-    document.createElement("div"),
-    runtime,
-    failingRenderer(false),
-    prepareApplicationStores(prepared.document),
-    {}
-  );
-
-  const result = application.update(authoredDocument("2", { label: "Full name" }));
-
-  expect(result.status).toBe(UnifoldApplicationUpdateStatus.Rejected);
-  expect(result.diagnostics[0]?.stage).toBe(UnifoldApplicationDiagnosticStage.Runtime);
-  expect(application.document.documentRevision).toBe("1");
-  expect(runtime.getSnapshot("name").properties).toMatchObject({ label: "Name" });
-  expect(runtime.revision).toBe(2);
   application.dispose();
 });
 

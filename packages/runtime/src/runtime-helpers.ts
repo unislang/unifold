@@ -2,6 +2,7 @@ import {
   UiCommandType,
   UiTransactionStatus,
   type UiCommand,
+  type UiEvent,
   type UiNodeId,
   type UiNodeSnapshot,
   type UiTransactionMetadata,
@@ -18,9 +19,43 @@ import type { AggregateControlValidator, NormalizedNodeStore } from "@unislang/u
 
 import type {
   UiRuntimeInspectionSnapshot,
+  UiResolvedRuntimeExecutionContext,
   UiRuntimeStoreBinding,
   UnifoldRuntimeOptions
 } from "./types.js";
+
+export function resolveRuntimeExecutionContext(
+  input: import("./types.js").UiRuntimeExecutionContext,
+  createId: () => string
+): UiResolvedRuntimeExecutionContext {
+  const transactionId = valueOrCreate(input.transactionId, createId);
+  return {
+    transactionId,
+    correlationId: valueOrDefault(input.correlationId, transactionId),
+    causationId: valueOrDefault(input.causationId, transactionId),
+    ...(input.effectSourceId === undefined ? {} : { effectSourceId: input.effectSourceId }),
+    suppressedStoreWriteIds: input.suppressedStoreWriteIds ?? []
+  };
+}
+
+export function readRuntimeSnapshot(
+  store: NormalizedNodeStore,
+  id: UiNodeId
+): UiNodeSnapshot | undefined {
+  try {
+    return store.getSnapshot(id);
+  } catch {
+    return undefined;
+  }
+}
+
+export function requireIntentSnapshot(store: NormalizedNodeStore, event: UiEvent): UiNodeSnapshot {
+  const source = event.data.sourceNode;
+  if (source === undefined) throw new Error("Intent source node is missing.");
+  const snapshot = readRuntimeSnapshot(store, source.id);
+  if (snapshot === undefined) throw new Error(`Intent source node is unknown: ${source.id}.`);
+  return snapshot;
+}
 
 export function transactionMetadata(
   context: { causationId: string; correlationId: string; transactionId: string },
@@ -139,11 +174,11 @@ export function runtimeSource(source: string | undefined, documentId: string): s
   return source ?? `urn:unifold:runtime:${documentId}`;
 }
 
-export function valueOrCreate(value: string | undefined, create: () => string): string {
+function valueOrCreate(value: string | undefined, create: () => string): string {
   return value ?? create();
 }
 
-export function valueOrDefault(value: string | undefined, fallback: string): string {
+function valueOrDefault(value: string | undefined, fallback: string): string {
   return value ?? fallback;
 }
 

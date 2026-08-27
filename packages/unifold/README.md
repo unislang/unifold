@@ -16,8 +16,12 @@ if (result.status === UnifoldApplicationMountStatus.Mounted) {
 ```
 
 Updates are admitted only after composition and IR validation plus renderer preflight. A single
-`structure.reconcile` transaction migrates compatible dirty control state and atomically replaces the
-composition manifest. Rejected inputs retain the last-known-good document, state, and DOM.
+coordinated `structure.reconcile` transaction migrates compatible dirty control state. Its candidate
+revision, selections, rules, bindings, composition manifest, actors, DOM, and Schema.org graph stay
+private until every structural surface accepts the update. Commit then publishes canonical facts in
+sequence order before effects and validation. Rejection restores the exact prior revision and emits
+no candidate or compensation facts; failed rollback quarantines the application and publishes only
+the normal disposal fact.
 
 An authored document may declare `controls@1.0.0` independently from its hierarchical visual tree.
 Enum-backed Form, Group, Array, Record, and Control definitions target stable rendered IDs and carry
@@ -50,8 +54,8 @@ element lookup only. Import `@unislang/unifold-runtime` explicitly when building
 that intentionally owns raw structural primitives. Its `authored` getter returns a defensive copy
 suitable for deterministic export.
 Call `dispose()` at the host lifecycle boundary. Updates must retain the document
-ID; use a new application mount for a different document. A post-commit renderer exception triggers
-a compensating reconcile to the previous prepared document and returns a renderer-stage diagnostic.
+ID; use a new application mount for a different document. Renderer, semantic, and workflow failures
+return their exact diagnostic stage without exposing a partially committed update.
 
 Mount always calls the idempotent `defineUnifoldElements()` boundary before creating the runtime or
 renderer. The authored catalog is pinned to the enum-backed `unifold-core@1.0.0` contract. A realm

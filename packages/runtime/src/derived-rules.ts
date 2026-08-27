@@ -12,8 +12,43 @@ import {
   type RuleEvaluationOptions
 } from "@unislang/unifold-rules";
 
-import { applyStateCommand } from "./command-handlers.js";
-import { storeOptions } from "./runtime-helpers.js";
+import { applyStateCommand, isStateCommand } from "./command-handlers.js";
+import { ruleCommandDependencies } from "./rule-command-dependencies.js";
+import { storeOptions, transactionMetadata, unchangedRecord } from "./runtime-helpers.js";
+import type { RuntimeTransactionResult, UiResolvedRuntimeExecutionContext } from "./types.js";
+
+interface RuntimeTransactionOptions {
+  readonly commands: readonly UiCommand[];
+  readonly context: UiResolvedRuntimeExecutionContext;
+  readonly now: () => string;
+  readonly rules: CompiledRuleProgram | undefined;
+  readonly store: NormalizedNodeStore;
+  readonly validators: UiValidatorRegistryPort;
+}
+
+export function transactRuntimeCommands({
+  commands,
+  context,
+  now,
+  rules,
+  store,
+  validators
+}: RuntimeTransactionOptions): RuntimeTransactionResult {
+  const stateCommands = commands.filter(isStateCommand);
+  if (stateCommands.length === 0) {
+    return { derivedCommands: [], record: unchangedRecord(context, store.revision, now()) };
+  }
+  let derivedCommands: readonly UiCommand[] = [];
+  const record = store.transact(transactionMetadata(context, now()), (draft) => {
+    const dependencies =
+      rules === undefined ? [] : ruleCommandDependencies(stateCommands, draft, rules);
+    stateCommands.forEach((command) => applyStateCommand(draft, command, validators));
+    if (rules !== undefined) {
+      derivedCommands = applyRuntimeDerivedRules(rules, dependencies, draft, validators);
+    }
+  });
+  return { derivedCommands, record };
+}
 
 export function compileRuntimeDerivedRules(
   definitions: readonly UiDerivedRuleDefinition[] | undefined,

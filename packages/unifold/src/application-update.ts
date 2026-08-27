@@ -7,7 +7,11 @@ import {
 import type { UiCollectionReconcileMetadata } from "@unislang/unifold-events";
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
 import type { DomRenderController } from "@unislang/unifold-renderer-dom";
-import type { UiExecutionContext, UnifoldRuntime } from "@unislang/unifold-runtime";
+import type {
+  UiExecutionContext,
+  UnifoldRuntime,
+  UnifoldRuntimeCoordination
+} from "@unislang/unifold-runtime";
 
 import { prepareUnifoldDocument } from "./compiler.js";
 import { registerApplicationElements } from "./element-registration.js";
@@ -16,7 +20,7 @@ import {
   type UiCompositionMigrationPlan,
   type UiCompositionVersionMigration
 } from "./composition-migrations.js";
-import { semanticSnapshotRecord, UiSemanticConfigurationError } from "./semantic-coordinator.js";
+import { semanticSnapshotRecord } from "./semantic-coordinator.js";
 import type { UiSemanticCoordinator } from "./semantic-coordinator.js";
 import type { UiMachineCoordinator } from "./machine-coordinator.js";
 import type { PreparedApplicationStores } from "./store-adapters.js";
@@ -86,10 +90,6 @@ export function semanticConfigurationDiagnostic(
   }
 }
 
-export function asError(error: unknown): Error {
-  return error instanceof Error ? error : new Error("Unknown rollback failure.");
-}
-
 export function prepareApplicationUpdate(
   authored: unknown,
   options: UnifoldPreparationOptions | undefined
@@ -115,6 +115,7 @@ export function reconcileCommand(
 
 export function executePreparedReconciliation(
   runtime: UnifoldRuntime,
+  coordination: UnifoldRuntimeCoordination,
   next: PreparedUnifoldDocument,
   stores: PreparedApplicationStores,
   migration: UiCompositionMigrationPlan,
@@ -126,7 +127,10 @@ export function executePreparedReconciliation(
   const { context, metadata } = collection ?? {};
   const nodes = createApplicationSnapshots(next.document, runtime.revision, stores);
   runtime.replaceRules(next.document.rules, nodes);
-  return runtime.execute([reconcileCommand(next.document, nodes, migration, metadata)], context);
+  return coordination.execute(
+    [reconcileCommand(next.document, nodes, migration, metadata)],
+    context
+  );
 }
 
 function migrationAliases(
@@ -198,24 +202,6 @@ export function structuralUpdateDiagnostic(
   if (unavailable) return unavailableDiagnostic();
   if (updating) return updateInProgressDiagnostic();
   return undefined;
-}
-
-function rollbackFailureDiagnostic(): UnifoldApplicationDiagnostic {
-  return {
-    code: "application-update-rollback-failed",
-    message: "The update rollback failed and the application was quarantined.",
-    path: "/",
-    stage: UnifoldApplicationDiagnosticStage.Coordination
-  };
-}
-
-export function rollbackResultDiagnostic(
-  rollbackError: Error | undefined,
-  updateError: unknown,
-  stage: UnifoldApplicationDiagnosticStage
-): UnifoldApplicationDiagnostic {
-  if (rollbackError !== undefined) return rollbackFailureDiagnostic();
-  return errorDiagnostic(updateError, stage);
 }
 
 function captureRuntimeSnapshots(
@@ -292,14 +278,6 @@ export function replaceStoreCommands(
   controller?.replace(document, stores);
 }
 
-export function publishRuntimeSemantics(
-  semantics: UiSemanticCoordinator | undefined,
-  document: UnifoldIrDocument,
-  runtime: UnifoldRuntime
-): void {
-  semantics?.publishRuntime(document, runtime);
-}
-
 export function identityDiagnostic(
   current: UnifoldIrDocument,
   next: UnifoldIrDocument
@@ -323,12 +301,6 @@ export function errorDiagnostic(
     path: "/",
     stage
   };
-}
-
-export function updateFailureStage(error: unknown): UnifoldApplicationDiagnosticStage {
-  return error instanceof UiSemanticConfigurationError
-    ? UnifoldApplicationDiagnosticStage.Semantics
-    : UnifoldApplicationDiagnosticStage.Renderer;
 }
 
 export function requirePrepared(

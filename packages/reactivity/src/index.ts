@@ -2,6 +2,8 @@ export * from "./event-fabric.js";
 export * from "./aggregate-controls.js";
 export * from "./effective-disabled.js";
 export * from "./node-store.js";
+export { NormalizedNodeStoreCoordinationStatus } from "./node-store-coordination.js";
+export type { NormalizedNodeStoreCoordination } from "./node-store-coordination.js";
 export * from "./selection-index.js";
 export * from "./selectors.js";
 export * from "./validation-routes.js";

@@ -48,6 +48,11 @@ packaged `effect-data/1.0` `dataschema`; the three existing event types remain t
 No document, IR, module, static-export, or portable-machine version changes because runtime outcome
 history is not serialized into those artifacts.
 
+Coordinated application updates likewise add no portable contract version. They change delivery
+semantics only: candidate `.v1` facts are buffered until DOM, owned Schema.org JSON-LD, and XState
+replacement succeed; rejected candidates publish no forward or compensation facts and reuse their
+sequence numbers on retry. Existing event envelopes and data schemas are unchanged.
+
 ## Migration support
 
 `UiDocument@1.0.0` is the first contract candidate, so the framework intentionally ships no legacy

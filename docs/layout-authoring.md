@@ -1,9 +1,11 @@
 # Layout-oriented JSON authoring
 
-Unifold's public authoring surface is layout-oriented. It preserves the intent of the original
-Angular prototype in `scratch/angular-ui`: select a reusable `layoutType`, supply typed `variables`,
-and describe nested UI with `type`, `props`, `children`, and named `events`. This profile lowers to
-the existing versioned composition and IR contracts; renderers never interpret authoring syntax.
+Unifold's public authoring surface is layout-oriented. The product contract intentionally follows
+[`scratch/angular-ui/DYNAMIC-UI-README.md`](../scratch/angular-ui/DYNAMIC-UI-README.md): select a
+reusable `layoutType`, supply typed `variables`, and describe nested UI with `type`, `props`,
+`children`, and named `events`. The production contract adds explicit versions, stable IDs, closed
+validation, and capability boundaries while preserving that authoring model. It lowers to the
+existing versioned composition and IR contracts; renderers never interpret authoring syntax.
 
 ```json
 {
@@ -96,9 +98,11 @@ operations without becoming authored JSON. Removing a focused member moves focus
 surviving member at the same index, or the previous member when the removed member was last. The
 request uses the same trusted lineage and unified effect stream after a successful UI commit;
 unrelated focus is never moved. Empty collections do not make their layout host focusable, so an
-explicit authored empty-state fallback remains open. Post-runtime renderer rollback/event atomicity
-and representative large authored-collection
-mutation performance remain open; 500-item initial and revision compilation are separately gated.
+explicit authored empty-state fallback remains open. Coordinated updates now keep candidate runtime
+state and facts private until renderer, Schema.org, and XState replacement succeed; Chromium and
+WebKit inject downstream failures and prove exact last-known-good rollback plus a sequence-contiguous
+retry. Representative large authored-collection mutation performance remains open; 500-item initial
+and revision compilation are separately gated.
 
 ## Trusted external definitions
 

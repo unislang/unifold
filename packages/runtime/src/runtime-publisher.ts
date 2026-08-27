@@ -20,6 +20,10 @@ import type { RuntimeEventProjection } from "./event-disclosure.js";
 import { commandChange, commandType, createRuntimeEvent } from "./runtime-event.js";
 import type { RuntimeEventContext } from "./runtime-event.js";
 import { commandNodeId, rejectedRecord, transactionSourceId } from "./runtime-helpers.js";
+import {
+  RuntimePublicationBuffer,
+  type RuntimePublisherCoordination
+} from "./runtime-publication-coordination.js";
 import type { UiResolvedExecutionContext } from "./types.js";
 
 interface RuntimePublisherOptions {
@@ -41,12 +45,23 @@ interface RuntimeEventEnvelope {
 
 export class RuntimePublisher {
   #sequence = 0;
+  readonly #coordination = new RuntimePublicationBuffer();
 
   constructor(private readonly options: RuntimePublisherOptions) {}
 
   nextSequence(): number {
     this.#sequence += 1;
     return this.#sequence;
+  }
+
+  beginCoordination(): RuntimePublisherCoordination {
+    return this.#coordination.begin(
+      this.#sequence,
+      (event) => this.publishNow(event),
+      (sequence) => {
+        this.#sequence = sequence;
+      }
+    );
   }
 
   emit(
@@ -200,6 +215,10 @@ export class RuntimePublisher {
   }
 
   publish(event: UiEvent): void {
+    if (!this.#coordination.append(event)) this.publishNow(event);
+  }
+
+  private publishNow(event: UiEvent): void {
     this.options.fabric.publish(event);
     this.options.actors.route(event);
   }

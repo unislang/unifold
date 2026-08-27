@@ -420,8 +420,11 @@ user-superseded targets. Compiler tests reject missing, self-referential, disabl
 targets. Contract/IR/module tests also prove closed `collectionBehaviors@1.0.0`, canonical IR
 `1.1.0`, artifact preservation, and application consumption without a prepared-sidecar dependency,
 while integration evidence links each focus transaction causally to its structural
-reconciliation transaction. Remaining work includes post-runtime renderer rollback/event atomicity,
-and end-to-end collection mutation performance beyond the
+reconciliation transaction. Unit tests now inject runtime, renderer, semantic publisher, and machine
+replacement failures around the coordinated savepoint. Chromium and WebKit journeys inject renderer
+and JSON-LD publication failures, then prove exact prior revision/state/value/host/focus/semantics,
+zero candidate or compensation facts, sequence-contiguous retry, commit-before-publication ordering,
+and axe results. Remaining work includes end-to-end collection mutation performance beyond the
 500-item compile/revision gates. Remaining AC19 work also includes exact composition-control provenance,
 aggregate-shape migration, a rendered composition mount, wrapper-refactor identity/focus/rollback,
 and schema-derived handle typing.

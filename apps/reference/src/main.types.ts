@@ -11,6 +11,9 @@ export interface PrototypeWindow {
   __unifoldMountRealmCopy?: () => RealmCopyResult;
   __unifoldBeginStateAuthorityTrace?: () => void;
   __unifoldReadStateAuthorityTrace?: () => import("./reference-state-authority.js").ReferenceStateAuthorityObservation;
+  __unifoldProbeAtomicUpdate?: ReturnType<
+    typeof import("./reference-update-atomicity.js").createReferenceAtomicUpdateProbe
+  >;
   __unifoldUpdateDocument?: (source: unknown) => UnifoldApplicationUpdateResult;
 }
 

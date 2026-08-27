@@ -17,19 +17,15 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-27
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest published implementation checkpoint:
-  `9c5922bec0737c8a3e53bc5f97fe587dfa1bdbc4`
-  (`feat: correlate effect lifecycles`) on `https://github.com/unislang/unifold.git`.
-- Latest published verification checkpoint:
-  `ce6461471c5e5cc13677c2289cae8eba8c3d1a4f`
-  (`test: close effect lifecycle release gates`), following documentation checkpoint
-  `36a74d2` (`docs: record effect identity checkpoint`).
-- Latest local checkpoint: `ce6461471c5e5cc13677c2289cae8eba8c3d1a4f`; the worktree was clean
-  when publication was verified.
-- Publication verification: live `git ls-remote origin refs/heads/main` and local `HEAD` both
-  resolved to `ce6461471c5e5cc13677c2289cae8eba8c3d1a4f` after the push to
-  `https://github.com/unislang/unifold.git`. The
-  history also includes runtime isolation at
+- Latest published checkpoint:
+  `94408ad6c099c6dc61f1a444aae1107fe3f5a032`
+  (`docs: record effect lifecycle publication`) on `https://github.com/unislang/unifold.git`.
+- Latest local checkpoint: `94408ad6c099c6dc61f1a444aae1107fe3f5a032`; the atomic
+  application-update tranche described below is implemented in the worktree and is not yet
+  checkpointed or published.
+- Publication verification: the preceding checkpoint was verified on `unifold/main`. Re-run live
+  `git ls-remote origin refs/heads/main` after publishing this tranche and replace this note with the
+  exact implementation and verification commit hashes. The history also includes runtime isolation at
   `5a9795e`, semantic owner isolation at `0b9d569`, and repository source-ownership gates at
   `a6b4b60`.
 - Current implementation: the Scratch-style public JSON contract supports explicit logical control
@@ -66,6 +62,50 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - 1.0 traceability register: [`docs/acceptance-audit.md`](./docs/acceptance-audit.md)
 - Concise 34-criterion evidence register:
   [`docs/acceptance-status.md`](./docs/acceptance-status.md)
+
+## 2026-08-27 atomic application-update tranche
+
+- Status: implemented and checkpoint-ready; the overall goal remains active. All tranche-specific
+  gates pass. The broader managed-Firefox environment and Studio bundle budget remain open and are
+  recorded below.
+- `NormalizedNodeStore` now exposes one exact savepoint scope. Candidate transactions may advance
+  coordinator-visible state, but records and selection notifications remain hidden. Commit retains
+  the candidate and refreshes affected selections once; discard restores state, revision, metrics,
+  records, and retention order exactly.
+- `UnifoldRuntime.beginCoordination()` exclusively stages structural execution, derived-rule and
+  store-binding authority, composition manifests, actor registrations, canonical publication,
+  command-port effects, store writes, and async validation. Commit removes obsolete owners before
+  installing replacement actors, clears the gate, drains facts FIFO (including reentrant appends),
+  then starts effects and validation. Discard rewinds the event sequence and publishes nothing.
+- The mounted application now commits keyed DOM, Schema.org JSON-LD, and atomic XState replacement
+  before the runtime outbox becomes visible. Renderer, semantic, or workflow failure returns its
+  exact stage with the prior revision/state/DOM/focus/semantic graph intact and no ghost or
+  compensation facts. A failed peripheral restore quarantines and publishes only runtime disposal.
+- Colocated reactivity, runtime, machine, projection, semantic, and application tests cover exact
+  discard, coherent commit, recycled actor owners, reentrant ordering, downstream failure, retry,
+  and quarantine. A new Playwright journey passes 4/4 while injecting renderer and semantic
+  failures in Chromium and WebKit; it verifies identity, focus, accessibility, selective rendering,
+  Schema.org state, event ordering, and contiguous retry sequences. Public actor-adapter exceptions
+  are contained so one observer cannot interrupt sibling XState delivery during the committed
+  outbox drain.
+- Full Vitest coverage passes 618 files/1,698 tests at 97.26% statements/lines, 96.77% functions,
+  and 90.02% branches without weakening a threshold. Production and test TypeScript, lint and
+  complexity, 350-line files, 30-line functions, exact one-to-one test colocation, imported-local
+  re-export prevention, dependency analysis over 2,471 modules/5,578 dependencies, unused-code,
+  formatting, and duplication gates pass. All 40 production builds were exercised during this
+  tranche; the reference initial bundle remains 167,973 gzip bytes against the 190 KiB gate.
+- Browser product behavior passes on Chromium and WebKit: atomic-update 4/4, reference 125 passed
+  with three scale-profile skips, hierarchical 26/26, static export 81/81, host parity 8/8, and
+  Studio functionality 18/18. Every Firefox matrix fails in Playwright before application page
+  creation with the same managed-runner `_page` exception, so no Firefox product assertion was
+  exercised. The Studio production bundle is 256.96 KiB gzip against its 250 KiB ceiling; do not
+  treat the overall release gate as green until that 6.96 KiB regression is resolved without
+  weakening the threshold.
+- The schema `2.36.0` selective benchmark completes all 63/63 acceptance gates, including 10k-node
+  selective updates, lifecycle memory, virtual-list/data-grid behavior, transaction replay, and
+  derived-rule profiles. Next: resolve the Studio budget and managed Firefox runner, then implement
+  explicit signed module collection write authority and non-empty repeat identity rewriting,
+  followed by the remaining AC19 performance/provenance/migration work.
 
 ## 2026-08-27 Scratch-style authoring and lifecycle release gates
 

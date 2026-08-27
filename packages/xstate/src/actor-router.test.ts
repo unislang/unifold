@@ -18,6 +18,21 @@ describe("XStateEventRouter", () => {
   });
 });
 
+it("contains a failing actor without blocking sibling delivery", () => {
+  const delivered = vi.fn();
+  const router = new XStateEventRouter();
+  router.register("field", {
+    send: () => {
+      throw new Error("actor failed");
+    }
+  });
+  router.register("field", { send: delivered });
+
+  const event = exampleEvent();
+  expect(() => router.route(event)).not.toThrow();
+  expect(delivered).toHaveBeenCalledWith(toXStateEvent(event));
+});
+
 it("unregisters owners, clears ownership, and freezes actor events", () => {
   const actor = { send: vi.fn() };
   const router = new XStateEventRouter();
