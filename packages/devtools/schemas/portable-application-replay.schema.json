@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.unifold.org/devtools/portable-application-replay/1.0/schema.json",
+  "title": "Unifold Portable Application Replay",
+  "type": "object",
+  "required": [
+    "$schema",
+    "protocolVersion",
+    "document",
+    "machines",
+    "initialSnapshots",
+    "controls",
+    "events",
+    "mockedEffects",
+    "expected"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://schemas.unifold.org/devtools/portable-application-replay/1.0/schema.json"
+    },
+    "protocolVersion": { "const": "1.0.0" },
+    "document": { "$ref": "#/$defs/jsonObject" },
+    "machines": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/machine" }
+    },
+    "initialSnapshots": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10000,
+      "items": { "$ref": "#/$defs/jsonObject" }
+    },
+    "controls": { "$ref": "#/$defs/controls" },
+    "events": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10000,
+      "items": { "$ref": "#/$defs/jsonObject" }
+    },
+    "mockedEffects": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": { "$ref": "#/$defs/mockEffect" }
+    },
+    "expected": { "$ref": "#/$defs/jsonObject" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "jsonObject": { "type": "object" },
+    "boundedId": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "machine": {
+      "type": "object",
+      "required": ["schemaVersion", "id", "version", "ownerId", "initial", "states"],
+      "properties": {
+        "schemaVersion": { "const": "1.0.0" },
+        "id": { "$ref": "#/$defs/boundedId" },
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "ownerId": { "$ref": "#/$defs/boundedId" },
+        "initial": { "$ref": "#/$defs/boundedId" },
+        "states": { "type": "object", "minProperties": 1, "maxProperties": 256 }
+      },
+      "additionalProperties": false
+    },
+    "controls": {
+      "type": "object",
+      "required": ["clock", "randomness"],
+      "properties": {
+        "clock": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10000,
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+Z$"
+          }
+        },
+        "randomness": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10000,
+          "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,127}$" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "mockEffect": {
+      "type": "object",
+      "required": ["capability", "input", "outcome", "receipt"],
+      "properties": {
+        "capability": { "$ref": "#/$defs/boundedId" },
+        "input": { "$ref": "#/$defs/jsonObject" },
+        "outcome": { "enum": ["completed", "failed"] },
+        "receipt": { "$ref": "#/$defs/jsonObject" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

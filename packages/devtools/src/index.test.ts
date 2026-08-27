@@ -8,4 +8,6 @@ it("exports the bounded devtools surface", () => {
   expect(devtools.createDocumentDiff).toBeTypeOf("function");
   expect(devtools.inspectNodes).toBeTypeOf("function");
   expect(devtools.replayDocument).toBeTypeOf("function");
+  expect(devtools.createPortableReplayControlPort).toBeTypeOf("function");
+  expect(devtools.createPortableReplayEffectPort).toBeTypeOf("function");
 });

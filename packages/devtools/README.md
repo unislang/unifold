@@ -9,3 +9,13 @@ The session is a read-only runtime consumer. It never becomes a state authority,
 unbounded event history, never invokes recorded effects during replay, and is not a durable audit
 store. Studio rendering, component highlighting, transport, persistence, and vendor telemetry are
 host responsibilities.
+
+## Portable application replay
+
+`fixtures/portable-application-replay.json` is the versioned cross-package replay oracle. It pins
+the authored JSON document, exact machine definitions and versions, initial normalized snapshot,
+finite clock and randomness sequences, canonical input events, and explicit mocked-effect receipts.
+Its colocated test validates the fixture against
+`schemas/portable-application-replay.schema.json`, drives the real runtime and XState adapter twice,
+and requires byte-equivalent snapshots, machine states, public event projections, effect calls, and
+control consumption. No wall clock, random generator, network, or provider is consulted.

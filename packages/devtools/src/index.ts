@@ -1,5 +1,6 @@
 export { createDocumentDiff, documentFingerprint } from "./diff.js";
 export { inspectNodes } from "./picker.js";
+export * from "./portable-application-replay.js";
 export { projectNode, projectTimelineEvent } from "./privacy.js";
 export { replayDocument } from "./replay.js";
 export { UnifoldDevtoolsSession, type UnifoldDevtoolsSessionOptions } from "./session.js";

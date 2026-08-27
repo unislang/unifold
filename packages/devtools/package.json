@@ -7,6 +7,7 @@
   "sideEffects": false,
   "files": [
     "dist",
+    "fixtures",
     "schemas",
     "README.md",
     "src/**/*.ts",
@@ -18,7 +19,9 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./schemas/replay-plan.schema.json": "./schemas/replay-plan.schema.json"
+    "./schemas/replay-plan.schema.json": "./schemas/replay-plan.schema.json",
+    "./schemas/portable-application-replay.schema.json": "./schemas/portable-application-replay.schema.json",
+    "./fixtures/portable-application-replay.json": "./fixtures/portable-application-replay.json"
   },
   "scripts": {
     "build": "tsc -b",
@@ -44,6 +47,7 @@
     "rxjs": "^7.8.2"
   },
   "devDependencies": {
+    "@unislang/unifold-xstate": "workspace:*",
     "ajv": "8.20.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"

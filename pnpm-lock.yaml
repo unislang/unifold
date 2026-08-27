@@ -347,6 +347,9 @@ importers:
         specifier: ^7.8.2
         version: 7.8.2
     devDependencies:
+      '@unislang/unifold-xstate':
+        specifier: workspace:*
+        version: link:../xstate
       ajv:
         specifier: 8.20.0
         version: 8.20.0
