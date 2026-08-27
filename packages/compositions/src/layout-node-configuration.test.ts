@@ -12,4 +12,5 @@ it("defines enum-backed layout condition decisions and admitted node keys", () =
     true: ConditionDecision.Include
   });
   expect(LAYOUT_NODE_KEYS).toContain("collection");
+  expect(LAYOUT_NODE_KEYS).toContain("emptyFocusTarget");
 });

@@ -99,8 +99,9 @@ state; the explicit timeout exists only to cross the intentionally delayed valid
 - Removing the item that owns focus now selects the next surviving member at the same index, then
   the previous member. The canonical focus effect runs only after renderer, workflow, and semantic
   commit, retains trusted lineage, traverses nested layout hosts, and is proven in Chromium/WebKit.
-  Empty collections deliberately do not make inert layout content focusable; an authored fallback
-  reference and compiler validation remain open.
+  Final-member removal may name a validated `emptyFocusTarget`; missing, self-referential, disabled,
+  and non-focus-capable authored targets reject before mount, while empty collections without the
+  optional property deliberately do not make inert layout content focusable.
 - Renderer or semantic-projection failure can follow publication of the forward structural event.
   Compensation restores state, but external consumers do not yet receive one buffered atomic event
   or an explicit causally linked compensation contract.
@@ -115,13 +116,11 @@ collection acceptance criterion partial.
 
 ## Recommendations
 
-1. Specify and validate an authored empty-collection focus fallback before enabling singleton
-   removal in production authoring tools.
-2. Buffer structural event publication until renderer and semantic commit, or add an explicit
+1. Buffer structural event publication until renderer and semantic commit, or add an explicit
    causal compensation event that external consumers can reconcile safely.
-3. Add 1,000-member and end-to-end mutation browser/performance gates before optimizing compilation. Retain the
+2. Add 1,000-member and end-to-end mutation browser/performance gates before optimizing compilation. Retain the
    full-recompile path as the correctness oracle for any incremental implementation.
-4. Keep source pointers and key-property bindings private and retain the enum-backed, named public
+3. Keep source pointers and key-property bindings private and retain the enum-backed, named public
    collection operation contract.
 
 ## Claim-to-source ledger

@@ -14,6 +14,7 @@ import {
   parseLayoutRepeat,
   registerLayoutCollection,
   rejectLayoutCollection,
+  rejectLayoutEmptyFocusTarget,
   type LayoutRepeatDefinition
 } from "./layout-collections.js";
 import { resolveLayoutNodeContent } from "./layout-node-content.js";
@@ -128,7 +129,14 @@ function expandSingleNode(
     rejectLayoutCollection(path, context.diagnostics);
     return [];
   }
-  const node = expandNode(value, path, context);
+  if (value["emptyFocusTarget"] !== undefined) {
+    rejectLayoutEmptyFocusTarget(path, context.diagnostics);
+    return [];
+  }
+  return optionalNode(expandNode(value, path, context));
+}
+
+function optionalNode(node: JsonObject | undefined): readonly JsonObject[] {
   return node === undefined ? [] : [node];
 }
 
@@ -159,6 +167,7 @@ function expandParsedRepeat(
     !registerLayoutCollection(
       repeat.collection,
       repeat.key,
+      repeat.emptyFocusTargetId,
       sourcePointer,
       path,
       context.collectionsById,
@@ -230,33 +239,30 @@ function expandRepeatedRecord(
 ): readonly JsonObject[] {
   const variables = { ...context.variables, [alias]: record as JsonValue };
   const variablePointers = { ...context.variablePointers, [alias]: itemPointer };
-  const expanded = expandNode(
-    strippedRepeatNode(node),
-    path,
-    {
-      ...context,
-      variablePointers,
-      variables
-    },
-    key
-  );
+  const expanded = expandNode(strippedRepeatNode(node), path, {
+    ...context,
+    repeatNamespace: memberNamespace(context.repeatNamespace, key),
+    variablePointers,
+    variables
+  });
   return expanded === undefined ? [] : [expanded];
 }
 
 function strippedRepeatNode(value: Readonly<Record<string, unknown>>): Record<string, unknown> {
   const node = { ...value };
-  ["for", "if", "key"].forEach((key) => Reflect.deleteProperty(node, key));
+  ["collection", "emptyFocusTarget", "for", "if", "key"].forEach((key) =>
+    Reflect.deleteProperty(node, key)
+  );
   return node;
 }
 
 function expandNode(
   value: Readonly<Record<string, unknown>>,
   path: string,
-  context: ExpansionContext,
-  repeatKey?: string
+  context: ExpansionContext
 ): JsonObject | undefined {
   rejectUnknownKeys(value, LAYOUT_NODE_KEYS, path, context.diagnostics);
-  const id = resolveNodeIdentity(value["id"], repeatKey, path, context);
+  const id = resolveNodeIdentity(value["id"], context.repeatNamespace, path, context);
   if (id === undefined) return undefined;
   return expandIdentifiedNode(value, id, path, context);
 }
@@ -302,8 +308,12 @@ function resolveNodeIdentity(
   return id;
 }
 
-function repeatedId(baseId: string, repeatKey: string | undefined): string {
-  return repeatKey === undefined ? baseId : namespacedCompositionId(baseId, repeatKey);
+function repeatedId(baseId: string, repeatNamespace: string | undefined): string {
+  return repeatNamespace === undefined ? baseId : namespacedCompositionId(baseId, repeatNamespace);
+}
+
+function memberNamespace(parent: string | undefined, key: string): string {
+  return parent === undefined ? key : namespacedCompositionId(parent, key);
 }
 
 function resolveValue(value: unknown, path: string, context: ExpansionContext): unknown {

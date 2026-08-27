@@ -116,6 +116,34 @@ it("expands keyed repetitions and boolean conditions with stable identities", ()
   expect(requiredExpandedView(expandLayoutDocument(source))["$children"]).toBeUndefined();
 });
 
+it("namespaces every descendant in hierarchical repeated members", () => {
+  const source = layoutDocument();
+  source.variables["items"] = [
+    { id: "a", label: "Alpha" },
+    { id: "b", label: "Beta" }
+  ];
+  source.layouts[0].variables["items"] = { required: true, type: "array" };
+  source.layouts[0].template["children"] = [
+    {
+      children: [{ id: "label", props: { content: "{{item.label}}" }, type: "Text" }],
+      for: "item in {{items}}",
+      id: "member",
+      key: "id",
+      type: "Stack"
+    }
+  ];
+
+  const children = requiredExpandedView(expandLayoutDocument(source)).$children;
+  expect(children.map(({ id }) => id)).toEqual(["member::a", "member::b"]);
+  expect(children.map(repeatedChildId)).toEqual(["label::a", "label::b"]);
+});
+
+function repeatedChildId(child: Record<string, unknown>): unknown {
+  const children = child["$children"];
+  if (!Array.isArray(children)) return undefined;
+  return (children[0] as Record<string, unknown> | undefined)?.["id"];
+}
+
 it("rejects repeated numeric keys that are not durable JSON identities", () => {
   const source = layoutDocument();
   configureRepeatedActions(source);

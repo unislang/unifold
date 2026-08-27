@@ -104,6 +104,9 @@
     "node": {
       "type": "object",
       "additionalProperties": false,
+      "dependentRequired": {
+        "emptyFocusTarget": ["collection", "for", "key"]
+      },
       "required": ["id", "type"],
       "properties": {
         "id": { "oneOf": [{ "$ref": "#/$defs/name" }, { "$ref": "#/$defs/reference" }] },
@@ -121,6 +124,7 @@
           "additionalProperties": { "$ref": "#/$defs/name" }
         },
         "collection": { "$ref": "#/$defs/name" },
+        "emptyFocusTarget": { "$ref": "#/$defs/name" },
         "if": { "oneOf": [{ "type": "boolean" }, { "$ref": "#/$defs/reference" }] },
         "for": { "type": "string", "maxLength": 512 },
         "key": { "$ref": "#/$defs/name" }

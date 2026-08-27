@@ -13,6 +13,27 @@ it("publishes and applies the versioned layout authoring schema", () => {
   expect(schema.$id).toBe("https://schemas.unifold.org/layout-document/1.0/schema.json");
   expect(validateSchema.validate(validDocument()).valid).toBe(true);
   expect(validateLayoutDocumentShape(validDocument())).toEqual([]);
+  verifyEmptyFocusTarget(validateSchema);
+  verifyExternalAndInvalidDocuments(validateSchema);
+});
+
+function verifyEmptyFocusTarget(validateSchema: ReturnType<typeof compileSchema>): void {
+  const emptyFocusTarget = validDocument();
+  const definition = emptyFocusTarget.layouts[0] as Record<string, unknown>;
+  definition["template"] = {
+    collection: "items",
+    emptyFocusTarget: "add-item",
+    for: "item in {{items}}",
+    id: "item",
+    key: "id",
+    type: "TextField"
+  };
+  expect(validateSchema.validate(emptyFocusTarget).valid).toBe(true);
+  Reflect.deleteProperty(definition["template"] as object, "collection");
+  expect(validateSchema.validate(emptyFocusTarget).valid).toBe(false);
+}
+
+function verifyExternalAndInvalidDocuments(validateSchema: ReturnType<typeof compileSchema>): void {
   const external = { ...validDocument() };
   Reflect.deleteProperty(external, "layouts");
   expect(validateSchema.validate(external).valid).toBe(true);
@@ -22,7 +43,7 @@ it("publishes and applies the versioned layout authoring schema", () => {
   expect(validateLayoutDocumentShape(invalid)).toEqual(
     expect.arrayContaining([expect.objectContaining({ path: "/executable" })])
   );
-});
+}
 
 function validDocument() {
   return {

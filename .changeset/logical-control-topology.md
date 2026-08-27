@@ -29,5 +29,6 @@ submit/reset, and accessibility.
 
 Transfer focus deterministically when a focused authored member is removed: prefer the next member,
 then the previous member, resolve nested enabled controls through composed layout hosts, and publish
-one canonical focus effect with trusted operation lineage after successful UI commit. Do not create
-an artificial focus stop when the collection becomes empty.
+one canonical focus effect with trusted operation lineage after successful UI commit. Support an
+optional validated `emptyFocusTarget` for final-member removal without creating an artificial focus
+stop when no fallback is authored.

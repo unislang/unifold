@@ -67,6 +67,8 @@ export interface CompositionDiagnostic {
 export interface LayoutCollectionDefinition {
   readonly controlId: string;
   readonly declarationPointer: string;
+  readonly emptyFocusTargetId?: string;
+  readonly emptyFocusTargetPointer?: string;
   readonly keyProperty: string;
   readonly sourcePointer: string;
 }

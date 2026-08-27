@@ -2,7 +2,7 @@ import { ElementEventName } from "@unislang/unifold-elements";
 import { UiEventType, type UiEvent, type UiNodeSnapshot } from "@unislang/unifold-events";
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
 import type { DomRenderController } from "@unislang/unifold-renderer-dom";
-import { UnifoldRuntime } from "@unislang/unifold-runtime";
+import { UnifoldRuntime, type UiExecutionContext } from "@unislang/unifold-runtime";
 import type { UiMachineCommandRegistry, UiMachineGuardRegistry } from "@unislang/unifold-xstate";
 import type { Subscription } from "rxjs";
 import {
@@ -12,9 +12,10 @@ import {
 } from "./composition-migrations.js";
 import { ApplicationCollectionCoordinator } from "./application-collection.js";
 import {
-  collectionExecutionContext,
   collectionFocusTarget,
+  focusExecutionContext as focusContext,
   focusedNodeId,
+  requireAvailableFocusTarget,
   restoreApplicationFocus,
   restoreFocus
 } from "./application-focus.js";
@@ -176,7 +177,6 @@ export class UnifoldApplication {
       semanticConfigurationDiagnostic(this.semantics, document, stores, this.#engine.revision)
     ]);
   }
-
   private commitPrepared(
     next: PreparedUnifoldDocument,
     nextStores: PreparedApplicationStores,
@@ -188,16 +188,34 @@ export class UnifoldApplication {
       this.#engine,
       this.#renderer
     );
-    const collection = this.collections.current;
     const focusTarget = collectionFocusTarget(
       checkpoint.previousNodes,
       next.document,
-      collection?.metadata
+      this.collections.current?.metadata,
+      next.collectionsById
     );
     this.stageCandidate(next, nextStores);
     this.updating = true;
+    return this.reconcilePrepared(checkpoint, migration, next, nextStores, focusTarget);
+  }
+  private reconcilePrepared(
+    checkpoint: ApplicationUpdateCheckpoint,
+    migration: UiCompositionMigrationPlan,
+    next: PreparedUnifoldDocument,
+    nextStores: PreparedApplicationStores,
+    focusTarget: string | undefined
+  ): UnifoldApplicationUpdateResult {
     try {
-      executePreparedReconciliation(this.#engine, next, nextStores, migration, collection);
+      const reconciliation = executePreparedReconciliation(
+        this.#engine,
+        next,
+        nextStores,
+        migration,
+        this.collections.current
+      );
+      requireAvailableFocusTarget(this.#engine, next.document, focusTarget);
+      const context = focusContext(reconciliation);
+      return this.renderCommit(checkpoint, migration, next, focusTarget, context);
     } catch (error) {
       const rollbackError = this.restoreRuntime(checkpoint, migration);
       this.updating = false;
@@ -205,18 +223,16 @@ export class UnifoldApplication {
         rollbackResultDiagnostic(rollbackError, error, UnifoldApplicationDiagnosticStage.Runtime)
       ]);
     }
-    return this.commitRenderer(checkpoint, migration, next, focusTarget);
   }
-
-  private commitRenderer(
+  private renderCommit(
     checkpoint: ApplicationUpdateCheckpoint,
     migration: UiCompositionMigrationPlan,
     next: PreparedUnifoldDocument,
-    focusTarget: string | undefined
+    focusTarget: string | undefined,
+    context: UiExecutionContext
   ): UnifoldApplicationUpdateResult {
     let result: UnifoldApplicationUpdateResult;
     const nodes = checkpoint.previousNodes;
-    const context = collectionExecutionContext(this.collections.current);
     try {
       this.#renderer.update(next.document);
       this.projectAll(next.document);
@@ -233,7 +249,6 @@ export class UnifoldApplication {
     this.updating = false;
     return result;
   }
-
   private restore(
     checkpoint: ApplicationUpdateCheckpoint,
     migration: UiCompositionMigrationPlan
@@ -259,7 +274,6 @@ export class UnifoldApplication {
       return asError(error);
     }
   }
-
   private restoreRuntime(
     checkpoint: ApplicationUpdateCheckpoint,
     migration: UiCompositionMigrationPlan
@@ -286,14 +300,12 @@ export class UnifoldApplication {
       return asError(error);
     }
   }
-
   private stageCandidate(next: PreparedUnifoldDocument, stores: PreparedApplicationStores): void {
     this.current = next;
     this.stores = stores;
     this.#engine.replaceStoreBindings(stores.bindings);
     this.storeCommands?.replace(next.document, stores);
   }
-
   private restoreRuntimeTransaction(
     previous: PreparedUnifoldDocument,
     previousRevision: number,
@@ -305,20 +317,17 @@ export class UnifoldApplication {
       reconcileCommand(previous.document, previousNodes, reverseMigrationPlan(migration))
     ]);
   }
-
   private readonly onElementEvent = (event: Event): void => {
     const uiEvent = (event as CustomEvent<UiEvent>).detail;
     const accepted = this.#engine.ingestIntent(uiEvent);
     const command = commandForEvent(accepted);
     if (command !== undefined) this.#engine.execute([command], eventExecutionContext(accepted));
   };
-
   private readonly onRuntimeEvent = (event: UiEvent): void => {
     if (this.updating || event.type !== UiEventType.TransactionCommitted) return;
     this.projectTransaction(event.staterevision);
     this.refreshSemantics();
   };
-
   private refreshSemantics(): void {
     this.semantics?.refreshRuntime(this.current.document, this.#engine);
   }

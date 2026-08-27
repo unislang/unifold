@@ -38,7 +38,10 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   collection authority coupled to explicit Array/Record controls, mounted applications reconcile
   authored insert/move/remove operations, and mounted runtime/renderer capabilities deny raw
   structural mutation. Focused-member removal now transfers to the next or previous surviving
-  member through the canonical post-commit focus effect without making empty layout hosts focusable.
+  member through the canonical post-commit focus effect. A named repeat may now declare a validated
+  `emptyFocusTarget`; final-member removal transfers focus to that stable authored destination
+  without making empty layout hosts focusable. Hierarchical repeated members namespace their root
+  and every descendant by durable key.
   The bounded adopter CLI/starter,
   governed AI provider boundary, Studio dogfood workflow, multi-application semantic isolation,
   exact test colocation, re-export prevention, and completed reference/hierarchical/Studio module
@@ -83,11 +86,53 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   initial ceiling, and repository formatting passes. The authored collection lifecycle passes 2/2
   in Chromium/WebKit with native `toBeFocused()` assertions and exactly one public focus-request
   target.
-- Remaining AC19 work starts with a validated authored empty-collection fallback reference, followed
-  by buffered structural event publication or an explicit compensation contract, end-to-end large
+- Remaining AC19 work starts with buffered structural event publication or an explicit compensation
+  contract, end-to-end large
   collection mutation performance, exact composition-control provenance and aggregate-shape
   migration, rendered composition mounts, wrapper-refactor identity/focus/rollback, and
   schema-derived handle typing.
+
+## 2026-08-27 authored empty-collection focus tranche
+
+- Status: locally implemented and release-gate verified; not yet committed or published. The overall
+  goal remains active.
+- Scratch-style repeated nodes can declare `emptyFocusTarget` beside a named `collection`. Draft
+  2020-12 schema dependencies require the collection/repeat/key tuple; parsing rejects unsafe or
+  unscoped references; complete layout expansion resolves forward references and requires a stable,
+  enabled focusable node or focusable subtree. The exact declaration pointer is retained in the
+  compiler-authorized `PreparedUnifoldDocument.collectionsById` policy.
+- Hierarchical repeat identity now propagates the durable member namespace through every descendant,
+  so two repeated Stack compositions can contain the same authored child IDs without collisions.
+  This also prevents a disappearing member descendant from masquerading as a stable empty target.
+  Nested named collections still need separately scoped collection authority and are not claimed.
+- A focused removal still prefers the next member at the removed index, then the previous member.
+  Only an empty post-update logical collection uses the authored target; unrelated focus, no focus,
+  non-removal operations, absent policy, and targets missing from the next candidate do not emit a
+  request. After reconciliation, runtime state preflights the target subtree for a visible,
+  interactive, enabled destination before renderer commit; failure rolls the candidate back.
+- The structural reconciliation record now supplies the focus transaction's correlation ID and its
+  runtime-owned transaction ID as causation. This preserves a canonical structural-to-effect chain
+  even when the host supplies no origin, while still rejecting transaction spoofing.
+- The reference fixture continues its real collection journey through two final removals. Chromium
+  and WebKit pass 2/2: authored order, aggregate value, and rendered members become empty, the Add
+  button receives composed DOM focus, and the public stream records the expected focus requests.
+  Focused unit evidence covers schema parity, exact invalid-target diagnostics, hierarchical member
+  identity, next/previous precedence, missing targets, mounted last-known-good rejection, and exact
+  structural-to-focus causation.
+- `pnpm quality` passes all file/function/complexity, 1:1 colocation, import/re-export, lint,
+  production/test TypeScript, dependency (2,422 modules/5,429 edges), and unused-code gates. The
+  focused Vitest set passes 25/25, root Vitest passes 605 files/1,613 tests, tooling passes 22/22,
+  generated/module-lock scripts pass, and performance correctness passes 39 files/50 tests with 32
+  profile files skipped. All 40 builds pass; the reference production closure is 163,632 gzip bytes
+  plus 84,999 deferred against the 190 KiB initial ceiling. The reference E2E build passes and the
+  focused Chromium/WebKit browser journey passes 2/2.
+- Remaining gaps: collection policy is retained in the prepared sidecar rather than first-class IR,
+  and resolved module artifacts currently discard it; CSS-only hidden/unfocusable DOM state can
+  still make the asynchronous renderer effect resolve without proving deepest active focus; named
+  collections without a fallback retain the prior no-transfer behavior when the final focused member
+  is removed. These limitations remain explicit alongside AC19 renderer/event atomicity, large
+  end-to-end mutation performance, provenance/migration/rendered-mount, wrapper-refactor, and
+  schema-derived typing work.
 
 ## 2026-08-27 mounted authority and logical collection tranche
 

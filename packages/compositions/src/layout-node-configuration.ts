@@ -8,6 +8,7 @@ export interface LayoutNodeExpansionContext {
   readonly collectionsById: Record<string, LayoutCollectionDefinition>;
   readonly diagnostics: CompositionDiagnostic[];
   readonly ids: Set<string>;
+  readonly repeatNamespace?: string;
   readonly sourcePointers: Record<string, string>;
   readonly variablePointers: Readonly<Record<string, string>>;
   readonly variables: Readonly<Record<string, JsonValue>>;
@@ -28,7 +29,7 @@ export enum ConditionDecision {
 }
 
 export const LAYOUT_NODE_KEYS = new Set(
-  "children collection events for id if key props type".split(" ")
+  "children collection emptyFocusTarget events for id if key props type".split(" ")
 );
 
 export const BOOLEAN_CONDITION_DECISIONS = {

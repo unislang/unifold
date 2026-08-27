@@ -14,10 +14,12 @@ import {
 import { createAsyncValidatorRegistry, type UiValidationContext } from "@unislang/unifold-forms";
 import {
   collectionOperationTypes,
+  focusedNodeId,
   focusRequestIds,
   lateRemovedEventCount,
   operationEventsAreCausal,
-  operationEventsHaveTrustedOrigin
+  operationEventsHaveTrustedOrigin,
+  renderedNodeIds
 } from "./collection-event-evidence.js";
 
 interface CollectionFixtureWindow {
@@ -26,12 +28,14 @@ interface CollectionFixtureWindow {
 
 interface CollectionFixtureHooks {
   bypass(): boolean;
+  empty(): UnifoldApplicationUpdateStatus;
   insert(): UnifoldApplicationUpdateStatus;
   mount(): UnifoldApplicationMountStatus;
   move(): UnifoldApplicationUpdateStatus;
   observe(): CollectionFixtureObservation;
   reject(): UnifoldApplicationUpdateStatus;
   remove(): UnifoldApplicationUpdateStatus;
+  removeFocused(): UnifoldApplicationUpdateStatus;
 }
 
 interface CollectionFixtureObservation {
@@ -62,12 +66,14 @@ let mounted: MountedCollectionFixture | undefined;
 function installCollectionFixtureHooks(): void {
   (window as unknown as CollectionFixtureWindow).__unifoldCollectionFixture = {
     bypass: denyStructuralBypass,
+    empty: emptyCollection,
     insert: insertCollectionItem,
     mount: mountCollectionFixture,
     move: moveCollectionItem,
     observe: observeCollectionFixture,
     reject: rejectCollectionItem,
-    remove: removeCollectionItem
+    remove: removeCollectionItem,
+    removeFocused: removeFocusedCollectionItem
   };
 }
 
@@ -149,15 +155,36 @@ function rejectCollectionItem(): UnifoldApplicationUpdateStatus {
   }).status;
 }
 
+function removeFocusedCollectionItem() {
+  return removeByKey("a", "4", "5");
+}
+
+function emptyCollection() {
+  return removeByKey("b", "5", "6");
+}
+
+function removeByKey(key: string, expectedRevision: string, revision: string) {
+  return requireCollectionFixture().application.applyCollectionOperation(
+    {
+      collectionId: "items",
+      expectedRevision,
+      key,
+      revision,
+      type: UiCollectionOperationType.Remove
+    },
+    collectionOrigin(UiCollectionOperationType.Remove)
+  ).status;
+}
+
 function observeCollectionFixture(): CollectionFixtureObservation {
   const fixture = requireCollectionFixture();
   const authored = fixture.application.authored as ReturnType<typeof collectionDocument>;
   return {
     aggregateValue: fixture.application.runtime.getSnapshot("items").control?.value,
     alphaRetained: fixture.application.renderer.getElement("field::a") === fixture.alpha,
-    alphaValue: fixture.application.runtime.getSnapshot("field::a").control?.value,
+    alphaValue: controlValue(fixture, "field::a"),
     authoredKeys: authored.variables.items.map(({ id }) => id),
-    ...optionalFocusedId(focusedNodeId()),
+    ...optionalFocusedId(focusedNodeId(document.body)),
     focusRequestIds: focusRequestIds(fixture.events),
     lateRemovedEvents: lateRemovedEventCount(fixture.events, fixture.removedAtSequence),
     operationEventsCausal: operationEventsAreCausal(fixture.events),
@@ -235,7 +262,10 @@ function collectionLayout() {
   return {
     layoutType: "collection",
     template: {
-      children: [{ children: [collectionField()], id: "items", type: "Stack" }],
+      children: [
+        { children: [collectionField()], id: "items", type: "Stack" },
+        { id: "add-item", props: { label: "Add item" }, type: "Button" }
+      ],
       id: "collection-form",
       type: "Form"
     },
@@ -247,6 +277,7 @@ function collectionLayout() {
 function collectionField(): JsonObject {
   return {
     collection: "items",
+    emptyFocusTarget: "add-item",
     for: "item in {{items}}",
     id: "field",
     key: "id",
@@ -274,30 +305,9 @@ function collectionControls() {
   };
 }
 
-function renderedNodeIds(container: HTMLElement): readonly string[] {
-  return composedElements(container)
-    .filter(({ dataset }) => dataset["unifoldNodeId"]?.startsWith("field::") === true)
-    .map(({ id }) => id);
-}
-
-function composedElements(root: ParentNode): readonly HTMLElement[] {
-  return [...root.children].flatMap((child) => {
-    const element = child as HTMLElement;
-    return [
-      element,
-      ...composedElements(element),
-      ...(element.shadowRoot === null ? [] : composedElements(element.shadowRoot))
-    ];
-  });
-}
-
-function focusedNodeId(): string | undefined {
-  return [...composedElements(document.body)]
-    .reverse()
-    .find(
-      (element) =>
-        element.dataset["unifoldNodeId"] !== undefined && element.matches(":focus-within")
-    )?.dataset["unifoldNodeId"];
+function controlValue(fixture: MountedCollectionFixture, id: string): unknown {
+  if (fixture.application.renderer.getElement(id) === undefined) return undefined;
+  return fixture.application.runtime.getSnapshot(id).control?.value;
 }
 
 function optionalFocusedId(id: string | undefined): { readonly focusedId?: string } {

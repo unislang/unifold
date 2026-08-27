@@ -1,3 +1,4 @@
+import type { LayoutCollectionDefinition } from "@unislang/unifold-compositions";
 import { UiCollectionOperationType } from "@unislang/unifold-contracts";
 import {
   UiCommandType,
@@ -11,12 +12,6 @@ import type { UiExecutionContext, UnifoldRuntime } from "@unislang/unifold-runti
 import type { UiCompositionMigrationPlan } from "./composition-migrations.js";
 
 type IndexedCollectionRemoval = UiCollectionReconcileMetadata & { readonly fromIndex: number };
-
-export function collectionExecutionContext(
-  collection: { readonly context: UiExecutionContext } | undefined
-): UiExecutionContext | undefined {
-  return collection === undefined ? undefined : collection.context;
-}
 
 export function focusedNodeId(nodes: readonly UiNodeSnapshot[]): string | undefined {
   return nodes.find(({ base }) => base.focused)?.id;
@@ -33,12 +28,13 @@ export function migratedFocusedNodeId(
 export function collectionFocusTarget(
   previousNodes: readonly UiNodeSnapshot[],
   next: UnifoldIrDocument,
-  collection?: UiCollectionReconcileMetadata
+  collection: UiCollectionReconcileMetadata | undefined,
+  definitions: Readonly<Record<string, LayoutCollectionDefinition>>
 ): string | undefined {
   const focused = focusedNodeId(previousNodes);
   if (focused === undefined) return undefined;
   if (next.nodesById[focused] !== undefined) return undefined;
-  return removedCollectionFocusTarget(focused, previousNodes, next, collection);
+  return removedCollectionFocusTarget(focused, previousNodes, next, collection, definitions);
 }
 
 export function restoreApplicationFocus(
@@ -54,6 +50,23 @@ export function restoreApplicationFocus(
     return;
   }
   restoreFocus(renderer, migratedFocusedNodeId(nodes, migration));
+}
+
+export function focusExecutionContext(reconciliation: {
+  readonly correlationId: string;
+  readonly id: string;
+}): UiExecutionContext {
+  return { causationId: reconciliation.id, correlationId: reconciliation.correlationId };
+}
+
+export function requireAvailableFocusTarget(
+  runtime: UnifoldRuntime,
+  document: UnifoldIrDocument,
+  targetId: string | undefined
+): void {
+  if (targetId === undefined) return;
+  if (focusableRuntimeNode(runtime, document, targetId)) return;
+  throw new Error(`Collection focus target is unavailable: ${targetId}.`);
 }
 
 export function restoreFocus(renderer: DomRenderController, nodeId: string | undefined): void {
@@ -74,13 +87,27 @@ function removedCollectionFocusTarget(
   focused: string,
   previousNodes: readonly UiNodeSnapshot[],
   next: UnifoldIrDocument,
-  collection: UiCollectionReconcileMetadata | undefined
+  collection: UiCollectionReconcileMetadata | undefined,
+  definitions: Readonly<Record<string, LayoutCollectionDefinition>>
 ): string | undefined {
   const removal = indexedRemoval(collection);
   if (removal === undefined) return undefined;
   const nodes = nodeRecord(previousNodes);
   if (!removedMemberWasFocused(focused, removal, nodes)) return undefined;
-  return survivingCollectionTarget(next, removal.collectionId, removal.fromIndex);
+  return survivingCollectionTarget(
+    next,
+    removal.collectionId,
+    removal.fromIndex,
+    emptyFocusTargetId(definitions, removal.collectionId)
+  );
+}
+
+function emptyFocusTargetId(
+  definitions: Readonly<Record<string, LayoutCollectionDefinition>>,
+  collectionId: string
+): string | undefined {
+  if (!Object.hasOwn(definitions, collectionId)) return undefined;
+  return definitions[collectionId]?.emptyFocusTargetId;
 }
 
 function indexedRemoval(
@@ -120,16 +147,64 @@ function removedMemberId(
 function survivingCollectionTarget(
   next: UnifoldIrDocument,
   collectionId: string,
-  removedIndex: number
+  removedIndex: number,
+  fallbackId: string | undefined
 ): string | undefined {
   const collection = next.nodesById[collectionId];
   if (collection === undefined) return undefined;
-  return targetFromChildren(collection.controlChildIds ?? [], removedIndex);
+  return targetFromChildren(
+    collection.controlChildIds ?? [],
+    removedIndex,
+    availableFallback(next, fallbackId)
+  );
 }
 
-function targetFromChildren(children: readonly string[], removedIndex: number): string | undefined {
-  if (children.length === 0) return undefined;
+function targetFromChildren(
+  children: readonly string[],
+  removedIndex: number,
+  fallbackId: string | undefined
+): string | undefined {
+  if (children.length === 0) return fallbackId;
   return children[Math.min(removedIndex, children.length - 1)];
+}
+
+function availableFallback(
+  next: UnifoldIrDocument,
+  fallbackId: string | undefined
+): string | undefined {
+  if (fallbackId === undefined) return undefined;
+  return next.nodesById[fallbackId] === undefined ? undefined : fallbackId;
+}
+
+function focusableRuntimeNode(
+  runtime: UnifoldRuntime,
+  document: UnifoldIrDocument,
+  rootId: string
+): boolean {
+  const pending = [rootId];
+  for (const id of pending) {
+    if (isRuntimeFocusDestination(runtime, document, id)) return true;
+    pending.push(...runtimeNodeChildren(document, id));
+  }
+  return false;
+}
+
+function isRuntimeFocusDestination(
+  runtime: UnifoldRuntime,
+  document: UnifoldIrDocument,
+  id: string
+): boolean {
+  if (document.nodesById[id] === undefined) return false;
+  return isAvailableFocusBase(runtime.getSnapshot(id).base);
+}
+
+function isAvailableFocusBase(base: UiNodeSnapshot["base"]): boolean {
+  return [base.interactive, !base.disabled, base.visible].every(Boolean);
+}
+
+function runtimeNodeChildren(document: UnifoldIrDocument, id: string): readonly string[] {
+  const node = document.nodesById[id];
+  return node === undefined ? [] : node.childIds;
 }
 
 function belongsToMember(

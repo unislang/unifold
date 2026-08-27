@@ -18,12 +18,14 @@ interface CollectionObservation {
 
 interface CollectionHooks {
   bypass(): boolean;
+  empty(): UnifoldApplicationUpdateStatus;
   insert(): UnifoldApplicationUpdateStatus;
   mount(): UnifoldApplicationMountStatus;
   move(): UnifoldApplicationUpdateStatus;
   observe(): CollectionObservation;
   reject(): UnifoldApplicationUpdateStatus;
   remove(): UnifoldApplicationUpdateStatus;
+  removeFocused(): UnifoldApplicationUpdateStatus;
 }
 
 interface CollectionWindow extends Window {
@@ -52,6 +54,7 @@ test("reconciles authored collections by durable key and drops stale async work"
   await assertFinalObservation(page);
   expect(await callHook(page, "reject")).toBe(UnifoldApplicationUpdateStatus.Rejected);
   await assertFinalObservation(page);
+  await assertEmptyFocusLifecycle(page);
 });
 
 type ScenarioPage = Parameters<typeof callHook>[0];
@@ -89,6 +92,27 @@ async function assertFinalObservation(page: ScenarioPage): Promise<void> {
     operationTypes: ["insert", "move", "remove"],
     renderedIds: ["field::b", "field::a"],
     revision: "4"
+  });
+}
+
+async function assertEmptyFocusLifecycle(page: ScenarioPage): Promise<void> {
+  expect(await callHook(page, "removeFocused")).toBe(UnifoldApplicationUpdateStatus.Applied);
+  await expect(page.getByLabel("Beta")).toBeFocused();
+  expect(await observe(page)).toMatchObject({
+    aggregateValue: ["Beta"],
+    authoredKeys: ["b"],
+    focusRequestIds: ["field::a", "field::b"],
+    revision: "5"
+  });
+  expect(await callHook(page, "empty")).toBe(UnifoldApplicationUpdateStatus.Applied);
+  await expect(page.getByRole("button", { name: "Add item" })).toBeFocused();
+  expect(await observe(page)).toMatchObject({
+    aggregateValue: [],
+    authoredKeys: [],
+    focusRequestIds: ["field::a", "field::b", "add-item"],
+    focusedId: "add-item",
+    renderedIds: [],
+    revision: "6"
   });
 }
 

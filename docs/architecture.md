@@ -161,7 +161,11 @@ Focused-member removal now resolves the removed root from logical `controlChildI
 member at the removed index or the preceding member when the removed member was last, and issues one
 canonical `focus.request` only after renderer, machine, and semantic commit succeed. The DOM resolver
 finds the first enabled composed control through nested layout hosts and does not fabricate a focus
-stop on an empty container. An authored empty-collection fallback reference remains to be specified.
+stop on an empty container. A named repeated node may instead declare `emptyFocusTarget` with the
+stable ID of a distinct authored node. Compilation rejects missing, self-referential, disabled, or
+non-focus-capable targets; the mounted update also verifies that a usable target remains in the
+candidate runtime before committing final-member removal. The resulting focus transaction names the
+structural reconciliation transaction as its cause while retaining the trusted correlation ID.
 Invalid authored input rejects before commit; post-runtime renderer failure,
 compensation, and unified-event atomicity still need browser proof. Representative large authored
 collection end-to-end mutation performance remains broader than the 500-item compile/revision gates. Composition control declarations currently

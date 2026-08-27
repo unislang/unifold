@@ -6,6 +6,7 @@ import {
   type LayoutCollectionControlMember
 } from "./layout-collection-controls.js";
 import { expandLayoutRoot } from "./layout-nodes.js";
+import { validateLayoutCollectionFocusTargets } from "./layout-collections.js";
 import { validateLayoutJson, validateLayoutJsonAt } from "./layout-safety.js";
 import { TrustedLayoutDefinitionRegistry } from "./layout-registry.js";
 import { layoutVariableSourcePointers } from "./layout-source-pointers.js";
@@ -142,6 +143,7 @@ function completeExpansion(
   diagnostics: CompositionDiagnostic[]
 ): LayoutExpansionResult {
   if (diagnostics.length > 0) return invalid(diagnostics);
+  validateLayoutCollectionFocusTargets(view, state, diagnostics);
   const controls = coupleLayoutCollectionControls(
     document["controls"],
     state.collectionsById,

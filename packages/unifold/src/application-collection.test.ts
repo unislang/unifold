@@ -89,10 +89,13 @@ function assertCollectionEvidence(fixture: CollectionFixture): void {
     { id: "b", label: "Beta" },
     { id: "a", label: "Alpha" }
   ]);
-  expect(structuralEvents(fixture.events)).toHaveLength(3);
+  const structures = structuralEvents(fixture.events);
+  expect(structures).toHaveLength(3);
+  const removal = structures.at(-1);
+  if (removal === undefined) throw new Error("Collection removal evidence is missing.");
   expect(focusEvents(fixture.events)).toMatchObject([
     {
-      causationid: "collection-remove",
+      causationid: removal.transactionid,
       correlationid: "collection-journey",
       data: { sourceNode: { id: "field::a" } }
     }
@@ -179,6 +182,14 @@ it("requires named collections to own an explicit array or record control", () =
     diagnostics: [{ path: "/layouts/0/template/children/0/children/0/collection" }],
     status: "rejected"
   });
+  const missingFocus = collectionDocument();
+  const missingFocusLayout = missingFocus.layouts[0];
+  if (missingFocusLayout === undefined) throw new Error("Collection layout is missing.");
+  missingFocusLayout.template.children.pop();
+  expect(mountUnifoldApplication(missingFocus, document.createElement("main"))).toMatchObject({
+    diagnostics: [{ path: "/layouts/0/template/children/0/children/0/emptyFocusTarget" }],
+    status: "rejected"
+  });
 });
 
 it("projects the same named repeat through record authority by durable key", () => {
@@ -228,6 +239,7 @@ function collectionLayout() {
           children: [
             {
               collection: "items",
+              emptyFocusTarget: "add-item",
               for: "item in {{items}}",
               id: "field",
               key: "id",
@@ -237,7 +249,8 @@ function collectionLayout() {
           ],
           id: "items",
           type: "Stack"
-        }
+        },
+        { id: "add-item", props: { label: "Add item" }, type: "Button" }
       ],
       id: "collection-form",
       type: "Form"

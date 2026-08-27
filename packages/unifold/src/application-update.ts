@@ -1,7 +1,8 @@
 import {
   UiCommandType,
   type StructureReconcileCommand,
-  type UiNodeSnapshot
+  type UiNodeSnapshot,
+  type UiTransactionRecord
 } from "@unislang/unifold-events";
 import type { UiCollectionReconcileMetadata } from "@unislang/unifold-events";
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
@@ -121,11 +122,11 @@ export function executePreparedReconciliation(
     readonly context: UiExecutionContext;
     readonly metadata: UiCollectionReconcileMetadata;
   }
-): void {
+): UiTransactionRecord {
   const { context, metadata } = collection ?? {};
   const nodes = createApplicationSnapshots(next.document, runtime.revision, stores);
   runtime.replaceRules(next.document.rules, nodes);
-  runtime.execute([reconcileCommand(next.document, nodes, migration, metadata)], context);
+  return runtime.execute([reconcileCommand(next.document, nodes, migration, metadata)], context);
 }
 
 function migrationAliases(

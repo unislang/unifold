@@ -408,9 +408,12 @@ structural command families are absent from the mounted port and retained by the
 the mounted renderer exposes lookup only. The clean packed-consumer 5/5 suite repeats the raw
 structural denial against installed tarballs before continuing ordinary interaction and authored
 update. The focused Chromium/WebKit journey also asserts the removed native input disappears, the
-adjacent native input is focused, and exactly one canonical focus-request target appears in the
-public event observation. Remaining work includes an explicit authored empty-collection fallback, post-runtime
-renderer rollback/event atomicity, and end-to-end collection mutation performance beyond the
+adjacent native input is focused, the final-member removal focuses an authored `emptyFocusTarget`,
+and exactly one canonical focus-request target appears per focused removal in the public event
+observation. Compiler tests reject missing, self-referential, disabled, and non-focusable fallback
+targets, while integration evidence links each focus transaction causally to its structural
+reconciliation transaction. Remaining work includes post-runtime renderer rollback/event atomicity,
+and end-to-end collection mutation performance beyond the
 500-item compile/revision gates. Remaining AC19 work also includes exact composition-control provenance,
 aggregate-shape migration, a rendered composition mount, wrapper-refactor identity/focus/rollback,
 and schema-derived handle typing.

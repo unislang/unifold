@@ -12,11 +12,13 @@ it("installs the bounded authored-collection browser fixture hooks", () => {
 
   expect(Object.keys(hooks ?? {}).sort()).toEqual([
     "bypass",
+    "empty",
     "insert",
     "mount",
     "move",
     "observe",
     "reject",
-    "remove"
+    "remove",
+    "removeFocused"
   ]);
 });

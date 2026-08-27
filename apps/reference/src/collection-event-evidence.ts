@@ -44,6 +44,32 @@ export function lateRemovedEventCount(
   return events.filter((event) => isLateRemovedEvent(event, removedAt)).length;
 }
 
+export function renderedNodeIds(container: HTMLElement): readonly string[] {
+  return composedElements(container)
+    .filter(({ dataset }) => dataset["unifoldNodeId"]?.startsWith("field::") === true)
+    .map(({ id }) => id);
+}
+
+export function focusedNodeId(root: ParentNode): string | undefined {
+  return [...composedElements(root)]
+    .reverse()
+    .find(
+      (element) =>
+        element.dataset["unifoldNodeId"] !== undefined && element.matches(":focus-within")
+    )?.dataset["unifoldNodeId"];
+}
+
+function composedElements(root: ParentNode): readonly HTMLElement[] {
+  return [...root.children].flatMap((child) => {
+    const element = child as HTMLElement;
+    return [
+      element,
+      ...composedElements(element),
+      ...(element.shadowRoot === null ? [] : composedElements(element.shadowRoot))
+    ];
+  });
+}
+
 function operationEvents(events: readonly UiEvent[]): readonly UiEvent[] {
   return events.filter((event) => eventCollectionMetadata(event) !== undefined);
 }
