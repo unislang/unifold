@@ -18,13 +18,13 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
 - Latest implementation checkpoint:
-  `c29ed6e5bc5e385cce7000063ba99094bae50ddb`
-  (`feat: add versioned UI module resolution`) on
+  `fbd66bfd24c896ad78084fa30c03424132be622b`
+  (`feat: add bounded JSON UI project builds`) on
   `https://github.com/unislang/unifold.git`.
-- Current published repository checkpoint before this tranche:
-  `49cb43916db996e31096f767c72a610539b3fa76`
-  (`docs: record UI module publication checkpoint`). The module/CLI/reference/performance integration
-  described below is ready for a scoped commit; the other named local tranches remain preserved.
+- Publication verification: local `HEAD`, local `origin/main`, and live
+  `git ls-remote origin refs/heads/main` all resolved to
+  `fbd66bfd24c896ad78084fa30c03424132be622b` after the push. The other named local tranches remain
+  unstaged and preserved.
 - Current local implementation: the `NumberField`, `SearchField`, `CheckboxGroup`, `Switch`, and
   `DateField`, `Toast`, and `Pagination` families are committed as implementation checkpoints. The
   current scoped checkpoint adds the bounded adopter CLI/starter and Scratch-style module build
@@ -203,6 +203,9 @@ collaboration/rebase/undo; and the full multi-turn design surface.
 
 ## UiModule layout/lock integration checkpoint
 
+- Published implementation commit: `fbd66bfd24c896ad78084fa30c03424132be622b`
+  (`feat: add bounded JSON UI project builds`) on `unifold/main`; exact local, remote-tracking, and
+  live-remote hashes matched after publication.
 - Module resolution accepts the intended Scratch-style `layoutType`, typed `variables`, and nested
   `type`/`props`/`events` document shape before deterministic composition expansion. Canonical module
   exports remain supported.
