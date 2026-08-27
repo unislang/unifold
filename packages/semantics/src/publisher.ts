@@ -6,8 +6,7 @@ export function publishJsonLd(
   ownerId: string,
   replacedOwnerId?: string
 ): HTMLScriptElement {
-  const existing = singlePublication(document);
-  assertOwner(existing, ownerId, replacedOwnerId);
+  const existing = ownedPublication(document, ownerId, replacedOwnerId);
   const script = document.createElement("script");
   script.type = "application/ld+json";
   script.dataset["unifoldSemantics"] = ownerId;
@@ -22,14 +21,16 @@ export function removeJsonLd(document: Document, ownerId: string, replacedOwnerI
     .forEach((publication) => publication.remove());
 }
 
-function assertOwner(
-  existing: HTMLScriptElement | null,
+function ownedPublication(
+  document: Document,
   ownerId: string,
   replacedOwnerId?: string
-): void {
-  if (existing === null) return;
-  if (isAcceptedOwner(existing, ownerId, replacedOwnerId)) return;
-  throw new Error(`Semantic head is already owned by ${existingOwner(existing)}.`);
+): HTMLScriptElement | null {
+  const publications = existingPublications(document).filter((publication) =>
+    isAcceptedOwner(publication, ownerId, replacedOwnerId)
+  );
+  if (publications.length > 1) throw duplicateOwnerError(ownerId);
+  return firstPublication(publications);
 }
 
 function isAcceptedOwner(
@@ -45,10 +46,8 @@ function existingOwner(existing: HTMLScriptElement): string | undefined {
   return existing.dataset["unifoldSemantics"];
 }
 
-function singlePublication(document: Document): HTMLScriptElement | null {
-  const publications = existingPublications(document);
-  if (publications.length > 1) throw new Error("Semantic head contains multiple publications.");
-  return firstPublication(publications);
+function duplicateOwnerError(ownerId: string): Error {
+  return new Error(`Semantic owner ${ownerId} contains multiple publications.`);
 }
 
 function firstPublication(publications: readonly HTMLScriptElement[]): HTMLScriptElement | null {

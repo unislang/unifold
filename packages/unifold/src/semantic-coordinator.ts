@@ -69,7 +69,7 @@ export class UiSemanticCoordinator {
 
   private assertAdoptableOwner(): void {
     if (this.adoptedOwnerId === undefined) return;
-    const current = publicationOwner(requireStaticPublication(this.owner));
+    const current = publicationOwner(requireStaticPublication(this.owner, this.adoptedOwnerId));
     if (current === this.adoptedOwnerId) return;
     throw new UiSemanticConfigurationError(`Semantic head is already owned by ${current}.`);
   }
@@ -110,8 +110,9 @@ function semanticError(
 }
 
 function nextOwnerId(document: Document): string {
+  const ownerIds = existingOwnerIds(document);
   let ownerId = ownerCandidate();
-  while (existingOwner(document) === ownerId) ownerId = ownerCandidate();
+  while (ownerIds.has(ownerId)) ownerId = ownerCandidate();
   return ownerId;
 }
 
@@ -120,24 +121,22 @@ function ownerCandidate(): string {
   return `unifold-application-${ownerSequence}`;
 }
 
-function existingOwner(document: Document): string | undefined {
-  return existingPublication(document)?.dataset["unifoldSemantics"];
-}
-
-function existingPublication(document: Document): HTMLScriptElement | null {
-  return document.head.querySelector<HTMLScriptElement>(publicationSelector);
+function existingOwnerIds(document: Document): ReadonlySet<string | undefined> {
+  return new Set(existingPublications(document).map(publicationOwner));
 }
 
 function existingPublications(document: Document): readonly HTMLScriptElement[] {
   return [...document.head.querySelectorAll<HTMLScriptElement>(publicationSelector)];
 }
 
-function requireStaticPublication(document: Document): HTMLScriptElement {
-  const publications = existingPublications(document);
+function requireStaticPublication(document: Document, ownerId: string): HTMLScriptElement {
+  const publications = existingPublications(document).filter(
+    (publication) => publicationOwner(publication) === ownerId
+  );
   const publication = publications[0];
   if (publications.length === 1 && publication !== undefined) return publication;
   throw new UiSemanticConfigurationError(
-    `Static semantic head must contain exactly one publication; found ${publications.length}.`
+    `Static semantic owner ${ownerId} must contain exactly one publication; found ${publications.length}.`
   );
 }
 

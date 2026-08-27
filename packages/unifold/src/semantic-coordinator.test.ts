@@ -47,6 +47,29 @@ it("rejects invalid initial semantics and retains last-known-good runtime public
   coordinator.dispose();
 });
 
+it("isolates tenant publications through failure, update, and reverse disposal", () => {
+  const first = constantSemanticDocument("Tenant one");
+  const second = constantSemanticDocument("Tenant two");
+  const invalid = semanticDocument(SemanticValueKind.NodeControlValue, "missing");
+  const firstCoordinator = automaticCoordinator();
+  const secondCoordinator = automaticCoordinator();
+
+  firstCoordinator.publish(first.document, snapshots(first));
+  secondCoordinator.publish(second.document, snapshots(second));
+  firstCoordinator.refresh(invalid.document, snapshots(invalid));
+  expect(semanticNames()).toEqual(["Tenant one", "Tenant two"]);
+
+  firstCoordinator.publish(
+    constantSemanticDocument("Tenant one updated").document,
+    snapshots(first)
+  );
+  expect(semanticNames()).toEqual(["Tenant one updated", "Tenant two"]);
+  secondCoordinator.dispose();
+  expect(semanticNames()).toEqual(["Tenant one updated"]);
+  firstCoordinator.dispose();
+  expect(semanticScripts()).toHaveLength(0);
+});
+
 it("supports disabled publication and removes an owned graph when semantics are absent", () => {
   const prepared = semanticDocument(SemanticValueKind.Constant);
   const source = snapshots(prepared);
@@ -80,16 +103,19 @@ it("atomically adopts the semantic publication emitted by a static export", () =
   coordinator.dispose();
 });
 
-it("rejects a competing semantic owner without modifying its publication", () => {
+it("adopts its static owner without modifying another application", () => {
   const prepared = semanticDocument(SemanticValueKind.Constant);
   const competitor = installSemanticScript("another-document", '{"name":"Competitor"}');
+  const expected = installSemanticScript(prepared.document.documentId, '{"name":"Static"}');
   const coordinator = automaticCoordinator(prepared.document.documentId);
 
-  expect(() => coordinator.validate(prepared.document, snapshots(prepared))).toThrow(
-    UiSemanticConfigurationError
-  );
-  expect(semanticScript()).toBe(competitor);
+  coordinator.publish(prepared.document, snapshots(prepared));
+  expect(expected.isConnected).toBe(false);
+  expect(competitor.isConnected).toBe(true);
   expect(competitor.textContent).toBe('{"name":"Competitor"}');
+  expect(semanticNames()).toEqual(["Competitor", "Ada"]);
+  coordinator.dispose();
+  expect(competitor.isConnected).toBe(true);
   competitor.remove();
 });
 
@@ -121,6 +147,20 @@ it("rejects duplicate static publications without modifying either one", () => {
   second.remove();
 });
 
+it("does not dispose a publication whose owner marker was changed", () => {
+  const prepared = semanticDocument(SemanticValueKind.Constant);
+  const coordinator = automaticCoordinator();
+  coordinator.publish(prepared.document, snapshots(prepared));
+  const publication = semanticScript();
+  publication.dataset["unifoldSemantics"] = "foreign-owner";
+
+  coordinator.dispose();
+
+  expect(publication.isConnected).toBe(true);
+  expect(publication.dataset["unifoldSemantics"]).toBe("foreign-owner");
+  publication.remove();
+});
+
 function automaticCoordinator(adoptedOwnerId?: string): UiSemanticCoordinator {
   return new UiSemanticCoordinator(
     document,
@@ -130,6 +170,18 @@ function automaticCoordinator(adoptedOwnerId?: string): UiSemanticCoordinator {
 }
 
 function semanticDocument(kind: SemanticValueKind, nodeId?: string): PreparedUnifoldDocument {
+  return compileSemanticDocument(kind, "Ada", nodeId);
+}
+
+function constantSemanticDocument(constant: string): PreparedUnifoldDocument {
+  return compileSemanticDocument(SemanticValueKind.Constant, constant);
+}
+
+function compileSemanticDocument(
+  kind: SemanticValueKind,
+  constant: string,
+  nodeId?: string
+): PreparedUnifoldDocument {
   const result = prepareUnifoldDocument({
     ...authoredDocument(),
     semantics: {
@@ -137,7 +189,7 @@ function semanticDocument(kind: SemanticValueKind, nodeId?: string): PreparedUni
       entities: [
         {
           id: "person",
-          properties: { name: semanticValue(kind, nodeId) },
+          properties: { name: semanticValue(kind, nodeId, constant) },
           type: "Person"
         }
       ],
@@ -154,9 +206,9 @@ function semanticDocument(kind: SemanticValueKind, nodeId?: string): PreparedUni
   return result.prepared;
 }
 
-function semanticValue(kind: SemanticValueKind, nodeId?: string) {
+function semanticValue(kind: SemanticValueKind, nodeId: string | undefined, constant: string) {
   return kind === SemanticValueKind.Constant
-    ? { kind, value: "Ada" }
+    ? { kind, value: constant }
     : { kind, nodeId: nodeId ?? "name" };
 }
 
@@ -171,9 +223,35 @@ function snapshots(prepared: PreparedUnifoldDocument) {
 }
 
 function semanticScript(): HTMLScriptElement {
-  const script = document.head.querySelector<HTMLScriptElement>("[data-unifold-semantics]");
-  if (script === null) throw new Error("Semantic script is missing.");
+  const script = semanticScripts()[0];
+  if (script === undefined) throw new Error("Semantic script is missing.");
   return script;
+}
+
+function semanticScripts(): readonly HTMLScriptElement[] {
+  return [...document.head.querySelectorAll<HTMLScriptElement>("[data-unifold-semantics]")];
+}
+
+function semanticNames(): readonly unknown[] {
+  return semanticScripts().map(semanticName);
+}
+
+function semanticName(script: HTMLScriptElement): unknown {
+  const value = parseSemanticNameFixture(script);
+  const graph = value["@graph"];
+  if (graph === undefined) return value.name;
+  const first = graph[0];
+  if (first === undefined) return undefined;
+  return first.name;
+}
+
+function parseSemanticNameFixture(script: HTMLScriptElement): SemanticNameFixture {
+  return JSON.parse(script.textContent ?? "{}") as SemanticNameFixture;
+}
+
+interface SemanticNameFixture {
+  readonly "@graph"?: readonly { readonly name?: unknown }[];
+  readonly name?: unknown;
 }
 
 function installSemanticScript(ownerId: string, serialized: string): HTMLScriptElement {
