@@ -12,6 +12,7 @@ ordinary composition expander runs.
 
 ```ts
 import {
+  createUiDocumentModule,
   createUiModuleRegistry,
   resolveUiModule,
   uiModuleIntegrity
@@ -30,6 +31,11 @@ const result = await resolveUiModule(registry.registry, {
   version: "1.0.0"
 });
 ```
+
+`createUiDocumentModule()` provides the strict module envelope when an application intentionally
+keeps its human-authored Scratch-style document as a separate JSON asset. The resolver also accepts
+the existing immutable `layoutRegistry` capability for reviewed external layout definitions; it
+fails closed when a referenced layout is absent and performs no lookup or network I/O.
 
 A resolved artifact contains the expanded `UiDocument`, its deterministic integrity, the composed
 pre-expansion build artifact, the resolved module graph, namespaced opaque resources, and source-map

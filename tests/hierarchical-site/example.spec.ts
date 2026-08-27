@@ -13,6 +13,7 @@ test("executes rules, semantics, event routing, and selective projection", async
   unifold
 }) => {
   await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("data-unifold-module-integrity", /^sha256-/u);
   await verifyGuardDenial(page);
   const summary = await enableSummary(page);
   await summary.click();
@@ -116,7 +117,7 @@ test("routes bounded NumberField input through numeric canonical state", async (
 }) => {
   await page.goto("/");
   const host = page.getByTestId("contact-age");
-  const input = page.getByLabel("Age");
+  const input = page.getByLabel("Age", { exact: true });
   await expect(input).toHaveAttribute("type", "number");
   await expect(input).toHaveAttribute("min", "0");
   await expect(input).toHaveAttribute("max", "130");

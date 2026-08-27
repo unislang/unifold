@@ -39,38 +39,40 @@ export async function resolveUiModule(
 ): Promise<UiModuleResolutionResult> {
   const root = registry.modules.get(uiModuleKey(options.moduleId, options.version));
   if (root === undefined) return rejected(rootDiagnostic(UiModuleDiagnosticCode.ModuleNotFound));
-  return resolveRegisteredModule(registry, root, options.exportName);
+  return resolveRegisteredModule(registry, root, options);
 }
 
 async function resolveRegisteredModule(
   registry: UiModuleRegistry,
   root: UiModuleGraphNode["registered"],
-  exportName: string
+  options: ResolveUiModuleOptions
 ): Promise<UiModuleResolutionResult> {
   const graph = resolveUiModuleGraph(registry, root);
   if (graph.diagnostics.length > 0) return rejected(...graph.diagnostics);
-  return resolveModuleExport(graph.nodes, root, exportName);
+  return resolveModuleExport(graph.nodes, root, options);
 }
 
 async function resolveModuleExport(
   nodes: readonly UiModuleGraphNode[],
   root: UiModuleGraphNode["registered"],
-  exportName: string
+  options: ResolveUiModuleOptions
 ): Promise<UiModuleResolutionResult> {
-  const selected = root.module.exports.documents.find(({ name }) => name === exportName);
+  const selected = root.module.exports.documents.find(({ name }) => name === options.exportName);
   if (selected === undefined)
     return rejected(rootDiagnostic(UiModuleDiagnosticCode.ExportNotFound));
   return flattenAndExpand(
     nodes,
     selected.document,
-    root.module.exports.documents.indexOf(selected)
+    root.module.exports.documents.indexOf(selected),
+    options.layoutRegistry
   );
 }
 
 async function flattenAndExpand(
   nodes: readonly UiModuleGraphNode[],
   rootDocument: JsonObject,
-  documentIndex: number
+  documentIndex: number,
+  layoutRegistry: ResolveUiModuleOptions["layoutRegistry"]
 ): Promise<UiModuleResolutionResult> {
   const flattened = flattenModules(nodes);
   const root = nodes.at(-1) as UiModuleGraphNode;
@@ -81,7 +83,7 @@ async function flattenAndExpand(
   );
   const authored = rootContents.rewriteDocument(rootDocument);
   flattened.diagnostics.push(...rootContents.diagnostics);
-  const layout = expandedLayout(authored, root.registered.sourceId);
+  const layout = expandedLayout(authored, root.registered.sourceId, layoutRegistry);
   flattened.diagnostics.push(...layout.diagnostics);
   if (flattened.diagnostics.length > 0) return rejected(...flattened.diagnostics);
   flattened.sourceMap["/view"] = sourceLocation(
@@ -97,13 +99,22 @@ async function flattenAndExpand(
 
 function expandedLayout(
   authored: JsonObject,
-  sourceId: string
+  sourceId: string,
+  registry: ResolveUiModuleOptions["layoutRegistry"]
 ): { readonly diagnostics: readonly UiModuleDiagnostic[]; readonly document?: JsonObject } {
-  const expansion = expandLayoutDocument(authored);
+  const expansion = expandLayoutWithRegistry(authored, registry);
   if (expansion.status === LayoutExpansionStatus.Invalid) {
     return { diagnostics: expansion.diagnostics.map((item) => layoutDiagnostic(item, sourceId)) };
   }
   return { diagnostics: [], document: expansion.document ?? authored };
+}
+
+function expandLayoutWithRegistry(
+  authored: JsonObject,
+  registry: ResolveUiModuleOptions["layoutRegistry"]
+) {
+  if (registry === undefined) return expandLayoutDocument(authored);
+  return expandLayoutDocument(authored, { registry });
 }
 
 function layoutDiagnostic(diagnostic: CompositionDiagnostic, sourceId: string): UiModuleDiagnostic {

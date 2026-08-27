@@ -109,7 +109,8 @@ item sequence across 50 samples. It requires exactly 100 hosts, the expected fin
 label, and projection p95 at or below 100 ms without introducing a second current-page store.
 
 An exact static-module fixture registers and resolves a 17-module integrity-pinned chain whose root
-is a Scratch-style 500-node layout. Thirty samples include bounded schema admission, canonical
+is a Scratch-style 500-node layout using the same trusted external layout-registry path as the
+hierarchical application. Thirty samples include bounded schema admission, canonical
 SHA-256 hashing, graph/cycle/integrity resolution, namespace/resource flattening, layout lowering,
 composition expansion, source-map construction, and final artifact hashing. Its gate requires the
 exact 17-module graph, exact 500-node document, and p95 at or below 250 ms.

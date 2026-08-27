@@ -10,7 +10,8 @@ it("mounts the hierarchical JSON through the public framework entry point", asyn
   document.body.append(container, eventLog, machineState);
   await registerHierarchicalOptionalElements();
 
-  const controller = mountHierarchicalExample(container, eventLog, machineState);
+  const controller = await mountHierarchicalExample(container, eventLog, machineState);
+  await Promise.resolve();
 
   expect(container.querySelector("[data-unifold-node-id='contact-page']")).not.toBeNull();
   expect(nodeId(container, "unifold-dialog")).toBe("account-review-dialog");
@@ -24,11 +25,19 @@ it("mounts the hierarchical JSON through the public framework entry point", asyn
     true
   );
   expect(machineState.textContent).toBe("editing");
+  expect(controller.moduleIntegrity).toMatch(/^sha256-/u);
   controller.dispose();
   document.body.replaceChildren();
 });
 
 function nodeId(container: HTMLElement, selector: string): string | null {
-  const element = container.querySelector(selector);
-  return element === null ? null : element.getAttribute("data-unifold-node-id");
+  const roots: readonly ParentNode[] = [container, ...shadowRoots(container)];
+  const element = roots.map((root) => root.querySelector(selector)).find(Boolean);
+  return element?.getAttribute("data-unifold-node-id") ?? null;
+}
+
+function shadowRoots(root: ParentNode): readonly ShadowRoot[] {
+  return Array.from(root.querySelectorAll("*")).flatMap((element) =>
+    element.shadowRoot === null ? [] : [element.shadowRoot]
+  );
 }

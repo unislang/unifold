@@ -1,4 +1,5 @@
 import { compileUiDocument } from "@unislang/unifold-ir";
+import { createTrustedLayoutDefinitionRegistry } from "@unislang/unifold-compositions";
 import { expect, it } from "vitest";
 
 import { uiModuleIntegrity } from "./integrity.js";
@@ -57,6 +58,27 @@ it("flattens a Scratch-style layout export before composition expansion", async 
     id: "message"
   });
   expect(compileUiDocument(result.artifact.document).diagnostics).toEqual([]);
+});
+
+it("resolves a Scratch-style export through a trusted external layout registry", async () => {
+  const source = layoutDocumentFixture();
+  const { layouts, ...document } = source;
+  const root = moduleFixture({
+    exports: {
+      ...moduleFixture().exports,
+      documents: [{ document, name: "application" }]
+    }
+  });
+  const registry = await createUiModuleRegistry([{ module: root, sourceId: "layout.module.json" }]);
+  if (registry.status !== UiModuleRegistryStatus.Ready) return;
+
+  const rejected = await resolveUiModule(registry.registry, request());
+  expect(rejected.status).toBe(UiModuleResolutionStatus.Rejected);
+  const result = await resolveUiModule(registry.registry, {
+    ...request(),
+    layoutRegistry: createTrustedLayoutDefinitionRegistry(layouts)
+  });
+  expect(result.status).toBe(UiModuleResolutionStatus.Resolved);
 });
 
 it("rejects an unpinned import", async () => {

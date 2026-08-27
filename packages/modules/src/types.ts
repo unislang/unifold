@@ -1,5 +1,8 @@
 import type { JsonObject, JsonValue } from "@unislang/unifold-contracts";
-import type { CompositionDefinition } from "@unislang/unifold-compositions";
+import type {
+  CompositionDefinition,
+  TrustedLayoutDefinitionRegistry
+} from "@unislang/unifold-compositions";
 
 export enum UiModuleSchemaUri {
   Version1 = "https://schemas.unifold.org/ui-module/1.0/schema.json"
@@ -148,6 +151,7 @@ export interface UiModuleLock extends JsonObject {
 
 export interface ResolveUiModuleOptions {
   readonly exportName: string;
+  readonly layoutRegistry?: TrustedLayoutDefinitionRegistry;
   readonly moduleId: string;
   readonly version: string;
 }

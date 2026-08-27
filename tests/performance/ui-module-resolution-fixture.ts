@@ -10,6 +10,7 @@ import {
   type UiModule,
   type UiModuleSource
 } from "@unislang/unifold-modules";
+import { createTrustedLayoutDefinitionRegistry } from "@unislang/unifold";
 
 import { percentile } from "./profile-statistics.js";
 
@@ -35,7 +36,10 @@ async function resolveSources(sources: readonly UiModuleSource[]) {
   const registry = await createUiModuleRegistry(sources);
   if (registry.status !== UiModuleRegistryStatus.Ready)
     throw new Error("Performance UiModule registry failed.");
-  const resolution = await resolveUiModule(registry.registry, entry());
+  const resolution = await resolveUiModule(registry.registry, {
+    ...entry(),
+    layoutRegistry: createTrustedLayoutDefinitionRegistry(layoutDefinitions())
+  });
   if (resolution.status !== UiModuleResolutionStatus.Resolved)
     throw new Error("Performance UiModule resolution failed.");
   return resolution;
@@ -101,14 +105,6 @@ function layoutDocument() {
     id: "module-performance",
     layoutType: "performance-list",
     layoutVersion: "1.0.0",
-    layouts: [
-      {
-        layoutType: "performance-list",
-        template: { children: "{{items}}", id: "root", type: "Stack" },
-        variables: { items: { required: true, type: "nodes" } },
-        version: "1.0.0"
-      }
-    ],
     revision: "1",
     schemaVersion: "1.0.0",
     variables: {
@@ -119,6 +115,17 @@ function layoutDocument() {
       }))
     }
   };
+}
+
+function layoutDefinitions() {
+  return [
+    {
+      layoutType: "performance-list",
+      template: { children: "{{items}}", id: "root", type: "Stack" },
+      variables: { items: { required: true, type: "nodes" } },
+      version: "1.0.0"
+    }
+  ];
 }
 
 function resolutionEvidence(

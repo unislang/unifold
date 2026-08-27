@@ -3,30 +3,33 @@ import {
   UnifoldApplicationMountStatus,
   createMachineCommandRegistry,
   createMachineGuardRegistry,
-  createTrustedLayoutDefinitionRegistry,
   mountUnifoldApplication,
   type UnifoldApplicationPort
 } from "@unislang/unifold";
 import { PaginationItemKind, type PaginationItem } from "@unislang/unifold-catalog";
 import { UiCommandType, type UiEvent } from "@unislang/unifold-events";
 
-import definition from "./ui.json" with { type: "json" };
-import layoutDefinitions from "./layouts.json" with { type: "json" };
+import {
+  hierarchicalLayoutRegistry,
+  resolveHierarchicalModuleArtifact
+} from "./module-reference.js";
 import "./example.css";
 
-const layoutRegistry = createTrustedLayoutDefinitionRegistry(layoutDefinitions);
+const layoutRegistry = hierarchicalLayoutRegistry;
 
 export interface ExampleController {
   readonly application: UnifoldApplicationPort;
+  readonly moduleIntegrity: string;
   dispose(): void;
 }
 
-export function mountHierarchicalExample(
+export async function mountHierarchicalExample(
   container: HTMLElement,
   eventLog: HTMLElement,
   machineState: HTMLElement
-): ExampleController {
-  const result = mountUnifoldApplication(definition, container, {
+): Promise<ExampleController> {
+  const artifact = await resolveHierarchicalModuleArtifact();
+  const result = mountUnifoldApplication(artifact.composedDocument, container, {
     layoutRegistry,
     machineCommands: exampleCommands(),
     machineGuards: exampleGuards()
@@ -43,6 +46,7 @@ export function mountHierarchicalExample(
   machineState.textContent = String(application.machineState("contact-workflow"));
   return {
     application,
+    moduleIntegrity: artifact.integrity,
     dispose: () => disposeExample(application, () => subscription.unsubscribe())
   };
 }
@@ -141,7 +145,10 @@ async function bootstrap(): Promise<void> {
   const targets = exampleTargets(container, eventLog, machineState);
   if (targets === undefined) return;
   await registerHierarchicalOptionalElements();
-  mountHierarchicalExample(...targets);
+  const controller = await mountHierarchicalExample(...targets);
+  if (import.meta.env.MODE === "e2e") {
+    document.documentElement.dataset["unifoldModuleIntegrity"] = controller.moduleIntegrity;
+  }
 }
 
 export async function registerHierarchicalOptionalElements(): Promise<void> {

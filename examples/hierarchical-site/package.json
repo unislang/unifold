@@ -13,7 +13,10 @@
   "dependencies": {
     "@unislang/unifold": "workspace:*",
     "@unislang/unifold-catalog": "workspace:*",
+    "@unislang/unifold-compositions": "workspace:*",
+    "@unislang/unifold-contracts": "workspace:*",
     "@unislang/unifold-events": "workspace:*",
+    "@unislang/unifold-modules": "workspace:*",
     "@unislang/unifold-theme": "workspace:*"
   },
   "devDependencies": {

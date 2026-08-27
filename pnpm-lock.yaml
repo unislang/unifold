@@ -87,9 +87,18 @@ importers:
       '@unislang/unifold-catalog':
         specifier: workspace:*
         version: link:../../packages/catalog
+      '@unislang/unifold-compositions':
+        specifier: workspace:*
+        version: link:../../packages/compositions
+      '@unislang/unifold-contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@unislang/unifold-events':
         specifier: workspace:*
         version: link:../../packages/events
+      '@unislang/unifold-modules':
+        specifier: workspace:*
+        version: link:../../packages/modules
       '@unislang/unifold-theme':
         specifier: workspace:*
         version: link:../../packages/theme
