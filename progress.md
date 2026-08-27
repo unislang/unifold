@@ -18,15 +18,16 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
 - Latest published implementation checkpoint:
-  `f938db2b00a2ac7037a8a831ce930ef8a21232db`
-  (`feat: add composition topology and durable collection lifecycle`) on
+  `a99b8540034cbcbea92c94435e056e376fd2cfe5`
+  (`feat: enforce mounted collection authority`) on
   `https://github.com/unislang/unifold.git`.
 - Latest published verification checkpoint:
-  `15ab4e889cc2dd720fa9231d14c8d3d4cdcc35b1`
-  (`docs: refresh final validation evidence`).
+  `a99b8540034cbcbea92c94435e056e376fd2cfe5`
+  (the implementation commit includes the refreshed architecture, acceptance, testing, performance,
+  package, research, and changeset records).
 - Publication verification: live `git ls-remote origin refs/heads/main` resolved to
-  `15ab4e889cc2dd720fa9231d14c8d3d4cdcc35b1`; local `HEAD` and `origin/main` matched that
-  verification checkpoint. The history also includes runtime isolation at
+  `a99b8540034cbcbea92c94435e056e376fd2cfe5`; local `HEAD` and `origin/main` matched that
+  implementation checkpoint before this progress-only follow-up. The history also includes runtime isolation at
   `5a9795e`, semantic owner isolation at `0b9d569`, and repository source-ownership gates at
   `a6b4b60`.
 - Current implementation: the Scratch-style public JSON contract supports explicit logical control
@@ -35,7 +36,9 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   10k, browser, complete repository, and benchmark evidence pass; composition and semantic
   validation now share the existing Draft 2020-12 JSON Schema engine, reducing the production
   initial closure without widening its gate. Named Scratch repeats now compile durable-key
-  collection authority and mounted applications reconcile authored insert/move/remove operations.
+  collection authority coupled to explicit Array/Record controls, mounted applications reconcile
+  authored insert/move/remove operations, and mounted runtime/renderer capabilities deny raw
+  structural mutation.
   The bounded adopter CLI/starter,
   governed AI provider boundary, Studio dogfood workflow, multi-application semantic isolation,
   exact test colocation, re-export prevention, and completed reference/hierarchical/Studio module
@@ -50,6 +53,48 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - 1.0 traceability register: [`docs/acceptance-audit.md`](./docs/acceptance-audit.md)
 - Concise 34-criterion evidence register:
   [`docs/acceptance-status.md`](./docs/acceptance-status.md)
+
+## 2026-08-27 mounted authority and logical collection tranche
+
+- Status: implemented, committed, pushed, and independently verified on live `unifold/main` as
+  `a99b8540034cbcbea92c94435e056e376fd2cfe5`. The overall goal remains active.
+- Every named Scratch repeat now requires one explicit logical Array or Record control. Generated
+  member controls maintain durable-key order and aggregate values across authored insert, move, and
+  remove operations; missing, incompatible, or colliding authorities reject during composition.
+- Mounted applications expose frozen runtime and renderer capability facades. The runtime retains
+  events, inspection, snapshots, transactions, selectors, typed handles, actors, and ordinary UI
+  commands, but an explicit enum-backed allowlist rejects all six collection/structure command
+  families atomically. The renderer exposes element lookup only. Raw structure commands remain
+  available through the explicitly headless `@unislang/unifold-runtime`; the concrete application
+  constructor and facade factories are absent from the package root.
+- `applyCollectionOperation(operation, origin?)` accepts trusted correlation and causation IDs as a
+  host-only argument. The coordinator copies only those named fields, ignores attempted transaction
+  spoofing, and publishes them on the structural command and transaction events. Authored JSON
+  cannot provide the context and transaction identity remains runtime-owned.
+- Unit and type evidence covers each denied structural family, erased and mixed batches, immutable
+  revision/value/events/DOM on denial, accessor/Proxy normalization, continued ordinary commands,
+  synchronous and async mounts, hidden renderer mutation, package-root exports, and complete
+  headless structural command retention. The reference journey additionally denies raw
+  `structure.remove` without changing host identity, then completes the authorized collection
+  lifecycle with exact logical aggregate values and trusted lineage.
+- `pnpm quality` passes file/function/complexity policies, exact one-to-one colocated tests, the
+  local import/re-export prohibition, lint, all production/test TypeScript, dependency analysis over
+  2,416 modules/5,414 dependencies, and unused-code analysis. Root Vitest passes 603 files/1,605
+  tests. All 40 builds pass; the reference production gate measures 162,177 initial gzip bytes plus
+  84,999 deferred against the 190 KiB initial ceiling. The clean packed-consumer suite passes 5/5
+  and proves the installed public facade denies raw structural removal before continuing its normal
+  interaction/update lifecycle. Its first run also identified four orphaned ignored composition
+  outputs; those exact stale `dist` files were removed and the clean tarball/source-map audit passed.
+- Selective benchmark schema `2.36.0` passes 63/63 gates. The new 500-item authored collection
+  initial and revision compilation gates measure 5.33 ms p95 and 5.34 ms p95 respectively against
+  150 ms limits. The focused collection journey passes 2/2 across Chromium and WebKit, including
+  the mounted negative bypass and positive collection lifecycle. The clean packed consumer passes
+  5/5 and proves the same denied structural bypass from installed public artifacts.
+- Remaining AC19 work: focused-member removal and deterministic focus transfer; buffered renderer /
+  semantic event atomicity or an explicit compensation contract; 1,000-item and end-to-end mutation
+  performance; exact composition-control declaration provenance; aggregate-shape-aware migrations;
+  rendered composition mounts; live wrapper-refactor identity/focus/rollback; and schema-derived
+  handle typing.
 
 ## 2026-08-27 explicit control-topology tranche
 
