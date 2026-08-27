@@ -20,6 +20,8 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Latest published implementation checkpoint:
   `0c3930fab7f17272d773f289114ceb6dc7935987`
   (`feat: coordinate atomic application updates`) on `https://github.com/unislang/unifold.git`.
+- Latest local checkpoint: `73f46c3` (`fix: harden atomic application commits`); this audit
+  follow-up is intentionally not yet published.
 - Publication verification: after the implementation push, live
   `git ls-remote origin refs/heads/main` resolved exactly to
   `0c3930fab7f17272d773f289114ceb6dc7935987`. This progress-only follow-up records that evidence and
@@ -71,7 +73,7 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   runtime commit failures labeled as renderer failures. The worktree hardening now preflights the
   outbox, checkpoints actor routes, makes machine replacement explicitly transactional, contains
   irreversible post-commit adapters, projects reentrant revisions, and reports runtime-stage
-  diagnostics. It is not yet checkpointed or published.
+  diagnostics. It is checkpointed locally as `73f46c3` and is not yet published.
 - `NormalizedNodeStore` now exposes one exact savepoint scope. Candidate transactions may advance
   coordinator-visible state, but records and selection notifications remain hidden. Commit retains
   the candidate and refreshes affected selections once; discard restores state, revision, metrics,
