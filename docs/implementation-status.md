@@ -74,6 +74,15 @@ critical seam; it is not yet the full catalog or Studio product described by the
 - Deterministic reusable JSON composition expansion with exact version pins, scalar structural
   parameters, declared slots, nested instances, namespaced IDs, typed exports, versioned manifests,
   per-node provenance, runtime composition handles, and diagnostics.
+- A strict `UiModule@1.0.0` contract and static resolver for source files that must remain below the
+  authored file limit. The resolver accepts only a host-constructed in-memory registry, verifies
+  exact semantic versions and RFC 8785 SHA-256 import integrity, rejects duplicate modules,
+  namespaces, resources, missing imports, cycles, unsafe or unbounded JSON, and undeclared
+  composition references, and performs no fetch or package loading. It deterministically
+  namespaces imported compositions/resources, expands the selected document through the ordinary
+  composition engine, emits source-map entries to exact module source IDs/pointers, and proves
+  repeated artifact hash plus IR parity in its integration suite. Fixed reference apps and the CLI
+  still need migration to module sources before acceptance criterion 33 is complete.
 - A hierarchy-oriented authoring layer compatible with the original Angular prototype's useful
   shape: exact `layoutType`/`layoutVersion`, typed `variables`, recursively nested
   `type`/`props`/`children`, safe structural references, boolean conditions, durable-key repetition,

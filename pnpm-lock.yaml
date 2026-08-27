@@ -418,6 +418,31 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.3.0)(happy-dom@20.11.6)(jiti@2.7.0)(terser@5.16.0)
 
+  packages/modules:
+    dependencies:
+      '@unislang/unifold-compositions':
+        specifier: workspace:*
+        version: link:../compositions
+      '@unislang/unifold-contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      ajv:
+        specifier: 8.20.0
+        version: 8.20.0
+      canonicalize:
+        specifier: 4.0.0
+        version: 4.0.0
+    devDependencies:
+      '@unislang/unifold-ir':
+        specifier: workspace:*
+        version: link:../ir
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@24.3.0)(happy-dom@20.11.6)(jiti@2.7.0)(terser@5.16.0)
+
   packages/playwright:
     dependencies:
       '@axe-core/playwright':

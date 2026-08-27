@@ -33,6 +33,7 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
 - Performance evidence: [`docs/performance.md`](./docs/performance.md)
+- 1.0 traceability register: [`docs/acceptance-audit.md`](./docs/acceptance-audit.md)
 
 ## Active slice
 
@@ -91,6 +92,10 @@ JSON compiler, event fabric, state authority, renderer, or export boundary:
   disabled/overflow behavior, and current-page ownership are compiler-validated. Activation carries
   stable item identity/kind and state patches the authored item array without hidden page-window
   state.
+- `@unislang/unifold-modules` now supplies the previously missing `UiModule@1.0.0` schema and
+  bounded static resolver. Exact ID/version/integrity imports, namespaces, cycles, resources,
+  source pointers, composition flattening, expanded-document integrity, and IR parity are
+  executable; fixed reference-source and CLI integration remain next for criterion 33.
 - `pnpm quality:reexports` rejects feature modules that import a local binding and export that same
   binding. Feature modules expose owned operations; direct package export maps remain the deliberate
   public-boundary mechanism.
@@ -110,6 +115,11 @@ pre-mount resources while optional component families remain post-mount; the ini
 was not raised. Studio builds at 235.20 KiB gzip against 250 KiB. Benchmark schema 2.33.0 passes
 58/58 gates. The exact 100-Toast profile records 0.75/6.65/7.52 ms and the exact 100-Pagination
 profile records 2.05/7.48/11.51 ms p50/p95/p99 across 50 samples; both retain a 100 ms p95 ceiling.
+
+The initial UiModule package checkpoint passes 9 files/26 tests plus package lint, typecheck, and
+build. Repository file-length and colocated-test gates include the new package and remain green.
+The package-level checkpoint is validated; the complete repository release matrix must still be
+rerun after the preserved AI/Studio/CLI slices are reconciled.
 
 Focused Playwright acceptance passes 4/4 hierarchical and 16/16 static-export Toast/Pagination
 journeys in Chromium and WebKit. Pagination previously passed its 3/3 hierarchical and 12/12 static
@@ -850,10 +860,10 @@ declared scripts discovered from `package.json`; do not guess validation command
 
 ## Completion audit queue
 
+The 34-item traceability audit is maintained in [`docs/acceptance-audit.md`](./docs/acceptance-audit.md).
 The remaining architecture slices in `docs/implementation-status.md` are still open. After each
-slice, reconcile the status inventory rather than narrowing the goal to the latest implementation.
-Before final completion, construct a traceability audit covering every explicit requirement and
-named gate in the architecture plan, with direct source/test/runtime/benchmark evidence for:
+slice, reconcile both inventories rather than narrowing the goal to the latest implementation.
+Before final completion, retain direct source/test/runtime/benchmark evidence for:
 
 - schemas, bounded parsing, diagnostics, versioning, and migration;
 - component resolution, rendering, reconciliation, host neutrality, and lifecycle;

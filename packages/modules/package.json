@@ -1,0 +1,49 @@
+{
+  "name": "@unislang/unifold-modules",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Versioned, integrity-pinned static UiModule resolution and flattening for Unifold.",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schemas/ui-module.schema.json": "./dist/ui-module.schema.json"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run --root ../.. --config vitest.config.ts packages/modules"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unislang/unifold.git",
+    "directory": "packages/modules"
+  },
+  "homepage": "https://unifold.org",
+  "bugs": "https://github.com/unislang/unifold/issues",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@unislang/unifold-compositions": "workspace:*",
+    "@unislang/unifold-contracts": "workspace:*",
+    "ajv": "8.20.0",
+    "canonicalize": "4.0.0"
+  },
+  "devDependencies": {
+    "@unislang/unifold-ir": "workspace:*",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

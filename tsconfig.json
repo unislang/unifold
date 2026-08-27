@@ -13,6 +13,7 @@
     { "path": "./packages/forms" },
     { "path": "./packages/ir" },
     { "path": "./packages/jsonui" },
+    { "path": "./packages/modules" },
     { "path": "./packages/reactivity" },
     { "path": "./packages/runtime" },
     { "path": "./packages/rules" },

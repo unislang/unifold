@@ -5,6 +5,7 @@
 - [Runtime event disclosure](event-disclosure.md)
 - [Core components](components.md)
 - [Reusable JSON compositions](compositions.md)
+- [Static versioned UI modules](../packages/modules/README.md)
 - [Layout-oriented JSON authoring](layout-authoring.md)
 - [Pinned JsonUI profile](jsonui-profile.md)
 - [Stores and control bindings](stores-and-bindings.md)
@@ -21,5 +22,6 @@
 - [AI proposals and prototype export](ai-and-export.md)
 - [OSS decision register](oss-decisions.md)
 - [Implementation status](implementation-status.md)
+- [1.0 acceptance evidence audit](acceptance-audit.md)
 
 Documentation is part of the public API. New public events, JSON fields, component behavior, commands, or packages require version-matched conceptual guidance, API reference updates, and executable examples.

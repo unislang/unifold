@@ -7,6 +7,7 @@ the explicit versions embedded in each JSON or protocol contract and by the exec
 | Boundary                      | Accepted version       | Compatibility behavior                                                                       |
 | ----------------------------- | ---------------------- | -------------------------------------------------------------------------------------------- |
 | `UiDocument` schema           | `1.0.0`                | Exact; other inputs require a host-registered migration path before compilation              |
+| `UiModule` schema             | `1.0.0`                | Exact imports pin module ID, version, SHA-256 integrity, and namespace                        |
 | Signed document envelope      | `1.0.0`                | Exact; signature covers original payload bytes before parsing or migration                   |
 | JsonUI profile                | `unifold-jsonui@1.0.0` | Exact profile pinned to upstream `0.10.25` commit `5401b3d4900ca3032c108d6db00e8a819f4b28e9` |
 | Core catalog                  | `unifold-core@1.0.0`   | Exact release; incompatible catalog majors require another realm                             |

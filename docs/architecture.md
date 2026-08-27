@@ -51,6 +51,24 @@ compatible state from pre-codec identities atomically; consumers integrate throu
 
 The authored document remains the editable and exportable source; expanded JSON is a derived compiler input. See [Reusable JSON compositions](./compositions.md) for the current contract and its P0 hardening gates.
 
+## Static UiModule boundary
+
+Large applications may split reviewed JSON into exact-versioned `UiModule@1.0.0` sources. A trusted
+host constructs the module registry from local or package-owned data; a module document cannot name
+a URL, resolver callback, package, or latest version. Every import pins module ID, version,
+SHA-256 integrity, and a local namespace. Resolution is bounded, deterministic, and I/O-free; it
+rejects malformed or unsafe sources, duplicate registrations and namespaces, missing imports,
+integrity mismatches, cycles, undeclared composition namespace references, and aggregate graph or
+resource limits.
+
+Imported composition definitions and nested `$compose` references receive deterministic namespace
+paths before the ordinary composition expander runs. The resulting artifact contains the composed
+source, expanded `UiDocument`, document integrity, resolved dependency graph, namespaced typed
+resources, and source-map entries from flattened composition/view/resource pointers to exact module
+source IDs and pointers. Machine, rule, schema, token, message, semantics, and scenario resources
+remain inert JSON until their owning compiler explicitly admits them. See
+[`@unislang/unifold-modules`](../packages/modules/README.md).
+
 ## Hierarchical layout authoring boundary
 
 The normalized graph is an execution format, not the authored shape. Authors may define a page as
