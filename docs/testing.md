@@ -36,13 +36,12 @@ pnpm test:consumer
 ```
 
 The reference build sums the gzip size of the entry's complete static import closure and fails above
-190 KiB. The current closure is 162,117 gzip bytes after composition and semantic validation were
-consolidated onto the already-required `json-schema-library`; the gate was not widened for
-composition-local topology or aggregate-disabled propagation. The authored JSON,
+190 KiB. The published atomic-update checkpoint closure is 167,973 gzip bytes; the gate was not
+widened. The authored JSON,
 reference-specific validator adapter, AJV-using module resolver, and reviewed runtime options are
 explicit pre-mount deferred resources; optional component families are requested only after the
 application mounts. All emitted JavaScript outside the static entry closure is audited and reported
-separately as deferred JavaScript (84,979 gzip bytes in the current production build).
+separately as deferred JavaScript.
 
 The Studio matrix builds the JSON-authored dogfood application before running its browser journeys.
 Its asset gate rejects browser bundles containing the server-only AI generator, provider-generation

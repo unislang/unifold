@@ -84,6 +84,26 @@ it("does not register any candidate when later actor creation fails", () => {
   runtime.dispose();
 });
 
+it("keeps the committed replacement when obsolete actor shutdown fails", () => {
+  const definition = repeatableWorkflowDefinition("workflow-one", "1.0.0");
+  const prepared = requirePrepared({ ...authoredDocument(), machines: [definition] });
+  const runtime = runtimeFor(prepared.document);
+  const coordinator = new UiMachineCoordinator(runtime, workflowCommandRegistry());
+  coordinator.replace([definition], prepared.document.nodesById);
+  failActorStop(coordinator, "workflow-one");
+
+  expect(() =>
+    coordinator.replace(
+      [repeatableWorkflowDefinition("workflow-one", "2.0.0")],
+      prepared.document.nodesById
+    )
+  ).not.toThrow();
+  runtime.execute([{ id: "form", type: UiCommandType.FormSubmit }]);
+  expect(coordinator.state("workflow-one")).toBe("saved");
+  coordinator.dispose();
+  runtime.dispose();
+});
+
 it("commits one XState command batch and does not write effect-only state", () => {
   const prepared = requirePrepared(withMachine(authoredDocument(), batchedWorkflowDefinition()));
   const execute = vi.fn();
@@ -173,6 +193,17 @@ function failSecondRegistration(runtime: UnifoldRuntime) {
     }
   };
   return { registrar, unregister };
+}
+
+function failActorStop(coordinator: UiMachineCoordinator, id: string): void {
+  const records = Reflect.get(coordinator, "records") as Map<
+    string,
+    { readonly actor: { stop(): void } }
+  >;
+  const record = requireValue(records.get(id), "machine record");
+  vi.spyOn(record.actor, "stop").mockImplementationOnce(() => {
+    throw new Error("Injected obsolete actor failure.");
+  });
 }
 
 function patchCommandCount(events: readonly UiEvent[]): number {

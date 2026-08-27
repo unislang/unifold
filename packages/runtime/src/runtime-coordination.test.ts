@@ -57,9 +57,11 @@ it("settles staged authorities before publishing committed work", () => {
   coordination.defer(deferredWork());
   coordination.commit();
   expect(trace).toEqual([
-    "store:commit",
+    "publish:prepare",
     "remove",
     "actor:form",
+    "store:commit",
+    "actors:commit",
     "finish",
     "publish:commit",
     "effects",
@@ -79,11 +81,35 @@ it("cleans every staged actor when a later installation fails", () => {
 
   expect(() => coordination.commit()).toThrow("installation failed");
   expect(firstUnregister).toHaveBeenCalledOnce();
+  expect(trace).not.toContain("store:commit");
+  coordination.discard();
+});
+
+it("keeps coordination discardable when the store commit fails", () => {
+  const trace: string[] = [];
+  const coordination = fixtureWithStoreFailure(trace);
+  coordination.registerActor("field", { send: vi.fn() });
+
+  expect(() => coordination.commit()).toThrow("store commit failed");
+  coordination.discard();
+  expect(trace).toContain("actors:discard");
+  expect(trace).toContain("store:discard");
+  expect(trace).toContain("publish:discard");
+});
+
+it("contains deferred adapter failures after the commit point", () => {
+  const trace: string[] = [];
+  const coordination = fixtureWithDeferredFailure(trace);
+  coordination.defer(deferredWork());
+  expect(() => coordination.commit()).not.toThrow();
+  expect(trace).toContain("effects");
+  expect(trace).toContain("validate");
 });
 
 it("discards publication when the normalized savepoint cannot open", () => {
   const discard = vi.fn();
   const manager = new RuntimeCoordinationManager({
+    captureActors: () => ({ commit: vi.fn(), discard: vi.fn() }),
     captureAuthorities: () => ({ compositionInstances: {}, rules: undefined, storeBindings: {} }),
     execute: vi.fn(),
     installActor: vi.fn(),
@@ -180,22 +206,71 @@ it("publishes actor-reentrant runtime work after lower-sequence buffered facts",
 
 function coordinatedFixture(
   trace: string[],
-  installActor: (id: string) => () => void = (id) => {
-    trace.push(`actor:${id}`);
-    return vi.fn();
-  }
+  installActor: (id: string) => () => void = defaultActorInstaller(trace)
+): RuntimeCoordination {
+  return createCoordinatedFixture(trace, installActor, () => trace.push("store:commit"), false);
+}
+
+function fixtureWithStoreFailure(trace: string[]): RuntimeCoordination {
+  return createCoordinatedFixture(
+    trace,
+    defaultActorInstaller(trace),
+    () => {
+      throw new Error("store commit failed");
+    },
+    false
+  );
+}
+
+function fixtureWithDeferredFailure(trace: string[]): RuntimeCoordination {
+  return createCoordinatedFixture(
+    trace,
+    defaultActorInstaller(trace),
+    () => trace.push("store:commit"),
+    true
+  );
+}
+
+function createCoordinatedFixture(
+  trace: string[],
+  installActor: (id: string) => () => void,
+  commitStore: () => void,
+  failDeferred: boolean
 ): RuntimeCoordination {
   return new RuntimeCoordination({
+    actors: boundary(trace, "actors"),
     discardAuthorities: () => trace.push("authorities:discard"),
     execute: () => deferredWork().record,
     finish: () => trace.push("finish"),
     installActor,
-    publish: boundary(trace, "publish"),
+    publish: publicationBoundary(trace),
     remove: () => trace.push("remove"),
-    runEffects: () => trace.push("effects"),
-    store: boundary(trace, "store"),
-    validate: () => trace.push("validate")
+    runEffects: () => deferredStep(trace, "effects", failDeferred),
+    store: {
+      commit: commitStore,
+      discard: () => trace.push("store:discard")
+    },
+    validate: () => deferredStep(trace, "validate", failDeferred)
   });
+}
+
+function defaultActorInstaller(trace: string[]): (id: string) => () => void {
+  return (id) => {
+    trace.push(`actor:${id}`);
+    return vi.fn();
+  };
+}
+
+function publicationBoundary(trace: string[]) {
+  return {
+    ...boundary(trace, "publish"),
+    prepare: () => trace.push("publish:prepare")
+  };
+}
+
+function deferredStep(trace: string[], name: string, fail: boolean): void {
+  trace.push(name);
+  if (fail) throw new Error(`${name} failed`);
 }
 
 function boundary(trace: string[], name: string) {

@@ -3,6 +3,7 @@ import type { UiEvent } from "@unislang/unifold-events";
 export interface RuntimePublisherCoordination {
   commit(): void;
   discard(): void;
+  prepare(): void;
 }
 
 interface PublicationState {
@@ -23,7 +24,8 @@ export class RuntimePublicationBuffer {
     this.#state = state;
     return {
       commit: () => this.commit(state, publish),
-      discard: () => this.discard(state, restoreSequence)
+      discard: () => this.discard(state, restoreSequence),
+      prepare: () => this.prepare(state)
     };
   }
 
@@ -34,15 +36,21 @@ export class RuntimePublicationBuffer {
   }
 
   private commit(state: PublicationState, publish: (event: UiEvent) => void): void {
-    this.require(state);
+    this.prepare(state);
     let cursor = 0;
     while (cursor < state.events.length) {
       const event = state.events[cursor];
-      if (event === undefined) throw new Error("Runtime publication buffer is corrupt.");
-      publish(event);
+      if (event !== undefined) publishSafely(event, publish);
       cursor += 1;
     }
     this.#state = undefined;
+  }
+
+  private prepare(state: PublicationState): void {
+    this.require(state);
+    if (state.events.some((event) => event === undefined)) {
+      throw new Error("Runtime publication buffer is corrupt.");
+    }
   }
 
   private discard(state: PublicationState, restoreSequence: (sequence: number) => void): void {
@@ -53,5 +61,13 @@ export class RuntimePublicationBuffer {
 
   private require(state: PublicationState): void {
     if (this.#state !== state) throw new Error("Runtime publication coordination is closed.");
+  }
+}
+
+function publishSafely(event: UiEvent, publish: (event: UiEvent) => void): void {
+  try {
+    publish(event);
+  } catch {
+    // A committed observer cannot reverse normalized state or interrupt sibling facts.
   }
 }

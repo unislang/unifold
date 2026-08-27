@@ -66,6 +66,12 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Status: implemented, committed, pushed, and verified on `unifold/main`; the overall goal remains
   active. All tranche-specific gates pass. The broader managed-Firefox environment and Studio bundle
   budget remain open and are recorded below.
+- A follow-up independent audit found four commit-edge gaps in the published checkpoint: reentrant
+  projection suppression, obsolete-machine teardown, actor-install failure after store commit, and
+  runtime commit failures labeled as renderer failures. The worktree hardening now preflights the
+  outbox, checkpoints actor routes, makes machine replacement explicitly transactional, contains
+  irreversible post-commit adapters, projects reentrant revisions, and reports runtime-stage
+  diagnostics. It is not yet checkpointed or published.
 - `NormalizedNodeStore` now exposes one exact savepoint scope. Candidate transactions may advance
   coordinator-visible state, but records and selection notifications remain hidden. Commit retains
   the candidate and refreshes affected selections once; discard restores state, revision, metrics,
@@ -92,6 +98,11 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   re-export prevention, dependency analysis over 2,471 modules/5,578 dependencies, unused-code,
   formatting, and duplication gates pass. All 40 production builds were exercised during this
   tranche; the reference initial bundle remains 167,973 gzip bytes against the 190 KiB gate.
+- The audit-hardening worktree passes the complete 621-file/1,714-test coverage suite at 97.27%
+  statements/lines, 96.79% functions, and 90.06% branches. Its expanded atomic Playwright journey
+  passes 4/4 in Chromium/WebKit and now checks the exact rejected revision, semantic publication
+  count and owner, complete JSON-LD graph, successful structure revision, focus, keyed identity,
+  and contiguous retry facts.
 - Browser product behavior passes on Chromium and WebKit: atomic-update 4/4, reference 125 passed
   with three scale-profile skips, hierarchical 26/26, static export 81/81, host parity 8/8, and
   Studio functionality 18/18. Every Firefox matrix fails in Playwright before application page

@@ -36,7 +36,25 @@ it("rejects nested coordination and a corrupt buffered event", () => {
   const coordination = buffer.begin(0, vi.fn(), vi.fn());
   expect(() => buffer.begin(0, vi.fn(), vi.fn())).toThrow("coordinated");
   buffer.append(undefined as never);
-  expect(() => coordination.commit()).toThrow("corrupt");
+  expect(() => coordination.prepare()).toThrow("corrupt");
+});
+
+it("contains a committed observer failure and continues draining facts", () => {
+  const buffer = new RuntimePublicationBuffer();
+  const observed: string[] = [];
+  const coordination = buffer.begin(
+    0,
+    (published) => {
+      observed.push(published.id);
+      if (published.id === "first") throw new Error("observer failed");
+    },
+    vi.fn()
+  );
+  buffer.append(event("first", 1));
+  buffer.append(event("second", 2));
+  coordination.prepare();
+  expect(() => coordination.commit()).not.toThrow();
+  expect(observed).toEqual(["first", "second"]);
 });
 
 function event(id: string, sequence: number): UiEvent {

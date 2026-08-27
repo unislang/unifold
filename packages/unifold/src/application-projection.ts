@@ -10,7 +10,6 @@ interface ApplicationProjectionOptions {
   readonly renderer: DomRenderController;
   readonly runtime: UnifoldRuntime;
   readonly semantics?: UiSemanticCoordinator;
-  readonly updating: () => boolean;
 }
 
 export class ApplicationProjectionController {
@@ -31,7 +30,6 @@ export class ApplicationProjectionController {
   }
 
   private availableRevision(revision: number): number | undefined {
-    if (this.options.updating()) return undefined;
     if (this.consumeIgnoredRevision(revision)) return undefined;
     return revision;
   }
@@ -69,4 +67,18 @@ export class ApplicationProjectionController {
     const { runtime, semantics } = this.options;
     semantics?.refreshRuntime(this.options.document(), runtime);
   }
+}
+
+export function createApplicationProjection(
+  document: () => UnifoldIrDocument,
+  renderer: DomRenderController,
+  runtime: UnifoldRuntime,
+  semantics?: UiSemanticCoordinator
+): ApplicationProjectionController {
+  return new ApplicationProjectionController({
+    document,
+    renderer,
+    runtime,
+    ...(semantics === undefined ? {} : { semantics })
+  });
 }

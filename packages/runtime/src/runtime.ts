@@ -132,6 +132,7 @@ export class UnifoldRuntime {
   }
   private createCoordination(): RuntimeCoordinationManager {
     return new RuntimeCoordinationManager({
+      captureActors: () => this.actors.checkpoint(),
       captureAuthorities: () => ({
         compositionInstances: this.compositionInstances,
         rules: this.rules,

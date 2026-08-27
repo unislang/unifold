@@ -2,11 +2,14 @@
 import { createUiEvent, UiEventPhase, UiEventType } from "@unislang/unifold-events";
 import { expect, it } from "vitest";
 
-import { createReferenceAtomicUpdateProbe } from "./reference-update-atomicity.js";
+import {
+  createReferenceAtomicUpdateProbe,
+  ReferenceAtomicFailure
+} from "./reference-update-atomicity.js";
 
 it("requires the reference event capture before probing an atomic update", () => {
   const probe = createReferenceAtomicUpdateProbe({ authored: {} } as never, () => undefined);
-  expect(() => probe("renderer")).toThrow("Missing event capture.");
+  expect(() => probe(ReferenceAtomicFailure.Renderer)).toThrow("Missing event capture.");
 });
 
 it("requires the stable Scratch field before mutating the authored revision", () => {
@@ -23,7 +26,9 @@ it("requires the stable Scratch field before mutating the authored revision", ()
   });
   const application = { authored: atomicDocument() } as never;
   const probe = createReferenceAtomicUpdateProbe(application, () => [event]);
-  expect(() => probe("semantics")).toThrow("Missing node host: profile-editor::name.");
+  expect(() => probe(ReferenceAtomicFailure.Semantics)).toThrow(
+    "Missing node host: profile-editor::name."
+  );
 });
 
 function atomicDocument(): unknown {

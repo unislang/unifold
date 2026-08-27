@@ -5,7 +5,10 @@ const FIELD_ID = "profile-editor::name";
 const STABLE_ID = "profile-editor::slot:actions::submit";
 const SEMANTIC_ID = "urn:unifold:person:current";
 
-type ReferenceAtomicFailure = "renderer" | "semantics";
+export enum ReferenceAtomicFailure {
+  Renderer = "renderer",
+  Semantics = "semantics"
+}
 
 export function createReferenceAtomicUpdateProbe(
   application: UnifoldApplicationPort,
@@ -25,14 +28,23 @@ function probeAtomicUpdate(
   const stable = requireElement(STABLE_ID);
   const input = requireInput(field);
   const baselineSequence = events.at(-1)?.sequence ?? 0;
-  const baselineSemantic = semanticType();
+  const baselineRevision = application.runtime.revision;
+  const baselineSemantic = semanticObservation();
   installFailure(failure, field);
   const rejected = application.update(source);
   const failedEvents = events.filter(({ sequence }) => sequence > baselineSequence);
-  const failedState = stateObservation(field, input, stable);
+  const failedState = stateObservation(field, input, stable, application.runtime.revision);
   assertSemanticRollback(baselineSemantic);
   const retry = retryWithObservation(application, source, events, baselineSequence);
-  return { baselineSequence, failedEvents, failedState, rejected, ...retry };
+  return {
+    baselineRevision,
+    baselineSemantic,
+    baselineSequence,
+    failedEvents,
+    failedState,
+    rejected,
+    ...retry
+  };
 }
 
 function revisedDocument(authored: unknown, failure: ReferenceAtomicFailure): AtomicDocument {
@@ -52,8 +64,9 @@ function retryWithObservation(
   let commitObservation: CommitObservation | undefined;
   const originalPush = events.push;
   events.push = (...items) => {
-    if (commitObservation === undefined && items.some(isStructureFact)) {
-      commitObservation = currentCommitObservation();
+    const structure = items.find(isStructureFact);
+    if (commitObservation === undefined && structure !== undefined) {
+      commitObservation = currentCommitObservation(structure.staterevision);
     }
     return originalPush.apply(events, items);
   };
@@ -83,16 +96,22 @@ function retryObservation(
   const field = requireElement(FIELD_ID);
   return {
     applied,
-    appliedState: stateObservation(field, requireInput(field), requireElement(STABLE_ID)),
+    appliedState: stateObservation(
+      field,
+      requireInput(field),
+      requireElement(STABLE_ID),
+      applied.revision
+    ),
     commitObservation,
     retryCommandTypes: retryEvents.flatMap(commandType),
+    retryRevisions: retryEvents.map(({ staterevision }) => staterevision),
     retrySequences: retryEvents.map(({ sequence }) => sequence),
     retryTypes: retryEvents.map(({ type }) => type)
   };
 }
 
 function installFailure(failure: ReferenceAtomicFailure, field: HTMLElement): void {
-  if (failure === "renderer") failNextPropertyWrite(field, "label");
+  if (failure === ReferenceAtomicFailure.Renderer) failNextPropertyWrite(field, "label");
   else failNextSemanticReplacement();
 }
 
@@ -132,30 +151,52 @@ function failNextSemanticReplacement(): void {
 function stateObservation(
   field: HTMLElement,
   input: HTMLInputElement,
-  stable: HTMLElement
+  stable: HTMLElement,
+  revision: number
 ): StateObservation {
+  const semantic = semanticObservation();
   return {
     fieldLabel: String(Reflect.get(field, "label")),
     focused: field.shadowRoot?.activeElement === input,
     sameField: requireElement(FIELD_ID) === field,
     sameInput: requireInput(field) === input,
     sameStable: requireElement(STABLE_ID) === stable,
-    semanticType: semanticType(),
+    revision,
+    semantic,
+    semanticType: semanticType(semantic),
     stableRenderCount: stable.dataset["unifoldRenderCount"],
     value: input.value
   };
 }
 
-function currentCommitObservation(): CommitObservation {
+function currentCommitObservation(revision: number): CommitObservation {
+  const semantic = semanticObservation();
   return {
     fieldLabel: String(Reflect.get(requireElement(FIELD_ID), "label")),
-    semanticType: semanticType()
+    revision,
+    semantic,
+    semanticType: semanticType(semantic)
   };
 }
 
-function semanticType(): string | undefined {
-  const graph = JSON.parse(semanticScript().textContent as string) as SemanticGraph;
+function semanticType(observation: SemanticObservation): string | undefined {
+  const graph = JSON.parse(observation.serialized) as SemanticGraph;
   return semanticEntityType(graph["@graph"]);
+}
+
+function semanticObservation(): SemanticObservation {
+  const scripts = [
+    ...document.querySelectorAll<HTMLScriptElement>("script[data-unifold-semantics]")
+  ];
+  const script = scripts[0];
+  if (script === undefined || script.textContent === null) {
+    throw new Error("Missing semantic publication.");
+  }
+  return {
+    count: scripts.length,
+    owner: script.dataset["unifoldSemantics"],
+    serialized: script.textContent
+  };
 }
 
 function semanticEntityType(entities: SemanticGraph["@graph"]): string | undefined {
@@ -171,8 +212,10 @@ function semanticScript(): HTMLScriptElement {
   return script;
 }
 
-function assertSemanticRollback(expected: string | undefined): void {
-  if (semanticType() !== expected) throw new Error("Semantic rollback failed.");
+function assertSemanticRollback(expected: SemanticObservation): void {
+  if (JSON.stringify(semanticObservation()) !== JSON.stringify(expected)) {
+    throw new Error("Semantic rollback failed.");
+  }
 }
 
 function requireElement(id: string): HTMLElement {
@@ -236,6 +279,8 @@ interface SemanticGraph {
 
 interface CommitObservation {
   readonly fieldLabel: string;
+  readonly revision: number;
+  readonly semantic: SemanticObservation;
   readonly semanticType: string | undefined;
 }
 
@@ -253,13 +298,22 @@ interface RetryObservation {
   readonly appliedState: StateObservation;
   readonly commitObservation: CommitObservation | undefined;
   readonly retryCommandTypes: readonly string[];
+  readonly retryRevisions: readonly number[];
   readonly retrySequences: readonly number[];
   readonly retryTypes: readonly string[];
 }
 
 interface ReferenceAtomicUpdateObservation extends RetryObservation {
+  readonly baselineRevision: number;
+  readonly baselineSemantic: SemanticObservation;
   readonly baselineSequence: number;
   readonly failedEvents: readonly UiEvent[];
   readonly failedState: StateObservation;
   readonly rejected: UnifoldApplicationUpdateResult;
+}
+
+interface SemanticObservation {
+  readonly count: number;
+  readonly owner: string | undefined;
+  readonly serialized: string;
 }

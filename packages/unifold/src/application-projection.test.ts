@@ -1,7 +1,10 @@
 import { UiCommandType, UiEventType, type UiEvent } from "@unislang/unifold-events";
 import { expect, it, vi } from "vitest";
 
-import { ApplicationProjectionController } from "./application-projection.js";
+import {
+  ApplicationProjectionController,
+  createApplicationProjection
+} from "./application-projection.js";
 import { authoredDocument, requirePrepared, runtimeFor } from "./application.test-data.js";
 
 it("projects committed nodes and refreshes semantics after the application commit", () => {
@@ -9,13 +12,11 @@ it("projects committed nodes and refreshes semantics after the application commi
   const runtime = runtimeFor(prepared);
   const renderer = { project: vi.fn() };
   const semantics = { refreshRuntime: vi.fn() };
-  let updating = false;
   const projection = new ApplicationProjectionController({
     document: () => prepared.document,
     renderer: renderer as never,
     runtime,
-    semantics: semantics as never,
-    updating: () => updating
+    semantics: semantics as never
   });
   const events: UiEvent[] = [];
   runtime.events$.subscribe((event) => events.push(event));
@@ -27,9 +28,8 @@ it("projects committed nodes and refreshes semantics after the application commi
 
   expect(renderer.project).toHaveBeenCalledOnce();
   expect(semantics.refreshRuntime).toHaveBeenCalledOnce();
-  updating = true;
   projection.onRuntimeEvent(requireTransaction(events));
-  expect(renderer.project).toHaveBeenCalledOnce();
+  expect(renderer.project).toHaveBeenCalledTimes(2);
   runtime.dispose();
 });
 
@@ -40,8 +40,7 @@ it("suppresses only the already projected structural revision", () => {
   const projection = new ApplicationProjectionController({
     document: () => prepared.document,
     renderer: renderer as never,
-    runtime,
-    updating: () => false
+    runtime
   });
   const events: UiEvent[] = [];
   runtime.events$.subscribe((event) => events.push(event));
@@ -65,3 +64,12 @@ function requireTransaction(events: readonly UiEvent[]): UiEvent {
   if (event === undefined) throw new Error("Transaction event is missing.");
   return event;
 }
+
+it("creates a projection without optional semantics", () => {
+  const prepared = requirePrepared(authoredDocument());
+  const runtime = runtimeFor(prepared);
+  expect(
+    createApplicationProjection(() => prepared.document, { project: vi.fn() } as never, runtime)
+  ).toBeInstanceOf(ApplicationProjectionController);
+  runtime.dispose();
+});

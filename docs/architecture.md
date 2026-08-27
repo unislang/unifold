@@ -371,14 +371,20 @@ replacement, reparenting, and ordering while preserving unrelated element identi
 candidate, preflights renderer compatibility, and opens one exclusive runtime coordination scope.
 The normalized store advances tentatively while transaction records and selection notifications stay
 hidden. Renderer projection, owned Schema.org JSON-LD, and replacement XState actors are prepared
-against that candidate. Commit retains the candidate graph, removes obsolete owners, installs staged
-actors, then drains canonical facts in sequence order before effects, store writes, and validation.
+against that candidate. Machine records use prepare/activate/commit/discard phases. The runtime
+preflights the fact outbox and checkpoints actor ownership before removing old routes or installing
+staged actors; a failure while the normalized store is still tentative restores both. Commit then
+retains the candidate graph and drains canonical facts in sequence order before effects, store
+writes, and validation. Observer, obsolete-actor shutdown, effect, and validation adapter failures
+are contained after the irreversible commit point rather than initiating an impossible rollback.
 Discard restores the exact prior revision, graph, records, selection state, rules, bindings,
 composition authority, actor set, and event sequence without publishing compensation events.
 Compatible dirty controls retain user values and interaction state; pristine controls adopt revised
 defaults. Keyed hosts, focus, subscriptions, manifests, and actor ownership follow node lifetimes.
 Invalid or downstream-rejected candidates retain the last-known-good application. If restoring a
 mutated peripheral surface fails, the application quarantines and emits only `runtime.disposed.v1`.
+Only the known structural revision is suppressed after manual candidate projection; a reentrant
+transaction appended during fact draining is projected normally and refreshes semantic output.
 Incremental subtree compilation remains a measured optimization, not a correctness dependency.
 
 The stable `data-unifold-node-id` attribute identifies a rendered host. `data-unifold-render-count` is a diagnostic contract used to prove both expected updates and important non-updates; applications must not use it as business state.

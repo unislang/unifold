@@ -20,6 +20,7 @@ import {
   atomicUpdateDiagnostic,
   atomicUpdateFailureStage
 } from "./application-atomicity.js";
+import { commitApplicationCandidate, prepareApplicationCandidate } from "./application-commit.js";
 import {
   collectionFocusTarget,
   focusExecutionContext as focusContext,
@@ -30,7 +31,10 @@ import {
 } from "./application-focus.js";
 import { createApplicationRenderer } from "./application-renderer.js";
 import { createApplicationRuntime } from "./application-runtime.js";
-import { ApplicationProjectionController } from "./application-projection.js";
+import {
+  createApplicationProjection,
+  type ApplicationProjectionController
+} from "./application-projection.js";
 import type { UnifoldCollectionOperation } from "./authored-collection.js";
 import {
   appliedUpdate,
@@ -53,6 +57,7 @@ import {
 } from "./application-update.js";
 import { commandForEvent, eventExecutionContext } from "./event-command.js";
 import { createUiMachineCoordinator, type UiMachineCoordinator } from "./machine-coordinator.js";
+import type { UiMachineReplacement } from "./machine-replacement.js";
 import { UiSemanticCoordinator } from "./semantic-coordinator.js";
 import { prepareUpdatedStores, type PreparedApplicationStores } from "./store-adapters.js";
 import type { StoreCommandController } from "./store-command-port.js";
@@ -103,24 +108,12 @@ export class UnifoldApplication {
     this.renderer = createApplicationRenderer(renderer);
     this.machines = createUiMachineCoordinator(runtime, machineCommands, machineGuards);
     this.machines.validate(prepared.document.machines);
-    this.projection = this.createProjection(runtime, renderer, semantics);
+    const currentDocument = () => this.current.document;
+    this.projection = createApplicationProjection(currentDocument, renderer, runtime, semantics);
     this.container.addEventListener(ElementEventName.UiEvent, this.onElementEvent);
     this.subscription = runtime.events$.subscribe(this.projection.onRuntimeEvent);
     this.projection.projectAll(this.current.document);
     this.machines.replace(prepared.document.machines, prepared.document.nodesById);
-  }
-  private createProjection(
-    runtime: UnifoldRuntime,
-    renderer: DomRenderController,
-    semantics: UiSemanticCoordinator | undefined
-  ): ApplicationProjectionController {
-    return new ApplicationProjectionController({
-      document: () => this.current.document,
-      renderer,
-      runtime,
-      ...(semantics === undefined ? {} : { semantics }),
-      updating: () => this.updating
-    });
   }
   get document(): UnifoldIrDocument {
     return this.current.document;
@@ -261,15 +254,17 @@ export class UnifoldApplication {
     context: UiExecutionContext
   ): UnifoldApplicationUpdateResult {
     const nodes = checkpoint.previousNodes;
+    let replacement: UiMachineReplacement | undefined;
     try {
-      this.#renderer.update(next.document);
-      this.projection.projectAll(next.document);
-      this.semantics?.publishRuntime(next.document, this.#engine);
-      this.machines.replace(next.document.machines, next.document.nodesById, coordination);
-      this.projection.ignoreRevision(this.#engine.revision);
-      coordination.commit();
-      this.projection.finishCommit();
+      replacement = this.prepareCandidate(next, coordination);
+      commitApplicationCandidate({
+        coordination,
+        projection: this.projection,
+        replacement,
+        revision: this.#engine.revision
+      });
     } catch (error) {
+      replacement?.discard();
       const rollbackError = this.restore(checkpoint, coordination);
       this.updating = false;
       return rejectedUpdate(this.#engine.revision, [
@@ -279,6 +274,20 @@ export class UnifoldApplication {
     this.updating = false;
     restoreApplicationFocus(this.#engine, this.#renderer, nodes, migration, focusTarget, context);
     return appliedUpdate(this.#engine.revision);
+  }
+  private prepareCandidate(
+    next: PreparedUnifoldDocument,
+    coordination: UnifoldRuntimeCoordination
+  ): UiMachineReplacement {
+    return prepareApplicationCandidate({
+      coordination,
+      document: next,
+      machines: this.machines,
+      projection: this.projection,
+      renderer: this.#renderer,
+      runtime: this.#engine,
+      ...(this.semantics === undefined ? {} : { semantics: this.semantics })
+    });
   }
   private restore(
     checkpoint: ApplicationUpdateCheckpoint,

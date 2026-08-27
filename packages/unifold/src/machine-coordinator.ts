@@ -18,11 +18,10 @@ import {
   type UiXStateEvent
 } from "@unislang/unifold-xstate";
 
-interface MachineRecord {
-  readonly actor: UiMachineActor;
-  readonly key: string;
-  readonly unregister: () => void;
-}
+import {
+  UiMachineReplacement,
+  type UiMachineRecord as MachineRecord
+} from "./machine-replacement.js";
 
 interface StagedMachineRecord {
   readonly actor: UiMachineActor;
@@ -74,15 +73,26 @@ export class UiMachineCoordinator {
     nodes: Readonly<Record<string, UnifoldIrNode>>,
     registrar: UiMachineActorRegistrar = this.runtime
   ): void {
-    const candidates = this.stageCandidates(definitions, nodes);
-    const next = this.registerCandidates(candidates, registrar);
-    const previous = this.records;
-    this.records = next;
+    const replacement = this.prepareReplacement(definitions, nodes, registrar);
     try {
-      stopObsoleteRecords(previous, next);
+      replacement.activate();
+      replacement.commit();
     } catch (error) {
+      replacement.discard();
       throw configurationError(error);
     }
+  }
+
+  prepareReplacement(
+    definitions: readonly UiMachineDefinition[],
+    nodes: Readonly<Record<string, UnifoldIrNode>>,
+    registrar: UiMachineActorRegistrar = this.runtime
+  ): UiMachineReplacement {
+    const candidates = this.stageCandidates(definitions, nodes);
+    const next = this.registerCandidates(candidates, registrar);
+    return new UiMachineReplacement(this.records, next, (records) => {
+      this.records = new Map(records);
+    });
   }
 
   state(id: string): JsonValue {
@@ -275,28 +285,6 @@ function requireStagedRecord(candidate: MachineCandidate): StagedMachineRecord {
 
 function stopCandidateActors(candidates: readonly MachineCandidate[]): void {
   candidates.flatMap(candidateActor).forEach(safelyStopActor);
-}
-
-function stopObsoleteRecords(
-  previous: ReadonlyMap<string, MachineRecord>,
-  next: ReadonlyMap<string, MachineRecord>
-): void {
-  const failures: unknown[] = [];
-  previous.forEach((record, id) => stopObsoleteRecord(record, next.get(id), failures));
-  if (failures[0] !== undefined) throw failures[0];
-}
-
-function stopObsoleteRecord(
-  previous: MachineRecord,
-  next: MachineRecord | undefined,
-  failures: unknown[]
-): void {
-  if (previous === next) return;
-  try {
-    stopRecord(previous);
-  } catch (error) {
-    failures.push(error);
-  }
 }
 
 function executeCausedCommands(

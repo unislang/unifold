@@ -19,6 +19,8 @@ interface CoordinationBoundary {
   discard(): void;
 }
 
+type ActorCheckpoint = CoordinationBoundary;
+
 export interface DeferredRuntimeWork {
   readonly commands: readonly UiCommand[];
   readonly context: UiResolvedRuntimeExecutionContext;
@@ -35,6 +37,7 @@ interface StagedActor {
 }
 
 interface RuntimeCoordinationOptions {
+  readonly actors: ActorCheckpoint;
   readonly discardAuthorities: () => void;
   readonly execute: (
     coordination: RuntimeCoordination,
@@ -79,13 +82,18 @@ export class RuntimeCoordination implements UnifoldRuntimeCoordination {
 
   commit(): void {
     this.assertOpen();
-    this.options.store.commit();
-    this.options.remove(this.removedIds());
-    this.installActors();
+    this.options.publish.prepare();
+    this.prepareActors();
+    try {
+      this.options.store.commit();
+    } catch (error) {
+      this.uninstallActors();
+      throw error;
+    }
+    this.options.actors.commit();
     this.finish();
     this.options.publish.commit();
-    this.#work.forEach((work) => this.options.runEffects(work));
-    this.#work.forEach((work) => this.options.validate(work));
+    this.settleDeferredWork();
   }
 
   discard(): void {
@@ -93,6 +101,7 @@ export class RuntimeCoordination implements UnifoldRuntimeCoordination {
     this.options.store.discard();
     this.options.publish.discard();
     this.options.discardAuthorities();
+    this.options.actors.discard();
     this.finish();
   }
 
@@ -114,12 +123,22 @@ export class RuntimeCoordination implements UnifoldRuntimeCoordination {
     }
   }
 
+  private prepareActors(): void {
+    this.options.remove(this.removedIds());
+    this.installActors();
+  }
+
   private uninstallActors(): void {
     this.#actors.forEach((staged) => this.cancelActor(staged));
   }
 
   private removedIds(): readonly string[] {
     return [...new Set(this.#work.flatMap(({ removedIds }) => removedIds))];
+  }
+
+  private settleDeferredWork(): void {
+    this.#work.forEach((work) => safelyRun(() => this.options.runEffects(work)));
+    this.#work.forEach((work) => safelyRun(() => this.options.validate(work)));
   }
 
   private finish(): void {
@@ -132,6 +151,14 @@ export class RuntimeCoordination implements UnifoldRuntimeCoordination {
   }
 }
 
+function safelyRun(work: () => void): void {
+  try {
+    work();
+  } catch {
+    // Deferred post-commit adapters cannot reverse an already published transaction.
+  }
+}
+
 export interface RuntimeAuthorityCheckpoint {
   readonly compositionInstances: Readonly<Record<string, UiCompositionInstanceManifest>>;
   readonly rules: CompiledRuleProgram | undefined;
@@ -139,6 +166,7 @@ export interface RuntimeAuthorityCheckpoint {
 }
 
 interface RuntimeCoordinationManagerOptions {
+  readonly captureActors: () => ActorCheckpoint;
   readonly captureAuthorities: () => RuntimeAuthorityCheckpoint;
   readonly execute: (
     commands: readonly UiCommand[],
@@ -166,14 +194,10 @@ export class RuntimeCoordinationManager {
     this.assertAvailable();
     const checkpoint = this.options.captureAuthorities();
     const publish = this.options.publisher.beginCoordination();
-    let store: CoordinationBoundary;
-    try {
-      store = this.options.store.beginCoordination();
-    } catch (error) {
-      publish.discard();
-      throw error;
-    }
+    const store = openStoreCoordination(this.options.store, publish);
+    const actors = captureActorCheckpoint(this.options.captureActors, store, publish);
     const coordination = new RuntimeCoordination({
+      actors,
       discardAuthorities: () => this.options.restoreAuthorities(checkpoint),
       execute: (owner, commands, context) => this.execute(owner, commands, context),
       finish: (owner) => this.finish(owner),
@@ -224,5 +248,31 @@ export class RuntimeCoordinationManager {
 
   private require(owner: RuntimeCoordination): void {
     if (this.#current !== owner) throw new Error("Runtime coordination is unavailable.");
+  }
+}
+
+function openStoreCoordination(
+  store: NormalizedNodeStore,
+  publish: RuntimePublisherCoordination
+): CoordinationBoundary {
+  try {
+    return store.beginCoordination();
+  } catch (error) {
+    publish.discard();
+    throw error;
+  }
+}
+
+function captureActorCheckpoint(
+  capture: () => ActorCheckpoint,
+  store: CoordinationBoundary,
+  publish: RuntimePublisherCoordination
+): ActorCheckpoint {
+  try {
+    return capture();
+  } catch (error) {
+    store.discard();
+    publish.discard();
+    throw error;
   }
 }

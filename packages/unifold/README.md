@@ -19,9 +19,13 @@ Updates are admitted only after composition and IR validation plus renderer pref
 coordinated `structure.reconcile` transaction migrates compatible dirty control state. Its candidate
 revision, selections, rules, bindings, composition manifest, actors, DOM, and Schema.org graph stay
 private until every structural surface accepts the update. Commit then publishes canonical facts in
-sequence order before effects and validation. Rejection restores the exact prior revision and emits
-no candidate or compensation facts; failed rollback quarantines the application and publishes only
-the normal disposal fact.
+sequence order before effects and validation. Machine replacement has explicit prepare, activate,
+commit, and discard phases; actor ownership is checkpointed before activation, and obsolete actor
+shutdown cannot invalidate an accepted replacement. Rejection restores the exact prior revision and
+emits no candidate or compensation facts; failed rollback quarantines the application and publishes
+only the normal disposal fact. Reentrant transactions observed during the outbox drain are projected
+selectively and refresh Schema.org state rather than being mistaken for the already-projected
+structural revision.
 
 An authored document may declare `controls@1.0.0` independently from its hierarchical visual tree.
 Enum-backed Form, Group, Array, Record, and Control definitions target stable rendered IDs and carry

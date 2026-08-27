@@ -60,6 +60,28 @@ it("removes every actor owned by a removed node", () => {
   expect(actor.send).not.toHaveBeenCalled();
 });
 
+it("restores or commits an exact actor ownership checkpoint", () => {
+  const previous = { send: vi.fn() };
+  const candidate = { send: vi.fn() };
+  const router = new XStateEventRouter();
+  router.register("field", previous);
+  const discarded = router.checkpoint();
+  router.removeOwner("field");
+  router.register("field", candidate);
+  discarded.discard();
+  router.route(exampleEvent());
+  expect(previous.send).toHaveBeenCalledOnce();
+  expect(candidate.send).not.toHaveBeenCalled();
+
+  const committed = router.checkpoint();
+  router.removeOwner("field");
+  router.register("field", candidate);
+  committed.commit();
+  expect(() => committed.discard()).toThrow("closed");
+  router.route(exampleEvent());
+  expect(candidate.send).toHaveBeenCalledOnce();
+});
+
 function exampleEvent() {
   return createUiEvent({
     id: "event-1",

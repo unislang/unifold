@@ -34,12 +34,14 @@ selection creation, actor registration, intent ingestion, and direct execution f
 snapshots and revisions remain readable by the coordinator, while canonical facts, XState routing,
 store writes, command-port effects, owner cleanup, and async-validation starts wait for resolution.
 `discard()` restores the prior graph revision, event sequence, derived-rule program, store bindings,
-and composition manifests without publishing or invoking effects. `commit()` publishes the committed
-facts in sequence order before effects and validation. Actors registered through the coordination
-handle are staged until old owners are removed, then installed before the fact flush; actor-triggered
-reentrant execution appends behind every already-buffered lower-sequence fact. Actor adapters are
-isolated observers: one adapter exception cannot interrupt sibling routing or invalidate an already
-committed fact.
+and composition manifests without publishing or invoking effects. Commit first validates the
+publication outbox and checkpoints the exact actor-owner index. Old routes are removed and staged
+actors installed while the normalized store remains discardable; any pre-commit failure restores
+the actor index and candidate store. After the store commit, fact and adapter failures are contained
+because they can no longer reverse accepted state. Facts drain in sequence order before effects and
+validation, and actor-triggered reentrant execution appends behind every already-buffered
+lower-sequence fact. Actor adapters are isolated observers: one adapter exception cannot interrupt
+sibling routing or invalidate an already committed fact.
 
 The command fact, `EffectRequested`, and its `EffectCompleted` or `EffectFailed` terminal share one
 opaque CloudEvents `subject`. The same value is the required `effectId` in the port's

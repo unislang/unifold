@@ -1,12 +1,14 @@
 // @vitest-environment happy-dom
 import { UiCommandType, UiEventType, type UiEvent } from "@unislang/unifold-events";
 import { expect, it, vi } from "vitest";
+import { XStateEventRouter } from "@unislang/unifold-xstate";
 
 import { UnifoldApplication } from "./application.js";
 import {
   asApplicationError,
   atomicUpdateDiagnostic,
-  atomicUpdateFailureStage
+  atomicUpdateFailureStage,
+  UiApplicationRuntimeCommitError
 } from "./application-atomicity.js";
 import {
   authoredDocument,
@@ -40,6 +42,9 @@ it("classifies atomic update and rollback failures", () => {
   );
   expect(atomicUpdateFailureStage(new UiSemanticConfigurationError("semantics"))).toBe(
     UnifoldApplicationDiagnosticStage.Semantics
+  );
+  expect(atomicUpdateFailureStage(new UiApplicationRuntimeCommitError("runtime"))).toBe(
+    UnifoldApplicationDiagnosticStage.Runtime
   );
 });
 
@@ -91,6 +96,28 @@ it("rejects a candidate whose declared store adapter is unavailable", () => {
 
   expect(result.diagnostics[0]?.stage).toBe(UnifoldApplicationDiagnosticStage.Store);
   expect(application.runtime.revision).toBe(0);
+  application.dispose();
+});
+
+it("projects a transaction reentered during the coordinated outbox drain", () => {
+  const prepared = requirePrepared(authoredDocument());
+  const runtime = runtimeFor(prepared);
+  const renderer = failingRenderer(false);
+  const project = vi.spyOn(renderer, "project");
+  const semantics = semanticProbe();
+  const application = directApplication(prepared, runtime, renderer, undefined, semantics as never);
+  project.mockClear();
+  const subscription = reenterOnCommit(runtime);
+
+  const result = application.update(authoredDocument("2", { label: "Structural" }));
+  expect(result.status, JSON.stringify(result)).toBe(UnifoldApplicationUpdateStatus.Applied);
+  expect(runtime.getSnapshot("name").properties["label"]).toBe("Reentered");
+  expect(project).toHaveBeenCalledWith(
+    expect.objectContaining({ properties: expect.objectContaining({ label: "Reentered" }) }),
+    []
+  );
+  expect(semantics.refreshRuntime).toHaveBeenCalledOnce();
+  subscription.unsubscribe();
   application.dispose();
 });
 
@@ -150,7 +177,7 @@ it("restores the exact workflow state when coordinated replacement fails", () =>
   const events: UiEvent[] = [];
   application.runtime.events$.subscribe((event) => events.push(event));
   const replacement = vi
-    .spyOn(UiMachineCoordinator.prototype, "replace")
+    .spyOn(UiMachineCoordinator.prototype, "prepareReplacement")
     .mockImplementationOnce(() => {
       throw new UiMachineConfigurationError("Injected workflow failure.");
     });
@@ -162,6 +189,36 @@ it("restores the exact workflow state when coordinated replacement fails", () =>
   expect(application.machineState("profile-workflow")).toBe("saved");
   expect(events).toEqual([]);
   replacement.mockRestore();
+  application.dispose();
+});
+
+it("restores workflow, state, and routing when commit preflight fails", () => {
+  const application = requireApplication(
+    mountUnifoldApplication(machineDocument(), document.createElement("main"), {
+      machineCommands: workflowCommandRegistry()
+    })
+  );
+  application.runtime.execute([{ id: "form", type: UiCommandType.FormSubmit }]);
+  const revision = application.runtime.revision;
+  const events: UiEvent[] = [];
+  application.runtime.events$.subscribe((event) => events.push(event));
+  const registration = vi
+    .spyOn(XStateEventRouter.prototype, "register")
+    .mockImplementationOnce(() => {
+      throw new Error("Injected actor installation failure.");
+    });
+  const current = machineDocument();
+  const definition = current.machines[0];
+  if (definition === undefined) throw new Error("Missing workflow definition.");
+  const source = { ...current, machines: [{ ...definition, version: "2.0.0" }] };
+
+  const result = application.update(source);
+
+  expect(result.diagnostics[0]?.stage).toBe(UnifoldApplicationDiagnosticStage.Runtime);
+  expect(application.runtime.revision).toBe(revision);
+  expect(application.machineState("profile-workflow")).toBe("saved");
+  expect(events).toEqual([]);
+  registration.mockRestore();
   application.dispose();
 });
 
@@ -196,7 +253,8 @@ function directApplication(
   prepared: ReturnType<typeof requirePrepared>,
   runtime: ReturnType<typeof runtimeFor>,
   renderer: ReturnType<typeof failingRenderer>,
-  storeCommands?: StoreCommandController
+  storeCommands?: StoreCommandController,
+  semantics?: UiSemanticCoordinator
 ): UnifoldApplication {
   return new UnifoldApplication(
     prepared,
@@ -207,7 +265,8 @@ function directApplication(
     {},
     undefined,
     undefined,
-    storeCommands
+    storeCommands,
+    semantics
   );
 }
 
@@ -224,6 +283,26 @@ function failNextCoordinatedExecution(runtime: ReturnType<typeof runtimeFor>): v
       },
       registerActor: (id, actor) => coordination.registerActor(id, actor)
     };
+  });
+}
+
+function semanticProbe() {
+  return {
+    dispose: vi.fn(),
+    publishRuntime: vi.fn(),
+    refreshRuntime: vi.fn(),
+    validate: vi.fn()
+  };
+}
+
+function reenterOnCommit(runtime: ReturnType<typeof runtimeFor>) {
+  let reentered = false;
+  return runtime.events$.subscribe((event) => {
+    if (event.type !== UiEventType.TransactionCommitted || reentered) return;
+    reentered = true;
+    runtime.execute([
+      { id: "name", properties: { label: "Reentered" }, type: UiCommandType.NodePatchProperties }
+    ]);
   });
 }
 
