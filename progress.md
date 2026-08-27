@@ -18,19 +18,18 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
 - Latest published implementation checkpoint:
-  `9fe398069fb10d2c76430aab5c298e9c5bcf6b52`
-  (`feat: focus authored empty collections`) on
-  `https://github.com/unislang/unifold.git`.
-- Latest published verification checkpoint:
-  `0e7a549c61e6425379491e515bbf56fec334beac`
-  (`docs: record empty collection focus checkpoint`).
-- Latest local implementation checkpoint:
   `89645cc7ef95117b5c7a2f10a03de3ecd80061db`
-  (`feat: make focus effect settlement truthful`); it has not been pushed. The preceding local
-  collection-behavior checkpoint is `a065b629677dd65f47ad9334dceb326de988e04e`.
-- Publication verification: live `git ls-remote origin refs/heads/main` resolved to
-  `0e7a549c61e6425379491e515bbf56fec334beac`; local `HEAD` and `origin/main` matched that
-  verification checkpoint before the local collection-behavior and focus-settlement work. The
+  (`feat: make focus effect settlement truthful`) on
+  `https://github.com/unislang/unifold.git`. The preceding executable collection-behavior
+  checkpoint is `a065b629677dd65f47ad9334dceb326de988e04e`.
+- Latest published verification checkpoint:
+  `cf136af0670e8dca421bf3e798e96c0f61e4955b`
+  (`docs: record truthful focus checkpoint`).
+- Latest local checkpoint: `cf136af0670e8dca421bf3e798e96c0f61e4955b`; subsequent effect-lifecycle
+  identity and lifecycle-memory sampling work remains uncommitted.
+- Publication verification: live `git ls-remote origin refs/heads/main` and local `HEAD` both
+  resolved to `cf136af0670e8dca421bf3e798e96c0f61e4955b` after the push to
+  `https://github.com/unislang/unifold.git`. The
   history also includes runtime isolation at
   `5a9795e`, semantic owner isolation at `0b9d569`, and repository source-ownership gates at
   `a6b4b60`.
@@ -69,8 +68,10 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 
 ## 2026-08-27 truthful DOM focus-effect tranche
 
-- Status: implemented, release-gate verified, and committed locally as
-  `89645cc7ef95117b5c7a2f10a03de3ecd80061db`; publication remains. The overall goal remains active.
+- Status: implemented, release-gate verified, committed as
+  `89645cc7ef95117b5c7a2f10a03de3ecd80061db`, pushed to
+  `https://github.com/unislang/unifold.git`, and independently verified through documentation
+  checkpoint `cf136af0670e8dca421bf3e798e96c0f61e4955b`. The overall goal remains active.
 - `DomRenderController.restoreFocus()` now returns enum-backed `FocusRestoreStatus`. `Focused` means
   the current connected renderer host still owns a visible, enabled focus target and deepest
   composed `activeElement` proves native focus succeeded. A missing host, empty or disabled target,
@@ -92,6 +93,15 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   `CommandApplied` as success. Its focused Playwright matrix passes 4/4 on Chromium/WebKit: verified
   next/previous/empty-target focus produces requested/completed pairs, while a CSS-hidden authored
   fallback produces requested/failed and never appears as composed focused state.
+- Post-publication benchmark follow-up found that the single best-effort V8 collection sampled
+  completed async jobs as retained heap. The uncommitted lifecycle fixture now compares symmetric
+  quiescent task boundaries and uses synchronous major collection plus `v8.queryObjects()` with a
+  repository-owned sentinel to force the full collection intended for leak regression tests. Its
+  isolated 20-cycle/500-node gate passes at 0.63% retained heap against the unchanged 2% limit. A
+  complete selective rerun passed the timing benchmark and six core profiles, then the concurrent
+  background `.pnpm` relink removed Vitest's `@vitest/utils` link mid-run. Resume by stabilizing the
+  install, rerunning `pnpm benchmark:selective`, and committing the benchmark/docs follow-up
+  separately from the in-progress effect-lifecycle identity tranche.
 - Focused verification passes 46 tests across eight renderer/application/reference files. Root
   Vitest passes 610 files/1,648 tests; tooling passes 22/22; generated CEM/theme/module-lock scripts
   pass; and performance correctness passes 39 files/50 tests with 32 profile files skipped.
