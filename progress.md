@@ -17,15 +17,18 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-26
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
+- Current published repository head:
+  `5e0601bc543c746d3d75ce510977f6a8fba75421` (`feat: add native JSON date field`) on
+  `https://github.com/unislang/unifold.git`.
 - Latest published implementation checkpoint:
-  `7ce580b11ede8846c87eedd15b98634d3475313c` (`feat: add native JSON switch`) on
+  `5e0601bc543c746d3d75ce510977f6a8fba75421` (`feat: add native JSON date field`) on
   `https://github.com/unislang/unifold.git`.
 - Current local implementation: the `NumberField`, `SearchField`, and `CheckboxGroup` families are
-  committed and published, as is `Switch`. Governed AI/Studio, Studio dogfood, reference
+  committed and published, as are `Switch` and `DateField`. Governed AI/Studio, Studio dogfood, reference
   feature-module re-export cleanup, executable import-then-local-re-export prevention, the
-  parallel-safe Studio Playwright port, and the emerging DateField prerequisites remain local and
+  parallel-safe Studio Playwright port, and the in-progress Toast family remain local and
   must be preserved.
-- Goal status: active. DateField, Toast, and Pagination remain component-family gaps, followed by
+- Goal status: active. Toast and Pagination remain component-family gaps, followed by
   broader Studio and production-integration gates.
 - Authoritative status inventory: [`docs/implementation-status.md`](./docs/implementation-status.md)
 - Architecture contract: [`docs/architecture.md`](./docs/architecture.md)
@@ -74,31 +77,57 @@ of bypassing the JSON compiler, event fabric, state authority, or export boundar
   required/disabled behavior, selective projection, CEM generation, Playwright, and a 100-control
   benchmark. Its native checkbox carries `role="switch"`; canonical state is boolean, and disabled
   synthetic input is rolled back rather than admitted to the unified stream.
+- `DateField` now spans the same full path with a timezone-free `"" | YYYY-MM-DD` contract, pure
+  Gregorian validation, explicit bounded step anchoring, native date-only `FormData`, required and
+  disabled behavior, static fallback, guarded edited/focused upgrade, selective projection, CEM,
+  all-engine Playwright, and a 100-control performance gate. Exact authored attributes close the
+  WebKit `input.type` normalization gap without weakening hydration tamper rejection.
 - `pnpm quality:reexports` rejects feature modules that import a local binding and export that same
   binding. Feature modules expose owned operations; direct package export maps remain the deliberate
   public-boundary mechanism.
 
 Current local evidence: `pnpm quality`, `pnpm test`, `pnpm test:coverage`, `pnpm build`, and
-`pnpm format:check` pass. Vitest passes 504 files/1,259 tests; tooling passes 18/18, CEM generation
-passes 8/8, and the performance-correctness suite passes 33 files/43 tests with 30 opt-in profiles
-skipped there. Coverage is 97.54% statements/lines, 96.87% functions, and 90.02% branches against
-unchanged 90% thresholds. Dependency-cruiser validates 2,041 modules and 4,518 dependencies with no
-violations. All-engine Playwright passes 27/27 hierarchical, 84/84 static-export, and 24/24 Studio
+`pnpm format:check` pass. Vitest passes 514 files/1,300 tests; tooling passes 18/18, CEM generation
+passes 8/8, and the performance-correctness suite passes 34 files/44 tests with 31 opt-in profiles
+skipped there. Coverage is 97.56% statements/lines, 96.86% functions, and 90.00% branches against
+unchanged 90% thresholds. Dependency-cruiser validates 2,081 modules and 4,604 dependencies with no
+violations. All-engine Playwright passes 30/30 hierarchical, 96/96 static-export, and 24/24 Studio
 journeys; Studio includes unsafe rejection, stale-apply preservation, real cancellation,
 supersession, export-failure recovery, keyboard, axe, Schema.org, and browser-asset isolation.
-CEM/definition generation covers all 43 components. The reference startup closure is 186,928 gzip
-bytes (182.55 KiB) against its executable 184 KiB limit, with 35,981 post-mount gzip bytes. Studio
-is 230.08 KiB gzip against its 250 KiB limit. Benchmark schema 2.30.0 passes 55/55 gates; the exact
+CEM/definition generation covers all 44 components. The reference startup closure is 188,071 gzip
+bytes (183.66 KiB) against its executable 184 KiB limit, with 35,970 post-mount gzip bytes. Studio
+is 231.59 KiB gzip against its 250 KiB limit. Benchmark schema 2.31.0 passes 56/56 gates; the exact
 100-group/600-checkbox run records 0.96/3.28/4.38 ms and the exact 100-Switch run records
-0.52/1.20/6.29 ms p50/p95/p99 across 50 samples, each against a 100 ms p95 ceiling. Switch and
-CheckboxGroup are published; the separate AI/Studio, reference, tooling, test-harness,
-root-configuration, and emerging DateField work remains uncommitted and unpushed.
+0.52/1.20/6.29 ms p50/p95/p99. The exact 100-DateField run records 0.75/2.12/2.60 ms
+p50/p95/p99 across 50 samples; each component workload has a 100 ms p95 ceiling. Switch,
+CheckboxGroup, and DateField are published; the separate AI/Studio, reference, tooling,
+test-harness, root-configuration, and in-progress Toast work remains uncommitted and unpushed.
 
 Remaining AI/Studio gaps are explicit: provenance-bound third-party catalog manifests; complete
 component property, event, machine, and rule authoring context; durable actor identity, approval
 audit, and separation of duties; provider/model token, cost, time, retry, and signature policy;
 executable product outcome evaluators; collaboration/rebase/undo; and the full multi-turn design
 surface.
+
+## DateField publication checkpoint
+
+- Published commit: `5e0601bc543c746d3d75ce510977f6a8fba75421`
+  (`feat: add native JSON date field`) on `unifold/main`.
+- DateField is complete locally across Scratch-style JSON, contracts, enum-backed catalog and
+  generated definitions, IR/forms, deferred Lit registration, direct facade subpath, native
+  validity/FormData, deterministic static export, strict hydration, selective runtime projection,
+  documentation, performance, and Playwright.
+- Its canonical value is empty or one exact four-digit Gregorian `YYYY-MM-DD` value. Impossible
+  dates, reversed or out-of-range values, invalid positive whole-day steps, and ambiguous multi-day
+  step anchors fail before render without `Date`, timezone, or UTC conversion.
+- All-engine browser evidence passes 30/30 hierarchical and 96/96 static-export journeys. The
+  guarded upgrade preserves legitimate pre-upgrade value/focus, rejects type or constraint tamper,
+  and uses exact authored attributes to handle WebKit's native date-property normalization.
+- Benchmark schema 2.31.0 passes 56/56 gates. The exact 100-DateField/50-sample profile records
+  0.75/2.12/2.60 ms p50/p95/p99, exact final `2026-10-15`, and 100 hosts against the 100 ms p95 gate.
+- Preserve the separate governed AI/Studio, re-export-policy, reference, test-harness,
+  root-configuration, and in-progress Toast work. Continue Toast, then Pagination, through the same
+  complete evidence path.
 
 ## Switch publication checkpoint
 
