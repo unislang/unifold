@@ -1,6 +1,9 @@
 import {
   expandComposedUiDocument,
-  CompositionExpansionStatus
+  expandLayoutDocument,
+  CompositionExpansionStatus,
+  LayoutExpansionStatus,
+  type CompositionDiagnostic
 } from "@unislang/unifold-compositions";
 import type { JsonObject } from "@unislang/unifold-contracts";
 
@@ -76,15 +79,40 @@ async function flattenAndExpand(
     "",
     root.registered.sourceId
   );
-  const document = rootContents.rewriteDocument(rootDocument);
+  const authored = rootContents.rewriteDocument(rootDocument);
   flattened.diagnostics.push(...rootContents.diagnostics);
+  const layout = expandedLayout(authored, root.registered.sourceId);
+  flattened.diagnostics.push(...layout.diagnostics);
   if (flattened.diagnostics.length > 0) return rejected(...flattened.diagnostics);
   flattened.sourceMap["/view"] = sourceLocation(
     root,
     `/exports/documents/${documentIndex}/document/view`
   );
-  const composedDocument = { ...document, compositions: flattened.compositions };
+  const composedDocument = {
+    ...(layout.document as JsonObject),
+    compositions: flattened.compositions
+  };
   return expandArtifact(composedDocument, nodes, flattened);
+}
+
+function expandedLayout(
+  authored: JsonObject,
+  sourceId: string
+): { readonly diagnostics: readonly UiModuleDiagnostic[]; readonly document?: JsonObject } {
+  const expansion = expandLayoutDocument(authored);
+  if (expansion.status === LayoutExpansionStatus.Invalid) {
+    return { diagnostics: expansion.diagnostics.map((item) => layoutDiagnostic(item, sourceId)) };
+  }
+  return { diagnostics: [], document: expansion.document ?? authored };
+}
+
+function layoutDiagnostic(diagnostic: CompositionDiagnostic, sourceId: string): UiModuleDiagnostic {
+  return {
+    code: UiModuleDiagnosticCode.CompositionInvalid,
+    message: diagnostic.message,
+    path: diagnostic.path,
+    sourceId
+  };
 }
 
 function flattenModules(nodes: readonly UiModuleGraphNode[]): FlattenedModules {

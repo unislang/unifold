@@ -1,0 +1,10 @@
+{
+  "$schema": "https://schemas.unifold.org/ui-module-project/1.0/schema.json",
+  "schemaVersion": "1.0.0",
+  "entry": {
+    "moduleId": "org.unifold.reference.application",
+    "version": "1.0.0",
+    "exportName": "application"
+  },
+  "sources": ["shared.module.json", "application.module.json"]
+}

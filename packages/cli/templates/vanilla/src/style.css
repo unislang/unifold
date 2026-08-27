@@ -1,0 +1,20 @@
+:root {
+  color: var(--unifold-color-text);
+  background: var(--unifold-color-surface);
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  box-sizing: border-box;
+  margin-inline: auto;
+  max-width: 48rem;
+  padding: var(--unifold-space-lg);
+}
+
+output {
+  overflow-wrap: anywhere;
+}

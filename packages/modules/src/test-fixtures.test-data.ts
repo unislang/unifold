@@ -70,6 +70,31 @@ export function composedDocumentFixture() {
   };
 }
 
+export function layoutDocumentFixture() {
+  return {
+    $schema: "https://schemas.unifold.org/layout-document/1.0/schema.json",
+    catalog: { name: CoreCatalogName.UnifoldCore, version: CoreCatalogVersion.Version1 },
+    id: "module-layout-application",
+    layoutType: "module-page",
+    layoutVersion: "1.0.0",
+    layouts: [
+      {
+        layoutType: "module-page",
+        template: {
+          id: "message",
+          props: { content: "{{message}}" },
+          type: "Text"
+        },
+        variables: { message: { required: true, type: "string" } },
+        version: "1.0.0"
+      }
+    ],
+    revision: "revision-1",
+    schemaVersion: UiSchemaVersion.Version1,
+    variables: { message: "Scratch-style module application" }
+  };
+}
+
 function fieldComposition() {
   return {
     contractVersion: CompositionContractVersion.Version1,

@@ -1,0 +1,79 @@
+import "@unislang/unifold-theme/tokens.css";
+import {
+  UnifoldApplicationMountStatus,
+  createMachineCommandRegistry,
+  mountUnifoldApplication,
+  type UnifoldApplicationPort
+} from "@unislang/unifold";
+import { UiCommandType } from "@unislang/unifold-events";
+
+import definition from "./ui.json" with { type: "json" };
+import "./style.css";
+
+export interface StarterController {
+  readonly application: UnifoldApplicationPort;
+  dispose(): void;
+}
+
+export function mountStarterApplication(
+  container: HTMLElement,
+  eventOutput: HTMLElement,
+  machineOutput: HTMLElement
+): StarterController {
+  const result = mountUnifoldApplication(definition, container, {
+    machineCommands: starterCommands()
+  });
+  if (result.status !== UnifoldApplicationMountStatus.Mounted) {
+    throw new Error(`Starter mount failed: ${JSON.stringify(result.diagnostics)}`);
+  }
+  const application = result.application;
+  const subscription = application.runtime.events$.subscribe((event) => {
+    eventOutput.textContent = event.type;
+    queueMicrotask(() => showMachineState(application, machineOutput));
+  });
+  showMachineState(application, machineOutput);
+  return {
+    application,
+    dispose: () => {
+      subscription.unsubscribe();
+      application.dispose();
+    }
+  };
+}
+
+function starterCommands() {
+  const commands = createMachineCommandRegistry();
+  commands.register("show-saved-status", () => ({
+    id: "save-status",
+    properties: { content: "Saved" },
+    type: UiCommandType.NodePatchProperties
+  }));
+  return commands;
+}
+
+function showMachineState(application: UnifoldApplicationPort, output: HTMLElement): void {
+  output.textContent = String(application.machineState("profile-workflow"));
+}
+
+function requireElement(id: string): HTMLElement {
+  const element = document.getElementById(id);
+  if (!(element instanceof HTMLElement)) throw new Error(`Missing starter element: ${id}.`);
+  return element;
+}
+
+function requireOutput(testId: string): HTMLElement {
+  const element = document.querySelector(`[data-testid="${testId}"]`);
+  if (!(element instanceof HTMLElement)) throw new Error(`Missing starter output: ${testId}.`);
+  return element;
+}
+
+function bootstrap(): void {
+  if (document.getElementById("app") === null) return;
+  mountStarterApplication(
+    requireElement("app"),
+    requireOutput("latest-event"),
+    requireOutput("machine-state")
+  );
+}
+
+bootstrap();

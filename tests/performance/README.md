@@ -108,6 +108,12 @@ An exact navigation fixture mounts 100 deferred `Pagination` elements and projec
 item sequence across 50 samples. It requires exactly 100 hosts, the expected final current-page
 label, and projection p95 at or below 100 ms without introducing a second current-page store.
 
+An exact static-module fixture registers and resolves a 17-module integrity-pinned chain whose root
+is a Scratch-style 500-node layout. Thirty samples include bounded schema admission, canonical
+SHA-256 hashing, graph/cycle/integrity resolution, namespace/resource flattening, layout lowering,
+composition expansion, source-map construction, and final artifact hashing. Its gate requires the
+exact 17-module graph, exact 500-node document, and p95 at or below 250 ms.
+
 An exact 10,000-row MasterDetail document adds twenty post-warm-up startup and selection samples.
 Its gates require startup p95 at or below 1,000 ms, selection p95 at or below 100 ms, no more than
 200 rendered master options, the expected canonical selected row, and the matching detail content.

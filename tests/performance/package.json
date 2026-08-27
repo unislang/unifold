@@ -20,6 +20,7 @@
     "@unislang/unifold-elements": "workspace:*",
     "@unislang/unifold-events": "workspace:*",
     "@unislang/unifold-forms": "workspace:*",
+    "@unislang/unifold-modules": "workspace:*",
     "@unislang/unifold-reactivity": "workspace:*",
     "@unislang/unifold-rules": "workspace:*",
     "@unislang/unifold-runtime": "workspace:*"

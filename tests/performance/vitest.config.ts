@@ -99,6 +99,7 @@ export default defineConfig({
       "@unislang/unifold-forms": source("forms"),
       "@unislang/unifold-ir": source("ir"),
       "@unislang/unifold-jsonui": source("jsonui"),
+      "@unislang/unifold-modules": source("modules"),
       "@unislang/unifold-reactivity": source("reactivity"),
       "@unislang/unifold-renderer-dom": source("renderer-dom"),
       "@unislang/unifold-rules": source("rules"),

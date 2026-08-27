@@ -1,30 +1,24 @@
 import assert from "node:assert/strict";
-import { execFile as execFileCallback } from "node:child_process";
-import {
-  cp,
-  lstat,
-  mkdtemp,
-  readFile,
-  readdir,
-  realpath,
-  rm,
-  stat,
-  writeFile
-} from "node:fs/promises";
+import { cp, mkdtemp, readFile, readdir, realpath, stat, writeFile } from "node:fs/promises";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { promisify } from "node:util";
 
 import { copyConsumerFixture, tarballSpecifier, writeHostManifest } from "./host-fixture.mjs";
 import {
   createPhysicalRegistrationCopies,
   registrationExternalDependencies
 } from "./registration-fixture.mjs";
+import {
+  packageClosure,
+  packClosure,
+  readWorkspaceManifests,
+  removeTemporaryRoot,
+  runPnpm
+} from "./package-fixture.mjs";
 
-const execFile = promisify(execFileCallback);
 const workspaceRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const fixtureRoot = resolve(dirname(fileURLToPath(import.meta.url)), "fixture");
 const hostFixtureRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../host-parity");
@@ -94,74 +88,8 @@ async function verifyPackedHosts(temporaryRoot, tarballs) {
   await runHostChecks(consumerRoot);
 }
 
-async function readWorkspaceManifests() {
-  const packagesRoot = join(workspaceRoot, "packages");
-  const entries = await readdir(packagesRoot, { withFileTypes: true });
-  const directories = entries.filter((entry) => entry.isDirectory()).map(({ name }) => name);
-  const records = await Promise.all(
-    directories.map((name) => readPackageRecord(packagesRoot, name))
-  );
-  return new Map(records.map((record) => [record.manifest.name, record]));
-}
-
-async function readPackageRecord(packagesRoot, name) {
-  const directory = join(packagesRoot, name);
-  const manifest = JSON.parse(await readFile(join(directory, "package.json"), "utf8"));
-  return { directory, manifest };
-}
-
 function productionClosure(manifests) {
   return packageClosure(manifests, ["@unislang/unifold", "@unislang/unifold-theme"]);
-}
-
-function packageClosure(manifests, roots) {
-  const closure = new Map();
-  const pending = [...roots];
-  for (const name of pending) {
-    if (closure.has(name)) continue;
-    const record = manifests.get(name);
-    assert(record, `Missing workspace package: ${name}.`);
-    closure.set(name, record);
-    pending.push(...internalDependencies(record.manifest, manifests));
-  }
-  return closure;
-}
-
-function internalDependencies(manifest, manifests) {
-  const dependencies = manifest.dependencies ?? {};
-  return Object.keys(dependencies).filter((name) => manifests.has(name));
-}
-
-async function packClosure(closure, tarballRoot) {
-  const results = await Promise.all(
-    [...closure].map(async ([name, record]) => [name, await packPackage(record, tarballRoot)])
-  );
-  return new Map(results);
-}
-
-async function packPackage(record, tarballRoot) {
-  const result = await runPnpm(
-    ["pack", "--pack-destination", tarballRoot, "--json"],
-    record.directory
-  );
-  const packed = JSON.parse(result.stdout);
-  assertPacklist(record.manifest.name, packed.files);
-  return packed.filename;
-}
-
-function assertPacklist(name, files) {
-  const paths = files.map(({ path }) => path);
-  assert(paths.includes("package.json"), `${name} omitted package.json.`);
-  assert(
-    paths.some((path) => /^README(?:\.|$)/iu.test(path)),
-    `${name} omitted its README.`
-  );
-  assert(!paths.some((path) => path.endsWith(".tsbuildinfo")), `${name} leaked build state.`);
-  assert(!paths.some((path) => /(?:^|\/)src\/.*\.test\./u.test(path)), `${name} leaked tests.`);
-  assert(
-    !paths.some((path) => /(?:^|\/)src\/.*test-helpers\.ts$/u.test(path)),
-    `${name} leaked test helpers.`
-  );
 }
 
 async function writeConsumerManifest(consumerRoot, tarballs) {
@@ -308,41 +236,7 @@ async function availablePort() {
   return address.port;
 }
 
-async function runPnpm(arguments_, cwd, extraEnvironment = {}) {
-  const pnpmPath = process.env["npm_execpath"];
-  assert(pnpmPath, "The packed-consumer test must be launched through pnpm.");
-  return runCommand(process.execPath, [pnpmPath, ...arguments_], cwd, extraEnvironment);
-}
-
-async function runCommand(command, arguments_, cwd, extraEnvironment) {
-  try {
-    return await execFile(command, arguments_, {
-      cwd,
-      encoding: "utf8",
-      env: { ...process.env, ...extraEnvironment },
-      maxBuffer: 20 * 1024 * 1024,
-      windowsHide: true
-    });
-  } catch (error) {
-    throw commandError(command, arguments_, error);
-  }
-}
-
-function commandError(command, arguments_, error) {
-  const output = [error?.stdout, error?.stderr].filter(Boolean).join("\n");
-  return new Error(`Command failed: ${command} ${arguments_.join(" ")}\n${output}`, {
-    cause: error
-  });
-}
-
 function isWithin(parent, candidate) {
   const nested = relative(resolve(parent), resolve(candidate));
   return nested !== "" && !nested.startsWith("..") && !isAbsolute(nested);
-}
-
-async function removeTemporaryRoot(temporaryRoot) {
-  assert(isWithin(tmpdir(), temporaryRoot), "Refusing to remove a non-temporary consumer path.");
-  const target = await lstat(temporaryRoot);
-  assert(target.isDirectory(), "The consumer cleanup target is not a directory.");
-  await rm(temporaryRoot, { force: true, maxRetries: 3, recursive: true, retryDelay: 100 });
 }

@@ -9,6 +9,14 @@ export enum UiModuleSchemaVersion {
   Version1 = "1.0.0"
 }
 
+export enum UiModuleLockSchemaUri {
+  Version1 = "https://schemas.unifold.org/ui-module-lock/1.0/schema.json"
+}
+
+export enum UiModuleLockSchemaVersion {
+  Version1 = "1.0.0"
+}
+
 export enum UiModuleResourceKind {
   Machine = "machine",
   Message = "message",
@@ -29,6 +37,7 @@ export enum UiModuleDiagnosticCode {
   GraphLimitExceeded = "graph-limit-exceeded",
   ImportIntegrityMismatch = "import-integrity-mismatch",
   ImportNotFound = "import-not-found",
+  InvalidLock = "invalid-lock",
   InvalidModule = "invalid-module",
   InvalidNamespaceReference = "invalid-namespace-reference",
   ModuleLimitExceeded = "module-limit-exceeded",
@@ -120,6 +129,21 @@ export interface UiResolvedModuleArtifact {
   readonly integrity: string;
   readonly resources: Readonly<Record<string, UiResolvedModuleResource>>;
   readonly sourceMap: Readonly<Record<string, UiModuleSourceLocation>>;
+}
+
+export interface UiModuleLockEntry extends JsonObject {
+  readonly exportName: string;
+  readonly moduleId: string;
+  readonly version: string;
+}
+
+export interface UiModuleLock extends JsonObject {
+  readonly $schema: UiModuleLockSchemaUri;
+  readonly artifactIntegrity: string;
+  readonly entry: UiModuleLockEntry;
+  readonly irIntegrity: string;
+  readonly modules: readonly UiResolvedModuleGraphEntry[];
+  readonly schemaVersion: UiModuleLockSchemaVersion;
 }
 
 export interface ResolveUiModuleOptions {

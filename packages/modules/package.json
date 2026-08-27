@@ -14,7 +14,8 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./schemas/ui-module.schema.json": "./dist/ui-module.schema.json"
+    "./schemas/ui-module.schema.json": "./dist/ui-module.schema.json",
+    "./schemas/ui-module-lock.schema.json": "./dist/ui-module-lock.schema.json"
   },
   "scripts": {
     "build": "tsc -b",

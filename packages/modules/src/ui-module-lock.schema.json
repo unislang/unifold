@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.unifold.org/ui-module-lock/1.0/schema.json",
+  "title": "Unifold UI Module Lock",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schemaVersion", "entry", "artifactIntegrity", "irIntegrity", "modules"],
+  "properties": {
+    "$schema": { "const": "https://schemas.unifold.org/ui-module-lock/1.0/schema.json" },
+    "schemaVersion": { "const": "1.0.0" },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["moduleId", "version", "exportName"],
+      "properties": {
+        "moduleId": { "$ref": "#/$defs/moduleId" },
+        "version": { "$ref": "#/$defs/version" },
+        "exportName": { "$ref": "#/$defs/exportName" }
+      }
+    },
+    "artifactIntegrity": { "$ref": "#/$defs/integrity" },
+    "irIntegrity": { "$ref": "#/$defs/integrity" },
+    "modules": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["moduleId", "version", "integrity", "namespace", "sourceId"],
+        "properties": {
+          "moduleId": { "$ref": "#/$defs/moduleId" },
+          "version": { "$ref": "#/$defs/version" },
+          "integrity": { "$ref": "#/$defs/integrity" },
+          "namespace": {
+            "type": "string",
+            "maxLength": 8256,
+            "pattern": "^(?:[a-z][a-z0-9-]{0,63})(?:/[a-z][a-z0-9-]{0,63})*$|^$"
+          },
+          "sourceId": { "type": "string", "minLength": 1, "maxLength": 1024 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "moduleId": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$"
+    },
+    "version": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"
+    },
+    "exportName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z][A-Za-z0-9._-]*$"
+    },
+    "integrity": { "type": "string", "pattern": "^sha256-[A-Za-z0-9_-]{43}$" }
+  }
+}

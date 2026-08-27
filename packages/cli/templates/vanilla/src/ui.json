@@ -1,0 +1,107 @@
+{
+  "$schema": "https://schemas.unifold.org/layout-document/1.0/schema.json",
+  "schemaVersion": "1.0.0",
+  "id": "unifold-starter",
+  "revision": "revision-1",
+  "catalog": { "name": "unifold-core", "version": "1.0.0" },
+  "layoutType": "starter-form-page",
+  "layoutVersion": "1.0.0",
+  "variables": {
+    "heading": "Profile starter",
+    "description": "Every interaction enters one observable event stream.",
+    "fields": [
+      {
+        "id": "profile-name",
+        "type": "TextField",
+        "props": {
+          "label": "Name",
+          "name": "name",
+          "required": true,
+          "testId": "profile-name",
+          "value": ""
+        },
+        "events": { "onInput": "NAME_CHANGED" }
+      },
+      {
+        "id": "save-profile",
+        "type": "Button",
+        "props": { "label": "Save profile", "testId": "save-profile" },
+        "events": { "onClick": "SAVE_PROFILE" }
+      },
+      {
+        "id": "save-status",
+        "type": "Text",
+        "props": { "content": "Not saved", "testId": "save-status" }
+      }
+    ]
+  },
+  "layouts": [
+    {
+      "layoutType": "starter-form-page",
+      "version": "1.0.0",
+      "variables": {
+        "heading": { "type": "string", "required": true },
+        "description": { "type": "string", "required": true },
+        "fields": { "type": "nodes", "required": true }
+      },
+      "template": {
+        "id": "starter-page",
+        "type": "Stack",
+        "props": { "label": "Profile starter", "gap": "lg" },
+        "children": [
+          {
+            "id": "starter-heading",
+            "type": "Heading",
+            "props": { "content": { "$var": "heading" }, "level": "1" }
+          },
+          {
+            "id": "starter-description",
+            "type": "Text",
+            "props": { "content": { "$var": "description" }, "tone": "muted" }
+          },
+          {
+            "id": "starter-form",
+            "type": "Form",
+            "props": { "label": "Profile" },
+            "children": { "$var": "fields" }
+          }
+        ]
+      }
+    }
+  ],
+  "machines": [
+    {
+      "schemaVersion": "1.0.0",
+      "id": "profile-workflow",
+      "version": "1.0.0",
+      "ownerId": "starter-form",
+      "initial": "editing",
+      "states": {
+        "editing": {
+          "on": {
+            "SAVE_PROFILE": {
+              "target": "saved",
+              "commands": ["show-saved-status"]
+            }
+          }
+        },
+        "saved": {}
+      }
+    }
+  ],
+  "semantics": {
+    "contractVersion": "1.0.0",
+    "vocabulary": { "uri": "https://schema.org", "release": "30.0" },
+    "primaryEntity": "urn:unifold:starter:person",
+    "entities": [
+      {
+        "id": "urn:unifold:starter:person",
+        "type": "Person",
+        "properties": {
+          "name": { "kind": "node-control-value", "nodeId": "profile-name" }
+        }
+      }
+    ],
+    "publication": { "mode": "public-page", "profile": "schema.org" }
+  }
+}

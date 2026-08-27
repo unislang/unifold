@@ -15,6 +15,7 @@
     "@unislang/unifold-contracts": "workspace:*",
     "@unislang/unifold-events": "workspace:*",
     "@unislang/unifold-forms": "workspace:*",
+    "@unislang/unifold-modules": "workspace:*",
     "@unislang/unifold-theme": "workspace:*"
   },
   "devDependencies": {

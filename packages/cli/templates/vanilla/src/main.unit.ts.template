@@ -1,0 +1,27 @@
+// @vitest-environment happy-dom
+
+import { afterEach, expect, it } from "vitest";
+
+import { mountStarterApplication, type StarterController } from "./main.js";
+
+let controller: StarterController | undefined;
+
+afterEach(() => {
+  controller?.dispose();
+  controller = undefined;
+  document.body.replaceChildren();
+});
+
+it("mounts and exposes the one authoritative workflow", async () => {
+  const container = document.createElement("div");
+  const eventOutput = document.createElement("output");
+  const machineOutput = document.createElement("output");
+  document.body.append(container, eventOutput, machineOutput);
+  controller = mountStarterApplication(container, eventOutput, machineOutput);
+  const form = container.querySelector("unifold-form") as HTMLElement & {
+    readonly updateComplete?: Promise<boolean>;
+  };
+  await form.updateComplete;
+  expect(form).not.toBeNull();
+  expect(machineOutput.textContent).toBe("editing");
+});

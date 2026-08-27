@@ -2,6 +2,7 @@
   "files": [],
   "references": [
     { "path": "./packages/ai" },
+    { "path": "./packages/cli" },
     { "path": "./packages/collaboration" },
     { "path": "./packages/compositions" },
     { "path": "./packages/control-plane" },

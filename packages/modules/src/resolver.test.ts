@@ -6,6 +6,7 @@ import { createUiModuleRegistry } from "./registry.js";
 import { resolveUiModule } from "./resolver.js";
 import {
   composedDocumentFixture,
+  layoutDocumentFixture,
   moduleFixture,
   sharedModuleFixture
 } from "./test-fixtures.test-data.js";
@@ -36,6 +37,26 @@ it("resolves pinned modules to one deterministic expanded document, source map, 
   expect(first.status).toBe(UiModuleResolutionStatus.Resolved);
   if (first.status !== UiModuleResolutionStatus.Resolved) return;
   await expectResolvedArtifact(first);
+});
+
+it("flattens a Scratch-style layout export before composition expansion", async () => {
+  const root = moduleFixture({
+    exports: {
+      ...moduleFixture().exports,
+      documents: [{ document: layoutDocumentFixture(), name: "application" }]
+    }
+  });
+  const registry = await createUiModuleRegistry([{ module: root, sourceId: "layout.module.json" }]);
+  if (registry.status !== UiModuleRegistryStatus.Ready) return;
+  const result = await resolveUiModule(registry.registry, request());
+  expect(result.status).toBe(UiModuleResolutionStatus.Resolved);
+  if (result.status !== UiModuleResolutionStatus.Resolved) return;
+  expect(result.artifact.composedDocument["view"]).toMatchObject({
+    $comp: "Text",
+    content: "Scratch-style module application",
+    id: "message"
+  });
+  expect(compileUiDocument(result.artifact.document).diagnostics).toEqual([]);
 });
 
 it("rejects an unpinned import", async () => {

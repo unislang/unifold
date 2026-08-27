@@ -36,6 +36,13 @@ pre-expansion build artifact, the resolved module graph, namespaced opaque resou
 entries back to reviewed module source IDs/pointers. Re-resolving the same registry is deterministic
 and performs no I/O.
 
+Document exports may use either canonical JsonUI or the Scratch-style `layoutType`/`variables`/
+nested `type`/`props`/`events` authoring contract. Layout expansion runs before module composition
+definitions are attached and expanded, so deployment artifacts remain canonical while reviewed
+source retains the higher-level layout vocabulary. `createUiModuleLock()` records the exact entry,
+sorted dependency graph, expanded-document integrity, and separately computed IR integrity; locks
+can be admitted with `validateUiModuleLock()` and its published Draft 2020-12 schema.
+
 The first contract exports complete documents, composition definitions, and bounded typed opaque
 resources for machines, rules, schemas, tokens, messages, semantics, and scenarios. A product may
 interpret those resources only through its registered compiler; the module resolver never executes

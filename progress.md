@@ -21,11 +21,16 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   `c29ed6e5bc5e385cce7000063ba99094bae50ddb`
   (`feat: add versioned UI module resolution`) on
   `https://github.com/unislang/unifold.git`.
+- Current published repository checkpoint before this tranche:
+  `49cb43916db996e31096f767c72a610539b3fa76`
+  (`docs: record UI module publication checkpoint`). The module/CLI/reference/performance integration
+  described below is ready for a scoped commit; the other named local tranches remain preserved.
 - Current local implementation: the `NumberField`, `SearchField`, `CheckboxGroup`, `Switch`, and
-  `DateField`, `Toast`, and `Pagination` families are committed as implementation checkpoints.
-  Governed AI/Studio, Studio dogfood, reference feature-module re-export cleanup, executable
-  import-then-local-re-export prevention, and the parallel-safe Studio Playwright port remain local
-  and must be preserved.
+  `DateField`, `Toast`, and `Pagination` families are committed as implementation checkpoints. The
+  current scoped checkpoint adds the bounded adopter CLI/starter and Scratch-style module build
+  integration. The governed AI provider boundary, Studio dogfood, multi-application semantic
+  publication isolation, reference feature-module cleanup, and executable import-then-local-re-export
+  prevention remain local and must be preserved.
 - Goal status: active. The named 45-component stable catalog is implemented; `Composition` is the
   additional structural host, producing 46 generated catalog elements. Broader Studio,
   control-plane, manual accessibility, packaging, and production-integration gates remain.
@@ -34,6 +39,49 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Verification commands: [`docs/testing.md`](./docs/testing.md)
 - Performance evidence: [`docs/performance.md`](./docs/performance.md)
 - 1.0 traceability register: [`docs/acceptance-audit.md`](./docs/acceptance-audit.md)
+- Concise 34-criterion evidence register:
+  [`docs/acceptance-status.md`](./docs/acceptance-status.md)
+
+## 2026-08-26 integrated implementation tranche
+
+- `@unislang/unifold-cli` now supplies `unifold validate <json>` through the public document
+  preparation boundary and `unifold generate starter <dir> --no-install`. Generation is atomic,
+  refuses overwrites and physical path escapes, and emits a hierarchical JSON-authored Vite starter
+  with unified runtime events, an XState command, selective rendering evidence, theme tokens,
+  Schema.org JSON-LD, strict TypeScript, unit tests, and a production Playwright journey.
+- The same CLI now validates pinned, bounded local `UiModule` projects and deterministically emits
+  non-overwriting runtime/lock artifacts whose exact entry, module graph, expanded document, and
+  prepared IR hashes remain tied together. A fixed two-module reference fixture uses the intended
+  Scratch-style `layoutType`, typed-variable, nested `type`/`props`/`events` vocabulary and proves
+  graph/document/IR/lock parity. Production-mount migration and a clean packed module-project proof
+  remain before AC33 can advance beyond partial.
+- The clean packed closure passes 5/5 outside the monorepo. It packs every production dependency,
+  invokes the installed CLI binary, validates the generated document, installs the generated app
+  from tarballs, and passes its unit, typecheck, production build, and Chromium checks. Focused CLI
+  evidence passes 15/15 files and 52/52 tests.
+- `@unislang/unifold-ai` now verifies signed, bounded Ed25519 provider manifests; applies route,
+  data-classification, region, expiry, retirement, token, retry, timeout, cancellation, and integer
+  micro-USD budget policy before provider I/O; wraps AI SDK provider registries; validates usage and
+  budget settlement; and returns redacted traceable receipts. `never-export` data is always denied.
+  Automatic failover remains deliberately deferred until it can allocate an independent trace and
+  reservation without concatenating provider output.
+- Semantic JSON-LD publication now scopes cardinality and replacement to the target owner. Distinct
+  applications coexist; same-owner refresh is atomic; invalid refresh preserves the last-known-good
+  graph; duplicate/adopted owner slots fail closed; and disposal removes only the owning graph.
+  Browser-level isolation of every runtime seam remains an AC34 gap.
+- The durable acceptance register classifies all 34 criteria conservatively: AC27 is proved, AC10
+  and AC29 are missing, and the other 31 are partial. There are no known contradicted criteria after
+  the semantic ownership correction.
+- Repository verification passes 566 Vitest files/1,484 tests, 18/18 tooling tests, 9/9 generated
+  CEM checks, all workspace source/test TypeScript, lint, dependency boundaries, unused-code,
+  file-size, exact colocated-test, direct-re-export ownership, duplication, formatting, and build
+  gates. Dependency-cruiser validates 2,294 modules and 5,073 dependencies without violations.
+- V8 coverage passes at 97.54% lines/statements, 97.01% functions, and 90.08% branches. Benchmark
+  schema 2.34.0 passes all 59/59 gates. Studio passes 16/16 and static export passes 80/80 current
+  Chromium/WebKit journeys. The managed Firefox binary still fails before page creation with the
+  upstream Playwright `_page` runner defect, so this tranche does not claim new Firefox evidence.
+- The static NumberField Playwright locator now requires the exact `Age` accessible name, preventing
+  pagination labels containing `page` from creating false strict-mode matches.
 
 ## Active slice
 
@@ -95,31 +143,33 @@ JSON compiler, event fabric, state authority, renderer, or export boundary:
 - `@unislang/unifold-modules` now supplies the previously missing `UiModule@1.0.0` schema and
   bounded static resolver. Exact ID/version/integrity imports, namespaces, cycles, resources,
   source pointers, composition flattening, expanded-document integrity, and IR parity are
-  executable; fixed reference-source and CLI integration remain next for criterion 33.
+  executable; CLI validate/flatten integration and a fixed Scratch-style reference module fixture
+  are local, while production-mount migration and clean packed preview/export proof remain next for
+  criterion 33.
 - `pnpm quality:reexports` rejects feature modules that import a local binding and export that same
   binding. Feature modules expose owned operations; direct package export maps remain the deliberate
   public-boundary mechanism.
 
-Current local evidence: Vitest passes 533 files/1,352 tests. V8 coverage is 97.62%
-statements/lines, 96.93% functions, and 90.10% branches against unchanged 90% thresholds. Tooling
-passes 18/18, generated CEM checks pass 9/9, and the performance-correctness suite passes 36
-files/46 tests with 30 opt-in profile files skipped there and executed by the benchmark runner.
+Current local evidence: Vitest passes 566 files/1,484 tests. V8 coverage is 97.54%
+statements/lines, 97.01% functions, and 90.08% branches against unchanged 90% thresholds. Tooling
+passes 18/18, generated CEM checks pass 9/9, and the performance-correctness suite passes 37
+files/47 tests with 31 opt-in profile files skipped there and executed by the benchmark runner.
 File length, colocated one-to-one tests, import/re-export ownership, lint, source/test typechecks,
-unused-code, and dependency boundaries pass; dependency-cruiser validates 2,159 modules and 4,776
+unused-code, and dependency boundaries pass; dependency-cruiser validates 2,294 modules and 5,073
 dependencies with no violations. CEM/definition generation covers 46 elements: the named 45 stable
 families plus the structural `Composition` host.
 
 The production reference build passes at 188,353 initial gzip bytes (183.94/184 KiB), with 36,890
 deferred gzip bytes. The authored JSON and reference-specific validator adapter load as explicit
 pre-mount resources while optional component families remain post-mount; the initial-closure budget
-was not raised. Studio builds at 235.20 KiB gzip against 250 KiB. Benchmark schema 2.33.0 passes
-58/58 gates. The exact 100-Toast profile records 0.75/6.65/7.52 ms and the exact 100-Pagination
+was not raised. Studio builds at 235.20 KiB gzip against 250 KiB. Benchmark schema 2.34.0 passes
+59/59 gates. The exact 100-Toast profile records 0.75/6.65/7.52 ms and the exact 100-Pagination
 profile records 2.05/7.48/11.51 ms p50/p95/p99 across 50 samples; both retain a 100 ms p95 ceiling.
 
-The initial UiModule package checkpoint passes 9 files/26 tests plus package lint, typecheck, and
-build. Repository file-length and colocated-test gates include the new package and remain green.
-The package-level checkpoint is validated; the complete repository release matrix must still be
-rerun after the preserved AI/Studio/CLI slices are reconciled.
+The UiModule package now passes 11 files/30 tests plus package lint, typecheck, and build. Repository
+file-length and colocated-test gates include the package and remain green. The package, fixed
+reference sources, CLI workflow, and 17-module performance gate are reconciled; clean packed module
+execution and mounting that artifact in the reference application remain acceptance work.
 
 Focused Playwright acceptance passes 4/4 hierarchical and 16/16 static-export Toast/Pagination
 journeys in Chromium and WebKit. Pagination previously passed its 3/3 hierarchical and 12/12 static
@@ -131,11 +181,11 @@ all-engine evidence remains unchanged. Toast and Pagination are committed in
 `dae5b5acde1fbc2dc272aaea7510c5ae7b90c769`; the separate AI/Studio, reference re-export, tooling,
 root-configuration, and related test-harness work remains uncommitted and must be preserved.
 
-Remaining AI/Studio gaps are explicit: provenance-bound third-party catalog manifests; complete
-component property, event, machine, and rule authoring context; durable actor identity, approval
-audit, and separation of duties; provider/model token, cost, time, retry, and signature policy;
-executable product outcome evaluators; collaboration/rebase/undo; and the full multi-turn design
-surface.
+Remaining AI/Studio gaps are explicit: real provider-host adapters and golden evaluations;
+provenance-bound third-party catalog manifests; complete component property, event, machine, and
+rule authoring context; durable actor identity, approval audit, and separation of duties;
+independently budgeted provider failover; executable product outcome evaluators;
+collaboration/rebase/undo; and the full multi-turn design surface.
 
 ## UiModule publication checkpoint
 
@@ -145,9 +195,29 @@ surface.
   `git ls-remote origin refs/heads/main` all resolved to the exact commit above.
 - Focused evidence is 9/9 test files and 26/26 tests, package ESLint, package source/test TypeScript,
   package build, the 350-line authored-file gate, and colocated one-to-one test ownership.
-- Acceptance criterion 33 remains partial until fixed reference sources and CLI validate/flatten
-  flows consume the module contract and prove flattened IR/hash parity in clean preview/export
-  builds. Preserve the uncommitted AI/Studio/CLI/reference work while completing that integration.
+- Acceptance criterion 33 remains partial until the production reference mount and clean packed
+  preview/export builds consume the module artifact. The local CLI validate/flatten flow and fixed
+  two-module Scratch-style fixture now prove graph, lock, expanded-document, and prepared-IR hash
+  parity. Preserve the uncommitted AI/Studio and production-reference work while completing that
+  integration.
+
+## UiModule layout/lock integration checkpoint
+
+- Module resolution accepts the intended Scratch-style `layoutType`, typed `variables`, and nested
+  `type`/`props`/`events` document shape before deterministic composition expansion. Canonical module
+  exports remain supported.
+- `UiModuleLock@1.0.0` has a strict published JSON Schema and deterministic validation/creation. The
+  lock binds the exact entry and sorted module graph to artifact and prepared-IR integrity hashes.
+- `unifold module validate` and `unifold module flatten --output ... --lock ...` admit bounded local
+  project manifests, reject traversal/symlink/overwrite hazards, and publish the runtime artifact and
+  lock through private siblings with cleanup/rollback behavior.
+- The fixed reference project resolves two exact integrity-pinned modules and its production app
+  build passes at 188,342 initial gzip bytes (183.93 KiB) against the 184 KiB gate, with 36,933
+  deferred gzip bytes. Its main mount still reads `src/ui.json`; migration is the next AC33 step.
+- Fresh verification: `pnpm quality` passes, `pnpm test` passes 566/566 Vitest files and 1,484/1,484
+  tests plus all tooling/script/performance fixture suites, and benchmark schema 2.34.0 passes 59/59
+  gates. The module profile resolves exactly 17 modules and lowers exactly 500 nodes across 30
+  samples at 5.08/8.60/9.90 ms p50/p95/p99 against the 250 ms p95 limit.
 
 ## Toast and Pagination publication checkpoint
 

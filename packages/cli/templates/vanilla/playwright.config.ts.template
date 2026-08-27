@@ -1,0 +1,14 @@
+import { createUnifoldPlaywrightConfig } from "@unislang/unifold-playwright";
+
+const port = 4173;
+
+export default createUnifoldPlaywrightConfig({
+  baseURL: `http://127.0.0.1:${port}`,
+  testDir: "tests",
+  webServer: {
+    command: `pnpm build && vite preview --host 127.0.0.1 --port ${port}`,
+    reuseExistingServer: false,
+    timeout: 120_000,
+    url: `http://127.0.0.1:${port}`
+  }
+});

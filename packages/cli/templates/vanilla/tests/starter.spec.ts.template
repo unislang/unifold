@@ -1,0 +1,30 @@
+import { expect, test } from "@unislang/unifold-playwright";
+
+test("runs the accessible JSON-defined starter", async ({ page, unifold }) => {
+  const browserErrors: string[] = [];
+  page.on("pageerror", (error) => browserErrors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error") browserErrors.push(message.text());
+  });
+  await page.goto("/");
+  await page.waitForTimeout(100);
+  expect(browserErrors).toEqual([]);
+  await expect(page.getByRole("heading", { name: "Profile starter" })).toBeVisible();
+  await expect(page.getByTestId("machine-state")).toHaveText("editing");
+  await expect.poll(() => themeToken(page)).not.toBe("");
+  await page.getByLabel("Name").fill("Ada Lovelace");
+  await expect(page.getByTestId("latest-event")).toContainText("transaction.committed");
+  const heading = page.locator("unifold-heading");
+  const renderCount = await heading.getAttribute("data-unifold-render-count");
+  await page.getByRole("button", { name: "Save profile" }).click();
+  await expect(page.getByText("Saved", { exact: true })).toBeVisible();
+  await expect(page.getByTestId("machine-state")).toHaveText("saved");
+  await expect(heading).toHaveAttribute("data-unifold-render-count", renderCount ?? "1");
+  await unifold.assertAccessibility();
+});
+
+async function themeToken(page: import("@playwright/test").Page): Promise<string> {
+  return page.evaluate(() =>
+    getComputedStyle(document.documentElement).getPropertyValue("--unifold-color-text").trim()
+  );
+}

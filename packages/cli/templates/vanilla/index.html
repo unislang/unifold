@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self'; img-src 'self' data:"
+    />
+    <title>Unifold starter</title>
+  </head>
+  <body>
+    <main>
+      <div id="app"></div>
+      <p>Workflow state: <output data-testid="machine-state">starting</output></p>
+      <p>Latest event: <output data-testid="latest-event" aria-live="polite">none</output></p>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

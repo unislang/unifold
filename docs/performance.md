@@ -130,9 +130,9 @@ emits exactly 25 typed commands, and leaves every unrelated chain unchanged. Its
 p95 is below the provisional 4 ms target on the current workstation. The combined public-runtime
 fixture proves one commit spans the leaf edit, three synchronous validations (leaf, group, form),
 two ancestor aggregates, 20 transitive rule commands, and committed-revision selector delivery.
-Its current 1.25 ms p95 is below the provisional 8 ms target. All fifty-eight timing and lifecycle limits
+Its current 1.25 ms p95 is below the provisional 8 ms target. All fifty-nine timing and lifecycle limits
 are executable benchmark gates and are included with actual/limit/pass fields in the
-schema-2.33.0 machine-readable report; the current run passes all 58/58.
+schema-2.34.0 machine-readable report; the current run passes all 59/59.
 The report also contains a 50-sample paired selection-overhead profile. It alternates measurement
 order for each update between identical 10,000-node stores with zero and 2,000 indexed selections,
 subtracts the paired timings, and takes each sample's five-edit median. This removes shared
@@ -308,6 +308,13 @@ It then rejects the same envelope 1,000 times with a revoked trusted key in
 40.86/55.18/55.18 ms against a 1,000 ms gate. Five samples require exact prepared node counts,
 issuer/key/hash/receipt evidence, stable revocation diagnostics, and exactly one metadata-only audit
 receipt per operation; those correctness conditions are part of each executable gate.
+
+The static UiModule fixture resolves an exact 17-module integrity-pinned dependency chain and a
+Scratch-style 500-node root layout across 30 samples. The current workstation profile records
+6.07/9.31/10.88 ms p50/p95/p99 against a 250 ms p95 gate while requiring exactly 17 graph entries
+and 500 lowered nodes. The measurement includes schema admission, canonical module hashing,
+namespace/cycle/integrity checks, resource flattening, layout and composition expansion, source-map
+construction, and final expanded-document hashing.
 
 Ratification still requires a provisioned, versioned mid-tier runner. Developer-workstation timing
 remains descriptive even though benchmark execution now rejects any provisional p95 limit or the
