@@ -60,6 +60,9 @@ export enum UiValidationSeverity {
 }
 
 export enum UiCommandType {
+  ControlCollectionInsert = "control.collection-insert",
+  ControlCollectionMove = "control.collection-move",
+  ControlCollectionRemove = "control.collection-remove",
   ControlMarkTouched = "control.mark-touched",
   ControlSetDisabled = "control.set-disabled",
   ControlSetValue = "control.set-value",

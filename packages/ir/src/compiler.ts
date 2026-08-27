@@ -23,10 +23,17 @@ import type {
 } from "./types.js";
 import { validateUiDocument } from "./validation.js";
 import { nodeKindForComponent } from "./node-kind.js";
+import {
+  controlScopePath,
+  controlTopologyFields,
+  indexControlTopology,
+  type ControlTopologyIndex
+} from "./control-topology.js";
 
 const RESERVED_NODE_PROPERTIES = new Set(["$children", "$comp", "events", "id", "path", "store"]);
 interface CompileContext {
   readonly authoredSourcePointers: Readonly<Record<string, string>>;
+  readonly controls: ControlTopologyIndex;
   readonly nodes: Map<string, UnifoldIrNode>;
   readonly provenance: Readonly<Record<string, UiCompositionNodeProvenance>>;
   readonly renderOrder: string[];
@@ -104,6 +111,7 @@ function canonicalRules(
 function createContext(document: UiDocument, options: CompileUiDocumentOptions): CompileContext {
   return {
     authoredSourcePointers: sourcePointersOption(options),
+    controls: indexControlTopology(document.controls),
     nodes: new Map(),
     provenance: compositionProvenance(document),
     renderOrder: [],
@@ -132,7 +140,7 @@ function compileNode(
   const scopePath = [...parentScope, node.id];
   context.nodes.set(
     node.id,
-    createIrNode(node, children, parentId, scopePath, context.provenance[node.id])
+    createIrNode(node, children, parentId, scopePath, context.provenance[node.id], context.controls)
   );
   context.renderOrder.push(node.id);
   context.sourcePointers.set(node.id, authoredSourcePointer(node.id, sourcePointer, context));
@@ -150,18 +158,33 @@ function createIrNode(
   children: readonly JsonUiNode[],
   parentId: string | undefined,
   scopePath: readonly string[],
-  composition: UiCompositionNodeProvenance | undefined
+  composition: UiCompositionNodeProvenance | undefined,
+  controls: ControlTopologyIndex
 ): UnifoldIrNode {
+  const control = controlTopologyFields(node.id, controls);
   const base = {
     childIds: children.map(({ id }) => id),
     componentType: node.$comp,
     eventBindings: canonicalEventBindings(node),
     id: node.id,
-    kind: nodeKindForComponent(node.$comp) as NonNullable<ReturnType<typeof nodeKindForComponent>>,
+    kind: compiledNodeKind(node, control),
     properties: extractProperties(node),
-    scopePath
+    scopePath: controlScopePath(node.id, scopePath, controls)
   };
-  return withParent(parentId, binding(node, withComposition(base, composition)));
+  const structured = withParent(parentId, binding(node, withComposition(base, composition)));
+  return applyControlFields(structured, control);
+}
+
+function compiledNodeKind(node: JsonUiNode, control: ReturnType<typeof controlTopologyFields>) {
+  if (control !== undefined) return control.kind;
+  return nodeKindForComponent(node.$comp) as NonNullable<ReturnType<typeof nodeKindForComponent>>;
+}
+
+function applyControlFields<T extends object>(
+  node: T,
+  control: ReturnType<typeof controlTopologyFields>
+): T & Partial<NonNullable<ReturnType<typeof controlTopologyFields>>> {
+  return control === undefined ? node : { ...node, ...control };
 }
 
 function canonicalEventBindings(node: JsonUiNode): UiNodeEventBindings {

@@ -8,6 +8,9 @@ import type {
   UiEvent,
   UiNodeId,
   UiNodeSnapshot,
+  UiValidationError,
+  UiControlStatus,
+  JsonValue,
   UiTransactionRecord
 } from "@unislang/unifold-events";
 import type { SelectionDispatchMetrics, UiSelection } from "@unislang/unifold-reactivity";
@@ -72,6 +75,23 @@ export interface UiNodeHandle {
   readonly events$: Observable<UiEvent>;
   readonly snapshot: UiNodeSnapshot;
   select<T>(read: (snapshot: UiNodeSnapshot) => T): UiSelection<T>;
+}
+
+/** Typed facade over control facts selected from the runtime's single normalized store. */
+export interface UiControlHandle<TValue extends JsonValue = JsonValue> extends UiNodeHandle {
+  readonly errors: readonly UiValidationError[];
+  readonly errors$: Observable<readonly UiValidationError[]>;
+  readonly rawValue: TValue;
+  readonly rawValue$: Observable<TValue>;
+  readonly status: UiControlStatus;
+  readonly status$: Observable<UiControlStatus>;
+  readonly value: TValue;
+  readonly value$: Observable<TValue>;
+  dispose(): void;
+  markTouched(): UiTransactionRecord;
+  reset(): UiTransactionRecord;
+  setDisabled(disabled: boolean): UiTransactionRecord;
+  setValue(value: TValue): UiTransactionRecord;
 }
 
 export type UiScopeHandle = UiNodeHandle;

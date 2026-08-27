@@ -13,6 +13,9 @@ type DependencyResolver = (
 ) => readonly RuleDependency[];
 
 const RESOLVERS = new Map<UiCommandType, DependencyResolver>([
+  [UiCommandType.ControlCollectionInsert, structuralDependencies],
+  [UiCommandType.ControlCollectionMove, structuralDependencies],
+  [UiCommandType.ControlCollectionRemove, structuralDependencies],
   [UiCommandType.ControlMarkTouched, controlDependencies],
   [UiCommandType.ControlSetDisabled, disabledDependencies],
   [UiCommandType.ControlSetStatus, controlDependencies],
@@ -62,7 +65,7 @@ function formDependencies(
   draft: UiNodeTransactionDraft
 ): readonly RuleDependency[] {
   const nodeId = commandNodeId(command);
-  return [nodeId, ...draft.descendantIds(nodeId)].map((id) => ({
+  return [nodeId, ...draft.controlDescendantIds(nodeId)].map((id) => ({
     nodeId: id,
     pointer: "/control"
   }));

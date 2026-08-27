@@ -1,7 +1,17 @@
-import { maximumDataClassification } from "@unislang/unifold-contracts";
 import type { UiNodeId, UiNodeSnapshot } from "@unislang/unifold-events";
 import { castDraft, type Draft } from "immer";
 import type { NodeRecipe, NormalizedNodeState, UiNodeTransactionDraft } from "./store-types.js";
+import { migrateSnapshot } from "./snapshot-migration.js";
+import { buildControlChildren, logicalControlParentId } from "./normalized-control-topology.js";
+import { buildVisualChildren, validateVisualTopology } from "./normalized-visual-topology.js";
+import {
+  assertUniqueControlKey,
+  attachToControlParent,
+  controlChildId,
+  detachFromControlParent,
+  moveControlChild,
+  requireControlChildren
+} from "./control-collection.js";
 
 export class NodeTransactionDraft implements UiNodeTransactionDraft {
   constructor(private readonly state: Draft<NormalizedNodeState>) {}
@@ -9,14 +19,30 @@ export class NodeTransactionDraft implements UiNodeTransactionDraft {
   add(node: UiNodeSnapshot): void {
     assertAvailable(this.state, node.id);
     assertParent(this.state, node);
+    assertControlParent(this.state, node);
     this.state.nodes[node.id] = castDraft(node);
     this.state.children[node.id] = [];
+    this.state.controlChildren[node.id] = [];
     attachToParent(this.state, node);
+    attachToControlParent(this.state, node);
+  }
+
+  controlDescendantIds(id: UiNodeId): readonly UiNodeId[] {
+    requireNode(this.state, id);
+    return collectDescendantIds(this.state.controlChildren, id);
   }
 
   descendantIds(id: UiNodeId): readonly UiNodeId[] {
     requireNode(this.state, id);
-    return collectDescendantIds(this.state, id);
+    return collectDescendantIds(this.state.children, id);
+  }
+
+  moveControl(parentId: UiNodeId, key: string, index: number): void {
+    moveControlChild(this.state, parentId, key, index);
+  }
+
+  removeControl(parentId: UiNodeId, key: string): void {
+    this.remove(controlChildId(this.state, parentId, key));
   }
 
   getSnapshot(id: UiNodeId): UiNodeSnapshot {
@@ -37,75 +63,72 @@ export class NodeTransactionDraft implements UiNodeTransactionDraft {
     );
     removeMissingNodes(this.state, desiredIds);
     reconcileChildren(this.state, nodes);
+    reconcileControlChildren(this.state, nodes);
   }
 
   remove(id: UiNodeId): void {
     const node = requireNode(this.state, id);
     const children = requireChildren(this.state, id);
     if (children.length > 0) throw new Error(`Node has children: ${id}`);
+    const controlChildren = requireControlChildren(this.state, id);
+    if (controlChildren.length > 0) throw new Error(`Control has children: ${id}`);
     detachFromParent(this.state, node, id);
+    detachFromControlParent(this.state, node as unknown as UiNodeSnapshot, id);
     Reflect.deleteProperty(this.state.children, id);
+    Reflect.deleteProperty(this.state.controlChildren, id);
     Reflect.deleteProperty(this.state.nodes, id);
   }
 
   update(id: UiNodeId, recipe: NodeRecipe): void {
     const node = requireNode(this.state, id);
     const parentId = node.parentId;
+    const controlParentId = node.controlParentId;
+    const controlKey = node.controlKey;
     recipe(node);
-    if (node.id !== id) throw new Error("A node ID is immutable.");
-    if (node.parentId !== parentId) throw new Error("Use structural commands to reparent nodes.");
+    assertImmutableId(node.id, id);
+    assertImmutableParent(node.parentId, parentId);
+    assertImmutableControlTopology(node, controlParentId, controlKey);
   }
 }
 
-function collectDescendantIds(state: Draft<NormalizedNodeState>, id: UiNodeId): UiNodeId[] {
+function assertImmutableId(current: UiNodeId, expected: UiNodeId): void {
+  if (current !== expected) throw new Error("A node ID is immutable.");
+}
+
+function assertImmutableParent(
+  current: UiNodeId | undefined,
+  expected: UiNodeId | undefined
+): void {
+  if (current !== expected) throw new Error("Use structural commands to reparent nodes.");
+}
+
+function assertImmutableControlTopology(
+  node: Draft<UiNodeSnapshot>,
+  parentId: UiNodeId | undefined,
+  key: string | undefined
+): void {
+  const unchanged = [node.controlParentId === parentId, node.controlKey === key].every(Boolean);
+  if (!unchanged) throw new Error("Use structure reconciliation to change control topology.");
+}
+
+function collectDescendantIds(
+  index: Draft<Readonly<Record<UiNodeId, readonly UiNodeId[]>>>,
+  id: UiNodeId
+): UiNodeId[] {
   const descendants: UiNodeId[] = [];
-  const pending = [...requireChildren(state, id)];
+  const pending = [...requireIndexedChildren(index, id)];
   while (pending.length > 0) {
     const childId = pending.shift();
     if (childId === undefined) continue;
     descendants.push(childId);
-    pending.push(...requireChildren(state, childId));
+    pending.push(...requireIndexedChildren(index, childId));
   }
   return descendants;
 }
 
 function validateDesiredNodes(nodes: readonly UiNodeSnapshot[]): void {
-  const ids = new Set<string>();
-  nodes.forEach((node) => {
-    if (ids.has(node.id)) throw new Error(`Duplicate reconciled node: ${node.id}`);
-    ids.add(node.id);
-  });
-  nodes.forEach((node) => validateDesiredParent(node, ids));
-  validateNoCycles(nodes);
-}
-
-function validateDesiredParent(node: UiNodeSnapshot, ids: ReadonlySet<string>): void {
-  if (node.parentId === undefined) return;
-  assertDifferentParent(node);
-  assertKnownParent(node.parentId, ids);
-}
-
-function assertDifferentParent(node: UiNodeSnapshot): void {
-  if (node.parentId === node.id) throw new Error(`Node cannot parent itself: ${node.id}`);
-}
-
-function assertKnownParent(parentId: string, ids: ReadonlySet<string>): void {
-  if (!ids.has(parentId)) throw new Error(`Unknown reconciled parent: ${parentId}`);
-}
-
-function validateNoCycles(nodes: readonly UiNodeSnapshot[]): void {
-  const parents = Object.fromEntries(nodes.map(({ id, parentId }) => [id, parentId]));
-  nodes.forEach(({ id }) => assertAcyclic(id, parents));
-}
-
-function assertAcyclic(id: string, parents: Readonly<Record<string, string | undefined>>): void {
-  const visited = new Set<string>();
-  let current: string | undefined = id;
-  while (current !== undefined) {
-    if (visited.has(current)) throw new Error(`Reconciled parent cycle: ${id}`);
-    visited.add(current);
-    current = parents[current];
-  }
+  validateVisualTopology(nodes);
+  buildControlChildren(nodes);
 }
 
 function removeMissingNodes(
@@ -116,6 +139,7 @@ function removeMissingNodes(
     if (desiredIds.has(id)) return;
     Reflect.deleteProperty(state.nodes, id);
     Reflect.deleteProperty(state.children, id);
+    Reflect.deleteProperty(state.controlChildren, id);
   });
 }
 
@@ -198,72 +222,26 @@ function assertIdentityAlias(valid: boolean): void {
   if (!valid) throw new Error("Invalid alias.");
 }
 
-function migrateSnapshot(current: UiNodeSnapshot, desired: UiNodeSnapshot): UiNodeSnapshot {
-  if (!sameControlContract(current, desired)) return desired;
-  const control = migrateControl(current, desired);
-  return {
-    ...desired,
-    base: migrateBase(current, desired),
-    ...(control === undefined ? {} : { control }),
-    revision: current.revision
-  };
-}
-
-function migrateBase(current: UiNodeSnapshot, desired: UiNodeSnapshot): UiNodeSnapshot["base"] {
-  const classification = current.control?.dirty
-    ? maximumDataClassification([current.base.dataClassification, desired.base.dataClassification])
-    : desired.base.dataClassification;
-  return {
-    ...desired.base,
-    busy: current.base.busy,
-    dataClassification: classification,
-    focused: current.base.focused
-  };
-}
-
-function migrateControl(
-  current: UiNodeSnapshot,
-  desired: UiNodeSnapshot
-): UiNodeSnapshot["control"] {
-  const controls = pairedControls(current, desired);
-  if (controls === undefined) return desired.control;
-  if (controls.current.pristine) return controls.desired;
-  return {
-    ...controls.current,
-    required: controls.desired.required,
-    updateOn: controls.desired.updateOn,
-    validatorIds: controls.desired.validatorIds,
-    asyncValidatorIds: controls.desired.asyncValidatorIds
-  };
-}
-
-function pairedControls(current: UiNodeSnapshot, desired: UiNodeSnapshot) {
-  if (current.control === undefined) return undefined;
-  if (desired.control === undefined) return undefined;
-  return { current: current.control, desired: desired.control };
-}
-
-function sameControlContract(left: UiNodeSnapshot, right: UiNodeSnapshot): boolean {
-  return left.kind === right.kind && left.type === right.type;
-}
-
 function reconcileChildren(
   state: Draft<NormalizedNodeState>,
   nodes: readonly UiNodeSnapshot[]
 ): void {
-  const desired = desiredChildren(nodes);
+  const desired = buildVisualChildren(nodes);
   nodes.forEach(({ id }) => {
     const children = desired[id] ?? [];
     if (!sameValue(state.children[id], children)) state.children[id] = children;
   });
 }
 
-function desiredChildren(nodes: readonly UiNodeSnapshot[]): Record<string, string[]> {
-  const children = Object.fromEntries(nodes.map(({ id }) => [id, [] as string[]]));
-  nodes.forEach((node) => {
-    if (node.parentId !== undefined) children[node.parentId]?.push(node.id);
+function reconcileControlChildren(
+  state: Draft<NormalizedNodeState>,
+  nodes: readonly UiNodeSnapshot[]
+): void {
+  const desired = buildControlChildren(nodes);
+  nodes.forEach(({ id }) => {
+    const children = desired[id] ?? [];
+    if (!sameValue(state.controlChildren[id], children)) state.controlChildren[id] = children;
   });
-  return children;
 }
 
 function sameValue(left: unknown, right: unknown): boolean {
@@ -280,6 +258,25 @@ function assertParent(state: Draft<NormalizedNodeState>, node: UiNodeSnapshot): 
   }
 }
 
+function assertControlParent(state: Draft<NormalizedNodeState>, node: UiNodeSnapshot): void {
+  const parentId = logicalControlParentId(node);
+  if (parentId === undefined) return;
+  assertKnownControlParent(state, parentId);
+  assertAvailableControlKey(state, parentId, node.controlKey);
+}
+
+function assertKnownControlParent(state: Draft<NormalizedNodeState>, parentId: UiNodeId): void {
+  if (!state.nodes[parentId]) throw new Error(`Unknown control parent: ${parentId}`);
+}
+
+function assertAvailableControlKey(
+  state: Draft<NormalizedNodeState>,
+  parentId: UiNodeId,
+  key: string | undefined
+): void {
+  if (key !== undefined) assertUniqueControlKey(state, parentId, key);
+}
+
 function requireNode(state: Draft<NormalizedNodeState>, id: UiNodeId): Draft<UiNodeSnapshot> {
   const node = state.nodes[id];
   if (!node) throw new Error(`Unknown node: ${id}`);
@@ -290,6 +287,15 @@ function requireChildren(state: Draft<NormalizedNodeState>, id: UiNodeId): Draft
   const children = state.children[id];
   if (!children) throw new Error(`Unknown node: ${id}`);
   return children;
+}
+
+function requireIndexedChildren(
+  index: Draft<Readonly<Record<UiNodeId, readonly UiNodeId[]>>>,
+  id: UiNodeId
+): Draft<UiNodeId[]> {
+  const children = index[id];
+  if (!children) throw new Error(`Unknown node: ${id}`);
+  return children as Draft<UiNodeId[]>;
 }
 
 function attachToParent(state: Draft<NormalizedNodeState>, node: UiNodeSnapshot): void {

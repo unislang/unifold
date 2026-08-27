@@ -18,6 +18,7 @@ body {
 
 header,
 #app,
+.topology-example,
 .inspector {
   background: #ffffff;
   border: 1px solid #cbd5e1;
@@ -47,7 +48,8 @@ pre {
     grid-template-columns: minmax(0, 2fr) minmax(18rem, 1fr);
   }
 
-  header {
+  header,
+  .topology-example {
     grid-column: 1 / -1;
   }
 }

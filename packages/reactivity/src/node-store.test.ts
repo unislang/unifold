@@ -79,9 +79,17 @@ function verifyInvalidInitialGraph(): void {
     () => new NormalizedNodeStore([controlNode("same", "A"), controlNode("same", "B")])
   ).toThrow("Duplicate node: same");
   expect(() => new NormalizedNodeStore([controlNode("child", "A", "missing")])).toThrow(
-    "Unknown parent: missing"
+    "Unknown control parent: missing"
   );
+  const form = { ...controlNode("form", ""), controlChildIds: ["first", "second"] };
+  const first = explicitChild("first", "form", "same");
+  const second = explicitChild("second", "form", "same");
+  expect(() => new NormalizedNodeStore([form, first, second])).toThrow("Duplicate control key");
   expect(() => new NormalizedNodeStore([]).getSnapshot("missing")).toThrow("Unknown node: missing");
+}
+
+function explicitChild(id: string, controlParentId: string, controlKey: string) {
+  return { ...controlNode(id, ""), controlChildIds: [], controlKey, controlParentId };
 }
 
 function verifyInitializer(): void {

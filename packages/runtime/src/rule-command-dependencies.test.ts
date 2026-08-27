@@ -33,6 +33,7 @@ function draft(): UiNodeTransactionDraft {
     add() {
       throw new Error("Unused test port.");
     },
+    controlDescendantIds: () => ["field"],
     descendantIds: () => ["field"],
     getSnapshot: () => {
       throw new Error("Unused test port.");
@@ -40,7 +41,13 @@ function draft(): UiNodeTransactionDraft {
     reconcile() {
       throw new Error("Unused test port.");
     },
+    moveControl() {
+      throw new Error("Unused test port.");
+    },
     remove() {
+      throw new Error("Unused test port.");
+    },
+    removeControl() {
       throw new Error("Unused test port.");
     },
     update() {

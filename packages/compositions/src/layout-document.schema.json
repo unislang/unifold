@@ -30,12 +30,37 @@
       "items": { "$ref": "#/$defs/layout" }
     },
     "compositionManifest": { "type": "object" },
+    "controls": { "$ref": "#/$defs/controlTopology" },
     "machines": { "type": "array" },
     "rules": { "type": "array" },
     "semantics": { "type": "object" },
     "stores": { "type": "array" }
   },
   "$defs": {
+    "controlTopology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contractVersion", "nodes"],
+      "properties": {
+        "contractVersion": { "const": "1.0.0" },
+        "nodes": {
+          "type": "array",
+          "maxItems": 10000,
+          "items": { "$ref": "#/$defs/controlTopologyNode" }
+        }
+      }
+    },
+    "controlTopologyNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind"],
+      "properties": {
+        "id": { "$ref": "#/$defs/name" },
+        "key": { "$ref": "#/$defs/name" },
+        "kind": { "enum": ["form", "group", "array", "record", "control"] },
+        "parentId": { "$ref": "#/$defs/name" }
+      }
+    },
     "name": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,127}$" },
     "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
     "reference": {

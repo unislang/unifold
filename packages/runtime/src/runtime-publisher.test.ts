@@ -76,6 +76,27 @@ it("uses the maximum descendant classification for form disclosure", () => {
   expect(JSON.stringify(events[0])).not.toContain("aggregate");
 });
 
+it("includes logically owned controls outside the visual form ancestry", () => {
+  const form = { ...controlNode("form", "aggregate"), controlChildIds: ["secret"] };
+  const secret = {
+    ...classifiedNode("secret", DataClassification.Restricted, "outside"),
+    controlChildIds: [],
+    controlKey: "secret",
+    controlParentId: "form"
+  };
+  const outside = controlNode("outside", "public");
+  const events: UiEvent[] = [];
+  const publisher = publisherFor([form, outside, secret], events);
+  publisher.formResult(
+    { id: "form", type: UiCommandType.FormSubmit },
+    executionContext(),
+    transaction(["form"])
+  );
+  expect(events[0]).toMatchObject({
+    data: { disclosure: { classification: DataClassification.Restricted } }
+  });
+});
+
 it("projects a transaction from its causal command target", () => {
   const form = controlNode("form", "aggregate");
   const field = controlNode("field", "Ada", "form");

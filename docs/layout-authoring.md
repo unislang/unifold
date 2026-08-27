@@ -25,6 +25,13 @@ the existing versioned composition and IR contracts; renderers never interpret a
       }
     ]
   },
+  "controls": {
+    "contractVersion": "1.0.0",
+    "nodes": [
+      { "id": "root", "kind": "form" },
+      { "id": "name", "kind": "control", "parentId": "root", "key": "name" }
+    ]
+  },
   "layouts": [
     {
       "layoutType": "form-section",
@@ -35,7 +42,7 @@ the existing versioned composition and IR contracts; renderers never interpret a
       },
       "template": {
         "id": "root",
-        "type": "Stack",
+        "type": "Form",
         "props": { "label": { "$var": "heading" } },
         "children": { "$var": "fields" }
       }
@@ -53,6 +60,11 @@ the existing versioned composition and IR contracts; renderers never interpret a
 - A node has an explicit stable `id`, catalog `type`, exact `props`, optional `children`, and optional
   `events`. Lowering produces ordinary `$comp`/`$children` nodes and then uses the normal catalog,
   composition, JsonUI-profile, and IR validation boundary.
+- Optional `controls` declares logical form ownership independently from visual nesting. Its closed,
+  versioned nodes use the enum kinds `form`, `group`, `array`, `record`, and `control`. A non-root
+  node names an aggregate `parentId` and a durable sibling-unique `key`; every target must be a
+  compatible visual node. Unknown fields, versions, targets, duplicate IDs/keys, cycles, incompatible
+  kinds, incomplete coverage, and more than 10,000 nodes reject with exact source pointers.
 - `{ "$var": "name" }` is the canonical typed reference. The bounded compatibility grammar also
   recognizes an exact `{{name}}` or `{{item.property}}` reference without `eval`; mixed executable
   expressions, prototype keys, calls, operators, and unresolved paths are rejected.
@@ -97,6 +109,13 @@ The authored layout is retained for editing and deterministic regeneration. The 
 is an implementation artifact. Committed values remain in the normalized runtime graph; XState
 owns temporal behavior; `runtime.events$` and its indexed views remain the single observable fact
 fabric. Layout variables are initialization and structural inputs, not a competing mutable store.
+
+The compiler preserves visual `parentId`/`scopePath` separately from logical `controlParentId`,
+`controlChildIds`, and `controlKey`. Aggregate values therefore survive wrapper or composition
+reparenting. Trusted commands insert, move, and remove collection members by durable key, and
+`runtime.control<T>(id)` exposes live typed value/raw-value/status/error selectors plus transactional
+`setValue`, `markTouched`, `setDisabled`, and `reset` operations. The handle is a facade over the
+single normalized store, not another forms model.
 
 ## Acceptance gates
 

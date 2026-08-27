@@ -18,11 +18,11 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
 - Latest published checkpoint:
-  `fe3a3d091ff97506d04cba4381a217cbac90060f`
-  (`feat: prove runtime authority and application isolation`) on
+  `5a9795e8384f4d5fc21aab9e54f92d8196d83564`
+  (`docs: record runtime isolation checkpoint`) on
   `https://github.com/unislang/unifold.git`.
 - Publication verification: live `git ls-remote origin refs/heads/main` resolved to
-  `fe3a3d091ff97506d04cba4381a217cbac90060f` immediately after the implementation push; local
+  `5a9795e8384f4d5fc21aab9e54f92d8196d83564` immediately after the documentation push; local
   `HEAD` and `origin/main` matched exactly. The history also includes semantic owner isolation at
   `0b9d569` and repository source-ownership gates at `a6b4b60`.
 - Current local implementation: the `NumberField`, `SearchField`, `CheckboxGroup`, `Switch`, and
@@ -46,6 +46,51 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - 1.0 traceability register: [`docs/acceptance-audit.md`](./docs/acceptance-audit.md)
 - Concise 34-criterion evidence register:
   [`docs/acceptance-status.md`](./docs/acceptance-status.md)
+
+## 2026-08-27 explicit control-topology tranche
+
+- Status: implementation and local verification complete; publication is the next action. AC19
+  remains partial because the required combined application/browser journey is deliberately not
+  inferred from focused or aggregate tests.
+- The public Scratch-style authoring contract remains `layoutType`, typed `variables`, nested stable
+  `id`/`type`/`props`/`children`/named `events`, with optional top-level `controls`. The closed
+  `controls@1.0.0` contract uses enum-backed `form`, `group`, `array`, `record`, and `control` nodes.
+  Nested nodes declare logical `parentId` and durable sibling-unique `key`; the normalized
+  `$comp`/`$children` representation remains internal execution IR.
+- Document/layout schemas and the compiler reject unknown topology fields/versions, invalid bounds,
+  duplicate IDs/keys, missing or incompatible visual targets, incomplete form/control coverage,
+  invalid roots, unknown aggregate parents, self-parenting, and cycles with exact source pointers.
+  The 10,000-node ceiling is executable.
+- IR, renderer snapshots, and normalized runtime state now preserve visual parent/scope separately
+  from logical control parent/children/key. Legacy snapshots have an isolated migration path.
+  Aggregation, form lifecycle, rule dependencies, reconciliation, and runtime publication use the
+  logical graph, so wrapper or composition reparenting does not change form values.
+- Trusted `control.collection-insert`, `control.collection-move`, and
+  `control.collection-remove` commands mutate array/record membership by durable key. The typed
+  `runtime.control<T>(id)` facade supplies live `value$`, `rawValue$`, `status$`, and `errors$`,
+  synchronous getters, and transactional set-value/touch/disable/reset without another state store.
+- `pnpm quality` passes lint, all production/test TypeScript, file/function/test-ownership policies,
+  unused-code analysis, and dependency-cruiser over 2,361 modules/5,244 dependencies with zero
+  violations. The final Vitest rerun passes 588 files/1,557 tests; the complete runner also passed
+  22 tooling tests, all generated/script suites, and 38 performance-correctness files/48 tests with
+  32 long-profile skips.
+- `pnpm benchmark:selective` passes 60/60 executable gates. Representative evidence is 1.17 ms p95
+  for a 100-control transaction against 8 ms, 1.83 ms p95 for 500-node cold compilation against
+  50 ms, 0.54 ms p95 for 100-control native `FormData`/reset/restore against 8 ms, and 43.14 ms p99
+  for a 10k aggregate-heavy leaf edit. The production reference closure is 194,054 gzip bytes
+  (189.51 KiB) against a narrowly revised 194,560-byte (190 KiB) gate; the six-KiB increase admits
+  the synchronous topology/compiler/runtime surface and leaves less than one KiB headroom.
+- The checked-in topology module, deterministic lock, module check, application mount test, and E2E
+  build pass. With that second application mounted, the existing Chromium/WebKit hierarchical
+  regression matrix passes 24/24. A focused 2/2 journey additionally proves wrapper-independent
+  group/array/record aggregation, repeated native `FormData`, submit/reset events and values,
+  logical causal scope, XState delivery, semantic projection, selective rendering, and axe checks.
+  Firefox again fails before page creation with Playwright's upstream `_page` error, so it supplies
+  no application assertion for this tranche.
+- Resume by extending that topology journey with non-cooperative stale async rejection, runtime
+  durable-key insert/move/remove, and a live composition-wrapper refactor while preserving logical
+  value, identity, focus, transaction causality, and last-known-good behavior. Then reconsider AC19
+  only from that combined evidence.
 
 ## 2026-08-27 integrated implementation tranche
 

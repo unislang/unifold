@@ -10,10 +10,12 @@ import {
 } from "@unislang/unifold-modules";
 
 import applicationModule from "./modules/application.module.json" with { type: "json" };
+import controlTopologyModule from "./modules/control-topology.module.json" with { type: "json" };
 import layoutsModule from "./modules/layouts.module.json" with { type: "json" };
 
 const MODULE_ID = "org.unifold.examples.hierarchical-application";
 const MODULE_VERSION = "1.0.0";
+const TOPOLOGY_MODULE_ID = "org.unifold.examples.control-topology";
 
 export async function resolveHierarchicalModuleArtifact(): Promise<UiResolvedModuleArtifact> {
   const registry = await createUiModuleRegistry([
@@ -23,6 +25,18 @@ export async function resolveHierarchicalModuleArtifact(): Promise<UiResolvedMod
   const resolution = await resolveUiModule(requireRegistry(registry), {
     exportName: "application",
     moduleId: MODULE_ID,
+    version: MODULE_VERSION
+  });
+  return requireArtifact(resolution);
+}
+
+export async function resolveControlTopologyArtifact(): Promise<UiResolvedModuleArtifact> {
+  const registry = await createUiModuleRegistry([
+    { module: controlTopologyModule, sourceId: "src/modules/control-topology.module.json" }
+  ]);
+  const resolution = await resolveUiModule(requireRegistry(registry), {
+    exportName: "application",
+    moduleId: TOPOLOGY_MODULE_ID,
     version: MODULE_VERSION
   });
   return requireArtifact(resolution);

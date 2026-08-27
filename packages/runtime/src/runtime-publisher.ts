@@ -211,7 +211,52 @@ function transactionSnapshots(
 }
 
 function formSnapshots(id: string, snapshots: readonly UiNodeSnapshot[]) {
-  return snapshots.filter(({ scopePath }) => scopePath.includes(id));
+  const byId = new Map(snapshots.map((snapshot) => [snapshot.id, snapshot]));
+  return snapshots.filter((snapshot) => belongsToForm(snapshot, id, byId));
+}
+
+function belongsToForm(
+  snapshot: UiNodeSnapshot,
+  formId: string,
+  byId: ReadonlyMap<string, UiNodeSnapshot>
+): boolean {
+  if (snapshot.scopePath.includes(formId)) return true;
+  return controlPathIncludes(snapshot, formId, byId);
+}
+
+function controlPathIncludes(
+  snapshot: UiNodeSnapshot,
+  formId: string,
+  byId: ReadonlyMap<string, UiNodeSnapshot>
+): boolean {
+  return controlPath(snapshot, byId).some(({ id }) => id === formId);
+}
+
+function controlPath(
+  snapshot: UiNodeSnapshot,
+  byId: ReadonlyMap<string, UiNodeSnapshot>
+): readonly UiNodeSnapshot[] {
+  const path: UiNodeSnapshot[] = [];
+  let current: UiNodeSnapshot | undefined = snapshot;
+  while (current !== undefined) {
+    path.push(current);
+    current = controlParent(current, byId);
+  }
+  return path;
+}
+
+function controlParent(
+  snapshot: UiNodeSnapshot,
+  byId: ReadonlyMap<string, UiNodeSnapshot>
+): UiNodeSnapshot | undefined {
+  const parentId = hasExplicitTopology(snapshot) ? snapshot.controlParentId : snapshot.parentId;
+  return parentId === undefined ? undefined : byId.get(parentId);
+}
+
+function hasExplicitTopology(snapshot: UiNodeSnapshot): boolean {
+  return [snapshot.controlChildIds, snapshot.controlKey, snapshot.controlParentId].some(
+    (value) => value !== undefined
+  );
 }
 
 function classificationOf(snapshots: readonly UiNodeSnapshot[]): DataClassification {

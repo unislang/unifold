@@ -31,6 +31,7 @@ export enum DiagnosticCode {
   InvalidCompositionExport = "invalid-composition-export",
   InvalidCompositionManifest = "invalid-composition-manifest",
   InvalidCompositionProvenance = "invalid-composition-provenance",
+  InvalidControlTopology = "invalid-control-topology",
   InvalidDocument = "invalid-document",
   InvalidDerivedRule = "invalid-derived-rule",
   InvalidEventBinding = "invalid-event-binding",

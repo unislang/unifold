@@ -7,6 +7,7 @@ import {
   type UiTransactionRecord
 } from "@unislang/unifold-events";
 import type {
+  JsonValue,
   UiCompositionInstanceManifest,
   UiDerivedRuleDefinition
 } from "@unislang/unifold-contracts";
@@ -28,6 +29,7 @@ import {
   createRuntimeNodeStore
 } from "./derived-rules.js";
 import { createCompositionHandle } from "./composition-handle.js";
+import { createControlHandle } from "./control-handle.js";
 import { acceptIntent } from "./intent-ingress.js";
 import { createNodeHandle, createScopeHandle } from "./node-handle.js";
 import { RuntimePublisher } from "./runtime-publisher.js";
@@ -58,6 +60,7 @@ import {
   type UiNodeHandle,
   type RuntimeTransactionResult,
   type UiRuntimeInspectionSnapshot,
+  type UiControlHandle,
   type UiScopeHandle,
   type UnifoldRuntimeOptions
 } from "./types.js";
@@ -131,7 +134,6 @@ export class UnifoldRuntime {
   getSnapshot(id: UiNodeId): UiNodeSnapshot {
     return this.store.getSnapshot(id);
   }
-
   getTransaction(revision: number): UiTransactionRecord | undefined {
     return this.store.getTransaction(revision);
   }
@@ -139,7 +141,6 @@ export class UnifoldRuntime {
   inspect(): UiRuntimeInspectionSnapshot {
     return runtimeInspection(this.store);
   }
-
   getValidationErrors(id: UiNodeId) {
     return this.store.getValidationErrors(id);
   }
@@ -149,7 +150,12 @@ export class UnifoldRuntime {
     this.store.getSnapshot(id);
     return createNodeHandle(id, this.store, this.fabric.fabric);
   }
-
+  control<TValue extends JsonValue = JsonValue>(id: UiNodeId): UiControlHandle<TValue> {
+    this.assertActive();
+    return createControlHandle<TValue>(id, this.store, this.fabric.fabric, (commands) =>
+      this.execute(commands)
+    );
+  }
   scope(id: UiNodeId): UiScopeHandle {
     this.assertActive();
     this.store.getSnapshot(id);

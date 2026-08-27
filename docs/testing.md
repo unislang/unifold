@@ -36,7 +36,9 @@ pnpm test:consumer
 ```
 
 The reference build sums the gzip size of the entry's complete static import closure and fails above
-184 KiB. The authored JSON and reference-specific validator adapter are explicit pre-mount deferred
+190 KiB. The six-KiB budget increase admits the synchronous public control-topology compiler,
+durable collection commands, and typed control handle; the gate remains less than one KiB above the
+measured integration. The authored JSON and reference-specific validator adapter are explicit pre-mount deferred
 resources; optional component families are requested only after the application mounts. All emitted
 JavaScript outside the static entry closure is audited and reported separately as deferred
 JavaScript.

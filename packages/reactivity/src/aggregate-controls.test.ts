@@ -16,6 +16,9 @@ describe("aggregate controls", () => {
   it("keeps tentative and committed aggregate values distinct", verifyRawAggregation);
   it("runs an injected validator against the recomputed aggregate", verifyAggregateValidation);
   it("validates only aggregates affected by a leaf update", verifyIncrementalValidation);
+  it("aggregates by durable explicit topology instead of visual nesting", verifyExplicitTopology);
+  it("recomputes by logical depth when visual depth differs", verifyLogicalDepthOrdering);
+  it("preserves aggregate-owned async pending and errors", verifyAggregateAsyncState);
 });
 
 function verifyFormAggregation(): void {
@@ -26,6 +29,120 @@ function verifyFormAggregation(): void {
   expect(control.value).toEqual({ name: "Ada" });
   expect(control.rawValue).toEqual({ name: "Ada", secret: "hidden" });
   expect(control.initialValue).toEqual({ name: "Ada", secret: "hidden" });
+}
+
+function verifyExplicitTopology(): void {
+  const form = { ...aggregateNode("form", UiNodeKind.Form), controlChildIds: ["items"] };
+  const items = {
+    ...aggregateNode("items", UiNodeKind.Array, "visual-shell"),
+    controlChildIds: ["second", "first"],
+    controlKey: "items",
+    controlParentId: "form"
+  };
+  const shell = controlNode("visual-shell", "");
+  const first = explicitControl(controlNode("first", "A", "visual-shell"), "items", "first");
+  const second = explicitControl(controlNode("second", "B", "visual-shell"), "items", "second");
+  const store = new NormalizedNodeStore([form, shell, items, first, second]);
+  expect(requireControl(store.getSnapshot("form")).value).toEqual({ items: ["B", "A"] });
+}
+
+function verifyAggregateAsyncState(): void {
+  const store = aggregateAsyncStore();
+  startAggregateAsync(store);
+  expect(requireControl(store.getSnapshot("form"))).toMatchObject({
+    pending: true,
+    status: UiControlStatus.Pending,
+    validationRequestId: "request-1"
+  });
+  resolveAggregateAsync(store);
+  expect(requireControl(store.getSnapshot("form"))).toMatchObject({
+    errors: [{ ownerId: "form", validatorId: "remote" }],
+    pending: false,
+    status: UiControlStatus.Invalid,
+    validationRequestId: null
+  });
+}
+
+function aggregateAsyncStore(): NormalizedNodeStore {
+  return new NormalizedNodeStore([asyncAggregateNode("form")], {
+    aggregateValidator: (node) => ({
+      ...requireControl(node),
+      errors: [],
+      pending: false,
+      status: UiControlStatus.Valid,
+      validationRequestId: null
+    })
+  });
+}
+
+function startAggregateAsync(store: NormalizedNodeStore): void {
+  store.transact(metadata, (draft) => {
+    draft.update("form", (node) => {
+      if (node.control === undefined) throw new Error("Expected aggregate control state.");
+      Object.assign(node.control, {
+        pending: true,
+        status: UiControlStatus.Pending,
+        validationRequestId: "request-1"
+      });
+    });
+  });
+}
+
+function verifyLogicalDepthOrdering(): void {
+  const visualRoot = controlNode("visual-root", "");
+  Reflect.deleteProperty(visualRoot, "control");
+  const form = {
+    ...aggregateNode("form", UiNodeKind.Form, "visual-root"),
+    controlChildIds: ["group"]
+  };
+  const group = {
+    ...aggregateNode("group", UiNodeKind.Group),
+    controlChildIds: ["field"],
+    controlKey: "group",
+    controlParentId: "form"
+  };
+  const field = explicitControl(controlNode("field", "Ada", "group"), "group", "field");
+  const store = new NormalizedNodeStore([visualRoot, form, group, field]);
+  expect(requireControl(store.getSnapshot("form")).value).toEqual({ group: { field: "Ada" } });
+}
+
+function resolveAggregateAsync(store: NormalizedNodeStore): void {
+  store.transact(metadata, (draft) => {
+    draft.update("form", (node) => {
+      if (node.control === undefined) throw new Error("Expected aggregate control state.");
+      Object.assign(node.control, {
+        errors: [asyncAggregateError()],
+        pending: false,
+        status: UiControlStatus.Invalid,
+        validationRequestId: null
+      });
+    });
+  });
+}
+
+function asyncAggregateNode(id: string): UiNodeSnapshot {
+  const aggregate = aggregateNode(id, UiNodeKind.Form);
+  const seed = controlNode(id, "").control;
+  if (seed === undefined) throw new Error("Expected seed control state.");
+  return { ...aggregate, control: { ...seed, asyncValidatorIds: ["remote"] } };
+}
+
+function asyncAggregateError() {
+  return {
+    code: "remote",
+    messageKey: "validation.remote",
+    ownerId: "form",
+    severity: UiValidationSeverity.Error,
+    validatorId: "remote"
+  };
+}
+
+function explicitControl(
+  node: UiNodeSnapshot,
+  controlParentId: string,
+  controlKey: string
+): UiNodeSnapshot {
+  return { ...node, controlChildIds: [], controlKey, controlParentId };
 }
 
 function verifyNestedAggregation(): void {

@@ -229,8 +229,16 @@ function nodeHost(page: Parameters<typeof readRenderBaseline>[0], nodeId: string
 }
 
 async function semanticName(page: Parameters<typeof readRenderBaseline>[0]) {
-  return page.locator("script[data-unifold-semantics]").evaluate((element) => {
-    const graph = JSON.parse(element.textContent ?? "{}") as { "@graph": [{ name: string }] };
-    return graph["@graph"][0].name;
+  return page.locator("script[data-unifold-semantics]").evaluateAll((elements) => {
+    const entities = elements.flatMap((element) => {
+      const graph = JSON.parse(element.textContent ?? "{}") as { "@graph": JsonLdEntity[] };
+      return graph["@graph"];
+    });
+    return entities.find((entity) => entity["@id"] === "urn:unifold:example:person")?.name;
   });
+}
+
+interface JsonLdEntity {
+  readonly "@id": string;
+  readonly name?: string;
 }

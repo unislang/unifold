@@ -10,6 +10,7 @@ import { PaginationItemKind, type PaginationItem } from "@unislang/unifold-catal
 import { UiCommandType, type UiEvent } from "@unislang/unifold-events";
 
 import { resolveHierarchicalModuleArtifact } from "./module-reference.js";
+import { bootstrapControlTopologyExample } from "./topology-example.js";
 import "./example.css";
 
 export interface ExampleController {
@@ -140,6 +141,7 @@ async function bootstrap(): Promise<void> {
   if (targets === undefined) return;
   await registerHierarchicalOptionalElements();
   const controller = await mountHierarchicalExample(...targets);
+  await bootstrapControlTopologyExample();
   if (import.meta.env.MODE === "e2e") {
     document.documentElement.dataset["unifoldModuleIntegrity"] = controller.moduleIntegrity;
   }

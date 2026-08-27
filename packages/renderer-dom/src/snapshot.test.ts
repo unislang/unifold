@@ -27,6 +27,21 @@ it("creates configured aggregate control state for forms", () => {
   });
 });
 
+it("preserves compiled control topology separately from visual ownership", () => {
+  const node = {
+    ...composedNode(),
+    controlChildIds: [],
+    controlKey: "legalName",
+    controlParentId: "profile"
+  };
+  expect(createNodeSnapshot(node, 0)).toMatchObject({
+    controlChildIds: [],
+    controlKey: "legalName",
+    controlParentId: "profile",
+    parentId: "editor"
+  });
+});
+
 it("materializes catalog defaults in authoritative runtime snapshots", () => {
   const node = {
     ...composedNode(),

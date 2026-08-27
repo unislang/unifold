@@ -18,6 +18,7 @@ it("commits submit-deferred values before a valid form fact", verifyValidForm);
 it("commits deferred values only at their configured trigger", verifyDeferredValues);
 it("resets a form atomically to its initial aggregate", verifyFormReset);
 it("excludes disabled controls and revalidates them when enabled", verifyDisabledControl);
+it("edits ordered collections atomically through durable keys", verifyCollectionCommands);
 
 function verifyStateCommands(): void {
   const runtime = createRuntime();
@@ -193,6 +194,60 @@ function verifyDisabledControl(): void {
   runtime.execute([{ type: UiCommandType.ControlSetDisabled, disabled: false, id: "field" }]);
   expect(runtime.getSnapshot("field").control?.status).toBe(UiControlStatus.Invalid);
   expect(runtime.getSnapshot("form").control?.value).toEqual({ field: "" });
+}
+
+function verifyCollectionCommands(): void {
+  const items = { ...compositionNode("items"), controlChildIds: [], kind: UiNodeKind.Array };
+  const runtime = new UnifoldRuntime({ documentId: "test", initialNodes: [items] });
+  insertCollectionControls(runtime);
+  expect(collectionValue(runtime)).toEqual(["B", "A"]);
+  moveAndRemoveCollectionControl(runtime);
+  expect(collectionValue(runtime)).toEqual(["B"]);
+  expect(() => runtime.getSnapshot("item-a")).toThrow("Unknown node: item-a");
+}
+
+function insertCollectionControls(runtime: UnifoldRuntime): void {
+  runtime.execute([
+    {
+      index: 0,
+      key: "stable-a",
+      node: controlNode("item-a", "A"),
+      parentId: "items",
+      type: UiCommandType.ControlCollectionInsert
+    },
+    {
+      index: 0,
+      key: "stable-b",
+      node: controlNode("item-b", "B"),
+      parentId: "items",
+      type: UiCommandType.ControlCollectionInsert
+    }
+  ]);
+}
+
+function moveAndRemoveCollectionControl(runtime: UnifoldRuntime): void {
+  runtime.execute([
+    {
+      index: 0,
+      key: "stable-a",
+      parentId: "items",
+      type: UiCommandType.ControlCollectionMove
+    }
+  ]);
+  expect(collectionValue(runtime)).toEqual(["A", "B"]);
+  runtime.execute([
+    {
+      key: "stable-a",
+      parentId: "items",
+      type: UiCommandType.ControlCollectionRemove
+    }
+  ]);
+}
+
+function collectionValue(runtime: UnifoldRuntime) {
+  const control = runtime.getSnapshot("items").control;
+  if (control === undefined) throw new Error("Expected collection control state.");
+  return control.value;
 }
 
 function formRuntime(field: ReturnType<typeof controlNode>): UnifoldRuntime {

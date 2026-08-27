@@ -13,7 +13,7 @@ export function removedOwnerIds(
   current: readonly UiNodeSnapshot[]
 ): readonly string[] {
   const removed = new Set<string>();
-  commands.forEach((command) => collectExplicitRemoval(command, removed));
+  commands.forEach((command) => collectExplicitRemoval(command, current, removed));
   const reconcile = reconciliationCommand(commands);
   if (reconcile !== undefined) collectReconciledRemovals(reconcile, current, removed);
   return [...removed];
@@ -26,8 +26,34 @@ export function reconciledCompositionInstances(
   return reconciliationCommand(commands)?.compositionInstances ?? current;
 }
 
-function collectExplicitRemoval(command: UiCommand, removed: Set<string>): void {
-  if (command.type === UiCommandType.StructureRemove) removed.add(command.id);
+function collectExplicitRemoval(
+  command: UiCommand,
+  current: readonly UiNodeSnapshot[],
+  removed: Set<string>
+): void {
+  const id = explicitRemovalId(command, current);
+  if (id !== undefined) removed.add(id);
+}
+
+function explicitRemovalId(
+  command: UiCommand,
+  current: readonly UiNodeSnapshot[]
+): string | undefined {
+  if (command.type === UiCommandType.StructureRemove) return command.id;
+  if (command.type !== UiCommandType.ControlCollectionRemove) return undefined;
+  return collectionControlId(command.parentId, command.key, current);
+}
+
+function collectionControlId(
+  parentId: string,
+  key: string,
+  current: readonly UiNodeSnapshot[]
+): string | undefined {
+  return current.find((node) => matchesControlIdentity(node, parentId, key))?.id;
+}
+
+function matchesControlIdentity(node: UiNodeSnapshot, parentId: string, key: string): boolean {
+  return (node.controlParentId ?? node.parentId) === parentId && node.controlKey === key;
 }
 
 function collectReconciledRemovals(

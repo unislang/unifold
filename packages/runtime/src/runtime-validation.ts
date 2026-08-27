@@ -155,6 +155,9 @@ function isValidationTrigger(command: UiCommand): boolean {
 }
 
 const validationTriggers = new Set<UiCommandType>([
+  UiCommandType.ControlCollectionInsert,
+  UiCommandType.ControlCollectionMove,
+  UiCommandType.ControlCollectionRemove,
   UiCommandType.ControlMarkTouched,
   UiCommandType.ControlSetDisabled,
   UiCommandType.ControlSetValue,

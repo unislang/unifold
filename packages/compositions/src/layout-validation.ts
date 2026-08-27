@@ -8,6 +8,7 @@ const allowedKeys = new Set([
   "$schema",
   "catalog",
   "compositionManifest",
+  "controls",
   "id",
   "layoutType",
   "layoutVersion",

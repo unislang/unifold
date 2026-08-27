@@ -3,17 +3,16 @@ import { fileURLToPath } from "node:url";
 
 const projectRoot = fileURLToPath(new URL("../", import.meta.url));
 
-const result = await runUnifoldCli(
-  [
-    "module",
-    "check",
-    "src/modules/modules.project.json",
-    "--lock",
-    "src/modules/hierarchical.module.lock.json"
-  ],
-  { cwd: projectRoot }
-);
+const projects = [
+  ["src/modules/modules.project.json", "src/modules/hierarchical.module.lock.json"],
+  ["src/modules/control-topology.project.json", "src/modules/control-topology.module.lock.json"]
+];
 
-if (result.status !== UnifoldCliStatus.Succeeded) {
-  throw new Error(`Hierarchical module lock check failed: ${JSON.stringify(result)}`);
+for (const [manifest, lock] of projects) {
+  const result = await runUnifoldCli(["module", "check", manifest, "--lock", lock], {
+    cwd: projectRoot
+  });
+  if (result.status !== UnifoldCliStatus.Succeeded) {
+    throw new Error(`Hierarchical module lock check failed: ${JSON.stringify(result)}`);
+  }
 }

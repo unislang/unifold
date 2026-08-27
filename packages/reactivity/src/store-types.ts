@@ -14,6 +14,7 @@ export interface NormalizedNodeState {
   readonly nodes: Readonly<Record<UiNodeId, UiNodeSnapshot>>;
   readonly validationRoutes: Readonly<Record<UiNodeId, readonly UiValidationError[] | undefined>>;
   readonly children: Readonly<Record<UiNodeId, readonly UiNodeId[]>>;
+  readonly controlChildren: Readonly<Record<UiNodeId, readonly UiNodeId[]>>;
 }
 
 export interface UiSelector<T> {
@@ -42,6 +43,7 @@ export interface SelectionDispatchMetrics {
 
 export interface UiNodeTransactionDraft {
   add(node: UiNodeSnapshot): void;
+  controlDescendantIds(id: UiNodeId): readonly UiNodeId[];
   descendantIds(id: UiNodeId): readonly UiNodeId[];
   getSnapshot(id: UiNodeId): UiNodeSnapshot;
   reconcile(
@@ -49,7 +51,9 @@ export interface UiNodeTransactionDraft {
     identityAliases?: Readonly<Record<UiNodeId, UiNodeId>>,
     resetNodeIds?: readonly UiNodeId[]
   ): void;
+  moveControl(parentId: UiNodeId, key: string, index: number): void;
   remove(id: UiNodeId): void;
+  removeControl(parentId: UiNodeId, key: string): void;
   update(id: UiNodeId, recipe: NodeRecipe): void;
 }
 

@@ -40,7 +40,10 @@ const objectControlKinds = new Set<IrNodeKind>([
 
 export function createNodeSnapshot(node: UnifoldIrNode, stateRevision: number): UiNodeSnapshot {
   const snapshot = createBaseSnapshot(node, stateRevision);
-  return withControl(node, withComposition(node, withParent(node, snapshot)));
+  return withControl(
+    node,
+    withControlTopology(node, withComposition(node, withParent(node, snapshot)))
+  );
 }
 
 export function createProjectedProperties(
@@ -137,6 +140,24 @@ function isJsonObject(value: JsonValue): value is JsonObject {
 
 function withParent(node: UnifoldIrNode, snapshot: UiNodeSnapshot): UiNodeSnapshot {
   return node.parentId === undefined ? snapshot : { ...snapshot, parentId: node.parentId };
+}
+
+function withControlTopology(node: UnifoldIrNode, snapshot: UiNodeSnapshot): UiNodeSnapshot {
+  if (node.controlChildIds === undefined) return snapshot;
+  return {
+    ...snapshot,
+    controlChildIds: node.controlChildIds,
+    ...controlKeyField(node),
+    ...controlParentField(node)
+  };
+}
+
+function controlKeyField(node: UnifoldIrNode): { readonly controlKey?: string } {
+  return node.controlKey === undefined ? {} : { controlKey: node.controlKey };
+}
+
+function controlParentField(node: UnifoldIrNode): { readonly controlParentId?: string } {
+  return node.controlParentId === undefined ? {} : { controlParentId: node.controlParentId };
 }
 
 function withComposition(node: UnifoldIrNode, snapshot: UiNodeSnapshot): UiNodeSnapshot {

@@ -26,6 +26,23 @@
         <h3>Latest unified event</h3>
         <pre data-testid="event-log" aria-live="polite" tabindex="0">Waiting for input.</pre>
       </aside>
+      <section class="topology-example" aria-labelledby="topology-section-heading">
+        <h2 id="topology-section-heading">Logical control topology</h2>
+        <p>
+          This second JSON module proves that logical Form, Group, Array, and Record relationships
+          remain independent from visual Stack, Grid, and Fieldset wrappers.
+        </p>
+        <div id="topology-app"></div>
+        <aside class="inspector" aria-labelledby="topology-inspector-heading">
+          <h3 id="topology-inspector-heading">Control topology inspector</h3>
+          <p>
+            Workflow state:
+            <output data-testid="topology-machine-state" aria-live="polite">loading</output>
+          </p>
+          <h4>Normalized form value</h4>
+          <pre data-testid="topology-snapshot" aria-live="polite" tabindex="0">Loading.</pre>
+        </aside>
+      </section>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>

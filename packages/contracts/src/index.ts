@@ -90,7 +90,8 @@ export type {
   UiDocument
 } from "./ui-document.js";
 export { CoreComponentType } from "./component.js";
-export { UiUpdateTrigger } from "./control.js";
+export { UiControlNodeKind, UiControlTopologyVersion, UiUpdateTrigger } from "./control.js";
+export type { UiControlNodeDefinition, UiControlTopologyDefinition } from "./control.js";
 export { JsonDateConstraintIssue, isJsonDateValue, jsonDateConstraintIssue } from "./date.js";
 export {
   DATA_CLASSIFICATION_ORDER,

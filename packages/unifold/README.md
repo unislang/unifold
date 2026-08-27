@@ -54,7 +54,7 @@ document that references them is mounted. Supported subpaths are `audit-log`, `b
 `form-structure`, `master-detail`, `menu-button`, `number-field`, `pagination`, `popover`, `search-field`,
 `search-results`, `stepper`, `switch`, `tabs`, `toast`, `tooltip`, `virtual-list`, and `wizard`; each
 exports its matching `defineUnifold*()` function. This keeps the
-reference application's initial executable bundle below its enforced 184 KiB-gzip ceiling while
+reference application's initial executable bundle below its enforced 190 KiB-gzip ceiling while
 preserving the same catalog and registration checks.
 
 Strict mounting remains the default. A host that intentionally loads reviewed optional families

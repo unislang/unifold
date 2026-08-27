@@ -7,6 +7,27 @@ import type { UiNodeId, UiNodeSnapshot } from "./node.js";
 import { UiCommandType, UiControlStatus, UiValidationCancellationReason } from "./enums.js";
 import type { UiValidationError } from "./node.js";
 
+export interface ControlCollectionInsertCommand {
+  readonly type: UiCommandType.ControlCollectionInsert;
+  readonly index: number;
+  readonly key: string;
+  readonly node: UiNodeSnapshot;
+  readonly parentId: UiNodeId;
+}
+
+export interface ControlCollectionMoveCommand {
+  readonly type: UiCommandType.ControlCollectionMove;
+  readonly index: number;
+  readonly key: string;
+  readonly parentId: UiNodeId;
+}
+
+export interface ControlCollectionRemoveCommand {
+  readonly type: UiCommandType.ControlCollectionRemove;
+  readonly key: string;
+  readonly parentId: UiNodeId;
+}
+
 export interface ControlSetValueCommand {
   readonly type: UiCommandType.ControlSetValue;
   readonly id: UiNodeId;
@@ -117,6 +138,9 @@ export interface StoreWriteCommand {
 
 export type UiCommand =
   | AnnouncementRequestCommand
+  | ControlCollectionInsertCommand
+  | ControlCollectionMoveCommand
+  | ControlCollectionRemoveCommand
   | ControlMarkTouchedCommand
   | ControlSetDisabledCommand
   | ControlSetStatusCommand

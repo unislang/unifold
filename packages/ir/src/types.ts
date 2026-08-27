@@ -42,6 +42,9 @@ export interface UnifoldIrNode {
   readonly id: string;
   readonly binding?: UiStoreBinding;
   readonly kind: UiNodeKind;
+  readonly controlChildIds?: readonly string[];
+  readonly controlKey?: string;
+  readonly controlParentId?: string;
   readonly parentId?: string;
   readonly properties: JsonObject;
   readonly scopePath: readonly string[];

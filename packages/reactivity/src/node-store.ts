@@ -20,6 +20,7 @@ import type {
 } from "./store-types.js";
 import { NodeTransactionDraft } from "./transaction-draft.js";
 import { recomputeAggregateControls } from "./aggregate-controls.js";
+import { buildControlChildren } from "./normalized-control-topology.js";
 import { reconcileValidationRoutes } from "./validation-routes.js";
 
 enablePatches();
@@ -175,15 +176,18 @@ function createInitialState(
     revision: number;
     nodes: Record<string, UiNodeSnapshot>;
     children: Record<string, UiNodeId[]>;
+    controlChildren: Record<string, UiNodeId[]>;
     validationRoutes: Record<string, readonly UiValidationError[]>;
   } = {
     revision: 0,
     nodes: {},
     children: {},
+    controlChildren: {},
     validationRoutes: {}
   };
   nodes.forEach((node) => addInitialNode(state, node));
-  nodes.forEach((node) => linkInitialNode(state, node));
+  state.controlChildren = buildControlChildren(nodes);
+  nodes.forEach((node) => linkVisualParent(state.children, node));
   const aggregated = produce(state, (draft) => {
     applyInitializer(initializer, new NodeTransactionDraft(draft));
     recomputeAggregateControls(draft, validate);
@@ -200,27 +204,28 @@ function applyInitializer(
 }
 
 function addInitialNode(
-  state: { nodes: Record<string, UiNodeSnapshot>; children: Record<string, UiNodeId[]> },
+  state: {
+    nodes: Record<string, UiNodeSnapshot>;
+    children: Record<string, UiNodeId[]>;
+    controlChildren: Record<string, UiNodeId[]>;
+  },
   node: UiNodeSnapshot
 ): void {
   if (state.nodes[node.id]) throw new Error(`Duplicate node: ${node.id}`);
   state.nodes[node.id] = node;
   state.children[node.id] = [];
+  state.controlChildren[node.id] = [...(node.controlChildIds ?? [])];
 }
 
-function linkInitialNode(
-  state: { nodes: Record<string, UiNodeSnapshot>; children: Record<string, UiNodeId[]> },
-  node: UiNodeSnapshot
-): void {
-  if (!node.parentId) return;
-  requireInitialChildren(state, node.parentId).push(node.id);
+function linkVisualParent(children: Record<string, UiNodeId[]>, node: UiNodeSnapshot): void {
+  if (node.parentId !== undefined) requireInitialChildren(children, node.parentId).push(node.id);
 }
 
 function requireInitialChildren(
-  state: { nodes: Record<string, UiNodeSnapshot>; children: Record<string, UiNodeId[]> },
+  index: Readonly<Record<string, UiNodeId[]>>,
   id: UiNodeId
 ): UiNodeId[] {
-  const children = state.children[id];
+  const children = index[id];
   if (!children) throw new Error(`Unknown parent: ${id}`);
   return children;
 }
@@ -256,24 +261,14 @@ function createRecord(
 }
 
 function changedNodeIds(patches: readonly Patch[]): UiNodeId[] {
-  const ids = patches
-    .filter(
-      (patch) => isNodePatch(patch) || isChildrenPatch(patch) || isValidationRoutePatch(patch)
-    )
-    .map((patch) => patch.path[1] as string);
+  const ids = patches.filter(isTrackedPatch).map((patch) => patch.path[1] as string);
   return [...new Set(ids)];
 }
 
-function isNodePatch(patch: Patch): boolean {
-  return patch.path[0] === "nodes" && typeof patch.path[1] === "string";
-}
+const trackedPatchRoots = new Set(["nodes", "children", "controlChildren", "validationRoutes"]);
 
-function isChildrenPatch(patch: Patch): boolean {
-  return patch.path[0] === "children" && typeof patch.path[1] === "string";
-}
-
-function isValidationRoutePatch(patch: Patch): boolean {
-  return patch.path[0] === "validationRoutes" && typeof patch.path[1] === "string";
+function isTrackedPatch(patch: Patch): boolean {
+  return trackedPatchRoots.has(String(patch.path[0])) && typeof patch.path[1] === "string";
 }
 
 function invalidatedNodeIds(

@@ -3,6 +3,7 @@ import {
   UiControlStatus,
   UiUpdateTrigger,
   type UiCommand,
+  type ControlCollectionInsertCommand,
   type UiNodeSnapshot,
   type UiValidationError
 } from "@unislang/unifold-events";
@@ -37,6 +38,9 @@ type CommandHandler = (
 ) => void;
 
 const handlers = new Map<UiCommandType, CommandHandler>([
+  [UiCommandType.ControlCollectionInsert, insertCollectionControl],
+  [UiCommandType.ControlCollectionMove, moveCollectionControl],
+  [UiCommandType.ControlCollectionRemove, removeCollectionControl],
   [UiCommandType.ControlMarkTouched, markControlTouched],
   [UiCommandType.ControlSetDisabled, setControlDisabled],
   [UiCommandType.ControlSetValue, setControlValue],
@@ -51,6 +55,46 @@ const handlers = new Map<UiCommandType, CommandHandler>([
   [UiCommandType.StructureReconcile, reconcileStructure],
   [UiCommandType.StructureRemove, removeNode]
 ]);
+
+function insertCollectionControl(draft: UiNodeTransactionDraft, command: UiCommand): void {
+  if (command.type !== UiCommandType.ControlCollectionInsert) return;
+  assertInsertedControlIdentity(command);
+  draft.add({ ...command.node, controlKey: command.key, controlParentId: command.parentId });
+  draft.moveControl(command.parentId, command.key, command.index);
+}
+
+function assertInsertedControlIdentity(command: ControlCollectionInsertCommand): void {
+  assertCompatibleField(
+    command.node.controlParentId,
+    command.parentId,
+    "Inserted control parent does not match the command."
+  );
+  assertCompatibleField(
+    command.node.controlKey,
+    command.key,
+    "Inserted control key does not match the command."
+  );
+}
+
+function assertCompatibleField(
+  actual: string | undefined,
+  expected: string,
+  message: string
+): void {
+  if (actual !== undefined && actual !== expected) throw new Error(message);
+}
+
+function moveCollectionControl(draft: UiNodeTransactionDraft, command: UiCommand): void {
+  if (command.type === UiCommandType.ControlCollectionMove) {
+    draft.moveControl(command.parentId, command.key, command.index);
+  }
+}
+
+function removeCollectionControl(draft: UiNodeTransactionDraft, command: UiCommand): void {
+  if (command.type === UiCommandType.ControlCollectionRemove) {
+    draft.removeControl(command.parentId, command.key);
+  }
+}
 
 export function applyStateCommand(
   draft: UiNodeTransactionDraft,
@@ -105,7 +149,7 @@ function resetForm(
   validators: UiValidatorRegistryPort
 ): void {
   if (command.type !== UiCommandType.FormReset) return;
-  [command.id, ...draft.descendantIds(command.id)].forEach((id) => {
+  [command.id, ...draft.controlDescendantIds(command.id)].forEach((id) => {
     draft.update(id, (node) => resetIfControl(node, validators));
   });
 }
@@ -127,7 +171,7 @@ function submitForm(
   validators: UiValidatorRegistryPort
 ): void {
   if (command.type !== UiCommandType.FormSubmit) return;
-  [command.id, ...draft.descendantIds(command.id)].forEach((id) => {
+  [command.id, ...draft.controlDescendantIds(command.id)].forEach((id) => {
     draft.update(id, (node) => submitIfControl(node, validators));
   });
 }
@@ -212,6 +256,7 @@ function cancelControlValidation(draft: UiNodeTransactionDraft, command: UiComma
   draft.update(command.id, (node) => {
     const control = requireControl(node);
     if (control.validationRequestId !== command.requestId) return;
+    control.errors = withoutAsyncErrors(control);
     control.pending = false;
     control.status = resultStatus(control.errors.length, node.base.disabled);
     control.validationRequestId = null;

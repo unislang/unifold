@@ -1,19 +1,7 @@
 import {
-  CoreCatalogName,
-  CoreCatalogVersion,
-  JsonUiProfileName,
-  JsonUiProfileVersion,
   JsonUiUpstreamRevision,
-  SchemaOrgRelease,
-  SchemaOrgVocabularyUri,
-  SemanticContractVersion,
-  SemanticPublicationMode,
-  SemanticPublicationProfile,
-  SemanticValueKind,
-  UiContractSchemaUri,
-  UiSchemaVersion,
-  type SemanticGraph,
-  type UiDocument
+  UiControlNodeKind,
+  UiControlTopologyVersion
 } from "@unislang/unifold-contracts";
 import { expect, it } from "vitest";
 
@@ -26,30 +14,10 @@ import {
   type CompileResult,
   type UnifoldIrDocument
 } from "./index.js";
-
-function createDocument(): UiDocument {
-  return {
-    $schema: UiContractSchemaUri.Version1,
-    schemaVersion: UiSchemaVersion.Version1,
-    id: "customer-editor",
-    revision: "revision-1",
-    jsonUiProfile: {
-      name: JsonUiProfileName.Unifold,
-      version: JsonUiProfileVersion.Version1,
-      upstream: JsonUiUpstreamRevision.Version01025
-    },
-    catalog: { name: CoreCatalogName.UnifoldCore, version: CoreCatalogVersion.Version1 },
-    view: {
-      $comp: "Form",
-      id: "customer-form",
-      label: "Customer",
-      $children: [
-        { $comp: "TextField", id: "email", required: true, label: "Email" },
-        { $comp: "Button", id: "save", label: "Save" }
-      ]
-    }
-  };
-}
+import {
+  compilerDocument as createDocument,
+  compilerSemanticGraph as semanticGraph
+} from "./compiler.test-data.js";
 
 it("normalizes the supported JsonUI profile with stable source mappings", () => {
   const document = requireCompiledDocument(compileUiDocument(createDocument()));
@@ -63,6 +31,31 @@ it("normalizes the supported JsonUI profile with stable source mappings", () => 
   });
   expect(document.sourcePointersByNodeId["save"]).toBe("/view/$children/1");
   expect(document.source.jsonUiUpstreamRevision).toBe(JsonUiUpstreamRevision.Version01025);
+});
+
+it("compiles explicit control ownership independently from visual nesting", () => {
+  const source = createDocument();
+  const result = compileUiDocument({
+    ...source,
+    controls: {
+      contractVersion: UiControlTopologyVersion.Version1,
+      nodes: [
+        { id: "customer-form", kind: UiControlNodeKind.Form },
+        {
+          id: "email",
+          key: "emailAddress",
+          kind: UiControlNodeKind.Control,
+          parentId: "customer-form"
+        }
+      ]
+    }
+  });
+  const document = requireCompiledDocument(result);
+  expect(document.nodesById["customer-form"]?.controlChildIds).toEqual(["email"]);
+  expect(document.nodesById["email"]).toMatchObject({
+    controlKey: "emailAddress",
+    controlParentId: "customer-form"
+  });
 });
 
 it("preserves a validated canonical SemanticGraph in IR", () => {
@@ -314,28 +307,4 @@ function requireCompiledDocument(result: CompileResult): UnifoldIrDocument {
     throw new Error("Expected compilation to produce a valid document.");
   }
   return result.document;
-}
-
-function semanticGraph(): SemanticGraph {
-  return {
-    contractVersion: SemanticContractVersion.Version1,
-    entities: [
-      {
-        id: "https://example.com/people/ada",
-        properties: {
-          name: { kind: SemanticValueKind.NodeControlValue, nodeId: "email" },
-          description: { kind: SemanticValueKind.Constant, value: "Compiler" }
-        },
-        type: "Person"
-      }
-    ],
-    publication: {
-      mode: SemanticPublicationMode.PublicPage,
-      profile: SemanticPublicationProfile.SchemaOrg
-    },
-    vocabulary: {
-      release: SchemaOrgRelease.Version30,
-      uri: SchemaOrgVocabularyUri.Canonical
-    }
-  };
 }

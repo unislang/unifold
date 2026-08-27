@@ -1,0 +1,20 @@
+{
+  "$schema": "https://schemas.unifold.org/ui-module-lock/1.0/schema.json",
+  "artifactIntegrity": "sha256-HLSDL46jU18CMrB5DkANxqyAksCQEQ50XRZruknkFOc",
+  "entry": {
+    "exportName": "application",
+    "moduleId": "org.unifold.examples.control-topology",
+    "version": "1.0.0"
+  },
+  "irIntegrity": "sha256-I5-4JRHe3YIEcTDFIQTi0D5v1CQg0B40_4eD8GLG9qE",
+  "modules": [
+    {
+      "integrity": "sha256-wCXQSPtUclcOs7-4q5JxVXUhfmowOIEocy1r5ExL0t4",
+      "moduleId": "org.unifold.examples.control-topology",
+      "namespace": "",
+      "sourceId": "src/modules/control-topology.module.json",
+      "version": "1.0.0"
+    }
+  ],
+  "schemaVersion": "1.0.0"
+}

@@ -1,0 +1,265 @@
+{
+  "$schema": "https://schemas.unifold.org/ui-module/1.0/schema.json",
+  "schemaVersion": "1.0.0",
+  "id": "org.unifold.examples.control-topology",
+  "version": "1.0.0",
+  "imports": [],
+  "exports": {
+    "compositions": [],
+    "documents": [
+      {
+        "name": "application",
+        "document": {
+          "$schema": "https://schemas.unifold.org/layout-document/1.0/schema.json",
+          "schemaVersion": "1.0.0",
+          "id": "control-topology-example",
+          "revision": "1",
+          "catalog": { "name": "unifold-core", "version": "1.0.0" },
+          "layoutType": "control-topology-workflow",
+          "layoutVersion": "1.0.0",
+          "variables": {
+            "heading": "One form, two independent hierarchies",
+            "description": "Visual wrappers stay dumb while the logical graph owns nested form state."
+          },
+          "layouts": [
+            {
+              "layoutType": "control-topology-workflow",
+              "version": "1.0.0",
+              "variables": {
+                "heading": { "type": "string", "required": true },
+                "description": { "type": "string", "required": true }
+              },
+              "template": {
+                "id": "topology-page",
+                "type": "Stack",
+                "props": { "gap": "lg", "label": "Logical control topology example" },
+                "children": [
+                  {
+                    "id": "topology-heading",
+                    "type": "Heading",
+                    "props": { "content": { "$var": "heading" }, "level": "2" }
+                  },
+                  {
+                    "id": "topology-description",
+                    "type": "Text",
+                    "props": { "content": { "$var": "description" }, "tone": "muted" }
+                  },
+                  {
+                    "id": "topology-form",
+                    "type": "Form",
+                    "props": { "label": "Profile topology" },
+                    "children": [
+                      {
+                        "id": "visual-columns",
+                        "type": "Stack",
+                        "props": { "gap": "lg", "label": "Visual-only wrapper" },
+                        "children": [
+                          {
+                            "id": "identity-group",
+                            "type": "Stack",
+                            "props": { "gap": "sm", "label": "Identity" },
+                            "children": [
+                              {
+                                "id": "identity-fields",
+                                "type": "Grid",
+                                "props": { "columns": 2, "gap": "md", "label": "Identity fields" },
+                                "children": [
+                                  {
+                                    "id": "legal-name",
+                                    "type": "TextField",
+                                    "props": { "label": "Legal name", "name": "identity.name" },
+                                    "events": { "onInput": "TOPOLOGY_CHANGED" }
+                                  },
+                                  {
+                                    "id": "preferred-name",
+                                    "type": "TextField",
+                                    "props": { "label": "Preferred name", "name": "identity.title" }
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "id": "aliases-array",
+                            "type": "Fieldset",
+                            "props": {
+                              "label": "Aliases",
+                              "helpText": "Ordered by durable control keys."
+                            },
+                            "children": [
+                              {
+                                "id": "alias-fields",
+                                "type": "Stack",
+                                "props": { "gap": "sm", "label": "Alias fields" },
+                                "children": [
+                                  {
+                                    "id": "primary-alias",
+                                    "type": "TextField",
+                                    "props": { "label": "Primary alias", "name": "aliases" }
+                                  },
+                                  {
+                                    "id": "secondary-alias",
+                                    "type": "TextField",
+                                    "props": { "label": "Secondary alias", "name": "aliases" }
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "id": "contacts-record",
+                            "type": "Grid",
+                            "props": { "columns": 2, "gap": "md", "label": "Contacts" },
+                            "children": [
+                              {
+                                "id": "contact-fields",
+                                "type": "Stack",
+                                "props": { "gap": "sm", "label": "Contact fields" },
+                                "children": [
+                                  {
+                                    "id": "work-email",
+                                    "type": "TextField",
+                                    "props": {
+                                      "inputType": "email",
+                                      "label": "Work email",
+                                      "name": "contacts.work"
+                                    }
+                                  },
+                                  {
+                                    "id": "home-email",
+                                    "type": "TextField",
+                                    "props": {
+                                      "inputType": "email",
+                                      "label": "Home email",
+                                      "name": "contacts.home"
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "id": "topology-actions",
+                        "type": "Stack",
+                        "props": {
+                          "direction": "horizontal",
+                          "gap": "sm",
+                          "label": "Form actions"
+                        },
+                        "children": [
+                          {
+                            "id": "topology-submit",
+                            "type": "Button",
+                            "props": { "action": "submit", "label": "Submit topology" }
+                          },
+                          {
+                            "id": "topology-reset",
+                            "type": "Button",
+                            "props": { "action": "reset", "label": "Reset topology" }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "controls": {
+            "contractVersion": "1.0.0",
+            "nodes": [
+              { "id": "topology-form", "kind": "form" },
+              {
+                "id": "identity-group",
+                "kind": "group",
+                "key": "identity",
+                "parentId": "topology-form"
+              },
+              {
+                "id": "legal-name",
+                "kind": "control",
+                "key": "name",
+                "parentId": "identity-group"
+              },
+              {
+                "id": "preferred-name",
+                "kind": "control",
+                "key": "title",
+                "parentId": "identity-group"
+              },
+              {
+                "id": "aliases-array",
+                "kind": "array",
+                "key": "aliases",
+                "parentId": "topology-form"
+              },
+              {
+                "id": "primary-alias",
+                "kind": "control",
+                "key": "primary",
+                "parentId": "aliases-array"
+              },
+              {
+                "id": "secondary-alias",
+                "kind": "control",
+                "key": "secondary",
+                "parentId": "aliases-array"
+              },
+              {
+                "id": "contacts-record",
+                "kind": "record",
+                "key": "contacts",
+                "parentId": "topology-form"
+              },
+              {
+                "id": "work-email",
+                "kind": "control",
+                "key": "work",
+                "parentId": "contacts-record"
+              },
+              {
+                "id": "home-email",
+                "kind": "control",
+                "key": "home",
+                "parentId": "contacts-record"
+              }
+            ]
+          },
+          "machines": [
+            {
+              "schemaVersion": "1.0.0",
+              "id": "topology-workflow",
+              "version": "1.0.0",
+              "ownerId": "topology-form",
+              "initial": "editing",
+              "states": {
+                "editing": { "on": { "TOPOLOGY_CHANGED": { "target": "changed" } } },
+                "changed": {}
+              }
+            }
+          ],
+          "semantics": {
+            "contractVersion": "1.0.0",
+            "vocabulary": { "uri": "https://schema.org", "release": "30.0" },
+            "primaryEntity": "urn:unifold:example:profile",
+            "entities": [
+              {
+                "id": "urn:unifold:example:profile",
+                "type": "Person",
+                "properties": {
+                  "name": { "kind": "node-control-value", "nodeId": "legal-name" },
+                  "givenName": { "kind": "node-control-value", "nodeId": "primary-alias" },
+                  "email": { "kind": "node-control-value", "nodeId": "work-email" }
+                }
+              }
+            ],
+            "publication": { "mode": "public-page", "profile": "schema.org" }
+          }
+        }
+      }
+    ],
+    "resources": []
+  }
+}

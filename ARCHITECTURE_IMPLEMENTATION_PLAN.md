@@ -65,9 +65,11 @@ provisioned control-plane operations, manual browser/assistive-technology eviden
 packaging/release compatibility, pilot adoption, and the remaining acceptance register still gate
 stability. Toast and Pagination complete the Phase 2 list through the same JSON to IR to deferred Web
 Component to canonical event to XState/command to selective projection to static export and
-Playwright seams. The reference initial closure remains below its unchanged 184 KiB gzip gate after
-moving authored JSON and the reference validator adapter to explicit pre-mount resources; no
-catalog-completion budget exception was taken.
+Playwright seams. The reference initial closure remained below its 184 KiB gzip gate after moving
+authored JSON and the reference validator adapter to explicit pre-mount resources; no
+catalog-completion budget exception was taken. The later explicit control-topology tranche raises
+the executable ceiling by six KiB to 190 KiB for its synchronous compiler/runtime contract, with the
+measured closure and rationale retained in the acceptance record.
 
 Acceptance checkpoint (2026-08-26): the executable evidence register is maintained in
 `docs/acceptance-status.md`. It deliberately distinguishes family presence from complete 1.0

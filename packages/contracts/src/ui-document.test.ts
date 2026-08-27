@@ -46,6 +46,19 @@ it("executes enum-backed hierarchical node event bindings", () => {
   expect(validateDocument(valid)).toBe(false);
 });
 
+it("executes the closed enum-backed control topology schema", () => {
+  const valid = documentWithControls();
+  expect(validateDocument(valid)).toBe(true);
+  requireControlNode(valid, 1).kind = "section";
+  expect(validateDocument(valid)).toBe(false);
+});
+
+it("rejects unknown control topology properties", () => {
+  const invalid = documentWithControls();
+  Object.assign(requireControlNode(invalid, 0), { unexpected: true });
+  expect(validateDocument(invalid)).toBe(false);
+});
+
 it("executes the closed derived-rule JSON Schema boundary", () => {
   const valid = documentWithRule();
   expect(validateDocument(valid)).toBe(true);
@@ -135,6 +148,30 @@ function documentWithMachine() {
       }
     ]
   };
+}
+
+function documentWithControls() {
+  return {
+    ...baseDocument(),
+    controls: {
+      contractVersion: "1.0.0",
+      nodes: [
+        { id: "form", kind: "form" },
+        { id: "name", key: "name", kind: "control", parentId: "form" }
+      ]
+    },
+    view: {
+      $children: [{ $comp: "TextField", id: "name" }],
+      $comp: "Form",
+      id: "form"
+    }
+  };
+}
+
+function requireControlNode(document: ReturnType<typeof documentWithControls>, index: number) {
+  const node = document.controls.nodes[index];
+  if (node === undefined) throw new Error("Expected a control topology fixture.");
+  return node;
 }
 
 function documentWithStore() {

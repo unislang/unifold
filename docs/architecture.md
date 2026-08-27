@@ -102,6 +102,42 @@ fetch. Exact-version collisions reject, registry diagnostics use a virtual sourc
 pointer provenance survives lowering, and invalid updates retain the last-known-good runtime and
 DOM. A 500-node compilation workload is enforced as a repeatable p95 gate.
 
+## Explicit control topology
+
+An optional top-level `controls` object adds logical form ownership without changing the public
+Scratch-style hierarchy. Its versioned, enum-backed nodes target stable visual IDs and declare one
+of `form`, `group`, `array`, `record`, or `control`; nested nodes carry an aggregate `parentId` and a
+durable sibling-unique `key`. The compiler rejects unknown fields/versions, missing or incompatible
+targets, incomplete form/control coverage, duplicate IDs/keys, invalid roots, cycles, and inputs over
+10,000 nodes before runtime creation.
+
+IR and snapshots retain visual `parentId`/`scopePath` separately from logical `controlParentId`,
+`controlChildIds`, and `controlKey`. Aggregate value/status propagation, rule dependencies, form
+reset/submit, validation ownership, and event-scope disclosure therefore follow the logical graph
+even when visual wrappers intervene. Logical ancestors are merged into event `scopePath` without
+changing visual `parentId`. Legacy documents without `controls` use the validated visual parent
+graph as a compatibility fallback; this is inference, not a persisted topology migration.
+
+Normalized aggregate values and native submission are deliberately different projections. Logical
+`parentId` plus `key` produces nested Group/Record objects and ordered Array values. Browser
+`FormData` remains a flat ordered multimap produced from each component's native `name`; repeated
+names stay repeated. Applications must author and test the mapping rather than compare the nested
+object to `Object.fromEntries(new FormData(form))`.
+
+The first slice has explicit limits. Topology is document-global, so composition-local IDs are not
+yet namespaced or exported during composition expansion. Collection commands change normalized
+logical membership from trusted snapshots but do not compile authored JSON or create/remove DOM;
+they are a headless runtime seam, not the public dynamic-list completion. Aggregate disablement also
+does not yet cascade canonical disabled/interactivity state to logical descendants. A native
+`Fieldset` applies browser successful-control semantics, but that effect is not a replacement for
+effective-disabled state in every snapshot.
+
+`runtime.control<T>(id)` is the typed integration facade. Its live value, raw-value, status, and
+error observables and transactional setters select or command the same normalized store; they do not
+introduce a second form authority. `T` is a caller-supplied integration assertion today, not a type
+generated from the authored schema. Angular and other host adapters can project that handle while
+transaction identities prevent feedback loops.
+
 ## JsonUI authoring profile
 
 Every document names `unifold-jsonui@1.0.0` and the exact upstream commit accepted by the executable

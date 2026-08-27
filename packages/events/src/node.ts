@@ -56,6 +56,9 @@ export interface UiNodeSnapshot<
   readonly kind: UiNodeKind;
   readonly type: string;
   readonly definitionVersion: string;
+  readonly controlChildIds?: readonly UiNodeId[];
+  readonly controlKey?: string;
+  readonly controlParentId?: UiNodeId;
   readonly parentId?: UiNodeId;
   readonly scopePath: readonly UiNodeId[];
   readonly revision: number;

@@ -25,6 +25,30 @@ it("enumerates descendants in stable breadth-first order", () => {
   });
 });
 
+it("moves and removes collection controls by durable key", () => {
+  const parent = { ...controlNode("items", ""), controlChildIds: ["a", "b"] };
+  const a = explicitChild(controlNode("a", "A"), "items", "stable-a");
+  const b = explicitChild(controlNode("b", "B"), "items", "stable-b");
+  const store = new NormalizedNodeStore([parent, a, b]);
+  store.transact(metadata("move"), (draft) => {
+    expect(draft.controlDescendantIds("items")).toEqual(["a", "b"]);
+    draft.moveControl("items", "stable-b", 0);
+  });
+  store.transact(metadata("remove"), (draft) => draft.removeControl("items", "stable-a"));
+  store.transact(metadata("inspect"), (draft) => {
+    expect(draft.controlDescendantIds("items")).toEqual(["b"]);
+  });
+  expect(() => store.getSnapshot("a")).toThrow("Unknown node: a");
+});
+
+function explicitChild(
+  node: ReturnType<typeof controlNode>,
+  controlParentId: string,
+  controlKey: string
+) {
+  return { ...node, controlChildIds: [], controlKey, controlParentId };
+}
+
 it("reads the current transaction draft for derived processors", () => {
   const store = new NormalizedNodeStore([controlNode("field", "before")]);
   store.transact(metadata("read"), (draft) => {

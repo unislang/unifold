@@ -26,6 +26,9 @@
     "compositionManifest": {
       "type": "object"
     },
+    "controls": {
+      "$ref": "#/$defs/controlTopology"
+    },
     "machines": {
       "type": "array",
       "items": {
@@ -58,6 +61,30 @@
     "nonEmptyString": {
       "type": "string",
       "minLength": 1
+    },
+    "controlTopology": {
+      "type": "object",
+      "required": ["contractVersion", "nodes"],
+      "properties": {
+        "contractVersion": { "const": "1.0.0" },
+        "nodes": {
+          "type": "array",
+          "maxItems": 10000,
+          "items": { "$ref": "#/$defs/controlTopologyNode" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "controlTopologyNode": {
+      "type": "object",
+      "required": ["id", "kind"],
+      "properties": {
+        "id": { "$ref": "#/$defs/nonEmptyString" },
+        "key": { "$ref": "#/$defs/nonEmptyString" },
+        "kind": { "enum": ["form", "group", "array", "record", "control"] },
+        "parentId": { "$ref": "#/$defs/nonEmptyString" }
+      },
+      "additionalProperties": false
     },
     "jsonUiProfile": {
       "type": "object",

@@ -5,4 +5,15 @@ describe("control module", () => {
   it("loads through its colocated contract", () => {
     expect(subject).toBeDefined();
   });
+
+  it("exposes enum-backed control topology values", () => {
+    expect(Object.values(subject.UiControlNodeKind)).toEqual([
+      "array",
+      "control",
+      "form",
+      "group",
+      "record"
+    ]);
+    expect(subject.UiControlTopologyVersion.Version1).toBe("1.0.0");
+  });
 });

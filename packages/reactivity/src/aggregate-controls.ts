@@ -5,6 +5,7 @@ import {
   UiUpdateTrigger,
   type UiControlState,
   type UiNodeSnapshot,
+  type UiValidationError,
   type JsonObject,
   type JsonValue
 } from "@unislang/unifold-events";
@@ -19,11 +20,6 @@ interface AggregateChild {
   readonly key: string;
 }
 
-interface StatusRule {
-  readonly matches: (node: Draft<UiNodeSnapshot>, children: readonly AggregateChild[]) => boolean;
-  readonly status: UiControlStatus;
-}
-
 const aggregateKinds = new Set<UiNodeKind>([
   UiNodeKind.Array,
   UiNodeKind.Form,
@@ -36,7 +32,8 @@ export function recomputeAggregateControls(
   validate?: AggregateControlValidator,
   changedIds?: ReadonlySet<UiNodeId>
 ): readonly UiNodeId[] {
-  const nodes = affectedNodes(state, changedIds).sort(deepestFirst);
+  const depths = controlDepths(state);
+  const nodes = affectedNodes(state, changedIds).sort(deepestFirst(depths));
   nodes.forEach((node) => recomputeNode(state, node, validate));
   return nodes.filter((node) => aggregateKinds.has(node.kind)).map(({ id }) => id);
 }
@@ -76,8 +73,8 @@ function parentNode(
   state: Draft<NormalizedNodeState>,
   node: Draft<UiNodeSnapshot>
 ): Draft<UiNodeSnapshot> | undefined {
-  if (node.parentId === undefined) return undefined;
-  return state.nodes[node.parentId];
+  const parentId = node.controlParentId ?? node.parentId;
+  return parentId === undefined ? undefined : state.nodes[parentId];
 }
 
 function optionalNode(node: Draft<UiNodeSnapshot> | undefined): Draft<UiNodeSnapshot>[] {
@@ -105,7 +102,13 @@ function validatedAggregate(
   const validated = validate({ ...(node as unknown as UiNodeSnapshot), control });
   const errors = [...control.errors, ...validated.errors];
   const pending = isPending(control, validated);
-  return { ...validated, errors, pending, status: combinedStatus(errors.length, pending) };
+  return {
+    ...validated,
+    errors,
+    pending,
+    status: combinedStatus(errors.length, pending),
+    validationRequestId: control.validationRequestId
+  };
 }
 
 function shouldValidate(
@@ -126,7 +129,7 @@ function combinedStatus(errorCount: number, pending: boolean): UiControlStatus {
 
 function readControlChildren(state: Draft<NormalizedNodeState>, id: string): AggregateChild[] {
   const nodes = state.nodes as unknown as Readonly<Record<string, UiNodeSnapshot>>;
-  return (state.children[id] ?? []).flatMap((childId) => toAggregateChild(nodes[childId]));
+  return (state.controlChildren[id] ?? []).flatMap((childId) => toAggregateChild(nodes[childId]));
 }
 
 function toAggregateChild(child: UiNodeSnapshot | undefined): AggregateChild[] {
@@ -140,22 +143,52 @@ function aggregateControl(
   node: Draft<UiNodeSnapshot>,
   children: readonly AggregateChild[]
 ): UiControlState {
+  const errors = aggregateErrors(node, children);
+  const pending = aggregatePending(node, children);
   return {
     value: aggregateValue(node.kind, children, false, ({ control }) => control.value),
     rawValue: aggregateValue(node.kind, children, true, ({ control }) => control.rawValue),
     initialValue: aggregateInitialValue(node.kind, children),
-    status: aggregateStatus(node, children),
-    errors: activeChildren(children).flatMap(({ control }) => control.errors),
+    status: aggregateStatus(node, children, errors, pending),
+    errors,
     pristine: children.every(({ control }) => control.pristine),
     dirty: children.some(({ control }) => control.dirty),
     touched: children.some(({ control }) => control.touched),
-    pending: children.some(({ control }) => control.pending),
+    pending,
     required: aggregateRequired(node.control),
     updateOn: aggregateUpdateOn(node.control),
     validatorIds: aggregateValidatorIds(node.control),
     asyncValidatorIds: aggregateAsyncValidatorIds(node.control),
     validationRequestId: aggregateValidationRequestId(node.control)
   };
+}
+
+function aggregateErrors(
+  node: Draft<UiNodeSnapshot>,
+  children: readonly AggregateChild[]
+): readonly UiValidationError[] {
+  return [
+    ...activeChildren(children).flatMap(({ control }) => control.errors),
+    ...retainedAsyncErrors(node)
+  ];
+}
+
+function retainedAsyncErrors(node: Draft<UiNodeSnapshot>): readonly UiValidationError[] {
+  const control = node.control;
+  if (control === undefined) return [];
+  const asyncIds = new Set(control.asyncValidatorIds);
+  const errors = control.errors as unknown as readonly UiValidationError[];
+  return errors.filter(
+    ({ ownerId, validatorId }) => ownerId === node.id && asyncIds.has(validatorId)
+  );
+}
+
+function aggregatePending(
+  node: Draft<UiNodeSnapshot>,
+  children: readonly AggregateChild[]
+): boolean {
+  const childPending = activeChildren(children).some(({ control }) => control.pending);
+  return childPending || typeof node.control?.validationRequestId === "string";
 }
 
 function aggregateValue(
@@ -183,22 +216,40 @@ function objectValue(
 
 function aggregateStatus(
   node: Draft<UiNodeSnapshot>,
-  children: readonly AggregateChild[]
+  children: readonly AggregateChild[],
+  errors: readonly UiValidationError[],
+  pending: boolean
 ): UiControlStatus {
-  return statusRules.find((rule) => rule.matches(node, children))?.status ?? UiControlStatus.Valid;
+  const context = { children, errors, node, pending };
+  return (
+    aggregateStatusRules.find((rule) => rule.matches(context))?.status ?? UiControlStatus.Valid
+  );
 }
 
-const statusRules: readonly StatusRule[] = [
+interface AggregateStatusContext {
+  readonly children: readonly AggregateChild[];
+  readonly errors: readonly UiValidationError[];
+  readonly node: Draft<UiNodeSnapshot>;
+  readonly pending: boolean;
+}
+
+interface AggregateStatusRule {
+  readonly matches: (context: AggregateStatusContext) => boolean;
+  readonly status: UiControlStatus;
+}
+
+const aggregateStatusRules: readonly AggregateStatusRule[] = [
   {
-    matches: (node, children) => node.base.disabled || allDisabled(children),
+    matches: ({ node, children }) => node.base.disabled || allDisabled(children),
     status: UiControlStatus.Disabled
   },
   {
-    matches: (_node, children) => activeChildren(children).some(({ control }) => control.pending),
+    matches: ({ pending }) => pending,
     status: UiControlStatus.Pending
   },
   {
-    matches: (_node, children) =>
+    matches: ({ children, errors }) =>
+      errors.length > 0 ||
       activeChildren(children).some(({ control }) => control.status === UiControlStatus.Invalid),
     status: UiControlStatus.Invalid
   }
@@ -233,10 +284,54 @@ function activeChildren(children: readonly AggregateChild[]): readonly Aggregate
 }
 
 function controlKey(node: UiNodeSnapshot): string {
+  if (node.controlKey !== undefined) return node.controlKey;
   const name = node.properties["name"];
-  return typeof name === "string" && name.length > 0 ? name : node.id;
+  return usableControlName(name) ? name : node.id;
 }
 
-function deepestFirst(left: Draft<UiNodeSnapshot>, right: Draft<UiNodeSnapshot>): number {
-  return right.scopePath.length - left.scopePath.length;
+function usableControlName(value: unknown): value is string {
+  return typeof value === "string" && value.length > 0;
+}
+
+function controlDepths(state: Draft<NormalizedNodeState>): ReadonlyMap<UiNodeId, number> {
+  const depths = new Map<UiNodeId, number>();
+  Object.values(state.nodes).forEach((node) => recordControlDepth(state, node, depths));
+  return depths;
+}
+
+function recordControlDepth(
+  state: Draft<NormalizedNodeState>,
+  node: Draft<UiNodeSnapshot>,
+  depths: Map<UiNodeId, number>
+): void {
+  const path: UiNodeId[] = [];
+  let current: Draft<UiNodeSnapshot> | undefined = node;
+  while (needsDepth(current, depths)) {
+    path.push(current.id);
+    current = parentNode(state, current);
+  }
+  let depth = parentDepth(current, depths);
+  path.reverse().forEach((id) => depths.set(id, ++depth));
+}
+
+function needsDepth(
+  node: Draft<UiNodeSnapshot> | undefined,
+  depths: ReadonlyMap<UiNodeId, number>
+): node is Draft<UiNodeSnapshot> {
+  if (node === undefined) return false;
+  return !depths.has(node.id);
+}
+
+function parentDepth(
+  node: Draft<UiNodeSnapshot> | undefined,
+  depths: ReadonlyMap<UiNodeId, number>
+): number {
+  if (node === undefined) return -1;
+  return depths.get(node.id) ?? -1;
+}
+
+function deepestFirst(
+  depths: ReadonlyMap<UiNodeId, number>
+): (left: Draft<UiNodeSnapshot>, right: Draft<UiNodeSnapshot>) => number {
+  return (left, right) => (depths.get(right.id) ?? 0) - (depths.get(left.id) ?? 0);
 }

@@ -36,6 +36,18 @@ it("applies defaults and preserves whole-value reference types", () => {
   expect((result.document?.["view"] as Record<string, unknown>)["label"]).toBe("Default heading");
 });
 
+it("preserves an explicit control topology on the Scratch-style authoring document", () => {
+  const source = layoutDocument();
+  source["controls"] = {
+    contractVersion: "1.0.0",
+    nodes: [
+      { id: "root", kind: "form" },
+      { id: "name", key: "name", kind: "control", parentId: "root" }
+    ]
+  };
+  expect(expandLayoutDocument(source).document?.["controls"]).toEqual(source["controls"]);
+});
+
 it("rejects missing variables, unknown references, duplicate ids, and unsafe events", () => {
   const missing = layoutDocument();
   Reflect.deleteProperty(missing.variables, "heading");
