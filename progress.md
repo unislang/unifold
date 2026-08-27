@@ -18,16 +18,17 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
 - Latest published checkpoint:
-  `4112e2b31ae4e63a6c3a9640a4f87bf6dcaaa70a`
-  (`docs: record Scratch-style module checkpoint`) on
+  `fe3a3d091ff97506d04cba4381a217cbac90060f`
+  (`feat: prove runtime authority and application isolation`) on
   `https://github.com/unislang/unifold.git`.
 - Publication verification: live `git ls-remote origin refs/heads/main` resolved to
-  `4112e2b31ae4e63a6c3a9640a4f87bf6dcaaa70a` immediately after the documentation push; local
-  `HEAD` and `origin/main` matched exactly. The same push includes semantic owner isolation at
+  `fe3a3d091ff97506d04cba4381a217cbac90060f` immediately after the implementation push; local
+  `HEAD` and `origin/main` matched exactly. The history also includes semantic owner isolation at
   `0b9d569` and repository source-ownership gates at `a6b4b60`.
 - Current local implementation: the `NumberField`, `SearchField`, `CheckboxGroup`, `Switch`, and
   `DateField`, `Toast`, and `Pagination` families are committed as implementation checkpoints. The
-  current worktree adds canonical-write no-op suppression, transition-level XState batching,
+  latest published implementation adds canonical-write no-op suppression, transition-level XState
+  batching,
   causal transaction provenance, a runtime-only normalized-reactivity ownership rule, and an
   instrumented reference-browser state-authority oracle. It also adds an explicitly authorized,
   redacted, read-only cross-application observer; two-application isolation coverage; a 10-runtime/
@@ -89,7 +90,7 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   classified disclosure, fails closed, and disposes independently. Same-document unit coverage
   isolates duplicate node IDs, stores, actors, effects, streams, telemetry, and disposal; Studio
   covers live/preview identity and preview-only disposal. The exact 10-runtime/1,000-event fan-in
-  profile records 61.07/71.32/82.37 ms p50/p95/p99 against a 250 ms p95 ceiling.
+  profile records 60.60/72.36/81.66 ms p50/p95/p99 against a 250 ms p95 ceiling.
 - The durable acceptance register classifies all 34 criteria conservatively: AC4, AC27, AC33, and
   AC34 are proved; AC10 and AC29 are missing; and the other 28 are partial. There are no known
   contradicted criteria after the semantic ownership correction.
@@ -194,7 +195,7 @@ deferred gzip bytes. The resolved module artifact, reference-specific validator 
 options load as explicit pre-mount resources while optional component families and diagnostic output
 remain post-mount; the initial-closure budget was not raised. Studio builds at 240.73 KiB gzip
 against 250 KiB. Benchmark schema 2.35.0 passes 60/60 gates. The 10-runtime/5-tenant
-observation profile attributes exactly 1,000 events at 71.32 ms p95 against 250 ms. The exact
+observation profile attributes exactly 1,000 events at 72.36 ms p95 against 250 ms. The exact
 100-Toast profile records 0.75/6.65/7.52 ms and the exact 100-Pagination
 profile records 2.05/7.48/11.51 ms p50/p95/p99 across 50 samples; both retain a 100 ms p95 ceiling.
 
@@ -212,9 +213,9 @@ clean packed-consumer boundary passes
 5/5 outside the monorepo. On this managed elevated Windows runner, Firefox currently fails inside
 `browserContext.newPage()` before test code with Playwright's `_page` error; this matches the
 upstream [elevated-terminal defect](https://github.com/microsoft/playwright/issues/36594) and is
-recorded as runner evidence, not an application assertion failure. The last published checkpoint is
-`4112e2b31ae4e63a6c3a9640a4f87bf6dcaaa70a`; the state-authority and application-isolation changes
-remain the current worktree until publication completes.
+recorded as runner evidence, not an application assertion failure. The state-authority and
+application-isolation implementation is published as
+`fe3a3d091ff97506d04cba4381a217cbac90060f`.
 
 Remaining AI/Studio gaps are explicit: real provider-host adapters and golden evaluations;
 provenance-bound third-party catalog manifests; complete component property, event, machine, and
@@ -997,7 +998,7 @@ pushed to `origin/main`, and independently verified at
    execution IR.
 2. Inspect `git status --short --branch` and preserve any post-checkpoint user changes.
 3. Confirm local `HEAD` and `refs/heads/main` from `git ls-remote origin` match. If the remote does
-   not contain `4112e2b31ae4e63a6c3a9640a4f87bf6dcaaa70a`, push `main` before implementing another
+   not contain `fe3a3d091ff97506d04cba4381a217cbac90060f`, push `main` before implementing another
    slice. After any code change, rerun `pnpm.CMD quality`, `pnpm.CMD test`, and
    `pnpm.CMD test:coverage`, then inspect `git diff --check` before committing.
    Re-run dedicated Firefox journeys only on a working runner; do not treat the current pre-page
@@ -1051,8 +1052,10 @@ behavioral evidence; rerun Firefox when the managed runner can create a page rel
   application observer mounts two duplicate-ID applications and proves isolated stores, streams,
   actors, effects, IDs, telemetry, authorization/redaction, and disposal. Studio passes 9/9 in
   Chromium and WebKit, and benchmark schema 2.35.0 passes 60/60 with the new 10-runtime/5-tenant,
-  1,000-event gate at 71.32 ms p95. Repository quality, 579 files/1,531 tests, build, and the packed
-  consumer 5/5 pass. Implementation commit/push verification is the remaining publication step.
+  1,000-event gate at 72.36 ms p95. Repository quality, 579 files/1,531 tests, build, and the packed
+  consumer 5/5 pass. The implementation is committed and published as
+  `fe3a3d091ff97506d04cba4381a217cbac90060f`; local `HEAD`, `origin/main`, and live
+  `refs/heads/main` matched exactly immediately after push.
 
 - 2026-08-27: Closed AC33's repository-controlled module proof. The primary reference,
   hierarchical example, and both Studio surfaces now resolve genuine bounded `UiModule@1.0.0`

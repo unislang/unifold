@@ -320,7 +320,7 @@ The application-observation fixture mounts 10 isolated runtimes assigned across 
 every runtime the same node identities, and commits 50 transactions per application. Thirty samples
 must produce exactly 1,000 uniquely identified and correctly attributed canonical events with the
 expected per-application telemetry source and correlation identity. The current workstation records
-61.07/71.32/82.37 ms p50/p95/p99 against the executable 250 ms p95 gate.
+60.60/72.36/81.66 ms p50/p95/p99 against the executable 250 ms p95 gate.
 
 Ratification still requires a provisioned, versioned mid-tier runner. Developer-workstation timing
 remains descriptive even though benchmark execution now rejects any provisional p95 limit or the

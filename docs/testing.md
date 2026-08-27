@@ -129,7 +129,7 @@ only `applicationId`, `tenantId`, and the already-redacted event.
 
 The Studio journey mounts live and preview documents with the same node identity, cancels only the
 preview, and requires the live host identity and sentinel state to survive. The normalized profile
-then processes exactly 1,000 attributed events across 10 runtimes and 5 tenants in 71.32 ms p95
+then processes exactly 1,000 attributed events across 10 runtimes and 5 tenants in 72.36 ms p95
 against a 250 ms gate.
 
 ## Test placement
