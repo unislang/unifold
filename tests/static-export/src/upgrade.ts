@@ -22,11 +22,13 @@ const [
   masterDetailFamily,
   menuButtonFamily,
   numberFieldFamily,
+  paginationFamily,
   popoverFamily,
   searchFieldFamily,
   searchResultsFamily,
   stepperFamily,
   switchFamily,
+  toastFamily,
   tabsFamily,
   tooltipFamily,
   virtualListFamily,
@@ -44,11 +46,13 @@ const [
   import("@unislang/unifold/master-detail"),
   import("@unislang/unifold/menu-button"),
   import("@unislang/unifold/number-field"),
+  import("@unislang/unifold/pagination"),
   import("@unislang/unifold/popover"),
   import("@unislang/unifold/search-field"),
   import("@unislang/unifold/search-results"),
   import("@unislang/unifold/stepper"),
   import("@unislang/unifold/switch"),
+  import("@unislang/unifold/toast"),
   import("@unislang/unifold/tabs"),
   import("@unislang/unifold/tooltip"),
   import("@unislang/unifold/virtual-list"),
@@ -67,11 +71,13 @@ assertFamily("FileInput", fileInputFamily.defineUnifoldFileInput());
 assertFamily("MasterDetail", masterDetailFamily.defineUnifoldMasterDetail());
 assertFamily("MenuButton", menuButtonFamily.defineUnifoldMenuButton());
 assertFamily("NumberField", numberFieldFamily.defineUnifoldNumberField());
+assertFamily("Pagination", paginationFamily.defineUnifoldPagination());
 assertFamily("Popover", popoverFamily.defineUnifoldPopover());
 assertFamily("SearchField", searchFieldFamily.defineUnifoldSearchField());
 assertFamily("SearchResults", searchResultsFamily.defineUnifoldSearchResults());
 assertFamily("Stepper", stepperFamily.defineUnifoldStepper());
 assertFamily("Switch", switchFamily.defineUnifoldSwitch());
+assertFamily("Toast", toastFamily.defineUnifoldToast());
 assertFamily("Tabs", tabsFamily.defineUnifoldTabs());
 assertFamily("Tooltip", tooltipFamily.defineUnifoldTooltip());
 assertFamily("VirtualList", virtualListFamily.defineUnifoldVirtualList());

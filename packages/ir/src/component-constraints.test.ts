@@ -74,6 +74,7 @@ it.each([
   CoreComponentType.CheckboxGroup,
   CoreComponentType.DateField,
   CoreComponentType.Switch,
+  CoreComponentType.Toast,
   CoreComponentType.Tooltip
 ])("rejects children for the exact %s leaf", (componentType) => {
   const descriptor = getCoreDescriptor(componentType);
@@ -102,7 +103,7 @@ it.each([
 });
 
 it("has a validator for every enum-backed constraint kind", () => {
-  expect(Object.values(CatalogConstraintKind)).toHaveLength(14);
+  expect(Object.values(CatalogConstraintKind)).toHaveLength(15);
 });
 
 function validateChoice(

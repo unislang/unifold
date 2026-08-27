@@ -17,6 +17,7 @@ import {
 import { defineUnifoldMasterDetail } from "./master-detail-entry.js";
 import { defineUnifoldMenuButton } from "./menu-button-entry.js";
 import { defineUnifoldNumberField } from "./number-field-entry.js";
+import { defineUnifoldPagination } from "./pagination-entry.js";
 import { defineUnifoldPopover } from "./popover-entry.js";
 import { defineUnifoldSearchField } from "./search-field-entry.js";
 import {
@@ -28,9 +29,40 @@ import { defineUnifoldSearchResults } from "./search-results-entry.js";
 import { defineUnifoldStepper } from "./stepper-entry.js";
 import { defineUnifoldSwitch } from "./switch-entry.js";
 import { defineUnifoldTabs } from "./tabs-entry.js";
+import { defineUnifoldToast } from "./toast-entry.js";
 import { defineUnifoldTooltip } from "./tooltip-entry.js";
 import { defineUnifoldVirtualList } from "./virtual-list-entry.js";
 import { defineUnifoldWizard } from "./wizard-entry.js";
+
+const deferredTags = new Set<CoreElementTag>([
+  CoreElementTag.AuditLog,
+  CoreElementTag.Breadcrumb,
+  CoreElementTag.Card,
+  CoreElementTag.CheckboxGroup,
+  CoreElementTag.Combobox,
+  CoreElementTag.DataGrid,
+  CoreElementTag.DateField,
+  CoreElementTag.Dialog,
+  CoreElementTag.FileInput,
+  CoreElementTag.Image,
+  CoreElementTag.ErrorSummary,
+  CoreElementTag.Field,
+  CoreElementTag.Fieldset,
+  CoreElementTag.MasterDetail,
+  CoreElementTag.MenuButton,
+  CoreElementTag.NumberField,
+  CoreElementTag.Pagination,
+  CoreElementTag.Popover,
+  CoreElementTag.SearchField,
+  CoreElementTag.SearchResults,
+  CoreElementTag.Stepper,
+  CoreElementTag.Switch,
+  CoreElementTag.Tabs,
+  CoreElementTag.Toast,
+  CoreElementTag.Tooltip,
+  CoreElementTag.VirtualList,
+  CoreElementTag.Wizard
+]);
 
 export class ForeignElement extends HTMLElement {}
 
@@ -90,34 +122,7 @@ export function requireDefinition(
 }
 
 export function foundationTags(): readonly CoreElementTag[] {
-  const deferred = new Set<CoreElementTag>([
-    CoreElementTag.AuditLog,
-    CoreElementTag.Breadcrumb,
-    CoreElementTag.Card,
-    CoreElementTag.CheckboxGroup,
-    CoreElementTag.Combobox,
-    CoreElementTag.DataGrid,
-    CoreElementTag.DateField,
-    CoreElementTag.Dialog,
-    CoreElementTag.FileInput,
-    CoreElementTag.Image,
-    CoreElementTag.ErrorSummary,
-    CoreElementTag.Field,
-    CoreElementTag.Fieldset,
-    CoreElementTag.MasterDetail,
-    CoreElementTag.MenuButton,
-    CoreElementTag.NumberField,
-    CoreElementTag.Popover,
-    CoreElementTag.SearchField,
-    CoreElementTag.SearchResults,
-    CoreElementTag.Stepper,
-    CoreElementTag.Switch,
-    CoreElementTag.Tabs,
-    CoreElementTag.Tooltip,
-    CoreElementTag.VirtualList,
-    CoreElementTag.Wizard
-  ]);
-  return Object.values(CoreElementTag).filter((tag) => !deferred.has(tag));
+  return Object.values(CoreElementTag).filter((tag) => !deferredTags.has(tag));
 }
 
 export function defineDeferredElements(registry: ElementRegistryPort): void {
@@ -136,12 +141,14 @@ export function defineDeferredElements(registry: ElementRegistryPort): void {
   defineUnifoldMasterDetail(registry);
   defineUnifoldMenuButton(registry);
   defineUnifoldNumberField(registry);
+  defineUnifoldPagination(registry);
   defineUnifoldPopover(registry);
   defineUnifoldSearchField(registry);
   defineUnifoldSearchResults(registry);
   defineUnifoldStepper(registry);
   defineUnifoldSwitch(registry);
   defineUnifoldTabs(registry);
+  defineUnifoldToast(registry);
   defineUnifoldTooltip(registry);
   defineUnifoldVirtualList(registry);
   defineUnifoldWizard(registry);

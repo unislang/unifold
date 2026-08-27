@@ -9,6 +9,7 @@ import {
   UiSchemaVersion,
   type JsonObject
 } from "@unislang/unifold-contracts";
+import { PaginationItemKind, ToastStatus, ToastVariant } from "@unislang/unifold-catalog";
 import {
   prepareUnifoldDocument,
   UnifoldPreparationStatus,
@@ -55,8 +56,39 @@ function referenceRoot(): JsonObject {
       referencePopover(),
       referenceDialogNode(),
       referenceTabsNode(),
-      referenceTooltipNode()
+      referenceTooltipNode(),
+      referencePagination(),
+      referenceToast()
     ]
+  };
+}
+
+function referencePagination(): JsonObject {
+  return {
+    $comp: "Pagination",
+    id: "results-pages",
+    items: [
+      {
+        accessibleLabel: "Results page 1, current page",
+        current: true,
+        href: "?page=1",
+        id: "page-1",
+        kind: PaginationItemKind.Page,
+        label: "1"
+      }
+    ],
+    label: "Results pages"
+  };
+}
+
+function referenceToast(): JsonObject {
+  return {
+    $comp: "Toast",
+    id: "profile-saved",
+    label: "Profile saved",
+    message: "Your profile changes are available now.",
+    status: ToastStatus.Success,
+    variant: ToastVariant.Subtle
   };
 }
 

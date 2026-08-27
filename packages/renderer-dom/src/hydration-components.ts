@@ -1,4 +1,15 @@
 import { CoreComponentType } from "@unislang/unifold-ir";
+import type { UnifoldIrNode } from "@unislang/unifold-ir";
+
+import { validateStaticPagination } from "./pagination-hydration.js";
+import { validateStaticToast } from "./toast-hydration.js";
+
+type StructureValidator = (node: UnifoldIrNode, element: HTMLElement, invalid: () => Error) => void;
+
+const structureValidators: Partial<Record<CoreComponentType, StructureValidator>> = {
+  [CoreComponentType.Pagination]: validateStaticPagination,
+  [CoreComponentType.Toast]: validateStaticToast
+};
 
 const choiceComponents = new Set<CoreComponentType>([
   CoreComponentType.CheckboxGroup,
@@ -31,4 +42,12 @@ export function isStaticChoiceComponent(value: string): boolean {
 
 export function isStaticValueComponent(value: string): boolean {
   return valueComponents.has(value as CoreComponentType);
+}
+
+export function validateStaticStructure(
+  node: UnifoldIrNode,
+  element: HTMLElement,
+  invalid: () => Error
+): void {
+  structureValidators[node.componentType as CoreComponentType]?.(node, element, invalid);
 }

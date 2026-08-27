@@ -36,6 +36,7 @@ export enum CatalogConstraintKind {
   FileInputData = "file-input-data",
   MasterDetailState = "master-detail-state",
   NumberFieldRange = "number-field-range",
+  PaginationData = "pagination-data",
   SearchQueryLength = "search-query-length",
   SearchResultsState = "search-results-state",
   SelectionInOptions = "selection-in-options",
@@ -58,6 +59,7 @@ export enum CatalogPropertyType {
   NullableNumber = "nullable-number",
   Number = "number",
   OptionList = "option-list",
+  PaginationItemList = "pagination-item-list",
   PositiveInteger = "positive-integer",
   PositiveNumber = "positive-number",
   SafeResourceUrl = "safe-resource-url",
@@ -112,6 +114,7 @@ export enum CoreElementTag {
   MenuButton = "unifold-menu-button",
   MultiSelect = "unifold-multi-select",
   NumberField = "unifold-number-field",
+  Pagination = "unifold-pagination",
   Popover = "unifold-popover",
   RadioGroup = "unifold-radio-group",
   SearchField = "unifold-search-field",
@@ -125,6 +128,7 @@ export enum CoreElementTag {
   Text = "unifold-text",
   TextArea = "unifold-text-area",
   TextField = "unifold-text-field",
+  Toast = "unifold-toast",
   Tooltip = "unifold-tooltip",
   VirtualList = "unifold-virtual-list",
   Wizard = "unifold-wizard"
@@ -217,6 +221,13 @@ export enum LinkTarget {
   Self = "_self"
 }
 
+export enum PaginationItemKind {
+  Next = "next",
+  Overflow = "overflow",
+  Page = "page",
+  Previous = "previous"
+}
+
 export enum SearchFieldAutocomplete {
   Off = "off",
   On = "on"
@@ -274,6 +285,22 @@ export enum TextFieldInputType {
   Tel = "tel",
   Text = "text",
   Url = "url"
+}
+
+export enum ToastDismissReason {
+  Manual = "manual"
+}
+
+export enum ToastStatus {
+  Error = "error",
+  Info = "info",
+  Success = "success",
+  Warning = "warning"
+}
+
+export enum ToastVariant {
+  Solid = "solid",
+  Subtle = "subtle"
 }
 
 export enum TooltipPlacement {

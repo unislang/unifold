@@ -18,6 +18,7 @@ import { DiagnosticCode } from "./enums.js";
 import { isPlainObject } from "./json-safety.js";
 import { validateMasterDetailStateConstraint } from "./master-detail-validation.js";
 import { validateNumberFieldRangeConstraint } from "./number-field-validation.js";
+import { validatePaginationDataConstraint } from "./pagination-validation.js";
 import { validateSearchQueryLengthConstraint } from "./search-query-validation.js";
 import { validateSearchResultsStateConstraint } from "./search-results-validation.js";
 import { validateStepNavigationStateConstraint } from "./step-navigation-validation.js";
@@ -45,6 +46,7 @@ const validators: Readonly<Record<CatalogConstraintKind, ConstraintValidator>> =
   [CatalogConstraintKind.FileInputData]: validateFileInputDataConstraint,
   [CatalogConstraintKind.MasterDetailState]: validateMasterDetailStateConstraint,
   [CatalogConstraintKind.NumberFieldRange]: validateNumberFieldRangeConstraint,
+  [CatalogConstraintKind.PaginationData]: validatePaginationDataConstraint,
   [CatalogConstraintKind.SearchQueryLength]: validateSearchQueryLengthConstraint,
   [CatalogConstraintKind.SearchResultsState]: validateSearchResultsStateConstraint,
   [CatalogConstraintKind.SelectionInOptions]: validateSelectionInOptions,

@@ -26,8 +26,10 @@ import { searchResultsSidecar } from "./search-results-sidecar.js";
 import { searchFieldSidecar, textAreaSidecar, textFieldSidecar } from "./text-control-sidecars.js";
 import { menuButtonSidecar } from "./menu-sidecar.js";
 import { numberFieldSidecar } from "./number-field-sidecar.js";
+import { paginationSidecar } from "./pagination-sidecar.js";
 import { popoverSidecar } from "./popover-sidecar.js";
 import { tooltipSidecar } from "./tooltip-sidecar.js";
+import { toastSidecar } from "./toast-sidecar.js";
 import { stepperSidecar, tabsSidecar, wizardSidecar } from "./workflow-sidecars.js";
 import { switchSidecar } from "./switch-sidecar.js";
 import type { ComponentDefinitionSidecar } from "./types.js";
@@ -245,6 +247,7 @@ export const componentDefinitionSidecars = Object.freeze({
     sensitiveProperties: ["errorMessage", "options", "value"]
   }),
   [CoreComponentType.NumberField]: numberFieldSidecar,
+  [CoreComponentType.Pagination]: paginationSidecar,
   [CoreComponentType.Popover]: popoverSidecar,
   [CoreComponentType.RadioGroup]: definition({
     behaviors: ["Uses native fieldset and same-name radios", "Emits one scalar selection"],
@@ -314,6 +317,7 @@ export const componentDefinitionSidecars = Object.freeze({
   }),
   [CoreComponentType.TextArea]: textAreaSidecar,
   [CoreComponentType.TextField]: textFieldSidecar,
+  [CoreComponentType.Toast]: toastSidecar,
   [CoreComponentType.Tooltip]: tooltipSidecar,
   [CoreComponentType.VirtualList]: definition({
     behaviors: ["Renders at most 200 options", "Preserves selection across virtual windows"],

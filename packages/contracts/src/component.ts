@@ -27,6 +27,7 @@ export enum CoreComponentType {
   MenuButton = "MenuButton",
   MultiSelect = "MultiSelect",
   NumberField = "NumberField",
+  Pagination = "Pagination",
   Popover = "Popover",
   RadioGroup = "RadioGroup",
   SearchField = "SearchField",
@@ -40,6 +41,7 @@ export enum CoreComponentType {
   Text = "Text",
   TextArea = "TextArea",
   TextField = "TextField",
+  Toast = "Toast",
   Tooltip = "Tooltip",
   VirtualList = "VirtualList",
   Wizard = "Wizard"

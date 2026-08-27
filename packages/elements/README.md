@@ -22,10 +22,10 @@ definition failure reports the tags already defined because the platform registr
 Use an iframe or another document realm for incompatible catalog releases. The shared constructor
 marker coordinates trusted same-realm packages; it is not a security boundary.
 
-The twenty-two deferred families are explicit, side-effect-free subpath imports so an
+The twenty-four deferred families are explicit, side-effect-free subpath imports so an
 application pays for only the families its JSON can reference: `audit-log`, `breadcrumb`, `checkbox-group`, `combobox`, `content-media`, `data-grid`,
 `date-field`, `dialog`, `file-input`, `form-structure`, `master-detail`, `menu-button`, `number-field`, `popover`, `search-field`, `search-results`, `stepper`, `tabs`, `tooltip`,
-`switch`, `virtual-list`, and `wizard`. Each entry exports its element classes and `defineUnifold*()` functions with the same
+`pagination`, `switch`, `toast`, `virtual-list`, and `wizard`. Each entry exports its element classes and `defineUnifold*()` functions with the same
 preflight diagnostics. For example:
 
 ```ts
@@ -78,7 +78,7 @@ element invalidates those resolutions.
 
 ## Component manifests
 
-`pnpm generate:cem` analyzes all forty-four catalog elements with the official Custom Elements Manifest
+`pnpm generate:cem` analyzes all forty-six catalog elements with the official Custom Elements Manifest
 analyzer and Lit plugin. It validates the output against the official manifest schema and writes
 `dist/custom-elements.json`. The package exposes that file through its standard `customElements`
 metadata and `./custom-elements.json` export.

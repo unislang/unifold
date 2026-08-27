@@ -9,6 +9,7 @@ import { UnifoldRuntime } from "@unislang/unifold-runtime";
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
 
 import { UnifoldApplication } from "./application.js";
+import { ApplicationCommandController } from "./application-command-port.js";
 import { createApplicationSnapshots } from "./application-snapshots.js";
 import { UiCompositionMigrationError } from "./composition-migrations.js";
 import { prepareUnifoldDocument } from "./compiler.js";
@@ -114,9 +115,10 @@ function mountConfigured(
   storeCommands: StoreCommandController
 ): MountUnifoldApplicationResult {
   const hydration = captureHydration(prepared.document, container, options);
-  const runtime = createRuntime(prepared.document, options, stores, storeCommands, hydration);
+  const commands = new ApplicationCommandController(storeCommands);
+  const runtime = createRuntime(prepared.document, options, stores, commands, hydration);
   try {
-    return mountRuntime(prepared, container, runtime, stores, storeCommands, options, hydration);
+    return mountRuntime(prepared, container, runtime, stores, commands, options, hydration);
   } catch (error) {
     runtime.dispose();
     throw error;
@@ -128,7 +130,7 @@ function mountRuntime(
   container: HTMLElement,
   runtime: UnifoldRuntime,
   stores: PreparedApplicationStores,
-  storeCommands: StoreCommandController,
+  storeCommands: ApplicationCommandController,
   options: MountUnifoldApplicationOptions,
   hydration: StaticDomHydrationState | undefined
 ): MountUnifoldApplicationResult {
@@ -158,12 +160,13 @@ function mountValidatedRuntime(
   container: HTMLElement,
   runtime: UnifoldRuntime,
   stores: PreparedApplicationStores,
-  storeCommands: StoreCommandController,
+  storeCommands: ApplicationCommandController,
   semantics: UiSemanticCoordinator,
   options: MountUnifoldApplicationOptions,
   hydration: StaticDomHydrationState | undefined
 ): MountUnifoldApplicationResult {
   const renderer = createApplicationRenderer(prepared.document, container, options);
+  storeCommands.attach(renderer);
   try {
     const application = createApplication(
       prepared,

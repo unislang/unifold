@@ -41,6 +41,8 @@ const searchFieldPath = resolve(resultDirectory, "search-field-performance.raw.j
 const checkboxGroupPath = resolve(resultDirectory, "checkbox-group-performance.raw.json");
 const switchPath = resolve(resultDirectory, "switch-performance.raw.json");
 const dateFieldPath = resolve(resultDirectory, "date-field-performance.raw.json");
+const toastPath = resolve(resultDirectory, "toast-performance.raw.json");
+const paginationPath = resolve(resultDirectory, "pagination-performance.raw.json");
 const finalPath = resolve(resultDirectory, "selective-rendering.json");
 const profileRuns = [
   ["performance-profile.test.ts", "UNIFOLD_PERFORMANCE_PROFILE_OUTPUT", profilePath],
@@ -80,7 +82,9 @@ const profileRuns = [
   ["search-field-profile.test.ts", "UNIFOLD_SEARCH_FIELD_OUTPUT", searchFieldPath],
   ["checkbox-group-profile.test.ts", "UNIFOLD_CHECKBOX_GROUP_OUTPUT", checkboxGroupPath],
   ["switch-profile.test.ts", "UNIFOLD_SWITCH_OUTPUT", switchPath],
-  ["date-field-profile.test.ts", "UNIFOLD_DATE_FIELD_OUTPUT", dateFieldPath]
+  ["date-field-profile.test.ts", "UNIFOLD_DATE_FIELD_OUTPUT", dateFieldPath],
+  ["toast-profile.test.ts", "UNIFOLD_TOAST_OUTPUT", toastPath],
+  ["pagination-profile.test.ts", "UNIFOLD_PAGINATION_OUTPUT", paginationPath]
 ];
 
 await mkdir(resultDirectory, { recursive: true });
@@ -117,6 +121,8 @@ const searchFieldPerformance = JSON.parse(await readFile(searchFieldPath, "utf8"
 const checkboxGroupPerformance = JSON.parse(await readFile(checkboxGroupPath, "utf8"));
 const switchPerformance = JSON.parse(await readFile(switchPath, "utf8"));
 const dateFieldPerformance = JSON.parse(await readFile(dateFieldPath, "utf8"));
+const toastPerformance = JSON.parse(await readFile(toastPath, "utf8"));
+const paginationPerformance = JSON.parse(await readFile(paginationPath, "utf8"));
 const profile = {
   ...measuredProfile,
   gates: [
@@ -145,7 +151,9 @@ const profile = {
     searchFieldPerformance.gate,
     checkboxGroupPerformance.gate,
     switchPerformance.gate,
-    dateFieldPerformance.gate
+    dateFieldPerformance.gate,
+    toastPerformance.gate,
+    paginationPerformance.gate
   ],
   asyncStorePerformance,
   comboboxFilter,
@@ -164,6 +172,8 @@ const profile = {
   checkboxGroupPerformance,
   switchPerformance,
   dateFieldPerformance,
+  toastPerformance,
+  paginationPerformance,
   dataActorPerformance,
   lifecycleMemory,
   dataGridPerformance,
@@ -178,7 +188,7 @@ const report = {
   environment: environmentMetadata(),
   generatedAt: new Date().toISOString(),
   profile,
-  schemaVersion: "2.31.0"
+  schemaVersion: "2.33.0"
 };
 await writeFile(finalPath, `${JSON.stringify(report, null, 2)}\n`);
 process.stdout.write(`Benchmark report: ${finalPath}\n`);

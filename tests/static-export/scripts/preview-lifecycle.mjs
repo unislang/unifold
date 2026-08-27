@@ -5,6 +5,7 @@ const fixtureRoot = fileURLToPath(new URL("..", import.meta.url));
 
 export function previewConfiguration(root, port) {
   return {
+    configFile: false,
     logLevel: "silent",
     preview: { host: "127.0.0.1", port, strictPort: true },
     root

@@ -130,6 +130,66 @@
         ]
       },
       {
+        "$comp": "Toast",
+        "dismissible": true,
+        "dismissLabel": "Dismiss profile notification",
+        "id": "profile-ready-toast",
+        "label": "Profile ready",
+        "message": "Your profile changes are ready to review.",
+        "status": "success",
+        "variant": "subtle"
+      },
+      {
+        "$comp": "Toast",
+        "dismissible": false,
+        "id": "security-warning-toast",
+        "label": "Security warning",
+        "message": "This important notification requires review.",
+        "status": "warning",
+        "variant": "solid"
+      },
+      {
+        "$comp": "Pagination",
+        "id": "results-pagination",
+        "items": [
+          {
+            "accessibleLabel": "Previous results page",
+            "disabled": true,
+            "id": "previous",
+            "kind": "previous",
+            "label": "Previous"
+          },
+          {
+            "accessibleLabel": "Current results page, page 1",
+            "current": true,
+            "id": "results-page-1",
+            "kind": "page",
+            "label": "1"
+          },
+          {
+            "accessibleLabel": "Go to results page 2",
+            "href": "#static-results-page-2",
+            "id": "results-page-2",
+            "kind": "page",
+            "label": "2"
+          },
+          {
+            "accessibleLabel": "More result pages",
+            "id": "more-results",
+            "kind": "overflow",
+            "label": "…"
+          },
+          {
+            "accessibleLabel": "Next results page",
+            "href": "#static-results-page-2",
+            "id": "next",
+            "kind": "next",
+            "label": "Next"
+          }
+        ],
+        "label": "Search result pages"
+      },
+      {
         "$comp": "Form",
         "id": "form",
         "label": "Profile",

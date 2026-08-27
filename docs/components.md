@@ -1,6 +1,6 @@
 # Core components
 
-The implemented core catalog contains forty-three JSON-constructible Web Components. Every component has a
+The implemented core catalog contains forty-six JSON-constructible Web Components. Every component has a
 stable node ID, participates in the same canonical event stream, and receives selective state
 projection through the application runtime. The catalog descriptor is the authority for accepted
 properties; the IR compiler rejects unknown properties and values of the wrong type before render.
@@ -19,6 +19,7 @@ properties; the IR compiler rejects unknown properties and values of the wrong t
 | `Combobox`      | `unifold-combobox`       | string         | input + ARIA listbox       | `control.input`, `control.blurred`     |
 | `Composition`   | `unifold-composition`    | none           | grouping host              | descendant scope                       |
 | `DataGrid`      | `unifold-data-grid`      | object         | table and native inputs    | `control.input`, `control.blurred`     |
+| `DateField`     | `unifold-date-field`     | string         | date input                 | `control.input`, `control.blurred`     |
 | `Dialog`        | `unifold-dialog`         | none           | native dialog + fallback   | `component.activated`                  |
 | `ErrorSummary`  | `unifold-error-summary`  | none           | alert + error links        | `component.activated`                  |
 | `Field`         | `unifold-field`          | none           | labeled group              | descendant scope                       |
@@ -34,6 +35,7 @@ properties; the IR compiler rejects unknown properties and values of the wrong t
 | `MenuButton`    | `unifold-menu-button`    | none           | button + ARIA menu         | `component.activated`                  |
 | `MultiSelect`   | `unifold-multi-select`   | string array   | multiple select            | `control.input`, `control.blurred`     |
 | `NumberField`   | `unifold-number-field`   | number or null | number input               | `control.input`, `control.blurred`     |
+| `Pagination`    | `unifold-pagination`     | none           | nav + list + links/buttons | `component.activated`                  |
 | `Popover`       | `unifold-popover`        | none           | button + Popover API       | `component.activated`                  |
 | `RadioGroup`    | `unifold-radio-group`    | string         | fieldset and radio input   | `control.input`, `control.blurred`     |
 | `SearchField`   | `unifold-search-field`   | string         | search input               | `control.input`, `control.blurred`     |
@@ -48,15 +50,16 @@ properties; the IR compiler rejects unknown properties and values of the wrong t
 | `TextArea`      | `unifold-text-area`      | string         | textarea                   | `control.input`, `control.blurred`     |
 | `TextField`     | `unifold-text-field`     | string         | typed input                | `control.input`, `control.blurred`     |
 | `Tooltip`       | `unifold-tooltip`        | none           | button + Popover API       | none                                   |
+| `Toast`         | `unifold-toast`          | none           | atomic live region         | `component.activated`                  |
 | `VirtualList`   | `unifold-virtual-list`   | string         | ARIA listbox               | `control.input`, `control.blurred`     |
 | `Wizard`        | `unifold-wizard`         | string         | navigation + region        | `control.input`, `component.activated` |
 
 Event names above use their readable suffixes. The wire values are versioned enums such as
 `org.unifold.ui.control.input.v1`, exported as `ElementEventType`.
 
-The baseline registration includes the nineteen small components. Twenty-four components are delivered through twenty-one deferred family subpaths: AuditLog, Breadcrumb, Card, CheckboxGroup, Combobox,
-DataGrid, Dialog, ErrorSummary, Field, Fieldset, FileInput, Image, MasterDetail, MenuButton, Popover,
-NumberField, SearchField, SearchResults, Stepper, Switch, Tabs, Tooltip, VirtualList, and Wizard. They are loaded through matching
+The baseline registration includes the nineteen small components. Twenty-seven components are delivered through twenty-four deferred family subpaths: AuditLog, Breadcrumb, Card, CheckboxGroup, Combobox,
+DataGrid, DateField, Dialog, ErrorSummary, Field, Fieldset, FileInput, Image, MasterDetail, MenuButton, Popover,
+NumberField, Pagination, SearchField, SearchResults, Stepper, Switch, Tabs, Toast, Tooltip, VirtualList, and Wizard. They are loaded through matching
 `@unislang/unifold/<kebab-case-name>` subpaths. Strict mounting requires those definitions before
 render. A trusted host may explicitly select `ElementDefinitionPolicy.AllowPending`; catalog-known
 hosts then mount immediately and replay their latest validated properties, event snapshot, runtime
@@ -96,6 +99,146 @@ In the Scratch-style hierarchy, place the node directly in a layout variable suc
 const { defineUnifoldNumberField } = await import("@unislang/unifold/number-field");
 defineUnifoldNumberField();
 ```
+
+## DateField calendar-date contract
+
+`DateField` is loaded through `@unislang/unifold/date-field`. Its canonical value is `""` for an
+empty control or one exact Gregorian `YYYY-MM-DD` string. The contract rejects impossible dates and
+never converts through JavaScript `Date`, local time, or UTC. Optional `min` and `max` use the same
+format; `step` is a positive whole-day interval, and an explicit `min` is required when `step` is
+greater than one so static HTML and upgraded controls share the same native step anchor.
+
+```json
+{
+  "type": "DateField",
+  "id": "contact-start-date",
+  "props": {
+    "autocomplete": "off",
+    "label": "Start date",
+    "name": "startDate",
+    "min": "2025-01-01",
+    "max": "2027-12-31",
+    "required": true,
+    "step": 1,
+    "value": "2026-08-26"
+  },
+  "events": { "onInput": "START_DATE_CHANGED" }
+}
+```
+
+```ts
+const { defineUnifoldDateField } = await import("@unislang/unifold/date-field");
+defineUnifoldDateField();
+```
+
+Static export preserves a labeled native date input, exact public value, constraints, and native
+`FormData` behavior without JavaScript. Hydration admits only matching structural constraints,
+migrates a valid in-range user edit without timezone conversion, and restores focus.
+
+## Toast persistent-feedback contract
+
+`Toast` is loaded through `@unislang/unifold/toast`. Stable v1 is deliberately persistent: it has
+no timer API, and application state decides when a notification is removed from the accessibility
+and layout trees. Required `label` and `message` text share one atomic live region. Enum-backed
+`info` and `success` statuses use `role="status"`; `warning` and `error` use `role="alert"`. The
+optional native dismiss button sits outside that live region and emits one canonical manual
+dismissal intent rather than mutating authoritative state itself.
+
+```json
+{
+  "type": "Toast",
+  "id": "profile-ready-toast",
+  "props": {
+    "dismissible": true,
+    "dismissLabel": "Dismiss profile notification",
+    "label": "Profile ready",
+    "message": "Your profile changes are ready to review.",
+    "status": "success",
+    "variant": "subtle",
+    "visible": true
+  },
+  "events": { "onClick": "TOAST_DISMISSED" }
+}
+```
+
+```ts
+const { defineUnifoldToast } = await import("@unislang/unifold/toast");
+defineUnifoldToast();
+```
+
+The reference XState transition applies `visible: false` through the ordinary selective state
+projection and then requests focus on a stable action. Hidden Toasts expose no live semantics or
+dismiss control. Static export keeps visible notification text available without JavaScript and
+omits a nonfunctional fallback button; guarded hydration rejects role, status, visibility, or text
+drift. The browser scenario `announces and dismisses one bounded toast through the unified stream`
+proves trusted dismissal, focus recovery, unaffected host identity, negative non-dismissible
+behavior, and axe coverage.
+
+## Pagination navigation contract
+
+`Pagination` is loaded through `@unislang/unifold/pagination`. It is a dumb navigation component:
+application or data-source state authors the exact ordered `items` array, including the current
+page and any previous, next, or overflow entries. The component does not calculate a page window or
+keep a second current-page value. Every item has a stable `id`, enum-backed `kind`, visible `label`,
+and localized `accessibleLabel`; safe `href` values remain native links, while href-less items emit
+activation intent for an XState owner to handle.
+
+```json
+{
+  "type": "Pagination",
+  "id": "result-pages",
+  "props": {
+    "label": "Search result pages",
+    "items": [
+      {
+        "id": "previous",
+        "kind": "previous",
+        "label": "Previous",
+        "accessibleLabel": "Previous search results page",
+        "disabled": true
+      },
+      {
+        "id": "page-1",
+        "kind": "page",
+        "label": "1",
+        "accessibleLabel": "Search results page 1, current page",
+        "href": "?page=1",
+        "current": true
+      },
+      {
+        "id": "next",
+        "kind": "next",
+        "label": "Next",
+        "accessibleLabel": "Next search results page",
+        "href": "?page=2"
+      }
+    ]
+  },
+  "events": { "onClick": "PAGE_SELECTED" }
+}
+```
+
+```ts
+const { defineUnifoldPagination } = await import("@unislang/unifold/pagination");
+defineUnifoldPagination();
+```
+
+The compiler requires exactly one enabled current page, unique item IDs, at most one previous and
+next item in their logical edge positions, safe links, and noninteractive overflow/disabled items.
+The element renders a labelled `nav` and one native list, marks only the current page with
+`aria-current="page"`, preserves a single-line sequence with horizontal overflow, and emits
+`{ itemId, kind, href? }` without changing its own items. Pagination contributes navigation
+semantics, not a Schema.org entity; any page/entity graph remains an explicit document semantic
+binding.
+
+Static export keeps every safe `href` as a native link. A disabled or href-less action becomes
+noninteractive link text with disabled semantics instead of a no-op button, and overflow retains
+its authored visual marker plus deterministic screen-reader text. Guarded hydration validates the
+exact landmark label, unordered-list structure, item order/identity/kind, safe destinations,
+current-page state, disabled semantics, and text without interpolating IDs into selectors. The
+Scratch-style reference scenario `navigates explicit Pagination items through one canonical event stream`
+proves XState-owned current-page projection, one canonical activation, unrelated-host identity,
+keyboard/native-link behavior, and axe coverage in Chromium, Firefox, and WebKit.
 
 ## SearchField query contract
 
@@ -194,8 +337,9 @@ defineUnifoldSwitch();
 ```
 
 Static HTML preserves the labeled checkbox and switch role without JavaScript and serializes only
-public checked state. Static upgrade admits exactly one matching native checkbox and rejects role,
-type, name, disabled, required, or checked-state drift before replacing the fallback.
+public checked state. Static upgrade admits exactly one structurally matching native checkbox,
+migrates a legitimate pre-upgrade checked edit, and rejects role, type, name, disabled, or required
+drift before replacing the fallback.
 
 `Card` and `Image` are delivered together through the deferred
 `@unislang/unifold/content-media` subpath. `Card` is a native article containing 1 to 100 authored
@@ -608,7 +752,7 @@ import {
 
 ## Component-definition evidence pipeline
 
-All forty-three core elements participate in the executable `ComponentDefinition` pipeline. The
+All forty-six core elements participate in the executable `ComponentDefinition` pipeline. The
 elements build runs the official Custom Elements Manifest analyzer with its Lit plugin, validates
 the complete result against the official manifest JSON Schema, and writes
 `dist/custom-elements.json`. The generated manifest owns facts that can be derived from source:

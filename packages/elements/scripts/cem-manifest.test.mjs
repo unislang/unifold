@@ -39,6 +39,10 @@ test("retains generated attributes, events, slots, parts, and CSS tokens", async
   const dateField = requireDeclaration(declarations, "unifold-date-field");
   assert(hasNamed(dateField.events, "unifold-event"));
   assert(hasNamed(dateField.cssProperties, "--unifold-control-min-height"));
+  const toast = requireDeclaration(declarations, "unifold-toast");
+  assert(hasNamed(toast.events, "unifold-event"));
+  assert(hasNamed(toast.cssParts, "announcement"));
+  assert(hasNamed(toast.cssParts, "dismiss"));
 });
 
 test("covers every catalog property and attribute binding", async () => {

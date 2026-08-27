@@ -8,6 +8,7 @@ import {
 import { readStaticCheckboxGroupValue } from "./checkbox-group-hydration.js";
 import { readStaticDateFieldValue } from "./date-field-hydration.js";
 import { isStaticChoiceComponent, isStaticValueComponent } from "./hydration-components.js";
+import { validateStaticStructure } from "./hydration-components.js";
 import { captureStaticHydrationFocus, type StaticHydrationFocusState } from "./hydration-focus.js";
 import { readStaticSearchFieldValue } from "./search-field-hydration.js";
 import { readStaticSwitchValue } from "./switch-hydration.js";
@@ -107,6 +108,9 @@ function captureNodeValue(
 ): void {
   const id = requiredAttribute(element, NODE_ATTRIBUTE);
   const node = requireNode(document, id);
+  validateStaticStructure(node, element, () =>
+    hydrationError(`Static component structure is invalid: ${node.id}.`)
+  );
   if (!isStaticValueComponent(node.componentType)) return;
   const controls = staticControls(element, id);
   if (controls.length === 0) return;

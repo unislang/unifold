@@ -66,6 +66,14 @@
       "types": "./dist/switch-entry.d.ts",
       "import": "./dist/switch-entry.js"
     },
+    "./toast": {
+      "types": "./dist/toast-entry.d.ts",
+      "import": "./dist/toast-entry.js"
+    },
+    "./pagination": {
+      "types": "./dist/pagination-entry.d.ts",
+      "import": "./dist/pagination-entry.js"
+    },
     "./audit-log": {
       "types": "./dist/audit-log-entry.d.ts",
       "import": "./dist/audit-log-entry.js"

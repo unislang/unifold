@@ -50,6 +50,12 @@ export default defineConfig({
       "@unislang/unifold-elements/switch": fileURLToPath(
         new URL("./packages/elements/src/switch-entry.ts", import.meta.url)
       ),
+      "@unislang/unifold-elements/toast": fileURLToPath(
+        new URL("./packages/elements/src/toast-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/pagination": fileURLToPath(
+        new URL("./packages/elements/src/pagination-entry.ts", import.meta.url)
+      ),
       "@unislang/unifold-elements/audit-log": fileURLToPath(
         new URL("./packages/elements/src/audit-log-entry.ts", import.meta.url)
       ),
@@ -148,6 +154,12 @@ export default defineConfig({
       ),
       "@unislang/unifold/switch": fileURLToPath(
         new URL("./packages/unifold/src/switch.ts", import.meta.url)
+      ),
+      "@unislang/unifold/toast": fileURLToPath(
+        new URL("./packages/unifold/src/toast.ts", import.meta.url)
+      ),
+      "@unislang/unifold/pagination": fileURLToPath(
+        new URL("./packages/unifold/src/pagination.ts", import.meta.url)
       ),
       "@unislang/unifold-ai": packageSource("ai"),
       "@unislang/unifold-catalog": packageSource("catalog"),

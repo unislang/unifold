@@ -29,6 +29,7 @@ const NODE_KINDS: Readonly<Record<CoreComponentType, UiNodeKind>> = {
   [CoreComponentType.MenuButton]: UiNodeKind.Component,
   [CoreComponentType.MultiSelect]: UiNodeKind.Control,
   [CoreComponentType.NumberField]: UiNodeKind.Control,
+  [CoreComponentType.Pagination]: UiNodeKind.Component,
   [CoreComponentType.Popover]: UiNodeKind.Component,
   [CoreComponentType.RadioGroup]: UiNodeKind.Control,
   [CoreComponentType.SearchField]: UiNodeKind.Control,
@@ -42,6 +43,7 @@ const NODE_KINDS: Readonly<Record<CoreComponentType, UiNodeKind>> = {
   [CoreComponentType.Text]: UiNodeKind.Component,
   [CoreComponentType.TextArea]: UiNodeKind.Control,
   [CoreComponentType.TextField]: UiNodeKind.Control,
+  [CoreComponentType.Toast]: UiNodeKind.Component,
   [CoreComponentType.Tooltip]: UiNodeKind.Component,
   [CoreComponentType.VirtualList]: UiNodeKind.Control,
   [CoreComponentType.Wizard]: UiNodeKind.Control

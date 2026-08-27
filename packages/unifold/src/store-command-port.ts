@@ -38,7 +38,7 @@ export function createStoreCommandPort(
       if (command.type === UiCommandType.StoreWrite) {
         return writeStore(command, activeDocument, activeStores, adapters);
       }
-      fallback?.execute(command, context);
+      return fallback?.execute(command, context);
     },
     replace(nextDocument, nextStores) {
       activeDocument = nextDocument;

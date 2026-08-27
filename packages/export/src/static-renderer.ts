@@ -3,7 +3,6 @@ import { CoreComponentType, DataClassification, type JsonValue } from "@unislang
 import type { UnifoldIrDocument, UnifoldIrNode } from "@unislang/unifold-ir";
 import { escapeHtml } from "./html-escape.js";
 import { staticNodeClassification } from "./static-classification.js";
-import { renderStaticDateField } from "./static-date-field.js";
 import * as staticComponents from "./static-components.js";
 import * as staticContent from "./static-content-media.js";
 import * as staticForm from "./static-form-structure.js";
@@ -28,7 +27,7 @@ const renderers: Readonly<Record<CoreComponentType, NodeRenderer>> = {
   [CoreComponentType.Combobox]: renderSelect,
   [CoreComponentType.Composition]: renderSection,
   [CoreComponentType.DataGrid]: staticComponents.renderStaticDataGrid,
-  [CoreComponentType.DateField]: renderStaticDateField,
+  [CoreComponentType.DateField]: staticComponents.renderStaticDateField,
   [CoreComponentType.Dialog]: staticComponents.renderStaticDialog,
   [CoreComponentType.ErrorSummary]: staticForm.renderStaticErrorSummary,
   [CoreComponentType.Field]: staticForm.renderStaticField,
@@ -44,6 +43,7 @@ const renderers: Readonly<Record<CoreComponentType, NodeRenderer>> = {
   [CoreComponentType.MenuButton]: staticComponents.renderStaticMenuButton,
   [CoreComponentType.MultiSelect]: renderMultiSelect,
   [CoreComponentType.NumberField]: staticComponents.renderStaticNumberField,
+  [CoreComponentType.Pagination]: ({ node }) => staticComponents.renderStaticPagination(node),
   [CoreComponentType.Popover]: staticComponents.renderStaticPopover,
   [CoreComponentType.RadioGroup]: renderRadioGroup,
   [CoreComponentType.SearchField]: staticComponents.renderStaticSearchField,
@@ -58,6 +58,7 @@ const renderers: Readonly<Record<CoreComponentType, NodeRenderer>> = {
   [CoreComponentType.TextArea]: renderTextArea,
   [CoreComponentType.TextField]: renderTextField,
   [CoreComponentType.Tooltip]: staticComponents.renderStaticTooltip,
+  [CoreComponentType.Toast]: ({ node }) => staticComponents.renderStaticToast(node),
   [CoreComponentType.VirtualList]: staticComponents.renderStaticVirtualList,
   [CoreComponentType.Wizard]: staticComponents.renderStaticWizard
 };
@@ -273,15 +274,11 @@ function optionalAriaLabel(node: UnifoldIrNode): string {
 }
 
 function publicString(document: UnifoldIrDocument, node: UnifoldIrNode, name: string): string {
-  return staticNodeClassification(document, node) === DataClassification.Public
-    ? stringProperty(node, name)
-    : "";
+  return isPublicNode(document, node) ? stringProperty(node, name) : "";
 }
 
 function publicBoolean(document: UnifoldIrDocument, node: UnifoldIrNode, name: string): boolean {
-  return staticNodeClassification(document, node) === DataClassification.Public
-    ? booleanProperty(node, name)
-    : false;
+  return isPublicNode(document, node) ? booleanProperty(node, name) : false;
 }
 
 function publicStringArray(
@@ -289,9 +286,11 @@ function publicStringArray(
   node: UnifoldIrNode,
   name: string
 ): readonly string[] {
-  return staticNodeClassification(document, node) === DataClassification.Public
-    ? stringArrayProperty(node, name)
-    : [];
+  return isPublicNode(document, node) ? stringArrayProperty(node, name) : [];
+}
+
+function isPublicNode(document: UnifoldIrDocument, node: UnifoldIrNode): boolean {
+  return staticNodeClassification(document, node) === DataClassification.Public;
 }
 
 function property(node: UnifoldIrNode, name: string): JsonValue | undefined {

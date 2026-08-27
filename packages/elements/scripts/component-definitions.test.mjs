@@ -5,7 +5,9 @@ import { fileURLToPath } from "node:url";
 import {
   ComponentCapability,
   ComponentDefinitionSchemaVersion,
-  CoreComponentType
+  CoreComponentType,
+  MAXIMUM_TOAST_LABEL_LENGTH,
+  MAXIMUM_TOAST_MESSAGE_LENGTH
 } from "@unislang/unifold-catalog";
 
 import { createPackageManifest } from "./cem-manifest.mjs";
@@ -50,8 +52,10 @@ test("derives required, enum, attribute, and public snapshot schemas", async () 
   assertIconSchema(schemas.icon);
   assertImageSchema(schemas.image);
   assertNumberFieldSchema(schemas.numberField);
+  assertPaginationSchema(schemas.pagination);
   assertSearchFieldSchema(schemas.searchField);
   assertSwitchSchema(schemas.switch);
+  assertToastSchema(schemas.toast);
 });
 
 function assertImageSchema(image) {
@@ -100,6 +104,31 @@ function assertSwitchSchema(switchDefinition) {
   assert.equal(switchDefinition.customElement.tagName, "unifold-switch");
 }
 
+function assertToastSchema(toast) {
+  assert.deepEqual(toast.propertiesSchema.required, ["label", "message"]);
+  assert.equal(
+    toast.propertiesSchema.properties.dismissLabel.maxLength,
+    MAXIMUM_TOAST_LABEL_LENGTH
+  );
+  assert.equal(toast.propertiesSchema.properties.label.maxLength, MAXIMUM_TOAST_LABEL_LENGTH);
+  assert.equal(toast.propertiesSchema.properties.message.maxLength, MAXIMUM_TOAST_MESSAGE_LENGTH);
+  assert.deepEqual(toast.propertiesSchema.properties.status.enum, [
+    "error",
+    "info",
+    "success",
+    "warning"
+  ]);
+}
+
+function assertPaginationSchema(pagination) {
+  const items = pagination.propertiesSchema.properties.items;
+  assert.deepEqual(pagination.propertiesSchema.required, ["items", "label"]);
+  assert.equal(items.minItems, 1);
+  assert.equal(items.maxItems, 100);
+  assert.deepEqual(items.items.required, ["accessibleLabel", "id", "kind", "label"]);
+  assert.deepEqual(items.items.properties.kind.enum, ["next", "overflow", "page", "previous"]);
+}
+
 function assertOverlaySchemas(document) {
   const dialog = requireDefinition(document, CoreComponentType.Dialog);
   const tooltip = requireDefinition(document, CoreComponentType.Tooltip);
@@ -141,12 +170,14 @@ function schemaDefinitions(document) {
       "image",
       "link",
       "numberField",
+      "pagination",
       "popover",
       "searchField",
       "searchResults",
       "switch",
       "stepper",
       "table",
+      "toast",
       "tooltip",
       "wizard"
     ].map((name) => [

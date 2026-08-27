@@ -22,23 +22,49 @@ import type {
   PrototypeWindow,
   RealmCopyResult
 } from "./main.types.js";
-import * as profileValidation from "./profile-validation.js";
 import "./reference.css";
-import uiDefinition from "./ui.json" with { type: "json" };
 import { installStoreFixtureHooks } from "./store-fixture.js";
 
-const host = requireElement<HTMLElement>("app");
-const application = requireApplication(mountReference(host));
-void defineReferenceComponentFamilies(uiDefinition)
-  .then((families) => families.commitReferenceComponentFamilies(uiDefinition, application))
-  .then(() => reportComponentFamiliesReady(application))
-  .catch(reportComponentFamilyFailure);
+type ReferenceUiDefinition = typeof import("./ui.json");
+
+let uiDefinition: ReferenceUiDefinition;
+let application: UnifoldApplicationPort;
+let profileValidation: typeof import("./profile-validation.js");
 const testHooksEnabled = import.meta.env.MODE === "e2e";
 const profileMigrationVersions: Readonly<Record<ProfileMigrationMode, string>> = {
   preserve: "2.0.0",
   reset: "3.0.0",
   unreviewed: "4.0.0"
 };
+
+void Promise.all([loadReferenceDocument(), import("./profile-validation.js")])
+  .then(startReference)
+  .catch(reportComponentFamilyFailure);
+
+function startReference(
+  loaded: readonly [ReferenceUiDefinition, typeof import("./profile-validation.js")]
+): void {
+  const [source, validation] = loaded;
+  uiDefinition = source;
+  profileValidation = validation;
+  const host = requireElement<HTMLElement>("app");
+  application = requireApplication(mountReference(host));
+  application.runtime.events$.subscribe(handleRuntimeEvent);
+  if (testHooksEnabled) {
+    installPrototypeHooks(application);
+    installStoreFixtureHooks();
+  }
+  void defineReferenceComponentFamilies(uiDefinition)
+    .then((families) => families.commitReferenceComponentFamilies(uiDefinition, application))
+    .then(() => reportComponentFamiliesReady(application))
+    .catch(reportComponentFamilyFailure);
+}
+
+async function loadReferenceDocument(): Promise<ReferenceUiDefinition> {
+  const response = await fetch(new URL("./ui.json", import.meta.url));
+  if (!response.ok) throw new Error(`Reference JSON failed to load: ${response.status}.`);
+  return (await response.json()) as ReferenceUiDefinition;
+}
 
 async function defineReferenceComponentFamilies(document: typeof uiDefinition) {
   const families = await import("./reference-component-families.js");
@@ -115,12 +141,6 @@ function submitLabelCommand(label: string) {
     properties: { label },
     type: UiCommandType.NodePatchProperties
   } as const;
-}
-
-application.runtime.events$.subscribe(handleRuntimeEvent);
-if (testHooksEnabled) {
-  installPrototypeHooks(application);
-  installStoreFixtureHooks();
 }
 
 function handleRuntimeEvent(event: UiEvent): void {

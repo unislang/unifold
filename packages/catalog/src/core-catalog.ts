@@ -42,10 +42,12 @@ import {
 } from "./form-structure-catalog.js";
 import { menuButtonDescriptor } from "./menu-catalog.js";
 import { numberFieldDescriptor } from "./number-field-catalog.js";
+import { paginationDescriptor } from "./pagination-catalog.js";
 import { popoverDescriptor } from "./popover-catalog.js";
 import { searchFieldDescriptor } from "./search-field-catalog.js";
 import { switchDescriptor } from "./switch-catalog.js";
 import { textControlProperties } from "./text-control-catalog.js";
+import { toastDescriptor } from "./toast-catalog.js";
 import { tooltipDescriptor } from "./tooltip-catalog.js";
 import {
   catalogEnumProperty as enumProperty,
@@ -216,6 +218,7 @@ const descriptors: Record<CoreComponentType, ComponentDescriptor> = {
     version: "1.0.0"
   },
   [CoreComponentType.NumberField]: numberFieldDescriptor,
+  [CoreComponentType.Pagination]: paginationDescriptor,
   [CoreComponentType.Popover]: popoverDescriptor,
   [CoreComponentType.RadioGroup]: {
     componentType: CoreComponentType.RadioGroup,
@@ -276,6 +279,7 @@ const descriptors: Record<CoreComponentType, ComponentDescriptor> = {
     tagName: CoreElementTag.TextField,
     version: "1.0.0"
   },
+  [CoreComponentType.Toast]: toastDescriptor,
   [CoreComponentType.Tooltip]: tooltipDescriptor,
   [CoreComponentType.VirtualList]: {
     componentType: CoreComponentType.VirtualList,

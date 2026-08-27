@@ -16,6 +16,8 @@ import {
   getCoreDescriptor
 } from "@unislang/unifold-catalog";
 
+import { paginationItemListSchema } from "./pagination-schema.mjs";
+
 const capabilities = Object.freeze(Object.values(ComponentCapability));
 const identifierSchema = Object.freeze({
   maxLength: 128,
@@ -151,6 +153,7 @@ const scalarSchemas = Object.freeze({
     },
     type: "array"
   },
+  [CatalogPropertyType.PaginationItemList]: paginationItemListSchema,
   [CatalogPropertyType.PositiveInteger]: {
     maximum: Number.MAX_SAFE_INTEGER,
     minimum: 1,
@@ -302,6 +305,7 @@ function propertySchema(descriptor) {
 function boundedSchema(descriptor, base) {
   const schema = { ...base };
   addBound(schema, "maxItems", descriptor.maximumItems);
+  addBound(schema, "maxLength", descriptor.maximumLength);
   addBound(schema, "minItems", descriptor.minimumItems);
   addBound(schema, "minLength", descriptor.minimumLength);
   return schema;
@@ -331,20 +335,16 @@ function basePropertySchema(descriptor) {
     return { enum: descriptor.enumValues, type: "string" };
   return scalarSchemas[descriptor.valueType];
 }
-
 function defaultedSchema(descriptor, base) {
   if (descriptor.defaultValue === undefined) return base;
   return { ...base, default: descriptor.defaultValue };
 }
-
 function controlField(control) {
   return control === undefined ? {} : { control };
 }
-
 function updateTriggerField(updateOn) {
   return updateOn === undefined ? {} : { updateTriggerProperty: updateOn.name };
 }
-
 function isPropertyBinding({ bindingKind }) {
   return bindingKind !== CatalogBindingKind.Attribute;
 }

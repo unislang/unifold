@@ -156,6 +156,78 @@
         ]
       },
       {
+        "id": "profile-ready-toast",
+        "type": "Toast",
+        "props": {
+          "dismissible": true,
+          "dismissLabel": "Dismiss profile notification",
+          "label": "Profile ready",
+          "message": "Your profile changes are ready to review.",
+          "status": "success",
+          "testId": "profile-ready-toast",
+          "variant": "subtle"
+        },
+        "events": { "onClick": "TOAST_DISMISSED" }
+      },
+      {
+        "id": "security-warning-toast",
+        "type": "Toast",
+        "props": {
+          "dismissible": false,
+          "label": "Security warning",
+          "message": "This important notification requires review.",
+          "status": "warning",
+          "testId": "security-warning-toast",
+          "variant": "solid"
+        }
+      },
+      {
+        "id": "results-pagination",
+        "type": "Pagination",
+        "props": {
+          "items": [
+            {
+              "accessibleLabel": "Previous results page",
+              "disabled": true,
+              "id": "previous",
+              "kind": "previous",
+              "label": "Previous"
+            },
+            {
+              "accessibleLabel": "Current results page, page 1",
+              "current": true,
+              "href": "#results-page-1",
+              "id": "results-page-1",
+              "kind": "page",
+              "label": "1"
+            },
+            {
+              "accessibleLabel": "Go to results page 2",
+              "href": "#results-page-2",
+              "id": "results-page-2",
+              "kind": "page",
+              "label": "2"
+            },
+            {
+              "accessibleLabel": "More result pages",
+              "id": "more-results",
+              "kind": "overflow",
+              "label": "…"
+            },
+            {
+              "accessibleLabel": "Next results page",
+              "href": "#results-page-2",
+              "id": "next",
+              "kind": "next",
+              "label": "Next"
+            }
+          ],
+          "label": "Search result pages",
+          "testId": "results-pagination"
+        },
+        "events": { "onClick": "RESULTS_PAGE_CHANGED" }
+      },
+      {
         "id": "profile-card",
         "type": "Card",
         "props": {
@@ -227,6 +299,14 @@
       "states": {
         "editing": {
           "on": {
+            "TOAST_DISMISSED": {
+              "target": "editing",
+              "commands": ["dismiss-ready-toast", "focus-submit-action"]
+            },
+            "RESULTS_PAGE_CHANGED": {
+              "target": "editing",
+              "commands": ["show-results-page-two"]
+            },
             "SHOW_SUMMARY": {
               "target": "summarized",
               "guard": "consent-granted",

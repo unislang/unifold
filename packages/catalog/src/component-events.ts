@@ -42,6 +42,7 @@ const EVENTS: Readonly<Record<CoreComponentType, readonly UiComponentEventBindin
   [CoreComponentType.MenuButton]: ACTIVATED,
   [CoreComponentType.MultiSelect]: INPUT_AND_BLUR,
   [CoreComponentType.NumberField]: INPUT_AND_BLUR,
+  [CoreComponentType.Pagination]: ACTIVATED,
   [CoreComponentType.Popover]: ACTIVATED,
   [CoreComponentType.RadioGroup]: INPUT_AND_BLUR,
   [CoreComponentType.SearchField]: INPUT_AND_BLUR,
@@ -55,6 +56,7 @@ const EVENTS: Readonly<Record<CoreComponentType, readonly UiComponentEventBindin
   [CoreComponentType.Text]: NONE,
   [CoreComponentType.TextArea]: INPUT_AND_BLUR,
   [CoreComponentType.TextField]: INPUT_AND_BLUR,
+  [CoreComponentType.Toast]: ACTIVATED,
   [CoreComponentType.Tooltip]: NONE,
   [CoreComponentType.VirtualList]: INPUT,
   [CoreComponentType.Wizard]: Object.freeze([

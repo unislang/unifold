@@ -34,8 +34,10 @@ revision instead of failing the measurement. The Chromium scale journey writes
 
 ## Current local observation
 
-On 2026-08-25 and 2026-08-26, Node 22.14.0 on Windows x64 with an AMD Ryzen 9 9950X produced these descriptive
-results. They are evidence from a developer workstation, not ratified release thresholds.
+On 2026-08-25 and 2026-08-26, Node 22.14.0 and Node 24.19.0 runs on Windows x64 with an AMD Ryzen 9
+9950X produced these descriptive results. They are evidence from a developer workstation, not
+ratified release thresholds. The machine-readable report records the exact environment for each
+latest campaign.
 
 | Workload                                    |       p50 |       p95 |       p99 |
 | ------------------------------------------- | --------: | --------: | --------: |
@@ -80,6 +82,8 @@ results. They are evidence from a developer workstation, not ratified release th
 | 100-CheckboxGroup projection                |   0.96 ms |   3.28 ms |   4.38 ms |
 | 100-Switch projection                       |   0.52 ms |   1.20 ms |   6.29 ms |
 | 100-DateField projection                    |   0.75 ms |   2.12 ms |   2.60 ms |
+| 100-Toast projection                        |   0.75 ms |   6.65 ms |   7.52 ms |
+| 100-Pagination projection                   |   2.05 ms |   7.48 ms |  11.51 ms |
 | 10k-entry AuditLog startup                  |  60.67 ms |  68.65 ms |  72.95 ms |
 | 10k-entry AuditLog distant scroll           |   0.63 ms |   1.04 ms |   2.90 ms |
 | 1k cached data-actor resolutions            |   5.67 ms |   7.39 ms |   7.60 ms |
@@ -126,9 +130,9 @@ emits exactly 25 typed commands, and leaves every unrelated chain unchanged. Its
 p95 is below the provisional 4 ms target on the current workstation. The combined public-runtime
 fixture proves one commit spans the leaf edit, three synchronous validations (leaf, group, form),
 two ancestor aggregates, 20 transitive rule commands, and committed-revision selector delivery.
-Its current 1.25 ms p95 is below the provisional 8 ms target. All fifty-six timing and lifecycle limits
+Its current 1.25 ms p95 is below the provisional 8 ms target. All fifty-eight timing and lifecycle limits
 are executable benchmark gates and are included with actual/limit/pass fields in the
-schema-2.31.0 machine-readable report; the current run passes all 56/56.
+schema-2.33.0 machine-readable report; the current run passes all 58/58.
 The report also contains a 50-sample paired selection-overhead profile. It alternates measurement
 order for each update between identical 10,000-node stores with zero and 2,000 indexed selections,
 subtracts the paired timings, and takes each sample's five-edit median. This removes shared
@@ -239,6 +243,15 @@ rendered at most 15 entries against the hard 200-entry ceiling and began the dis
 `event-9896`. Chromium/WebKit additionally prove native list/time semantics, keyboard-scroll focus,
 axe checks, hostile-text escaping, precise duplicate-ID rejection, last-known-good rollback,
 recovery, and stable host identity.
+
+The persistent-feedback fixture mounts 100 deferred Toast elements, then projects label, message,
+status, and variant changes across all hosts for 50 measured samples. It records 0.75/6.65/7.52 ms
+p50/p95/p99 against a 100 ms p95 limit, preserves exactly 100 hosts, and proves the final atomic
+announcement is assertive with the exact expected message. The explicit-navigation fixture mounts
+100 deferred Pagination elements and replaces each bounded authored item sequence for the same 50
+samples. It records 2.05/7.48/11.51 ms against a 100 ms p95 limit, preserves exactly 100 hosts, and
+proves page `2` is the final current page. Neither fixture introduces an expiration scheduler,
+computed page window, or second state authority.
 
 The framework-neutral data-actor fixture registers one trusted query operation, warms an exact
 1,000-key bounded Query Core cache, and resolves the entire set twenty times without another adapter

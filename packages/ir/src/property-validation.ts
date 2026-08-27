@@ -14,6 +14,7 @@ import { isBreadcrumbItemList } from "./breadcrumb-validation.js";
 import { isSafeResourceProperty } from "./content-media-validation.js";
 import { isDataGridValue } from "./data-grid-validation.js";
 import { validateComponentConstraints } from "./component-constraints.js";
+import { isPaginationItemList } from "./pagination-validation.js";
 import { isFileMetadataList } from "./file-input-validation.js";
 import { isErrorSummaryItemList } from "./error-summary-validation.js";
 import { DiagnosticCode } from "./enums.js";
@@ -21,6 +22,7 @@ import { isPlainObject } from "./json-safety.js";
 import type { CompilerDiagnostic } from "./types.js";
 import { isTableColumnList, isTableIdentifier, isTableRowList } from "./table-data-validation.js";
 import { isSearchResultList, isSearchResultsValue } from "./search-results-validation.js";
+import { isCatalogString } from "./string-validation.js";
 import { isWorkflowStepList } from "./step-navigation-validation.js";
 
 type PropertyValidator = (value: unknown, descriptor: CatalogPropertyDescriptor) => boolean;
@@ -43,6 +45,7 @@ const validators: Readonly<Record<CatalogPropertyType, PropertyValidator>> = {
   [CatalogPropertyType.NullableNumber]: (value) => value === null || isFiniteJsonNumber(value),
   [CatalogPropertyType.Number]: isFiniteJsonNumber,
   [CatalogPropertyType.OptionList]: isOptionList,
+  [CatalogPropertyType.PaginationItemList]: isPaginationItemList,
   [CatalogPropertyType.PositiveInteger]: (value) =>
     typeof value === "number" && Number.isSafeInteger(value) && value > 0,
   [CatalogPropertyType.PositiveNumber]: (value) => isFiniteJsonNumber(value) && value > 0,
@@ -52,7 +55,7 @@ const validators: Readonly<Record<CatalogPropertyType, PropertyValidator>> = {
   [CatalogPropertyType.SearchResultsValue]: isSearchResultsValue,
   [CatalogPropertyType.StepId]: (value) => isTableIdentifier(value),
   [CatalogPropertyType.StepList]: isWorkflowStepList,
-  [CatalogPropertyType.String]: isString,
+  [CatalogPropertyType.String]: isCatalogString,
   [CatalogPropertyType.StringArray]: isStringArray,
   [CatalogPropertyType.TableColumnList]: isTableColumnList,
   [CatalogPropertyType.TableRowList]: isTableRowList
@@ -107,19 +110,10 @@ function isStringArray(value: unknown): boolean {
   );
 }
 
-function isString(value: unknown, descriptor: CatalogPropertyDescriptor): boolean {
-  if (typeof value !== "string") return false;
-  return withinLengthBounds(value.length, descriptor);
-}
-
 function isOptionList(value: unknown, descriptor: CatalogPropertyDescriptor): boolean {
   if (!Array.isArray(value)) return false;
   if (!withinItemBounds(value.length, descriptor)) return false;
   return value.every(isChoiceOption);
-}
-
-function withinLengthBounds(length: number, descriptor: CatalogPropertyDescriptor): boolean {
-  return length >= (descriptor.minimumLength ?? 0);
 }
 
 function withinItemBounds(length: number, descriptor: CatalogPropertyDescriptor): boolean {

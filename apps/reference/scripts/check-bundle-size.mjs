@@ -17,7 +17,7 @@ if (isMain()) {
     `Reference initial JavaScript: ${evidence.gzipBytes} gzip bytes ` +
       `(${(evidence.gzipBytes / 1024).toFixed(2)} KiB / ` +
       `${(REFERENCE_BUNDLE_LIMIT_BYTES / 1024).toFixed(2)} KiB); ` +
-      `${evidence.postMountGzipBytes} post-mount gzip bytes.`
+      `${evidence.deferredGzipBytes} deferred gzip bytes.`
   );
 }
 
@@ -28,7 +28,7 @@ export async function checkReferenceBundle(outputRoot, limitBytes = REFERENCE_BU
   const initialKeys = initialManifestKeys(manifest);
   const files = manifestFiles(manifest, initialKeys);
   const allFiles = manifestFiles(manifest, Object.keys(manifest));
-  const postMountFiles = allFiles.filter((file) => !files.includes(file));
+  const deferredFiles = allFiles.filter((file) => !files.includes(file));
   const allAssets = await readAssets(outputRoot, allFiles);
   assertNoTestHooks(allAssets);
   const sizes = await gzipSizes(outputRoot, files);
@@ -38,9 +38,9 @@ export async function checkReferenceBundle(outputRoot, limitBytes = REFERENCE_BU
       `Reference initial JavaScript is ${gzipBytes} gzip bytes; limit is ${limitBytes}.`
     );
   }
-  const postMountSizes = await gzipSizes(outputRoot, postMountFiles);
-  const postMountGzipBytes = postMountSizes.reduce((total, size) => total + size, 0);
-  return { files, gzipBytes, limitBytes, postMountFiles, postMountGzipBytes };
+  const deferredSizes = await gzipSizes(outputRoot, deferredFiles);
+  const deferredGzipBytes = deferredSizes.reduce((total, size) => total + size, 0);
+  return { deferredFiles, deferredGzipBytes, files, gzipBytes, limitBytes };
 }
 
 function initialManifestKeys(manifest) {

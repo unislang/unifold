@@ -18,6 +18,8 @@ it("mounts the hierarchical JSON through the public framework entry point", asyn
   expect(nodeId(container, "unifold-checkbox-group")).toBe("contact-topics");
   expect(nodeId(container, "unifold-switch")).toBe("contact-notifications");
   expect(nodeId(container, "unifold-date-field")).toBe("contact-start-date");
+  expect(nodeId(container, "unifold-toast")).toBe("profile-ready-toast");
+  expect(nodeId(container, "unifold-pagination")).toBe("results-pagination");
   expect(controller.application.runtime.getSnapshot("show-summary").properties["disabled"]).toBe(
     true
   );

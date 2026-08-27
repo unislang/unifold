@@ -99,6 +99,15 @@ An exact date-only fixture mounts 100 deferred `DateField` elements and projects
 calendar values across 50 samples. It requires exactly 100 hosts, the expected final native
 `YYYY-MM-DD` value, and projection p95 at or below 100 ms without timezone conversion.
 
+An exact persistent-feedback fixture mounts 100 deferred `Toast` elements and projects all 100
+message and enum-backed status values across 50 samples. It requires exactly 100 hosts, the
+expected final atomic message and alert role, and projection p95 at or below 100 ms. It uses no
+timers or wall-clock dismissal behavior.
+
+An exact navigation fixture mounts 100 deferred `Pagination` elements and projects every explicit
+item sequence across 50 samples. It requires exactly 100 hosts, the expected final current-page
+label, and projection p95 at or below 100 ms without introducing a second current-page store.
+
 An exact 10,000-row MasterDetail document adds twenty post-warm-up startup and selection samples.
 Its gates require startup p95 at or below 1,000 ms, selection p95 at or below 100 ms, no more than
 200 rendered master options, the expected canonical selected row, and the matching detail content.

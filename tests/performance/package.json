@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@unislang/unifold": "workspace:*",
+    "@unislang/unifold-catalog": "workspace:*",
     "@unislang/unifold-collaboration": "workspace:*",
     "@unislang/unifold-contracts": "workspace:*",
     "@unislang/unifold-control-plane": "workspace:*",

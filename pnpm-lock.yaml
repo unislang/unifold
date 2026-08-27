@@ -81,6 +81,9 @@ importers:
       '@unislang/unifold':
         specifier: workspace:*
         version: link:../../packages/unifold
+      '@unislang/unifold-catalog':
+        specifier: workspace:*
+        version: link:../../packages/catalog
       '@unislang/unifold-events':
         specifier: workspace:*
         version: link:../../packages/events
@@ -813,6 +816,9 @@ importers:
       '@unislang/unifold':
         specifier: workspace:*
         version: link:../../packages/unifold
+      '@unislang/unifold-catalog':
+        specifier: workspace:*
+        version: link:../../packages/catalog
       '@unislang/unifold-collaboration':
         specifier: workspace:*
         version: link:../../packages/collaboration

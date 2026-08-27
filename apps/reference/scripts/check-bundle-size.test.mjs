@@ -6,7 +6,7 @@ import { test } from "node:test";
 
 import { checkReferenceBundle } from "./check-bundle-size.mjs";
 
-test("gates the initial import closure and audits post-mount chunks separately", async (context) => {
+test("gates the initial import closure and audits deferred chunks separately", async (context) => {
   const root = await mkdtemp(join(tmpdir(), "unifold-reference-bundle-"));
   context.after(() => rm(root, { force: true, recursive: true }));
   await mkdir(join(root, ".vite"), { recursive: true });
@@ -33,9 +33,9 @@ test("gates the initial import closure and audits post-mount chunks separately",
 
   const evidence = await checkReferenceBundle(root, 1_024);
   assert.deepEqual(evidence.files, ["assets/entry.js", "assets/shared.js"]);
-  assert.deepEqual(evidence.postMountFiles, ["assets/lazy.js"]);
+  assert.deepEqual(evidence.deferredFiles, ["assets/lazy.js"]);
   assert(evidence.gzipBytes > 0);
-  assert(evidence.postMountGzipBytes > 0);
+  assert(evidence.deferredGzipBytes > 0);
   await assert.rejects(() => checkReferenceBundle(root, evidence.gzipBytes - 1), /limit is/u);
   await writeFile(
     join(root, "assets", "lazy.js"),

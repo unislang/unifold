@@ -49,10 +49,12 @@ with foreign, malformed, or differently versioned `unifold-*` registrations retu
 application. Incompatible catalog releases require independent iframe/document realms.
 
 Larger component families are deferred from the baseline entry and must be registered before a
-document that references them is mounted. Supported subpaths are `audit-log`, `breadcrumb`, `combobox`,
-`data-grid`, `dialog`, `file-input`, `master-detail`, `menu-button`, `popover`, `search-results`, `stepper`, `tabs`, `tooltip`,
-`virtual-list`, and `wizard`; each exports its matching `defineUnifold*()` function. This keeps the
-reference application's initial executable bundle below its enforced 180 KiB-gzip ceiling while
+document that references them is mounted. Supported subpaths are `audit-log`, `breadcrumb`,
+`checkbox-group`, `combobox`, `content-media`, `data-grid`, `date-field`, `dialog`, `file-input`,
+`form-structure`, `master-detail`, `menu-button`, `number-field`, `pagination`, `popover`, `search-field`,
+`search-results`, `stepper`, `switch`, `tabs`, `toast`, `tooltip`, `virtual-list`, and `wizard`; each
+exports its matching `defineUnifold*()` function. This keeps the
+reference application's initial executable bundle below its enforced 184 KiB-gzip ceiling while
 preserving the same catalog and registration checks.
 
 Strict mounting remains the default. A host that intentionally loads reviewed optional families

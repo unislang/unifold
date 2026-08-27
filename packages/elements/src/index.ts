@@ -34,6 +34,7 @@ export type { UnifoldMasterDetail } from "./master-detail.js";
 export type { UnifoldMenuButton } from "./menu-button.js";
 export { UnifoldMultiSelect } from "./multi-select.js";
 export type { UnifoldNumberField } from "./number-field.js";
+export type { UnifoldPagination } from "./pagination.js";
 export type { UnifoldSearchField } from "./search-field.js";
 export {
   NativeFormControlController,
@@ -80,6 +81,7 @@ export { UnifoldTable } from "./table.js";
 export { UnifoldText } from "./text.js";
 export { UnifoldTextArea } from "./text-area.js";
 export { UnifoldTextField } from "./text-field.js";
+export type { UnifoldToast } from "./toast.js";
 export type { UnifoldVirtualList } from "./virtual-list.js";
 export type { UnifoldWizard } from "./wizard.js";
 export { UnifoldElement } from "./unifold-element.js";

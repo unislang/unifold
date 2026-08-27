@@ -17,15 +17,21 @@ it("declares supported workflow signals for every component", () => {
   expect(getCoreComponentEvents(CoreComponentType.Popover)).toEqual([
     UiComponentEventBinding.Activated
   ]);
+  expectActivated(CoreComponentType.Pagination);
   expect(getCoreComponentEvents(CoreComponentType.Breadcrumb)).toEqual([
     UiComponentEventBinding.Activated
   ]);
   expect(getCoreComponentEvents(CoreComponentType.Dialog)).toEqual([
     UiComponentEventBinding.Activated
   ]);
+  expectActivated(CoreComponentType.Toast);
   expect(getCoreComponentEvents(CoreComponentType.FileInput)).toEqual([
     UiComponentEventBinding.Input,
     UiComponentEventBinding.Blurred
   ]);
   expect(getCoreComponentEvents("Unknown")).toEqual([]);
 });
+
+function expectActivated(type: CoreComponentType): void {
+  expect(getCoreComponentEvents(type)).toEqual([UiComponentEventBinding.Activated]);
+}

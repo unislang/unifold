@@ -25,6 +25,7 @@ export enum ComponentAccessibilityPattern {
   NativeImage = "native-image",
   NativeLink = "native-link",
   NativeNumberInput = "native-number-input",
+  PaginationNavigation = "pagination-navigation",
   NativeRadioGroup = "native-radio-group",
   NativeSearchInput = "native-search-input",
   NativeSelect = "native-select",

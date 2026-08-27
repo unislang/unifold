@@ -5,7 +5,8 @@ import type {
   CatalogBindingKind,
   CatalogConstraintKind,
   CatalogPropertyType,
-  CoreElementTag
+  CoreElementTag,
+  PaginationItemKind
 } from "./enums.js";
 import type {
   ComponentAccessibilityPattern,
@@ -26,6 +27,7 @@ export interface CatalogPropertyDescriptor {
   readonly enumValues?: readonly string[];
   readonly name: string;
   readonly maximumItems?: number;
+  readonly maximumLength?: number;
   readonly minimumItems?: number;
   readonly minimumLength?: number;
   readonly required: boolean;
@@ -41,6 +43,16 @@ export interface ChoiceOption extends JsonObject {
 export interface BreadcrumbItem extends JsonObject {
   readonly href?: string;
   readonly id: string;
+  readonly label: string;
+}
+
+export interface PaginationItem extends JsonObject {
+  readonly accessibleLabel: string;
+  readonly current?: boolean;
+  readonly disabled?: boolean;
+  readonly href?: string;
+  readonly id: string;
+  readonly kind: PaginationItemKind;
   readonly label: string;
 }
 
@@ -85,6 +97,11 @@ export interface CatalogAuditLogDataConstraint {
 export interface CatalogBreadcrumbDataConstraint {
   readonly itemsProperty: string;
   readonly kind: CatalogConstraintKind.BreadcrumbData;
+}
+
+export interface CatalogPaginationDataConstraint {
+  readonly itemsProperty: string;
+  readonly kind: CatalogConstraintKind.PaginationData;
 }
 
 export interface CatalogSelectionInOptionsConstraint {
@@ -171,6 +188,7 @@ export type CatalogConstraintDescriptor =
   | CatalogFileInputDataConstraint
   | CatalogMasterDetailStateConstraint
   | CatalogNumberFieldRangeConstraint
+  | CatalogPaginationDataConstraint
   | CatalogSearchQueryLengthConstraint
   | CatalogSearchResultsStateConstraint
   | CatalogSelectionInOptionsConstraint

@@ -30,6 +30,12 @@ export default defineConfig({
       "@unislang/unifold-elements/date-field": fileURLToPath(
         new URL("../../packages/elements/src/date-field-entry.ts", import.meta.url)
       ),
+      "@unislang/unifold-elements/toast": fileURLToPath(
+        new URL("../../packages/elements/src/toast-entry.ts", import.meta.url)
+      ),
+      "@unislang/unifold-elements/pagination": fileURLToPath(
+        new URL("../../packages/elements/src/pagination-entry.ts", import.meta.url)
+      ),
       "@unislang/unifold-elements/dialog": fileURLToPath(
         new URL("../../packages/elements/src/dialog-entry.ts", import.meta.url)
       ),
