@@ -18,18 +18,19 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
 - Latest implementation checkpoint:
-  `f2b5dc2766f2997974816ec33cb5b0fa99cce2f6`
-  (`feat: resolve hierarchical JSON through UI modules`) on
+  `b3dded194af6fe7c300af4030909554c694f97c9`
+  (`feat: add governed AI Studio workflow`) on
   `https://github.com/unislang/unifold.git`.
 - Publication verification: live `git ls-remote origin refs/heads/main` resolved to
-  `f2b5dc2766f2997974816ec33cb5b0fa99cce2f6` immediately after the implementation push. The other
+  `b3dded194af6fe7c300af4030909554c694f97c9` immediately after the implementation push. The other
   named local tranches remain unstaged and preserved.
 - Current local implementation: the `NumberField`, `SearchField`, `CheckboxGroup`, `Switch`, and
   `DateField`, `Toast`, and `Pagination` families are committed as implementation checkpoints. The
   current scoped checkpoint adds the bounded adopter CLI/starter and Scratch-style module build
-  integration. The governed AI provider boundary, Studio dogfood, multi-application semantic
-  publication isolation, reference feature-module cleanup, and executable import-then-local-re-export
-  prevention remain local and must be preserved.
+  integration plus the governed AI provider boundary and Studio dogfood workflow. The
+  multi-application semantic publication isolation, reference feature-module cleanup, executable
+  import-then-local-re-export prevention, and newer module-sharding work remain local and must be
+  preserved.
 - Goal status: active. The named 45-component stable catalog is implemented; `Composition` is the
   additional structural host, producing 46 generated catalog elements. Broader Studio,
   control-plane, manual accessibility, packaging, and production-integration gates remain.
@@ -980,6 +981,21 @@ must remain explicit and cannot be silently waived. The current slice has comple
 behavioral evidence; rerun Firefox when the managed runner can create a page reliably.
 
 ## Session log
+
+- 2026-08-26: Published the governed AI and Studio workflow as
+  `b3dded194af6fe7c300af4030909554c694f97c9` (`feat: add governed AI Studio workflow`). The Studio
+  control surface and live preview resolve deterministic exact UiModules
+  `org.unifold.studio.control-surface@1.0.0` and
+  `org.unifold.studio.live-application@1.0.0` before mount, expose both artifact integrities in E2E
+  mode, isolate preview execution, and guard proposal application and export. Focused evidence passes
+  five files/13 tests, source/test TypeScript, lint, browser asset-security checks, the production
+  Studio build at 238.98 KiB gzip against its 250 KiB gate, and 8/8 Chromium journeys. Full
+  correctness passes 571 Vitest files/1,492 tests, tooling 18/18, generated CEM 9/9, reference
+  scripts 2/2, and 37-file/47-test performance correctness. The global quality/format rerun is
+  temporarily red only because a concurrent, unfinished hierarchical module source is unformatted;
+  that separate work is preserved. The implementation was pushed to
+  `https://github.com/unislang/unifold.git`, and live `refs/heads/main`, local `HEAD`, and
+  `origin/main` all resolved to the exact commit immediately after publication.
 
 - 2026-08-26: Began the next AC33 module-consumption slice. Added a reusable strict
   `createUiDocumentModule()` envelope, carried the existing immutable trusted layout registry
