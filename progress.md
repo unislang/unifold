@@ -17,18 +17,17 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Date: 2026-08-27
 - Branch: `main`
 - Foundation checkpoint: `424763d` (`feat: establish JSON-driven UI architecture foundation`)
-- Latest published checkpoint:
-  `4b3d438c4e7a4e7578aa5a6c469bb8efa613f918`
-  (`docs: record logical control topology checkpoint`) on
+- Latest published implementation checkpoint:
+  `f938db2b00a2ac7037a8a831ce930ef8a21232db`
+  (`feat: add composition topology and durable collection lifecycle`) on
   `https://github.com/unislang/unifold.git`.
 - Publication verification: live `git ls-remote origin refs/heads/main` resolved to
-  the implementation base `7e826dfb39d989da8d4fd28fd3337143361b9ba3` immediately after its
-  push; local `HEAD` and `origin/main` now match the documentation checkpoint `4b3d438`. The history
-  also includes runtime isolation at
+  `f938db2b00a2ac7037a8a831ce930ef8a21232db` immediately after its push; local `HEAD` and
+  `origin/main` matched that implementation checkpoint. The history also includes runtime isolation at
   `5a9795e`, semantic owner isolation at `0b9d569`, and repository source-ownership gates at
   `a6b4b60`.
 - Current implementation: the Scratch-style public JSON contract supports explicit logical control
-  topology separately from visual layout. The unpublished worktree adds composition contract
+  topology separately from visual layout. The published checkpoint adds composition contract
   `2.0.0` local topology/mounts and logical own/effective aggregate-disabled propagation. Compiler,
   10k, browser, complete repository, and benchmark evidence pass; composition and semantic
   validation now share the existing Draft 2020-12 JSON Schema engine, reducing the production
@@ -99,10 +98,15 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   values, logical causal scope, XState delivery, semantic projection, selective rendering, and axe.
   Firefox again fails before page creation with Playwright's upstream `_page` error, so it supplies
   no application assertion for this tranche.
-- The active worktree has since added composition-local topology and effective aggregate-disabled
-  propagation. Resume the remaining AC19 work from the tranche below rather than this baseline.
+- The published implementation has since added composition-local topology and effective
+  aggregate-disabled propagation. Resume the remaining AC19 work from the tranche below rather
+  than this baseline.
 
-## 2026-08-27 composition topology and effective-disabled worktree tranche
+## 2026-08-27 composition topology, effective-disabled, and collection checkpoint
+
+- Status: committed and pushed as `f938db2b00a2ac7037a8a831ce930ef8a21232db`; an independent
+  `git ls-remote origin refs/heads/main` query returned the same SHA. This progress update is the
+  resumable documentation follow-up to that implementation commit.
 
 - Composition contract `2.0.0` permits definition-local `controls@1.0.0`; version 1 rejects it.
   Form roots are self-contained. Reusable non-form roots require a `controlMount` containing a
@@ -144,7 +148,7 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   inherited registry names, unsafe numeric identities, and multiple collection names for one
   authored array. The raw pointer candidate helper is no longer on the package root; consumers use
   the compiler-authorized application method and enum-backed operation contract.
-- The focused Chromium collection journey passes 1/1. It additionally starts a deliberately
+- The focused Chromium/WebKit collection journey passes 2/2. It additionally starts a deliberately
   non-cooperative async validator on the inserted control, removes that control before completion,
   waits past completion, and observes zero late events while retaining causal insert/move/remove
   metadata, authored order, edited value, host identity, and focused shadow input.
