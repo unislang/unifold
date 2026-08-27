@@ -21,9 +21,12 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   `f938db2b00a2ac7037a8a831ce930ef8a21232db`
   (`feat: add composition topology and durable collection lifecycle`) on
   `https://github.com/unislang/unifold.git`.
+- Latest published verification checkpoint:
+  `15ab4e889cc2dd720fa9231d14c8d3d4cdcc35b1`
+  (`docs: refresh final validation evidence`).
 - Publication verification: live `git ls-remote origin refs/heads/main` resolved to
-  `f938db2b00a2ac7037a8a831ce930ef8a21232db` immediately after its push; local `HEAD` and
-  `origin/main` matched that implementation checkpoint. The history also includes runtime isolation at
+  `15ab4e889cc2dd720fa9231d14c8d3d4cdcc35b1`; local `HEAD` and `origin/main` matched that
+  verification checkpoint. The history also includes runtime isolation at
   `5a9795e`, semantic owner isolation at `0b9d569`, and repository source-ownership gates at
   `a6b4b60`.
 - Current implementation: the Scratch-style public JSON contract supports explicit logical control
@@ -143,7 +146,7 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Named Scratch-style repeated nodes can declare a unique `collection`. Compilation retains only
   its reviewed authored-variable pointer and durable key property. The mounted public application
   API admits insert/move/remove by collection ID, expected/new authored revision, durable key, and
-  explicit index; it then recompiles and reconciles through the existing atomic update boundary.
+  explicit index; it then recompiles and reconciles through the existing coordination boundary.
   The mounted integration preserves an edited control value, element identity, and focused shadow
   input across insert/move/remove; publishes exact structural collection metadata; and proves an
   invalid inserted item leaves authored JSON, runtime revision, and DOM at last-known-good state.
@@ -151,7 +154,7 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   inherited registry names, unsafe numeric identities, and multiple collection names for one
   authored array. The raw pointer candidate helper is no longer on the package root; consumers use
   the compiler-authorized application method and enum-backed operation contract.
-- The focused Chromium/WebKit collection journey passes 2/2. It additionally starts a deliberately
+- The focused Chromium collection journey passes 1/1. It additionally starts a deliberately
   non-cooperative async validator on the inserted control, removes that control before completion,
   waits past completion, and observes zero late events while retaining causal insert/move/remove
   metadata, authored order, edited value, host identity, and focused shadow input.
