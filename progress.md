@@ -25,8 +25,9 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   `0e7a549c61e6425379491e515bbf56fec334beac`
   (`docs: record empty collection focus checkpoint`).
 - Latest local implementation checkpoint:
-  `a065b629677dd65f47ad9334dceb326de988e04e`
-  (`feat: make collection behavior executable`); it has not been pushed.
+  `89645cc7ef95117b5c7a2f10a03de3ecd80061db`
+  (`feat: make focus effect settlement truthful`); it has not been pushed. The preceding local
+  collection-behavior checkpoint is `a065b629677dd65f47ad9334dceb326de988e04e`.
 - Publication verification: live `git ls-remote origin refs/heads/main` resolved to
   `0e7a549c61e6425379491e515bbf56fec334beac`; local `HEAD` and `origin/main` matched that
   verification checkpoint before the local collection-behavior and focus-settlement work. The
@@ -68,8 +69,8 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 
 ## 2026-08-27 truthful DOM focus-effect tranche
 
-- Status: implemented and release-gate verified in the active worktree; local checkpointing and
-  publication remain. The overall goal remains active.
+- Status: implemented, release-gate verified, and committed locally as
+  `89645cc7ef95117b5c7a2f10a03de3ecd80061db`; publication remains. The overall goal remains active.
 - `DomRenderController.restoreFocus()` now returns enum-backed `FocusRestoreStatus`. `Focused` means
   the current connected renderer host still owns a visible, enabled focus target and deepest
   composed `activeElement` proves native focus succeeded. A missing host, empty or disabled target,
