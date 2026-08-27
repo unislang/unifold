@@ -2,8 +2,10 @@ import { Ajv2020 } from "ajv/dist/2020.js";
 import { expect, it } from "vitest";
 
 import derivedRuleSchema from "../schemas/derived-rule.schema.json" with { type: "json" };
+import collectionBehaviorSchema from "../schemas/collection-behavior.schema.json" with { type: "json" };
 import schema from "../schemas/ui-document.schema.json" with { type: "json" };
 import semanticSchema from "../schemas/semantic-graph.schema.json" with { type: "json" };
+import { UiCollectionBehaviorVersion } from "./collection-behavior.js";
 import {
   DataClassification,
   UiStoreAccess,
@@ -16,6 +18,7 @@ import {
 import * as subject from "./ui-document.js";
 
 const validateDocument = new Ajv2020({ allErrors: true, allowUnionTypes: true, strict: true })
+  .addSchema(collectionBehaviorSchema)
   .addSchema(derivedRuleSchema)
   .addSchema(semanticSchema)
   .compile(schema);
@@ -35,6 +38,19 @@ it("keeps the catalog enums and executable schema pin aligned", () => {
   const properties = schema.$defs.catalogReference.properties;
   expect(properties.name.enum).toEqual([subject.CoreCatalogName.UnifoldCore]);
   expect(properties.version.enum).toEqual([subject.CoreCatalogVersion.Version1]);
+});
+
+it("executes the closed collection behavior schema", () => {
+  const valid = documentWithCollectionBehavior();
+  expect(validateDocument(valid)).toBe(true);
+  valid.collectionBehaviors.contractVersion = "2.0.0";
+  expect(validateDocument(valid)).toBe(false);
+});
+
+it("rejects unknown collection behavior properties", () => {
+  const invalid = documentWithCollectionBehavior();
+  Object.assign(requireCollectionBehaviorNode(invalid), { unexpected: true });
+  expect(validateDocument(invalid)).toBe(false);
 });
 
 it("executes enum-backed hierarchical node event bindings", () => {
@@ -166,6 +182,24 @@ function documentWithControls() {
       id: "form"
     }
   };
+}
+
+function documentWithCollectionBehavior() {
+  return {
+    ...baseDocument(),
+    collectionBehaviors: {
+      contractVersion: UiCollectionBehaviorVersion.Version1 as string,
+      nodes: [{ collectionId: "items", emptyFocusTargetId: "add-item" }]
+    }
+  };
+}
+
+function requireCollectionBehaviorNode(
+  document: ReturnType<typeof documentWithCollectionBehavior>
+) {
+  const node = document.collectionBehaviors.nodes[0];
+  if (node === undefined) throw new Error("Expected collection behavior fixture.");
+  return node;
 }
 
 function requireControlNode(document: ReturnType<typeof documentWithControls>, index: number) {

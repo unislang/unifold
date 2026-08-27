@@ -12,6 +12,7 @@ import {
 
 import { errorDiagnostic } from "./diagnostics.js";
 import { validateCompositionManifest } from "./composition-validation.js";
+import { validateCollectionBehaviors } from "./collection-behavior-validation.js";
 import { validateControlTopology } from "./control-topology-validation.js";
 import { validateDerivedRules } from "./derived-rule-validation.js";
 import { validateErrorSummaryTargets } from "./error-summary-validation.js";
@@ -63,6 +64,12 @@ function validateProfiledDocument(
   };
   validateNode(value["view"], "/view", state);
   validateControlTopology(value["controls"], state.nodeComponents, diagnostics);
+  validateCollectionBehaviors(
+    value["collectionBehaviors"],
+    value["controls"],
+    value["view"],
+    diagnostics
+  );
   validateErrorSummaryTargets(value["view"], state.nodeComponents, state.nodeIds, diagnostics);
   validateCompositionManifest(value["compositionManifest"], state.nodeComponents, diagnostics);
   validateMachineDefinitions(value["machines"], state.nodeIds, diagnostics);

@@ -71,6 +71,7 @@ function groupNode(
 
 function irDocument(node: UnifoldIrNode): UnifoldIrDocument {
   return {
+    collectionBehaviorsById: {},
     compositionsByInstanceId: {},
     documentId: "checkbox-group-document",
     documentRevision: "1",

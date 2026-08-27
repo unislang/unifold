@@ -97,6 +97,11 @@ export {
   UiUpdateTrigger
 } from "./control.js";
 export type { UiControlNodeDefinition, UiControlTopologyDefinition } from "./control.js";
+export { UiCollectionBehaviorVersion } from "./collection-behavior.js";
+export type {
+  UiCollectionBehaviorDefinition,
+  UiCollectionBehaviorNode
+} from "./collection-behavior.js";
 export { JsonDateConstraintIssue, isJsonDateValue, jsonDateConstraintIssue } from "./date.js";
 export {
   DATA_CLASSIFICATION_ORDER,

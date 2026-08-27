@@ -138,6 +138,35 @@ it("namespaces every descendant in hierarchical repeated members", () => {
   expect(children.map(repeatedChildId)).toEqual(["label::a", "label::b"]);
 });
 
+it("lowers authored empty collection focus behavior into the UI document", () => {
+  const source = layoutDocument();
+  source.variables["items"] = [];
+  source.layouts[0].variables["items"] = { required: true, type: "array" };
+  source.layouts[0].template["children"] = [
+    {
+      collection: "items",
+      emptyFocusTarget: "add-item",
+      for: "item in {{items}}",
+      id: "item",
+      key: "id",
+      props: { label: "{{item.label}}" },
+      type: "TextField"
+    },
+    { id: "add-item", props: { label: "Add item" }, type: "Button" }
+  ];
+  source["controls"] = {
+    contractVersion: "1.0.0",
+    nodes: [{ id: "items", kind: "array" }]
+  };
+
+  const result = expandLayoutDocument(source);
+  expect(result.status).toBe(LayoutExpansionStatus.Valid);
+  expect(result.document?.["collectionBehaviors"]).toEqual({
+    contractVersion: "1.0.0",
+    nodes: [{ collectionId: "items", emptyFocusTargetId: "add-item" }]
+  });
+});
+
 function repeatedChildId(child: Record<string, unknown>): unknown {
   const children = child["$children"];
   if (!Array.isArray(children)) return undefined;

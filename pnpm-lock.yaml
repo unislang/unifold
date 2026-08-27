@@ -271,6 +271,9 @@ importers:
 
   packages/compositions:
     dependencies:
+      '@unislang/unifold-catalog':
+        specifier: workspace:*
+        version: link:../catalog
       '@unislang/unifold-contracts':
         specifier: workspace:*
         version: link:../contracts

@@ -1,4 +1,5 @@
-import { compileUiDocument } from "@unislang/unifold-ir";
+import { UiCollectionBehaviorVersion } from "@unislang/unifold-contracts";
+import { compileUiDocument, UnifoldIrVersion } from "@unislang/unifold-ir";
 import { createTrustedLayoutDefinitionRegistry } from "@unislang/unifold-compositions";
 import { expect, it } from "vitest";
 
@@ -7,6 +8,7 @@ import { createUiModuleRegistry } from "./registry.js";
 import { resolveUiModule } from "./resolver.js";
 import {
   composedDocumentFixture,
+  collectionLayoutDocumentFixture,
   layoutDefinitionFixture,
   layoutDocumentFixture,
   layoutModuleFixture,
@@ -62,6 +64,30 @@ it("flattens a Scratch-style layout export before composition expansion", async 
     id: "message"
   });
   expect(compileUiDocument(result.artifact.document).diagnostics).toEqual([]);
+});
+
+it("preserves executable collection behavior through a module artifact", async () => {
+  const root = moduleFixture({
+    exports: {
+      ...moduleFixture().exports,
+      documents: [{ document: collectionLayoutDocumentFixture(), name: "application" }]
+    }
+  });
+  const registry = await createUiModuleRegistry([{ module: root, sourceId: "collection.json" }]);
+  if (registry.status !== UiModuleRegistryStatus.Ready) return;
+  const result = await resolveUiModule(registry.registry, request());
+  expect(result.status).toBe(UiModuleResolutionStatus.Resolved);
+  if (result.status !== UiModuleResolutionStatus.Resolved) return;
+  expect(result.artifact.composedDocument["collectionBehaviors"]).toEqual({
+    contractVersion: UiCollectionBehaviorVersion.Version1,
+    nodes: [{ collectionId: "items", emptyFocusTargetId: "add-item" }]
+  });
+  const compiled = compileUiDocument(result.artifact.document);
+  expect(compiled.diagnostics).toEqual([]);
+  expect(compiled.document).toMatchObject({
+    collectionBehaviorsById: { items: { emptyFocusTargetId: "add-item" } },
+    irVersion: UnifoldIrVersion.Version1_1
+  });
 });
 
 it("resolves a Scratch-style export through a trusted external layout registry", async () => {

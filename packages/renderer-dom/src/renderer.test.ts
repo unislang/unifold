@@ -152,6 +152,7 @@ function createDocument(
   detailsFirst = false
 ): UnifoldIrDocument {
   return {
+    collectionBehaviorsById: {},
     compositionsByInstanceId: {},
     machines: [],
     nodeIdentityAliases: {},

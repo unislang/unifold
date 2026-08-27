@@ -1,4 +1,3 @@
-import type { LayoutCollectionDefinition } from "@unislang/unifold-compositions";
 import { UiCollectionOperationType } from "@unislang/unifold-contracts";
 import {
   UiCommandType,
@@ -28,13 +27,12 @@ export function migratedFocusedNodeId(
 export function collectionFocusTarget(
   previousNodes: readonly UiNodeSnapshot[],
   next: UnifoldIrDocument,
-  collection: UiCollectionReconcileMetadata | undefined,
-  definitions: Readonly<Record<string, LayoutCollectionDefinition>>
+  collection: UiCollectionReconcileMetadata | undefined
 ): string | undefined {
   const focused = focusedNodeId(previousNodes);
   if (focused === undefined) return undefined;
   if (next.nodesById[focused] !== undefined) return undefined;
-  return removedCollectionFocusTarget(focused, previousNodes, next, collection, definitions);
+  return removedCollectionFocusTarget(focused, previousNodes, next, collection);
 }
 
 export function restoreApplicationFocus(
@@ -87,27 +85,18 @@ function removedCollectionFocusTarget(
   focused: string,
   previousNodes: readonly UiNodeSnapshot[],
   next: UnifoldIrDocument,
-  collection: UiCollectionReconcileMetadata | undefined,
-  definitions: Readonly<Record<string, LayoutCollectionDefinition>>
+  collection: UiCollectionReconcileMetadata | undefined
 ): string | undefined {
   const removal = indexedRemoval(collection);
   if (removal === undefined) return undefined;
   const nodes = nodeRecord(previousNodes);
   if (!removedMemberWasFocused(focused, removal, nodes)) return undefined;
-  return survivingCollectionTarget(
-    next,
-    removal.collectionId,
-    removal.fromIndex,
-    emptyFocusTargetId(definitions, removal.collectionId)
-  );
+  return survivingCollectionTarget(next, removal.collectionId, removal.fromIndex);
 }
 
-function emptyFocusTargetId(
-  definitions: Readonly<Record<string, LayoutCollectionDefinition>>,
-  collectionId: string
-): string | undefined {
-  if (!Object.hasOwn(definitions, collectionId)) return undefined;
-  return definitions[collectionId]?.emptyFocusTargetId;
+function emptyFocusTargetId(document: UnifoldIrDocument, collectionId: string): string | undefined {
+  if (!Object.hasOwn(document.collectionBehaviorsById, collectionId)) return undefined;
+  return document.collectionBehaviorsById[collectionId]?.emptyFocusTargetId;
 }
 
 function indexedRemoval(
@@ -147,15 +136,14 @@ function removedMemberId(
 function survivingCollectionTarget(
   next: UnifoldIrDocument,
   collectionId: string,
-  removedIndex: number,
-  fallbackId: string | undefined
+  removedIndex: number
 ): string | undefined {
   const collection = next.nodesById[collectionId];
   if (collection === undefined) return undefined;
   return targetFromChildren(
     collection.controlChildIds ?? [],
     removedIndex,
-    availableFallback(next, fallbackId)
+    availableFallback(next, emptyFocusTargetId(next, collectionId))
   );
 }
 

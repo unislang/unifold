@@ -6,7 +6,10 @@ import {
   type LayoutCollectionControlMember
 } from "./layout-collection-controls.js";
 import { expandLayoutRoot } from "./layout-nodes.js";
-import { validateLayoutCollectionFocusTargets } from "./layout-collections.js";
+import {
+  layoutCollectionBehaviorField,
+  validateLayoutCollectionFocusTargets
+} from "./layout-collections.js";
 import { validateLayoutJson, validateLayoutJsonAt } from "./layout-safety.js";
 import { TrustedLayoutDefinitionRegistry } from "./layout-registry.js";
 import { layoutVariableSourcePointers } from "./layout-source-pointers.js";
@@ -39,6 +42,7 @@ interface SelectedLayoutDefinition {
 }
 
 const layoutKeys = new Set(["layoutType", "template", "variables", "version"]);
+const authoringFields = new Set(["layoutType", "layoutVersion", "layouts", "variables"]);
 
 export function expandLayoutDocument(
   value: unknown,
@@ -295,7 +299,7 @@ function valid(
   return {
     collectionsById: sortedCollections(collectionsById),
     diagnostics: [],
-    document: createUiDocument(source, view, controls),
+    document: createUiDocument(source, view, collectionsById, controls),
     sourcePointersByNodeId: sortedPointers(sourcePointers),
     status: LayoutExpansionStatus.Valid
   };
@@ -320,15 +324,12 @@ function sortedPointers(
 function createUiDocument(
   source: Readonly<Record<string, unknown>>,
   view: JsonObject,
+  collectionsById: Readonly<Record<string, LayoutCollectionDefinition>>,
   controls: JsonObject | undefined
 ): JsonObject {
-  const retained = Object.fromEntries(
-    Object.entries(source).filter(
-      ([name]) => !["layoutType", "layoutVersion", "layouts", "variables"].includes(name)
-    )
-  );
   return {
-    ...retained,
+    ...Object.fromEntries(Object.entries(source).filter(([name]) => !authoringFields.has(name))),
+    ...layoutCollectionBehaviorField(collectionsById),
     ...(controls === undefined ? {} : { controls }),
     $schema: "https://schemas.unifold.org/ui-document/1.0/schema.json",
     compositions: [],

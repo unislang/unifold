@@ -31,6 +31,7 @@
       "import": "./dist/index.js"
     },
     "./schemas/derived-rule.schema.json": "./schemas/derived-rule.schema.json",
+    "./schemas/collection-behavior.schema.json": "./schemas/collection-behavior.schema.json",
     "./schemas/semantic-graph.schema.json": "./schemas/semantic-graph.schema.json",
     "./schemas/signed-ui-document-envelope.schema.json": "./schemas/signed-ui-document-envelope.schema.json",
     "./schemas/ui-document.schema.json": "./schemas/ui-document.schema.json"

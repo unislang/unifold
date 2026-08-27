@@ -31,6 +31,7 @@ export enum DiagnosticCode {
   InvalidCompositionExport = "invalid-composition-export",
   InvalidCompositionManifest = "invalid-composition-manifest",
   InvalidCompositionProvenance = "invalid-composition-provenance",
+  InvalidCollectionBehavior = "invalid-collection-behavior",
   InvalidControlTopology = "invalid-control-topology",
   InvalidDocument = "invalid-document",
   InvalidDerivedRule = "invalid-derived-rule",
@@ -84,7 +85,8 @@ export enum DiagnosticSeverity {
 }
 
 export enum UnifoldIrVersion {
-  Version1 = "1.0.0"
+  Version1 = "1.0.0",
+  Version1_1 = "1.1.0"
 }
 
 export enum StoreInputStatus {

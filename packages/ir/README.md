@@ -33,6 +33,8 @@ React or the upstream JsonUI store.
 Compilation is deterministic:
 
 - nodes are normalized and keyed by ID;
+- validated `collectionBehaviors@1.0.0` are indexed by collection ID in IR `1.1.0`, without private
+  authored source pointers or durable-key metadata;
 - render order remains explicit and independent from object key order;
 - component properties and keyed records are canonicalized;
 - unknown properties, invalid enum values, unsafe URLs, malformed choice options, and invalid string arrays are

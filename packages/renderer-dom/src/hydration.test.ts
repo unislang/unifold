@@ -8,7 +8,6 @@ import {
 } from "@unislang/unifold-ir";
 import { expect, it } from "vitest";
 import { StaticDomHydrationError, captureStaticDomHydration } from "./hydration.js";
-
 it("captures valid static values and focus without mutating the fallback DOM", () => {
   const container = staticContainer();
   const input = container.querySelector("input");
@@ -228,6 +227,7 @@ function searchFieldContainer(value: string): HTMLElement {
 
 function irDocument(): UnifoldIrDocument {
   return {
+    collectionBehaviorsById: {},
     compositionsByInstanceId: {},
     documentId: "test",
     documentRevision: "1",
@@ -247,13 +247,17 @@ function irDocument(): UnifoldIrDocument {
     renderOrder: ["form", "name", "role"],
     rootNodeId: "form",
     rules: [],
-    source: {
-      documentSchemaVersion: "1.0.0" as never,
-      jsonUiProfile: "test",
-      jsonUiUpstreamRevision: "test" as never
-    },
+    source: irSource(),
     sourcePointersByNodeId: { form: "/view", name: "/view/$children/0", role: "/view/$children/1" },
     storesById: {}
+  };
+}
+
+function irSource(): UnifoldIrDocument["source"] {
+  return {
+    documentSchemaVersion: "1.0.0" as never,
+    jsonUiProfile: "test",
+    jsonUiUpstreamRevision: "test" as never
   };
 }
 
@@ -320,25 +324,21 @@ function requireNodeElement(container: HTMLElement, id: string): HTMLElement {
   if (element === undefined) throw new Error(`Static fixture node is missing: ${id}.`);
   return element;
 }
-
 function requireInput(container: HTMLElement): HTMLInputElement {
   const input = container.querySelector("input[data-unifold-static-control='name']");
   if (!(input instanceof HTMLInputElement)) throw new Error("Fixture input is missing.");
   return input;
 }
-
 function requireInputById(container: HTMLElement, id: string): HTMLInputElement {
   const input = container.querySelector(`input[data-unifold-static-control='${id}']`);
   if (!(input instanceof HTMLInputElement)) throw new Error(`Fixture input is missing: ${id}.`);
   return input;
 }
-
 function requireSelect(container: HTMLElement): HTMLSelectElement {
   const select = container.querySelector("select");
   if (!(select instanceof HTMLSelectElement)) throw new Error("Fixture select is missing.");
   return select;
 }
-
 function markedButton(id: string): HTMLButtonElement {
   const button = document.createElement("button");
   button.dataset["unifoldStaticControl"] = id;

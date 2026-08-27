@@ -411,7 +411,9 @@ update. The focused Chromium/WebKit journey also asserts the removed native inpu
 adjacent native input is focused, the final-member removal focuses an authored `emptyFocusTarget`,
 and exactly one canonical focus-request target appears per focused removal in the public event
 observation. Compiler tests reject missing, self-referential, disabled, and non-focusable fallback
-targets, while integration evidence links each focus transaction causally to its structural
+targets. Contract/IR/module tests also prove closed `collectionBehaviors@1.0.0`, canonical IR
+`1.1.0`, artifact preservation, and application consumption without a prepared-sidecar dependency,
+while integration evidence links each focus transaction causally to its structural
 reconciliation transaction. Remaining work includes post-runtime renderer rollback/event atomicity,
 and end-to-end collection mutation performance beyond the
 500-item compile/revision gates. Remaining AC19 work also includes exact composition-control provenance,

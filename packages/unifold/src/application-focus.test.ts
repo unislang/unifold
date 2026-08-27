@@ -1,4 +1,3 @@
-import type { LayoutCollectionDefinition } from "@unislang/unifold-compositions";
 import { UiCollectionOperationType, UiNodeKind } from "@unislang/unifold-contracts";
 import type { UiNodeSnapshot } from "@unislang/unifold-events";
 import type { UnifoldIrDocument } from "@unislang/unifold-ir";
@@ -11,57 +10,31 @@ it("selects deterministic targets only when the focused collection member is rem
   expect(target(previous, nextDocument(["a", "c"]), 1)).toBe("c");
   expect(target(focused(previous, "nested"), nextDocument(["a", "b"]), 2)).toBe("b");
   expect(target(previous, nextDocument([]), 1)).toBeUndefined();
-  expect(target(previous, nextDocument([], ["add-item"]), 1, "add-item")).toBe("add-item");
-  expect(target(previous, nextDocument([]), 1, "missing")).toBeUndefined();
+  expect(target(previous, nextDocument([], ["add-item"]), 1)).toBeUndefined();
+  expect(target(previous, nextDocument([], ["add-item"], "add-item"), 1)).toBe("add-item");
+  expect(target(previous, nextDocument([], [], "missing"), 1)).toBeUndefined();
   expect(target(focused(previous, "outside"), nextDocument(["a", "c"]), 1)).toBeUndefined();
   expect(migratedFocusedNodeId(previous, migration())).toBe("successor");
   expect(
-    collectionFocusTarget(
-      previous,
-      nextDocument(["a", "b", "c"]),
-      {
-        collectionId: "items",
-        fromIndex: 1,
-        toIndex: 0,
-        type: UiCollectionOperationType.Move
-      },
-      {}
-    )
+    collectionFocusTarget(previous, nextDocument(["a", "b", "c"]), {
+      collectionId: "items",
+      fromIndex: 1,
+      toIndex: 0,
+      type: UiCollectionOperationType.Move
+    })
   ).toBeUndefined();
 });
 
 function target(
   previous: readonly UiNodeSnapshot[],
   next: UnifoldIrDocument,
-  fromIndex: number,
-  emptyFocusTargetId?: string
+  fromIndex: number
 ): string | undefined {
-  return collectionFocusTarget(
-    previous,
-    next,
-    {
-      collectionId: "items",
-      fromIndex,
-      type: UiCollectionOperationType.Remove
-    },
-    emptyFocusDefinitions(emptyFocusTargetId)
-  );
-}
-
-function emptyFocusDefinitions(
-  emptyFocusTargetId: string | undefined
-): Readonly<Record<string, LayoutCollectionDefinition>> {
-  if (emptyFocusTargetId === undefined) return {};
-  return {
-    items: {
-      controlId: "items",
-      declarationPointer: "/collection",
-      emptyFocusTargetId,
-      emptyFocusTargetPointer: "/emptyFocusTarget",
-      keyProperty: "id",
-      sourcePointer: "/variables/items"
-    }
-  };
+  return collectionFocusTarget(previous, next, {
+    collectionId: "items",
+    fromIndex,
+    type: UiCollectionOperationType.Remove
+  });
 }
 
 function migration() {
@@ -88,10 +61,13 @@ function focused(nodes: readonly UiNodeSnapshot[], id: string): readonly UiNodeS
 
 function nextDocument(
   children: readonly string[],
-  additionalIds: readonly string[] = []
+  additionalIds: readonly string[] = [],
+  emptyFocusTargetId?: string
 ): UnifoldIrDocument {
   const ids = ["items", ...children, ...additionalIds];
   return {
+    collectionBehaviorsById:
+      emptyFocusTargetId === undefined ? {} : { items: { emptyFocusTargetId } },
     nodesById: Object.fromEntries(
       ids.map((id) => [id, node(id, false, id === "items" ? { controlChildIds: children } : {})])
     )

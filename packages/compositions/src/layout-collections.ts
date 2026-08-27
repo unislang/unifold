@@ -1,4 +1,8 @@
-import { CoreComponentType, type JsonObject } from "@unislang/unifold-contracts";
+import {
+  ComponentProgrammaticFocusBehavior,
+  componentProgrammaticFocusBehavior
+} from "@unislang/unifold-catalog";
+import { UiCollectionBehaviorVersion, type JsonObject } from "@unislang/unifold-contracts";
 
 import { CompositionDiagnosticCode } from "./enums.js";
 import { addLayoutDiagnostic, isSafeLayoutName } from "./layout-values.js";
@@ -269,35 +273,25 @@ function isJsonObject(value: unknown): value is JsonObject {
 
 function isEnabledFocusComponent(node: JsonObject): boolean {
   if (node["disabled"] === true) return false;
-  return FOCUS_COMPONENTS.has(node["$comp"] as CoreComponentType);
+  const componentType = node["$comp"];
+  if (typeof componentType !== "string") return false;
+  return (
+    componentProgrammaticFocusBehavior(componentType) ===
+    ComponentProgrammaticFocusBehavior.FirstFocusableDescendant
+  );
 }
 
-const FOCUS_COMPONENTS = new Set<CoreComponentType>([
-  CoreComponentType.Accordion,
-  CoreComponentType.Breadcrumb,
-  CoreComponentType.Button,
-  CoreComponentType.Checkbox,
-  CoreComponentType.CheckboxGroup,
-  CoreComponentType.Combobox,
-  CoreComponentType.DataGrid,
-  CoreComponentType.DateField,
-  CoreComponentType.ErrorSummary,
-  CoreComponentType.FileInput,
-  CoreComponentType.Link,
-  CoreComponentType.MasterDetail,
-  CoreComponentType.MenuButton,
-  CoreComponentType.MultiSelect,
-  CoreComponentType.NumberField,
-  CoreComponentType.Pagination,
-  CoreComponentType.RadioGroup,
-  CoreComponentType.SearchField,
-  CoreComponentType.SearchResults,
-  CoreComponentType.Select,
-  CoreComponentType.Stepper,
-  CoreComponentType.Switch,
-  CoreComponentType.Tabs,
-  CoreComponentType.TextArea,
-  CoreComponentType.TextField,
-  CoreComponentType.VirtualList,
-  CoreComponentType.Wizard
-]);
+export function layoutCollectionBehaviorField(
+  definitions: Readonly<Record<string, LayoutCollectionDefinition>>
+): JsonObject {
+  const nodes = Object.entries(definitions)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .flatMap(([collectionId, definition]) =>
+      definition.emptyFocusTargetId === undefined
+        ? []
+        : [{ collectionId, emptyFocusTargetId: definition.emptyFocusTargetId }]
+    );
+  return nodes.length === 0
+    ? {}
+    : { collectionBehaviors: { contractVersion: UiCollectionBehaviorVersion.Version1, nodes } };
+}

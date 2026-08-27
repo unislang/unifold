@@ -64,6 +64,12 @@ source retains the higher-level layout vocabulary. `createUiModuleLock()` record
 sorted dependency graph, expanded-document integrity, and separately computed IR integrity; locks
 can be admitted with `validateUiModuleLock()` and its published Draft 2020-12 schema.
 
+Normalized `collectionBehaviors@1.0.0` survives composed and expanded module artifacts and compiles
+to IR `1.1.0`. It is a safe execution projection only. The artifact does not retain the original
+layout variables or compiler-private source pointers required to authorize
+`applyCollectionOperation()`, so module-authored structural mutation remains unsupported and must
+not be inferred from the behavior map.
+
 The first contract exports complete documents, composition definitions, and bounded typed opaque
 resources for layouts, machines, rules, schemas, tokens, messages, semantics, and scenarios. Layout
 resources are declarative definitions consumed by the built-in trusted layout expander. A product

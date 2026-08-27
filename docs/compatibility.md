@@ -11,7 +11,7 @@ the explicit versions embedded in each JSON or protocol contract and by the exec
 | Signed document envelope      | `1.0.0`                | Exact; signature covers original payload bytes before parsing or migration                   |
 | JsonUI profile                | `unifold-jsonui@1.0.0` | Exact profile pinned to upstream `0.10.25` commit `5401b3d4900ca3032c108d6db00e8a819f4b28e9` |
 | Core catalog                  | `unifold-core@1.0.0`   | Exact release; incompatible catalog majors require another realm                             |
-| Unifold IR                    | `1.0.0`                | Compiler output only; consumers do not author IR                                             |
+| Unifold IR                    | `1.1.0`                | Compiler output only; `1.1.0` adds collection behavior to the `1.0.0` render model           |
 | Store definition              | `1.0.0`                | Exact schema; adapter data version must satisfy the document's inclusive range               |
 | Composition contract/manifest | `1.0.0`                | Exact definitions and instance provenance                                                    |
 | Workflow machine              | `1.0.0`                | Exact portable definition; XState internal snapshots are not a portable contract             |
@@ -29,6 +29,10 @@ Exact means an unsupported value fails validation; it is never interpreted as th
 version. Additive contract work must introduce the semantically appropriate minor version and
 compatibility evidence. Renames, removals, or changed meaning require a major version and an explicit
 reviewed migration or a documented rejection boundary.
+
+The compiler emits `UnifoldIr@1.1.0`. Existing `1.0.0` renderer fixtures remain valid evidence for
+the unchanged node/render model, while `1.1.0` adds the canonical `collectionBehaviorsById` map.
+Persist authored JSON rather than IR and regenerate module IR-integrity locks after compiler upgrades.
 
 ## Migration support
 

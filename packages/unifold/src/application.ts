@@ -191,8 +191,7 @@ export class UnifoldApplication {
     const focusTarget = collectionFocusTarget(
       checkpoint.previousNodes,
       next.document,
-      this.collections.current?.metadata,
-      next.collectionsById
+      this.collections.current?.metadata
     );
     this.stageCandidate(next, nextStores);
     this.updating = true;

@@ -9,6 +9,7 @@
 - [Layout-oriented JSON authoring](layout-authoring.md)
 - [Pinned JsonUI profile](jsonui-profile.md)
 - [Stores and control bindings](stores-and-bindings.md)
+- [Collection behavior contracts](collection-behaviors.md)
 - [Document trust, signatures, and migrations](document-trust.md)
 - [Version compatibility and migration support](compatibility.md)
 - [Control-plane trust, effects, sequencing, and recovery](control-plane.md)

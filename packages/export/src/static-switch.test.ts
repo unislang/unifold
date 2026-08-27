@@ -57,6 +57,7 @@ function switchNode(
 
 function irDocument(node: UnifoldIrNode): UnifoldIrDocument {
   return {
+    collectionBehaviorsById: {},
     compositionsByInstanceId: {},
     documentId: "switch-document",
     documentRevision: "1",

@@ -3,6 +3,7 @@ import type {
   JsonUiNode,
   JsonValue,
   SemanticGraph,
+  UiCollectionBehaviorDefinition,
   UiCompositionInstanceManifest,
   UiCompositionNodeProvenance,
   UiDocument,
@@ -19,6 +20,7 @@ import type {
   CompileResult,
   CompileUiDocumentOptions,
   UnifoldIrDocument,
+  UnifoldIrCollectionBehavior,
   UnifoldIrNode
 } from "./types.js";
 import { validateUiDocument } from "./validation.js";
@@ -64,10 +66,11 @@ function buildDocument(document: UiDocument, options: CompileUiDocumentOptions):
   const context = createContext(document, options);
   compileNode(document.view, "/view", undefined, [], context);
   return {
+    collectionBehaviorsById: collectionBehaviors(document.collectionBehaviors),
     compositionsByInstanceId: compositionInstances(document),
     documentId: document.id,
     documentRevision: document.revision,
-    irVersion: UnifoldIrVersion.Version1,
+    irVersion: UnifoldIrVersion.Version1_1,
     machines: canonicalMachines(document.machines),
     nodeIdentityAliases: document.compositionManifest?.identityAliases ?? {},
     nodesById: sortedRecord(context.nodes),
@@ -83,6 +86,15 @@ function buildDocument(document: UiDocument, options: CompileUiDocumentOptions):
     sourcePointersByNodeId: sortedRecord(context.sourcePointers),
     storesById: canonicalStores(document.stores)
   };
+}
+
+function collectionBehaviors(
+  definition: UiCollectionBehaviorDefinition | undefined
+): Readonly<Record<string, UnifoldIrCollectionBehavior>> {
+  const entries = (definition?.nodes ?? []).map(
+    ({ collectionId, emptyFocusTargetId }) => [collectionId, { emptyFocusTargetId }] as const
+  );
+  return Object.fromEntries(entries.sort(([left], [right]) => left.localeCompare(right)));
 }
 
 function semanticField(semantics: SemanticGraph | undefined): {

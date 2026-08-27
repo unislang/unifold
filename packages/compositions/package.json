@@ -36,6 +36,7 @@
     "node": ">=22"
   },
   "dependencies": {
+    "@unislang/unifold-catalog": "workspace:*",
     "@unislang/unifold-contracts": "workspace:*",
     "json-schema-library": "11.6.2"
   },

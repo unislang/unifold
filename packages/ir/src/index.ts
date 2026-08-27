@@ -17,6 +17,7 @@ export type {
   CompileResult,
   CompileUiDocumentOptions,
   CompilerDiagnostic,
+  UnifoldIrCollectionBehavior,
   UnifoldIrDocument,
   UnifoldIrNode,
   UnifoldIrSource

@@ -59,6 +59,7 @@ function numberNode(
 
 function irDocument(node: UnifoldIrNode): UnifoldIrDocument {
   return {
+    collectionBehaviorsById: {},
     compositionsByInstanceId: {},
     documentId: "number-document",
     documentRevision: "1",

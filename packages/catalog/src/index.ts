@@ -63,6 +63,10 @@ export {
   ComponentStatus
 } from "./definition-enums.js";
 export { isSafeResourceUrl, isSafeUrl } from "./url.js";
+export {
+  ComponentProgrammaticFocusBehavior,
+  componentProgrammaticFocusBehavior
+} from "./programmatic-focus.js";
 export { cardDescriptor, imageDescriptor, MAXIMUM_CARD_CHILDREN } from "./content-media-catalog.js";
 export { breadcrumbDescriptor, MAXIMUM_BREADCRUMB_ITEMS } from "./breadcrumb-catalog.js";
 export {

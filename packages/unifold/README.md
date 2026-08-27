@@ -85,6 +85,9 @@ Named layout repeats must target one explicit logical Array or Record control. C
 `applyCollectionOperation(operation, origin?)` with enum-backed insert/move/remove operations;
 `origin` may carry trusted host `correlationId` and `causationId` values, but authored JSON cannot
 provide them and cannot select a transaction ID.
+An optional `emptyFocusTarget` lowers to the closed public `collectionBehaviors@1.0.0` contract and
+canonical IR `collectionBehaviorsById`. Final-member focus selection consumes that IR policy; the
+private prepared collection map remains the only authority for editing authored variables.
 
 `mountUnifoldApplication` also mounts document-declared workflow machines when the host supplies a
 `UiMachineCommandRegistry` and, for guarded transitions, a `UiMachineGuardRegistry`. Trusted guards

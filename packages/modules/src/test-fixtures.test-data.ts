@@ -5,6 +5,8 @@ import {
   JsonUiProfileVersion,
   JsonUiUpstreamRevision,
   UiContractSchemaUri,
+  UiControlNodeKind,
+  UiControlTopologyVersion,
   UiSchemaVersion
 } from "@unislang/unifold-contracts";
 import { CompositionContractVersion } from "@unislang/unifold-compositions";
@@ -122,6 +124,57 @@ export function layoutDocumentFixture() {
     revision: "revision-1",
     schemaVersion: UiSchemaVersion.Version1,
     variables: { message: "Scratch-style module application" }
+  };
+}
+
+export function collectionLayoutDocumentFixture() {
+  return {
+    $schema: "https://schemas.unifold.org/layout-document/1.0/schema.json",
+    catalog: { name: CoreCatalogName.UnifoldCore, version: CoreCatalogVersion.Version1 },
+    controls: {
+      contractVersion: UiControlTopologyVersion.Version1,
+      nodes: [
+        { id: "form", kind: UiControlNodeKind.Form },
+        { id: "items", key: "items", kind: UiControlNodeKind.Array, parentId: "form" }
+      ]
+    },
+    id: "module-collection-application",
+    layoutType: "collection-page",
+    layoutVersion: "1.0.0",
+    layouts: [collectionLayoutDefinition()],
+    revision: "revision-1",
+    schemaVersion: UiSchemaVersion.Version1,
+    variables: { items: [] }
+  };
+}
+
+function collectionLayoutDefinition() {
+  return {
+    layoutType: "collection-page",
+    template: {
+      children: [
+        {
+          children: [
+            {
+              collection: "items",
+              emptyFocusTarget: "add-item",
+              for: "item in {{items}}",
+              id: "item",
+              key: "id",
+              props: { label: "{{item.label}}", value: "{{item.label}}" },
+              type: "TextField"
+            }
+          ],
+          id: "items",
+          type: "Stack"
+        },
+        { id: "add-item", props: { label: "Add item" }, type: "Button" }
+      ],
+      id: "form",
+      type: "Form"
+    },
+    variables: { items: { required: true, type: "array" } },
+    version: "1.0.0"
   };
 }
 

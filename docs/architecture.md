@@ -166,6 +166,11 @@ stable ID of a distinct authored node. Compilation rejects missing, self-referen
 non-focus-capable targets; the mounted update also verifies that a usable target remains in the
 candidate runtime before committing final-member removal. The resulting focus transaction names the
 structural reconciliation transaction as its cause while retaining the trusted correlation ID.
+Layout lowering publishes this safe policy as closed `collectionBehaviors@1.0.0`; IR `1.1.0`
+canonicalizes it by collection ID, and application focus selection consumes that IR rather than the
+private prepared-document sidecar. Source pointers, key properties, and declaration pointers remain
+compiler-private mutation authority. Resolved module artifacts preserve the safe behavior projection,
+but do not yet preserve enough original layout state to authorize structural mutation.
 Invalid authored input rejects before commit; post-runtime renderer failure,
 compensation, and unified-event atomicity still need browser proof. Representative large authored
 collection end-to-end mutation performance remains broader than the 500-item compile/revision gates. Composition control declarations currently

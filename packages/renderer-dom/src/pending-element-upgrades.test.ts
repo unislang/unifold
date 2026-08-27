@@ -203,6 +203,7 @@ function documentWithNode(
   documentRevision: string
 ): UnifoldIrDocument {
   return {
+    collectionBehaviorsById: {},
     compositionsByInstanceId: {},
     documentId,
     documentRevision,

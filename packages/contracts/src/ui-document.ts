@@ -5,6 +5,7 @@ import type { SemanticGraph } from "./semantic.js";
 import type { UiStoreDefinition } from "./store.js";
 import type { UiDerivedRuleDefinition } from "./derived-rule.js";
 import type { UiControlTopologyDefinition } from "./control.js";
+import type { UiCollectionBehaviorDefinition } from "./collection-behavior.js";
 
 export enum UiContractSchemaUri {
   Version1 = "https://schemas.unifold.org/ui-document/1.0/schema.json"
@@ -76,6 +77,7 @@ export interface UiDocument extends JsonObject {
   readonly $schema: UiContractSchemaUri;
   readonly catalog: ComponentCatalogReference;
   readonly compositionManifest?: UiCompositionManifest;
+  readonly collectionBehaviors?: UiCollectionBehaviorDefinition;
   readonly controls?: UiControlTopologyDefinition;
   readonly id: string;
   readonly jsonUiProfile: JsonUiProfile;

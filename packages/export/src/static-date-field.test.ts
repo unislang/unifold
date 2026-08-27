@@ -61,6 +61,7 @@ function dateNode(
 
 function irDocument(node: UnifoldIrNode): UnifoldIrDocument {
   return {
+    collectionBehaviorsById: {},
     compositionsByInstanceId: {},
     documentId: "date-document",
     documentRevision: "1",

@@ -80,6 +80,7 @@ function requiredInput(container: HTMLElement): HTMLInputElement {
 
 function documentFixture(): UnifoldIrDocument {
   return {
+    collectionBehaviorsById: {},
     compositionsByInstanceId: {},
     documentId: "switch-document",
     documentRevision: "1",

@@ -34,6 +34,10 @@ export interface UnifoldIrSource {
   readonly jsonUiUpstreamRevision: JsonUiUpstreamRevision;
 }
 
+export interface UnifoldIrCollectionBehavior {
+  readonly emptyFocusTargetId: string;
+}
+
 export interface UnifoldIrNode {
   readonly childIds: readonly string[];
   readonly componentType: string;
@@ -51,6 +55,7 @@ export interface UnifoldIrNode {
 }
 
 export interface UnifoldIrDocument {
+  readonly collectionBehaviorsById: Readonly<Record<string, UnifoldIrCollectionBehavior>>;
   readonly compositionsByInstanceId: Readonly<Record<string, UiCompositionInstanceManifest>>;
   readonly documentId: string;
   readonly documentRevision: string;

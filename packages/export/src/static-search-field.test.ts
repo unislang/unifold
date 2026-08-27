@@ -57,6 +57,7 @@ function searchNode(
 
 function irDocument(node: UnifoldIrNode): UnifoldIrDocument {
   return {
+    collectionBehaviorsById: {},
     compositionsByInstanceId: {},
     documentId: "search-document",
     documentRevision: "1",

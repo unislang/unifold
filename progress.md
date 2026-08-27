@@ -41,7 +41,10 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   member through the canonical post-commit focus effect. A named repeat may now declare a validated
   `emptyFocusTarget`; final-member removal transfers focus to that stable authored destination
   without making empty layout hosts focusable. Hierarchical repeated members namespace their root
-  and every descendant by durable key.
+  and every descendant by durable key. The active worktree now promotes that safe fallback policy
+  through closed `collectionBehaviors@1.0.0`, canonical IR `1.1.0`, resolved module artifacts, and
+  application focus selection. Private source-pointer/key mutation authority remains only in the
+  prepared document.
   The bounded adopter CLI/starter,
   governed AI provider boundary, Studio dogfood workflow, multi-application semantic isolation,
   exact test colocation, re-export prevention, and completed reference/hierarchical/Studio module
@@ -56,6 +59,41 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - 1.0 traceability register: [`docs/acceptance-audit.md`](./docs/acceptance-audit.md)
 - Concise 34-criterion evidence register:
   [`docs/acceptance-status.md`](./docs/acceptance-status.md)
+
+## 2026-08-27 executable collection-behavior IR tranche
+
+- Status: implemented and release-gate verified in this local checkpoint; publication remains.
+  The overall goal remains active.
+- Layout lowering now emits the closed, bounded `collectionBehaviors@1.0.0` field when a named repeat
+  declares `emptyFocusTarget`. It contains only collection and target IDs. Compiler-private source
+  pointers, key properties, and declaration pointers remain in
+  `PreparedUnifoldDocument.collectionsById` and cannot be supplied through normalized JSON or IR.
+- The catalog is the single enum-backed authority for programmatic-focus behavior across all core
+  components. Composition validation and IR validation consume that policy instead of maintaining
+  independent focusable-component lists.
+- The compiler validates exact behavior shape/version, unique authorities, Array/Record control
+  ownership, distinct targets outside the logical collection subtree, enabled focus-capable visual
+  destinations, and a 10,000-entry ceiling. Canonical IR `1.1.0` emits sorted
+  `collectionBehaviorsById` values containing only `emptyFocusTargetId`.
+- Mounted collection focus selection now consumes the next executable IR and does not infer policy
+  from rendered IDs or the private prepared sidecar. Resolved modules preserve the safe behavior in
+  composed and expanded artifacts and include it in integrity/IR compilation.
+- Scoped verification passes contracts 14 files/46 tests, catalog 55/76, compositions 31/83, IR
+  41/166, modules 14/42, and focused application collection/focus evidence. Root Vitest passes 609
+  files/1,638 tests; tooling passes 22/22; generated CEM/theme/module-lock scripts pass; and
+  performance correctness passes 39 files/50 tests with 32 profile files skipped. Production and
+  test TypeScript, lint/complexity, 350-line files, 30-line functions, colocation, import/re-export,
+  formatting, unused-code analysis, and dependency analysis over 2,439 modules/5,464 dependencies
+  all pass. All 40 recursive builds pass. The production reference closure is 164,953 initial gzip
+  bytes plus 84,990 deferred against the 190 KiB initial ceiling, and the focused collection journey
+  passes 2/2 on Chromium/WebKit. All five committed module `irIntegrity` locks are regenerated and
+  validated against IR `1.1.0`.
+- Explicit remaining boundaries: normalized module artifacts still lack original layout variables
+  and private source pointers, so they cannot authorize `applyCollectionOperation()`. Non-empty
+  module repeats expose a generated logical-versus-escaped visual ID mismatch that requires one
+  identity-rewrite fix. DOM focus effects can still falsely complete for CSS-hidden/native-refused
+  targets or pending upgrades; truthful deepest-composed-focus settlement and Playwright negative
+  evidence remain next.
 
 ## 2026-08-27 focused authored-member removal tranche
 

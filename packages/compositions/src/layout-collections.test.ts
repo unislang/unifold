@@ -1,7 +1,8 @@
-import type { JsonObject } from "@unislang/unifold-contracts";
+import { UiCollectionBehaviorVersion, type JsonObject } from "@unislang/unifold-contracts";
 import { expect, it } from "vitest";
 
 import {
+  layoutCollectionBehaviorField,
   registerLayoutCollection,
   validateLayoutCollectionFocusTargets
 } from "./layout-collections.js";
@@ -60,6 +61,33 @@ it("accepts nested focus destinations and rejects unusable empty-focus targets",
     expect(result.diagnostics.at(-1)).toMatchObject({ path: "/node/emptyFocusTarget" });
   });
 });
+
+it("emits deterministic versioned behavior without compiler-only collection metadata", () => {
+  const definitions = {
+    secondary: definition("/variables/secondary"),
+    items: definition("/variables/items", "add-item")
+  };
+  expect(layoutCollectionBehaviorField(definitions)).toEqual({
+    collectionBehaviors: {
+      contractVersion: UiCollectionBehaviorVersion.Version1,
+      nodes: [{ collectionId: "items", emptyFocusTargetId: "add-item" }]
+    }
+  });
+  expect(layoutCollectionBehaviorField({ secondary: definitions.secondary })).toEqual({});
+});
+
+function definition(
+  sourcePointer: string,
+  emptyFocusTargetId?: string
+): LayoutCollectionDefinition {
+  return {
+    controlId: "items",
+    declarationPointer: "/node/collection",
+    ...(emptyFocusTargetId === undefined ? {} : { emptyFocusTargetId }),
+    keyProperty: "id",
+    sourcePointer
+  };
+}
 
 function targetValidation(emptyFocusTargetId: string, view: JsonObject) {
   const definitions: Record<string, LayoutCollectionDefinition> = {};
