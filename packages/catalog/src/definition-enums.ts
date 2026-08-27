@@ -17,6 +17,7 @@ export enum ComponentAccessibilityPattern {
   NativeCheckbox = "native-checkbox",
   NativeCheckboxGroup = "native-checkbox-group",
   NativeDataGrid = "native-data-grid",
+  NativeDateInput = "native-date-input",
   NativeFieldset = "native-fieldset",
   NativeFileInput = "native-file-input",
   NativeForm = "native-form",

@@ -21,6 +21,7 @@ export {
   CoreElementTag,
   DataGridSelectionMode,
   DataGridSortDirection,
+  DateFieldAutocomplete,
   DialogActivationReason,
   ErrorSummaryItemProperty,
   FileMetadataProperty,
@@ -84,6 +85,7 @@ export {
 } from "./file-input-catalog.js";
 export { MAXIMUM_MENU_ITEMS } from "./menu-catalog.js";
 export { numberFieldDescriptor } from "./number-field-catalog.js";
+export { dateFieldDescriptor } from "./date-field-catalog.js";
 export { searchFieldDescriptor } from "./search-field-catalog.js";
 export { switchDescriptor } from "./switch-catalog.js";
 export {
@@ -99,6 +101,7 @@ export type {
   CatalogBreadcrumbDataConstraint,
   CatalogChildCountConstraint,
   CatalogDataGridStateConstraint,
+  CatalogDateFieldRangeConstraint,
   CatalogFileInputDataConstraint,
   CatalogMasterDetailStateConstraint,
   CatalogNumberFieldRangeConstraint,

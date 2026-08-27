@@ -11,6 +11,7 @@ export enum CoreComponentType {
   Combobox = "Combobox",
   Composition = "Composition",
   DataGrid = "DataGrid",
+  DateField = "DateField",
   Dialog = "Dialog",
   ErrorSummary = "ErrorSummary",
   Field = "Field",

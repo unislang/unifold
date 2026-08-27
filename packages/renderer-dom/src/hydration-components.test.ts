@@ -7,5 +7,7 @@ it("classifies CheckboxGroup as a hydratable choice value", () => {
   expect(isStaticChoiceComponent(CoreComponentType.CheckboxGroup)).toBe(true);
   expect(isStaticValueComponent(CoreComponentType.CheckboxGroup)).toBe(true);
   expect(isStaticValueComponent(CoreComponentType.Switch)).toBe(true);
+  expect(isStaticValueComponent(CoreComponentType.DateField)).toBe(true);
+  expect(isStaticChoiceComponent(CoreComponentType.DateField)).toBe(false);
   expect(isStaticChoiceComponent(CoreComponentType.SearchField)).toBe(false);
 });

@@ -233,6 +233,7 @@ const controlComponents = new Set<CoreComponentType>([
   CoreComponentType.Checkbox,
   CoreComponentType.CheckboxGroup,
   CoreComponentType.Combobox,
+  CoreComponentType.DateField,
   CoreComponentType.MultiSelect,
   CoreComponentType.NumberField,
   CoreComponentType.RadioGroup,

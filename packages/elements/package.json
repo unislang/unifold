@@ -50,6 +50,10 @@
       "types": "./dist/checkbox-group-entry.d.ts",
       "import": "./dist/checkbox-group-entry.js"
     },
+    "./date-field": {
+      "types": "./dist/date-field-entry.d.ts",
+      "import": "./dist/date-field-entry.js"
+    },
     "./number-field": {
       "types": "./dist/number-field-entry.d.ts",
       "import": "./dist/number-field-entry.js"

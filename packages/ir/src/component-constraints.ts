@@ -12,6 +12,7 @@ import { errorDiagnostic } from "./diagnostics.js";
 import { validateAuditLogDataConstraint } from "./audit-log-validation.js";
 import { validateBreadcrumbDataConstraint } from "./breadcrumb-validation.js";
 import { validateDataGridStateConstraint } from "./data-grid-validation.js";
+import { validateDateFieldRangeConstraint } from "./date-field-validation.js";
 import { validateFileInputDataConstraint } from "./file-input-validation.js";
 import { DiagnosticCode } from "./enums.js";
 import { isPlainObject } from "./json-safety.js";
@@ -40,6 +41,7 @@ const validators: Readonly<Record<CatalogConstraintKind, ConstraintValidator>> =
   [CatalogConstraintKind.BreadcrumbData]: validateBreadcrumbDataConstraint,
   [CatalogConstraintKind.ChildCount]: validateChildCount,
   [CatalogConstraintKind.DataGridState]: validateDataGridStateConstraint,
+  [CatalogConstraintKind.DateFieldRange]: validateDateFieldRangeConstraint,
   [CatalogConstraintKind.FileInputData]: validateFileInputDataConstraint,
   [CatalogConstraintKind.MasterDetailState]: validateMasterDetailStateConstraint,
   [CatalogConstraintKind.NumberFieldRange]: validateNumberFieldRangeConstraint,

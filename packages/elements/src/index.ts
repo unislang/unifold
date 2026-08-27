@@ -10,6 +10,7 @@ export type { UnifoldCheckboxGroup } from "./checkbox-group.js";
 export type { UnifoldCombobox } from "./combobox.js";
 export { UnifoldComposition } from "./composition.js";
 export type { UnifoldDataGrid } from "./data-grid.js";
+export type { UnifoldDateField } from "./date-field.js";
 export type { UnifoldDialog } from "./dialog.js";
 export type { UnifoldFileInput } from "./file-input.js";
 export { UnifoldErrorSummary } from "./error-summary.js";

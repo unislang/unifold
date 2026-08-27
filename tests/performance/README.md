@@ -95,6 +95,10 @@ An exact boolean-control fixture mounts 100 deferred `Switch` elements and proje
 controlled on/off values across 50 samples. It requires exactly 100 hosts, the expected final
 native checked state, and projection p95 at or below 100 ms.
 
+An exact date-only fixture mounts 100 deferred `DateField` elements and projects all 100 controlled
+calendar values across 50 samples. It requires exactly 100 hosts, the expected final native
+`YYYY-MM-DD` value, and projection p95 at or below 100 ms without timezone conversion.
+
 An exact 10,000-row MasterDetail document adds twenty post-warm-up startup and selection samples.
 Its gates require startup p95 at or below 1,000 ms, selection p95 at or below 100 ms, no more than
 200 rendered master options, the expected canonical selected row, and the matching detail content.

@@ -6,6 +6,7 @@ import { defineUnifoldCheckboxGroup } from "./checkbox-group-entry.js";
 import { defineUnifoldCombobox } from "./combobox-entry.js";
 import { defineUnifoldCard, defineUnifoldImage } from "./content-media-entry.js";
 import { defineUnifoldDataGrid } from "./data-grid-entry.js";
+import { defineUnifoldDateField } from "./date-field-entry.js";
 import { defineUnifoldDialog } from "./dialog-entry.js";
 import { defineUnifoldFileInput } from "./file-input-entry.js";
 import {
@@ -96,6 +97,7 @@ export function foundationTags(): readonly CoreElementTag[] {
     CoreElementTag.CheckboxGroup,
     CoreElementTag.Combobox,
     CoreElementTag.DataGrid,
+    CoreElementTag.DateField,
     CoreElementTag.Dialog,
     CoreElementTag.FileInput,
     CoreElementTag.Image,
@@ -126,6 +128,7 @@ export function defineDeferredElements(registry: ElementRegistryPort): void {
   defineUnifoldCard(registry);
   defineUnifoldImage(registry);
   defineUnifoldDataGrid(registry);
+  defineUnifoldDateField(registry);
   [defineUnifoldDialog, defineUnifoldFileInput].forEach((define) => define(registry));
   [defineUnifoldErrorSummary, defineUnifoldField, defineUnifoldFieldset].forEach((define) =>
     define(registry)

@@ -26,6 +26,7 @@ const EVENTS: Readonly<Record<CoreComponentType, readonly UiComponentEventBindin
   [CoreComponentType.Combobox]: INPUT_AND_BLUR,
   [CoreComponentType.Composition]: NONE,
   [CoreComponentType.DataGrid]: INPUT_AND_BLUR,
+  [CoreComponentType.DateField]: INPUT_AND_BLUR,
   [CoreComponentType.Dialog]: ACTIVATED,
   [CoreComponentType.ErrorSummary]: ACTIVATED,
   [CoreComponentType.Field]: NONE,

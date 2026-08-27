@@ -78,6 +78,7 @@ const scalarSchemas = Object.freeze({
     required: ["selectedRowIds"],
     type: "object"
   },
+  [CatalogPropertyType.Date]: { format: "date", type: "string" },
   [CatalogPropertyType.ErrorSummaryItemList]: {
     items: {
       additionalProperties: false,

@@ -12,6 +12,7 @@ import { checkboxGroupSidecar } from "./checkbox-group-sidecar.js";
 import { cardSidecar, imageSidecar } from "./content-media-sidecars.js";
 import { comboboxSidecar } from "./combobox-sidecar.js";
 import { dialogSidecar } from "./dialog-sidecar.js";
+import { dateFieldSidecar } from "./date-field-sidecar.js";
 import { fileInputSidecar } from "./file-input-sidecar.js";
 import {
   errorSummarySidecar,
@@ -136,6 +137,7 @@ export const componentDefinitionSidecars = Object.freeze({
     semanticAttachmentPoints: [],
     sensitiveProperties: ["caption", "columns", "emptyMessage", "errorMessage", "rows", "value"]
   }),
+  [CoreComponentType.DateField]: dateFieldSidecar,
   [CoreComponentType.Dialog]: dialogSidecar,
   [CoreComponentType.ErrorSummary]: errorSummarySidecar,
   [CoreComponentType.Field]: fieldSidecar,

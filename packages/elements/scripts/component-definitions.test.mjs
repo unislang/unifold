@@ -40,6 +40,7 @@ test("derives required, enum, attribute, and public snapshot schemas", async () 
   assert.equal(schemas.table.propertiesSchema.properties.columns.maxItems, 64);
   assert.equal(schemas.table.propertiesSchema.properties.rows.maxItems, 10_000);
   assertDataGridSchemas(schemas.dataGrid);
+  assertDateFieldSchema(schemas.dateField);
   assertCheckboxGroupSchema(schemas.checkboxGroup);
   assertFileInputSchemas(schemas.fileInput);
   assertMultiSelectSchema(document);
@@ -73,6 +74,17 @@ function assertNumberFieldSchema(numberField) {
   assert.deepEqual(numberField.propertiesSchema.required, ["label"]);
   assert.deepEqual(numberField.control.valueSchema.type, ["number", "null"]);
   assert.equal(numberField.propertiesSchema.properties.step.exclusiveMinimum, 0);
+}
+
+function assertDateFieldSchema(dateField) {
+  assert.deepEqual(dateField.propertiesSchema.required, ["label"]);
+  assert.deepEqual(dateField.control.valueSchema, {
+    default: "",
+    format: "date",
+    type: "string"
+  });
+  assert.deepEqual(dateField.propertiesSchema.properties.autocomplete.enum, ["bday", "off", "on"]);
+  assert.equal(dateField.customElement.tagName, "unifold-date-field");
 }
 
 function assertSearchFieldSchema(searchField) {
@@ -122,6 +134,7 @@ function schemaDefinitions(document) {
       "breadcrumb",
       "checkboxGroup",
       "dataGrid",
+      "dateField",
       "dialog",
       "fileInput",
       "icon",

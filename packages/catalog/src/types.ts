@@ -110,6 +110,14 @@ export interface CatalogDataGridStateConstraint {
   readonly valueProperty: string;
 }
 
+export interface CatalogDateFieldRangeConstraint {
+  readonly kind: CatalogConstraintKind.DateFieldRange;
+  readonly maximumProperty: string;
+  readonly minimumProperty: string;
+  readonly stepProperty: string;
+  readonly valueProperty: string;
+}
+
 export interface CatalogFileInputDataConstraint {
   readonly kind: CatalogConstraintKind.FileInputData;
   readonly maximumFileBytesProperty: string;
@@ -159,6 +167,7 @@ export type CatalogConstraintDescriptor =
   | CatalogBreadcrumbDataConstraint
   | CatalogChildCountConstraint
   | CatalogDataGridStateConstraint
+  | CatalogDateFieldRangeConstraint
   | CatalogFileInputDataConstraint
   | CatalogMasterDetailStateConstraint
   | CatalogNumberFieldRangeConstraint

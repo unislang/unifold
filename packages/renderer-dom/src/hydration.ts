@@ -6,6 +6,7 @@ import {
 } from "@unislang/unifold-ir";
 
 import { readStaticCheckboxGroupValue } from "./checkbox-group-hydration.js";
+import { readStaticDateFieldValue } from "./date-field-hydration.js";
 import { isStaticChoiceComponent, isStaticValueComponent } from "./hydration-components.js";
 import { captureStaticHydrationFocus, type StaticHydrationFocusState } from "./hydration-focus.js";
 import { readStaticSearchFieldValue } from "./search-field-hydration.js";
@@ -150,6 +151,14 @@ function scalarControlValue(node: UnifoldIrNode, control: HTMLElement): JsonValu
 }
 
 function nonNumberComponentValue(node: UnifoldIrNode, control: HTMLElement): JsonValue {
+  if (node.componentType === CoreComponentType.DateField)
+    return readStaticDateFieldValue(node, control, () =>
+      hydrationError(`Static date control is invalid: ${node.id}.`)
+    );
+  return stringOrBooleanComponentValue(node, control);
+}
+
+function stringOrBooleanComponentValue(node: UnifoldIrNode, control: HTMLElement): JsonValue {
   if (node.componentType === CoreComponentType.SearchField)
     return readStaticSearchFieldValue(node, control, () =>
       hydrationError(`Static search control is invalid: ${node.id}.`)

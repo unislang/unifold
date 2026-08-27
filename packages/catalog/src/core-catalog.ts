@@ -33,6 +33,7 @@ import { checkboxGroupDescriptor } from "./checkbox-group-catalog.js";
 import { cardDescriptor, imageDescriptor } from "./content-media-catalog.js";
 import { choiceConstraints, choiceProperties, comboboxDescriptor } from "./choice-catalog.js";
 import { dialogDescriptor } from "./dialog-catalog.js";
+import { dateFieldDescriptor } from "./date-field-catalog.js";
 import { fileInputDescriptor } from "./file-input-catalog.js";
 import {
   errorSummaryDescriptor,
@@ -143,6 +144,7 @@ const descriptors: Record<CoreComponentType, ComponentDescriptor> = {
     version: "1.0.0"
   },
   [CoreComponentType.DataGrid]: dataViews.dataGridDescriptor,
+  [CoreComponentType.DateField]: dateFieldDescriptor,
   [CoreComponentType.Dialog]: dialogDescriptor,
   [CoreComponentType.ErrorSummary]: errorSummaryDescriptor,
   [CoreComponentType.Field]: fieldDescriptor,

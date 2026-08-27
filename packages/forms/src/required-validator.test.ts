@@ -27,6 +27,14 @@ it("applies shared required semantics to SearchField", () => {
   expect(requiredErrors(search)[0]?.code).toBe(ValidationErrorCode.Required);
 });
 
+it("applies shared required semantics to DateField", () => {
+  const date = {
+    ...validationNode("", { required: true }),
+    type: CoreComponentType.DateField
+  };
+  expect(requiredErrors(date)[0]?.code).toBe(ValidationErrorCode.Required);
+});
+
 it("applies shared required semantics to CheckboxGroup arrays", () => {
   const group = {
     ...validationNode([], { required: true }),

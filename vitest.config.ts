@@ -59,6 +59,9 @@ export default defineConfig({
       "@unislang/unifold-elements/data-grid": fileURLToPath(
         new URL("./packages/elements/src/data-grid-entry.ts", import.meta.url)
       ),
+      "@unislang/unifold-elements/date-field": fileURLToPath(
+        new URL("./packages/elements/src/date-field-entry.ts", import.meta.url)
+      ),
       "@unislang/unifold-elements/search-results": fileURLToPath(
         new URL("./packages/elements/src/search-results-entry.ts", import.meta.url)
       ),
@@ -139,6 +142,9 @@ export default defineConfig({
       ),
       "@unislang/unifold/search-field": fileURLToPath(
         new URL("./packages/unifold/src/search-field.ts", import.meta.url)
+      ),
+      "@unislang/unifold/date-field": fileURLToPath(
+        new URL("./packages/unifold/src/date-field.ts", import.meta.url)
       ),
       "@unislang/unifold/switch": fileURLToPath(
         new URL("./packages/unifold/src/switch.ts", import.meta.url)

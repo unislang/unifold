@@ -27,6 +27,9 @@ export default defineConfig({
       "@unislang/unifold-elements/data-grid": fileURLToPath(
         new URL("../../packages/elements/src/data-grid-entry.ts", import.meta.url)
       ),
+      "@unislang/unifold-elements/date-field": fileURLToPath(
+        new URL("../../packages/elements/src/date-field-entry.ts", import.meta.url)
+      ),
       "@unislang/unifold-elements/dialog": fileURLToPath(
         new URL("../../packages/elements/src/dialog-entry.ts", import.meta.url)
       ),

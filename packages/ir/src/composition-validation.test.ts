@@ -36,14 +36,14 @@ it("accepts RadioGroup control-value selection exports", () => {
   expect(compileUiDocument(withRadioGroup()).status).toBe(CompilationStatus.Valid);
 });
 
-it.each([CoreComponentType.NumberField, CoreComponentType.SearchField, CoreComponentType.Switch])(
-  "accepts %s control-value selection exports",
-  (componentType) => {
-    expect(compileUiDocument(withScalarControl(componentType)).status).toBe(
-      CompilationStatus.Valid
-    );
-  }
-);
+it.each([
+  CoreComponentType.DateField,
+  CoreComponentType.NumberField,
+  CoreComponentType.SearchField,
+  CoreComponentType.Switch
+])("accepts %s control-value selection exports", (componentType) => {
+  expect(compileUiDocument(withScalarControl(componentType)).status).toBe(CompilationStatus.Valid);
+});
 
 it("accepts CheckboxGroup control-value selection exports", () => {
   expect(compileUiDocument(withCheckboxGroup()).status).toBe(CompilationStatus.Valid);

@@ -27,6 +27,7 @@ function referenceFormChildren(): readonly JsonObject[] {
     passwordField(),
     textArea(),
     numberField(),
+    dateField(),
     searchField(),
     referenceFileInputNode(),
     checkbox(),
@@ -133,6 +134,20 @@ function numberField(): JsonObject {
     name: "age",
     step: 1,
     value: 42
+  };
+}
+
+function dateField(): JsonObject {
+  return {
+    $comp: "DateField",
+    autocomplete: "off",
+    id: "start-date",
+    label: "Start date",
+    max: "2027-12-31",
+    min: "2025-01-01",
+    name: "startDate",
+    step: 1,
+    value: "2026-08-26"
   };
 }
 

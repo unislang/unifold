@@ -70,37 +70,39 @@ it("rejects a disabled CheckboxGroup selection", () => {
   ]);
 });
 
-it.each([CoreComponentType.CheckboxGroup, CoreComponentType.Switch, CoreComponentType.Tooltip])(
-  "rejects children for the exact %s leaf",
-  (componentType) => {
-    const descriptor = getCoreDescriptor(componentType);
-    if (descriptor === undefined) throw new Error(`Missing ${componentType} descriptor.`);
-    const diagnostics: CompilerDiagnostic[] = [];
-    validateComponentConstraints(
-      {
-        $children: [{ $comp: CoreComponentType.Text, content: "Hidden", id: "hidden" }],
-        $comp: componentType,
-        content: "Help",
-        id: "help",
-        label: "More information"
-      },
-      descriptor,
-      "/view",
-      diagnostics
-    );
+it.each([
+  CoreComponentType.CheckboxGroup,
+  CoreComponentType.DateField,
+  CoreComponentType.Switch,
+  CoreComponentType.Tooltip
+])("rejects children for the exact %s leaf", (componentType) => {
+  const descriptor = getCoreDescriptor(componentType);
+  if (descriptor === undefined) throw new Error(`Missing ${componentType} descriptor.`);
+  const diagnostics: CompilerDiagnostic[] = [];
+  validateComponentConstraints(
+    {
+      $children: [{ $comp: CoreComponentType.Text, content: "Hidden", id: "hidden" }],
+      $comp: componentType,
+      content: "Help",
+      id: "help",
+      label: "More information"
+    },
+    descriptor,
+    "/view",
+    diagnostics
+  );
 
-    expect(diagnostics).toEqual([
-      expect.objectContaining({
-        code: DiagnosticCode.InvalidChildCount,
-        nodeId: "help",
-        path: "/view/$children"
-      })
-    ]);
-  }
-);
+  expect(diagnostics).toEqual([
+    expect.objectContaining({
+      code: DiagnosticCode.InvalidChildCount,
+      nodeId: "help",
+      path: "/view/$children"
+    })
+  ]);
+});
 
 it("has a validator for every enum-backed constraint kind", () => {
-  expect(Object.values(CatalogConstraintKind)).toHaveLength(13);
+  expect(Object.values(CatalogConstraintKind)).toHaveLength(14);
 });
 
 function validateChoice(

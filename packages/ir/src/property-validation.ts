@@ -6,7 +6,7 @@ import {
   isSafeUrl,
   type CatalogPropertyDescriptor
 } from "@unislang/unifold-catalog";
-import { isFiniteJsonNumber } from "@unislang/unifold-contracts";
+import { isFiniteJsonNumber, isJsonDateValue } from "@unislang/unifold-contracts";
 
 import { errorDiagnostic } from "./diagnostics.js";
 import { isAuditLogEntryList } from "./audit-log-validation.js";
@@ -33,6 +33,7 @@ const validators: Readonly<Record<CatalogPropertyType, PropertyValidator>> = {
   [CatalogPropertyType.BreadcrumbItemList]: isBreadcrumbItemList,
   [CatalogPropertyType.Boolean]: (value) => typeof value === "boolean",
   [CatalogPropertyType.DataGridValue]: isDataGridValue,
+  [CatalogPropertyType.Date]: isJsonDateValue,
   [CatalogPropertyType.Enum]: isEnumValue,
   [CatalogPropertyType.ErrorSummaryItemList]: isErrorSummaryItemList,
   [CatalogPropertyType.FileAccept]: (value) =>

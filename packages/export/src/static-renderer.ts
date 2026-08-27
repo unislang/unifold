@@ -3,6 +3,7 @@ import { CoreComponentType, DataClassification, type JsonValue } from "@unislang
 import type { UnifoldIrDocument, UnifoldIrNode } from "@unislang/unifold-ir";
 import { escapeHtml } from "./html-escape.js";
 import { staticNodeClassification } from "./static-classification.js";
+import { renderStaticDateField } from "./static-date-field.js";
 import * as staticComponents from "./static-components.js";
 import * as staticContent from "./static-content-media.js";
 import * as staticForm from "./static-form-structure.js";
@@ -27,6 +28,7 @@ const renderers: Readonly<Record<CoreComponentType, NodeRenderer>> = {
   [CoreComponentType.Combobox]: renderSelect,
   [CoreComponentType.Composition]: renderSection,
   [CoreComponentType.DataGrid]: staticComponents.renderStaticDataGrid,
+  [CoreComponentType.DateField]: renderStaticDateField,
   [CoreComponentType.Dialog]: staticComponents.renderStaticDialog,
   [CoreComponentType.ErrorSummary]: staticForm.renderStaticErrorSummary,
   [CoreComponentType.Field]: staticForm.renderStaticField,

@@ -32,6 +32,7 @@ export enum CatalogConstraintKind {
   BreadcrumbData = "breadcrumb-data",
   ChildCount = "child-count",
   DataGridState = "data-grid-state",
+  DateFieldRange = "date-field-range",
   FileInputData = "file-input-data",
   MasterDetailState = "master-detail-state",
   NumberFieldRange = "number-field-range",
@@ -47,6 +48,7 @@ export enum CatalogPropertyType {
   AuditLogEntryList = "audit-log-entry-list",
   BreadcrumbItemList = "breadcrumb-item-list",
   Boolean = "boolean",
+  Date = "date",
   DataGridValue = "data-grid-value",
   Enum = "enum",
   ErrorSummaryItemList = "error-summary-item-list",
@@ -94,6 +96,7 @@ export enum CoreElementTag {
   Combobox = "unifold-combobox",
   Composition = "unifold-composition",
   DataGrid = "unifold-data-grid",
+  DateField = "unifold-date-field",
   Dialog = "unifold-dialog",
   ErrorSummary = "unifold-error-summary",
   Field = "unifold-field",
@@ -143,6 +146,12 @@ export enum DialogActivationReason {
   Escape = "escape",
   Native = "native",
   Trigger = "trigger"
+}
+
+export enum DateFieldAutocomplete {
+  Bday = "bday",
+  Off = "off",
+  On = "on"
 }
 
 export enum HeadingLevel {

@@ -16,6 +16,7 @@ const [
   contentMediaFamily,
   checkboxGroupFamily,
   dataGridFamily,
+  dateFieldFamily,
   dialogFamily,
   fileInputFamily,
   masterDetailFamily,
@@ -37,6 +38,7 @@ const [
   import("@unislang/unifold/content-media"),
   import("@unislang/unifold/checkbox-group"),
   import("@unislang/unifold/data-grid"),
+  import("@unislang/unifold/date-field"),
   import("@unislang/unifold/dialog"),
   import("@unislang/unifold/file-input"),
   import("@unislang/unifold/master-detail"),
@@ -59,6 +61,7 @@ assertFamily("Card", contentMediaFamily.defineUnifoldCard());
 assertFamily("Image", contentMediaFamily.defineUnifoldImage());
 assertFamily("CheckboxGroup", checkboxGroupFamily.defineUnifoldCheckboxGroup());
 assertFamily("DataGrid", dataGridFamily.defineUnifoldDataGrid());
+assertFamily("DateField", dateFieldFamily.defineUnifoldDateField());
 assertFamily("Dialog", dialogFamily.defineUnifoldDialog());
 assertFamily("FileInput", fileInputFamily.defineUnifoldFileInput());
 assertFamily("MasterDetail", masterDetailFamily.defineUnifoldMasterDetail());

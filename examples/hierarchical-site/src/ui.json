@@ -70,6 +70,35 @@
         "events": { "onInput": "AGE_CHANGED" }
       },
       {
+        "id": "contact-start-date",
+        "type": "DateField",
+        "props": {
+          "autocomplete": "off",
+          "label": "Start date",
+          "max": "2027-12-31",
+          "min": "2025-01-01",
+          "name": "startDate",
+          "required": true,
+          "step": 1,
+          "testId": "contact-start-date",
+          "value": "2026-08-26"
+        },
+        "events": { "onInput": "START_DATE_CHANGED" }
+      },
+      {
+        "id": "locked-start-date",
+        "type": "DateField",
+        "props": {
+          "autocomplete": "off",
+          "disabled": true,
+          "label": "Locked start date",
+          "name": "lockedStartDate",
+          "testId": "locked-start-date",
+          "value": ""
+        },
+        "events": { "onInput": "LOCKED_START_DATE_CHANGED" }
+      },
+      {
         "id": "profile-search",
         "type": "SearchField",
         "props": {

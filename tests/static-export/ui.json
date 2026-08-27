@@ -154,6 +154,18 @@
             "value": 40
           },
           {
+            "$comp": "DateField",
+            "autocomplete": "off",
+            "id": "start-date",
+            "label": "Start date",
+            "max": "2027-12-31",
+            "min": "2025-01-01",
+            "name": "startDate",
+            "required": true,
+            "step": 1,
+            "value": "2026-08-26"
+          },
+          {
             "$comp": "SearchField",
             "autocomplete": "off",
             "id": "profile-search",

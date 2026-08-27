@@ -11,6 +11,7 @@ const deferredTags = new Set<CoreElementTag>([
   CoreElementTag.CheckboxGroup,
   CoreElementTag.Combobox,
   CoreElementTag.DataGrid,
+  CoreElementTag.DateField,
   CoreElementTag.Dialog,
   CoreElementTag.ErrorSummary,
   CoreElementTag.Field,
