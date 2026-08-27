@@ -34,8 +34,7 @@ import {
   rollbackResultDiagnostic,
   reverseMigrationPlan,
   restoreFocus,
-  unavailableDiagnostic,
-  updateInProgressDiagnostic,
+  structuralUpdateDiagnostic,
   updateFailureStage
 } from "./application-update.js";
 import { commandForEvent, eventExecutionContext } from "./event-command.js";
@@ -95,15 +94,15 @@ export class UnifoldApplication {
     return structuredClone(this.current.authored);
   }
   applyCollectionOperation(operation: UnifoldCollectionOperation): UnifoldApplicationUpdateResult {
-    if (this.unavailable) return rejectedUpdate(this.runtime.revision, [unavailableDiagnostic()]);
-    if (this.updating) return rejectedUpdate(this.runtime.revision, [updateInProgressDiagnostic()]);
+    const diagnostic = structuralUpdateDiagnostic(this.unavailable, this.updating);
+    if (diagnostic !== undefined) return rejectedUpdate(this.runtime.revision, [diagnostic]);
     return this.collections.apply(this.current, operation, this.runtime.revision, (next) =>
       this.update(next)
     );
   }
   update(authored: unknown): UnifoldApplicationUpdateResult {
-    if (this.unavailable) return rejectedUpdate(this.runtime.revision, [unavailableDiagnostic()]);
-    if (this.updating) return rejectedUpdate(this.runtime.revision, [updateInProgressDiagnostic()]);
+    const diagnostic = structuralUpdateDiagnostic(this.unavailable, this.updating);
+    if (diagnostic !== undefined) return rejectedUpdate(this.runtime.revision, [diagnostic]);
     const preparation = prepareApplicationUpdate(authored, this.applicationOptions);
     if (preparation.status === UnifoldPreparationStatus.Invalid) {
       return rejectedUpdate(this.runtime.revision, preparation.diagnostics);

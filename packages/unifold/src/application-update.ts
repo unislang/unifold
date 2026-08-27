@@ -137,13 +137,22 @@ export function unavailableDiagnostic(): UnifoldApplicationDiagnostic {
   };
 }
 
-export function updateInProgressDiagnostic(): UnifoldApplicationDiagnostic {
+function updateInProgressDiagnostic(): UnifoldApplicationDiagnostic {
   return {
     code: "application-update-in-progress",
     message: "A structural application update is already in progress.",
     path: "/",
     stage: UnifoldApplicationDiagnosticStage.Coordination
   };
+}
+
+export function structuralUpdateDiagnostic(
+  unavailable: boolean,
+  updating: boolean
+): UnifoldApplicationDiagnostic | undefined {
+  if (unavailable) return unavailableDiagnostic();
+  if (updating) return updateInProgressDiagnostic();
+  return undefined;
 }
 
 function rollbackFailureDiagnostic(): UnifoldApplicationDiagnostic {

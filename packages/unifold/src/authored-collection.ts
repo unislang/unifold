@@ -46,7 +46,7 @@ export class UnifoldCollectionOperationError extends Error {
   }
 }
 
-export interface AuthoredCollectionCandidate {
+interface AuthoredCollectionCandidate {
   readonly authored: unknown;
   readonly metadata: UiCollectionReconcileMetadata;
 }

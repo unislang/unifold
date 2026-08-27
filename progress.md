@@ -107,6 +107,9 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
 - Status: committed and pushed as `f938db2b00a2ac7037a8a831ce930ef8a21232db`; an independent
   `git ls-remote origin refs/heads/main` query returned the same SHA. This progress update is the
   resumable documentation follow-up to that implementation commit.
+- Publication follow-up: document updates and collection operations now share one structural-update
+  admission diagnostic helper. Its focused Unifold validation passes 3 files/16 tests, package
+  TypeScript, repository formatting, and diff hygiene.
 
 - Composition contract `2.0.0` permits definition-local `controls@1.0.0`; version 1 rejects it.
   Form roots are self-contained. Reusable non-form roots require a `controlMount` containing a
@@ -127,11 +130,11 @@ Do not declare completion until a requirement-by-requirement audit proves the fu
   state, own-disabled preservation, submit/reset, XState, Schema.org projection, selective renders,
   and axe. The journey exposed and fixed a browser-only form-associated restoration bug that the
   simulated-DOM test had missed.
-- The final repository runner passes 598 Vitest files/1,585 tests, 22 tooling tests, all generated
+- The final repository runner passes 598 Vitest files/1,588 tests, 22 tooling tests, all generated
   and module-lock scripts, and 38 performance-correctness files/49 tests with 32 profile files
   skipped. `pnpm quality` passes size/function/complexity, exact one-to-one colocated tests, the
   feature re-export prohibition, lint, production/test TypeScript, unused analysis, and
-  dependency-cruiser over 2,400 modules/5,369 dependencies. All 40 builds pass.
+  dependency-cruiser over 2,400 modules/5,368 dependencies. All 40 builds pass.
 - `pnpm benchmark:selective` writes schema-2.35.0 evidence and passes 61/61 gates. The new 10k
   aggregate-disabled cascade measures 539.04 ms p95 against 1,000 ms; 500-instance composition
   compilation and revision measure 96.53 and 94.05 ms p95 against 125 ms; indexed-selection
